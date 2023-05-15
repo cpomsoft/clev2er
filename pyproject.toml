@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "clev2er"
 version = "0.1.0"
-description = ""
+description = "CLEV2ER LI+IW chain"
 authors = ["Alan Muir <a.muir@ucl.ac.uk>"]
 readme = "README.md"
 
