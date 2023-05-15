@@ -1,0 +1,5 @@
+# List of algorithms to call in order
+algorithms:
+  - alg1
+  - alg2
+  - alg1
