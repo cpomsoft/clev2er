@@ -1,3 +1,3 @@
-# CLEV2ER LI+IW Test Chain
+# CLEV2ER LI+IW Mockup Chain
 
 Initial test chain mockup for CLEV2ER LI+IW
