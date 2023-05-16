@@ -1,7 +1,7 @@
 """ clev2er.algorithms.alg1 """
 import logging
-from netCDF4 import Dataset  # pylint:disable=E0611
 
+from netCDF4 import Dataset  # pylint:disable=E0611
 
 log = logging.getLogger(__name__)
 

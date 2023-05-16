@@ -1,6 +1,7 @@
 """ clev2er.algorithms.alg2 """
 
 import logging
+
 from netCDF4 import Dataset  # pylint:disable=E0611
 
 # Similar lines in 2 files, pylint: disable=R0801
