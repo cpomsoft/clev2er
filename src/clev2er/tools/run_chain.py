@@ -87,11 +87,16 @@ def main():
     # -------------------------------------------------------------------------
     # Set the Log Level for the tool
     # -------------------------------------------------------------------------
-    log = get_logger(default_log_level=logging.INFO)
+    log = get_logger(
+        default_log_level=logging.INFO,
+        log_file_error="/tmp/error.log",
+        log_file_info="/tmp/info.log",
+        log_file_debug="/tmp/debug.log",
+    )
 
     # -------------------------------------------------------------------------
     # Load Project Environment Variables
-    #     -  export CLEV2ER_config_dir=/Users/alanmuir/software/clev2er/config
+    #     -  export CLEV2ER_CONFIG_DIR=/Users/alanmuir/software/clev2er/config
     # -------------------------------------------------------------------------
 
     config_dir = environ["CLEV2ER_CONFIG_DIR"]
