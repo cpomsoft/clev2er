@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 def test_with_l1bfile():
     config = {}  # config dict passed to every algorithm
 
-    l1b_file = "/cpdata2/SATS/RA/CRY/L1B/SIN/2020/08/CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
+    l1b_file = "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
 
     try:
         nc = Dataset(l1b_file)
