@@ -13,7 +13,7 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 
 
 def get_logger(
-    log_format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s",
+    log_format="[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s",
     log_name="",
     log_file_info="info.log",
     log_file_error="err.log",
@@ -94,7 +94,7 @@ def main():
     #     -  export CLEV2ER_config_dir=/Users/alanmuir/software/clev2er/config
     # -------------------------------------------------------------------------
 
-    config_dir = environ["CLEV2ER_config_dir"]
+    config_dir = environ["CLEV2ER_CONFIG_DIR"]
 
     config = {"project": "CLEV2ER"}  # config dict passed to every algorithm
 
