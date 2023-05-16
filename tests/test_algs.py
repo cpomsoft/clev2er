@@ -9,6 +9,8 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 
 log = logging.getLogger(__name__)
 
+# pylint: disable=R0801
+
 
 def test_with_l1bfile():
     """test running an algorithm chain with a single l1b file as

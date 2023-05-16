@@ -3,6 +3,8 @@ import logging
 
 from netCDF4 import Dataset  # pylint:disable=E0611
 
+# Similar lines in 2 files, pylint: disable=R0801
+
 log = logging.getLogger(__name__)
 
 
@@ -32,7 +34,9 @@ class Algorithm:
             working (dict): working data passed between algorithms
 
         Returns:
-            Tuple : (rejected (bool), reason (str))
+            Tuple : (success (bool), failure_reason (str))
+            ie
+            (False,'error string'), or (True,'')
         """
 
         log.info(
@@ -51,7 +55,8 @@ class Algorithm:
 
         working["lats"] = [1, 2, 3, 4]
 
-        return (True, "alg1 Failed")
+        # Return success (True,'') or (Failure,'error string')
+        return (True, "")
 
     def finalize(self):
         """Perform final algorithm actions"""
