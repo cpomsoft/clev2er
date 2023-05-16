@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Clev2er algorithm"""
+    """Clev2er example algorithm"""
 
     def __init__(self, config):
         """initializes the Algorithm
