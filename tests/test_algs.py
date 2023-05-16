@@ -2,21 +2,27 @@
 
 
 import importlib
-import yaml
-from netCDF4 import Dataset
 import logging
+import yaml
+from netCDF4 import Dataset  # pylint: disable=E0611
 
 log = logging.getLogger(__name__)
 
 
 def test_with_l1bfile():
-    config = {}  # config dict passed to every algorithm
+    """test running an algorithm chain with a single l1b file as
+    input
+    """
+    config = {"project": "CLEV2ER"}  # config dict passed to every algorithm
 
-    l1b_file = "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
+    l1b_file = (
+        "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
+        "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
+    )
 
     try:
         nc = Dataset(l1b_file)
-    except:
+    except IOError:
         assert False, f"Could not read netCDF file {l1b_file}"
 
     # ds = xr.open_dataset(l1b_file)
@@ -24,7 +30,7 @@ def test_with_l1bfile():
     # -------------------------------------------------------------------------------------------
     # Read the list of algorithms to use
     # -------------------------------------------------------------------------------------------
-    with open("config/algorithm_list.yml", "r") as file:
+    with open("config/algorithm_list.yml", "r", encoding="utf-8") as file:
         yml = yaml.safe_load(file)
     algorithm_list = yml["algorithms"]
 
@@ -48,7 +54,7 @@ def test_with_l1bfile():
     for alg_obj in alg_object_list:
         reject, reason = alg_obj.process(nc, working_dict)
         if reject:
-            log.warning(f"Chain stopped because {reason}")
+            log.warning("Chain stopped because %s", {reason})
             break
 
     # Run each Algorithm's finalize function
