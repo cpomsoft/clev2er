@@ -1,4 +1,0 @@
-# List of algorithms to call in order
-algorithms:
-  - alg1
-  - alg_returns_proc_failure

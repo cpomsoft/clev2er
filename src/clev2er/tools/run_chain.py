@@ -13,12 +13,16 @@ import logging
 import os
 import sys
 
-import yaml
+from envyaml import (  # for parsing YAML files which include environment variables
+    EnvYAML,
+)
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.utils.logging import get_logger
 
 # too-many-locals, pylint: disable=R0914
+# too-many-branches, pylint: disable=R0912
+# too-many-statements, pylint: disable=R0915
 
 
 def exception_hook(exc_type, exc_value, exc_traceback):
@@ -51,7 +55,7 @@ def main():
         "-c",
         help=(
             "[Optional] path of main YAML configuration file,"
-            "default=CLEV2ER_BASE_DIR/config/main_config.yml"
+            "default=$CLEV2ER_BASE_DIR/config/main_config.yml"
         ),
         default=f"{base_dir}/config/main_config.yml",
     )
@@ -61,34 +65,55 @@ def main():
         "-a",
         help=(
             "[Optional] path of algorithm list,"
-            "default=CLEV2ER_BASE_DIR/config/algorithm_list.yml"
+            "default is defined in the main configuration file, and depends on "
         ),
-        default=f"{base_dir}/config/algorithm_list.yml",
+    )
+
+    parser.add_argument(
+        "--landice",
+        "-li",
+        help=("[Optional] use default land ice algorithms"),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
+        "--inlandwaters",
+        "-iw",
+        help=("[Optional] use default inlandwaters algorithms"),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
+        "--quiet",
+        "-q",
+        help=("[Optional] do not output log messages to stdout"),
+        action="store_const",
+        const=1,
     )
 
     # read arguments from the command line
     args = parser.parse_args()
 
-    config_dir = args.conf
-    if not os.path.exists(config_dir):
-        sys.exit(f"ERROR: config file {config_dir} does not exist")
-
-    algorithm_list_file = args.alglist
-    if not os.path.exists(algorithm_list_file):
-        sys.exit(f"ERROR: algorithm list file {algorithm_list_file} does not exist")
+    config_file = args.conf
+    if not os.path.exists(config_file):
+        sys.exit(f"ERROR: config file {config_file} does not exist")
 
     # -------------------------------------------------------------------------
-    # Load Project Configuration from $CLEV2ER_CONFIG_DIR/main_config.yml
-    #
-    # -  Note for local testing:
-    # -  export CLEV2ER_CONFIG_DIR=/Users/alanmuir/software/clev2er/config
+    # Load Project's main YAML configuration file
+    #   - default is $CLEV2ER_BASE_DIR/config/main_config.yml
+    #   - or set by --conf <filepath>.yml
     # -------------------------------------------------------------------------
 
-    config_dir = args.conf
+    config_file = args.conf
 
-    with open(config_dir, "r", encoding="utf-8") as file:
-        config = yaml.safe_load(file)
-
+    try:
+        config = EnvYAML(config_file)  # read the YML and parse environment variables
+    except ValueError as exc:
+        sys.exit(
+            f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
+        )
     # -------------------------------------------------------------------------
     # Set the Log Level for the tool
     # -------------------------------------------------------------------------
@@ -98,7 +123,51 @@ def main():
         log_file_error=config["log_files"]["errors"],
         log_file_info=config["log_files"]["info"],
         log_file_debug=config["log_files"]["debug"],
+        silent=args.quiet,
     )
+
+    # -------------------------------------------------------------------------------------------
+    # Read the list of default algorithms to use for land ice, or inland waters
+    #   - default alg list files are defined in the main config file
+    #   - alternatively use a user provided list if --alglist <file.yml> is set
+    # -------------------------------------------------------------------------------------------
+
+    if args.alglist:
+        algorithm_list_file = args.alglist
+    else:
+        if args.landice:
+            algorithm_list_file = config["algorithm_lists"]["land_ice"]
+        elif args.inlandwaters:
+            algorithm_list_file = config["algorithm_lists"]["inland_waters"]
+
+    log.info("Using algorithm list: %s", algorithm_list_file)
+
+    if not os.path.exists(algorithm_list_file):
+        log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
+        sys.exit(1)
+
+    # Load and parse the algorithm list
+    try:
+        yml = EnvYAML(
+            algorithm_list_file
+        )  # read the YML and parse environment variables
+    except ValueError as exc:
+        log.error(
+            "ERROR: algorithm list file %s has invalid"
+            "or unset environment variables : %s",
+            algorithm_list_file,
+            exc,
+        )
+        sys.exit(1)
+
+    try:
+        algorithm_list = yml["algorithms"]
+    except KeyError:
+        log.error(
+            "ERROR: algorithm list file %s has missing key: algorithms",
+            algorithm_list_file,
+        )
+        sys.exit(1)
 
     l1b_file = (
         "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
@@ -111,13 +180,6 @@ def main():
         assert False, f"Could not read netCDF file {l1b_file}"
 
     # ds = xr.open_dataset(l1b_file)
-
-    # -------------------------------------------------------------------------------------------
-    # Read the list of algorithms to use
-    # -------------------------------------------------------------------------------------------
-    with open(algorithm_list_file, "r", encoding="utf-8") as file:
-        yml = yaml.safe_load(file)
-    algorithm_list = yml["algorithms"]
 
     # -------------------------------------------------------------------------------------------
     # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py

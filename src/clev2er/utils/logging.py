@@ -16,6 +16,7 @@ def get_logger(
     log_file_error="err.log",
     log_file_debug="debug.log",
     default_log_level=logging.INFO,
+    silent=False,
 ):
     """
     Setup Logging handlers
@@ -33,6 +34,7 @@ def get_logger(
         log_file_error (str) : path of log file to use for ERROR logs
         log_file_debug (str) : path of log file to use for DEBUG logs
         default_log_level () : default=logging.INFO
+        silent (bool) : if True do not output to stdout, default=False
     Returns:
         log object
     """
@@ -40,11 +42,12 @@ def get_logger(
     log = logging.getLogger(log_name)
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
 
-    # log messages -> stdout (include all depending on log.setLevel(), at end of function)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(log_formatter)
-    stream_handler.setLevel(logging.DEBUG)
-    log.addHandler(stream_handler)
+    if not silent:
+        # log messages -> stdout (include all depending on log.setLevel(), at end of function)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(log_formatter)
+        stream_handler.setLevel(logging.DEBUG)
+        log.addHandler(stream_handler)
 
     # include all allowed log levels up to INFO (ie ERROR, WARNING, INFO, not DEBUG)
     file_handler_info = logging.FileHandler(log_file_info, mode="w")
