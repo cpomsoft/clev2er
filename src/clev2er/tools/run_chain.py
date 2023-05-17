@@ -8,68 +8,10 @@ from os import environ
 import yaml
 from netCDF4 import Dataset  # pylint: disable=E0611
 
+from clev2er.utils.logging import get_logger
+
 # too-many-locals, pylint: disable=R0914
 # too-many-arguments, pylint:  disable=R0913
-
-
-def get_logger(
-    log_format="[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s",
-    log_name="",
-    log_file_info="info.log",
-    log_file_error="err.log",
-    log_file_debug="debug.log",
-    default_log_level=logging.INFO,
-):
-    """
-    Setup Logging handlers
-    - direct log.ERROR messages -> separate log file
-    - direct log.INFO (including log.ERROR, log.WARNING) -> separate log file
-    - direct log.DEBUG (including log.ERROR, log.WARNING, log.INFO) -> separate log file
-    - direct all allowed levels to stout
-    - set maximum allowed log level (applies to all outputs, default is log.INFO,
-    - ie no log.DEBUG messages will be included by default)
-    """
-
-    log = logging.getLogger(log_name)
-    log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
-
-    # log messages -> stdout (include all depending on log.setLevel(), at end of function)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(log_formatter)
-    stream_handler.setLevel(logging.DEBUG)
-    log.addHandler(stream_handler)
-
-    # include all allowed log levels up to INFO (ie ERROR, WARNING, INFO, not DEBUG)
-    file_handler_info = logging.FileHandler(log_file_info, mode="w")
-    file_handler_info.setFormatter(log_formatter)
-    file_handler_info.setLevel(logging.INFO)
-    log.addHandler(file_handler_info)
-
-    # only includes ERROR level messages
-    file_handler_error = logging.FileHandler(log_file_error, mode="w")
-    file_handler_error.setFormatter(log_formatter)
-    file_handler_error.setLevel(logging.ERROR)
-    log.addHandler(file_handler_error)
-
-    # include all allowed log levels up to DEBUG
-    file_handler_debug = logging.FileHandler(log_file_debug, mode="w")
-    file_handler_debug.setFormatter(log_formatter)
-    file_handler_debug.setLevel(logging.DEBUG)
-    log.addHandler(file_handler_debug)
-    print("log file (DEBUG):", log_file_debug)
-
-    # set the allowed log level
-    #   - logging.DEBUG will allow all levels (DEBUG, INFO, WARNING, ERROR)
-    #   - logging.INFO will allow all levels (INFO, WARNING, ERROR)
-    #   - logging.WARNING will allow all levels (WARNING, ERROR)
-    #   - logging.ERROR will allow all levels (ERROR)
-
-    log.setLevel(default_log_level)
-
-    print("log file (INFO) :", log_file_info)
-    print("log file (ERROR):", log_file_error)
-
-    return log
 
 
 def exception_hook(exc_type, exc_value, exc_traceback):
@@ -122,8 +64,10 @@ def main():
         yml = yaml.safe_load(file)
     algorithm_list = yml["algorithms"]
 
+    # -------------------------------------------------------------------------------------------
     # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
-
+    #   - runs each algorithm object's __init__() function
+    # -------------------------------------------------------------------------------------------
     alg_object_list = []
 
     for alg in algorithm_list:
@@ -135,7 +79,9 @@ def main():
         except ImportError as exc:
             assert False, f"Could not import algorithm {alg}, {exc}"
 
-    # Run the modules algorithms in order
+    # -------------------------------------------------------------------------------------------
+    # Run each algorithms .process() function in order
+    # ------------------------------------------------------------------------------------------
 
     working_dict = {}
 
@@ -145,7 +91,9 @@ def main():
             log.warning("Chain stopped because %s", {error_str})
             break
 
-    # Run each Algorithm's finalize function
+    # -------------------------------------------------------------------------------------------
+    # Run each algorithms .finalize() function in order
+    # ------------------------------------------------------------------------------------------
 
     for alg_obj in alg_object_list:
         alg_obj.finalize()

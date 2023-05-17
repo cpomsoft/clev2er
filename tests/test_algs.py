@@ -55,9 +55,9 @@ def test_with_l1bfile():
     working_dict = {}
 
     for alg_obj in alg_object_list:
-        reject, reason = alg_obj.process(nc, working_dict)
-        if reject:
-            log.warning("Chain stopped because %s", {reason})
+        success, error_str = alg_obj.process(nc, working_dict)
+        if not success:
+            log.warning("Chain stopped because %s", {error_str})
             break
 
     # Run each Algorithm's finalize function
