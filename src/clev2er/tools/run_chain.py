@@ -8,6 +8,7 @@
 """
 
 import argparse
+import glob
 import importlib
 import logging
 import os
@@ -153,6 +154,18 @@ def main():
     )
 
     parser.add_argument(
+        "--file",
+        "-f",
+        help=("[Optional] path of a single input L1b file"),
+    )
+
+    parser.add_argument(
+        "--dir",
+        "-d",
+        help=("[Optional] path of a directory containing input L1b files"),
+    )
+
+    parser.add_argument(
         "--landice",
         "-li",
         help=("[Optional] use default land ice algorithms"),
@@ -203,6 +216,7 @@ def main():
         sys.exit(
             f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
         )
+
     # -------------------------------------------------------------------------
     # Setup logging
     #   - default log level is INFO unless --debug command line argument is set
@@ -252,6 +266,7 @@ def main():
         )
         sys.exit(1)
 
+    # Extract the algorithms list from the dictionary read from the YAML file
     try:
         algorithm_list = yml["algorithms"]
     except KeyError:
@@ -261,12 +276,25 @@ def main():
         )
         sys.exit(1)
 
-    l1b_file = (
-        "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
-        "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
-    )
+    # --------------------------------------------------------------------
+    # Choose the input L1b file list
+    # --------------------------------------------------------------------
 
-    l1b_file_list = [l1b_file, l1b_file]
+    if args.file:
+        l1b_file_list = [args.file]
+    elif args.dir:
+        l1b_file_list = glob.glob(args.dir + "/*.nc")
+    else:
+        l1b_test_file = (
+            "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
+            "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
+        )
+
+        l1b_file_list = [l1b_test_file]
+
+    # --------------------------------------------------------------------
+    # Run the chain on the file list
+    # --------------------------------------------------------------------
 
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
