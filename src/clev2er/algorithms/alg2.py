@@ -1,5 +1,4 @@
-""" clev2er.algorithms.alg2 """
-
+""" clev2er.algorithms.alg1 """
 import logging
 
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -10,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Clev2er algorithm"""
+    """Clev2er  algorithm"""
 
     def __init__(self, config):
         """initializes the Algorithm
@@ -23,8 +22,8 @@ class Algorithm:
 
         log.info(
             "Initializing algorithm %s for project %s",
-            {self.alg_name},
-            {self.config["project"]},
+            self.alg_name,
+            self.config["project"],
         )
 
     def process(self, l1b, working):
@@ -35,13 +34,15 @@ class Algorithm:
             working (dict): working data passed between algorithms
 
         Returns:
-            Tuple : (rejected (bool), reason (str))
+            Tuple : (success (bool), failure_reason (str))
+            ie
+            (False,'error string'), or (True,'')
         """
 
         log.info(
             "Processing algorithm %s for project %s",
-            {self.alg_name},
-            {self.config["project"]},
+            self.alg_name,
+            self.config["project"],
         )
 
         # Test that input l1b is a Dataset type
@@ -52,10 +53,11 @@ class Algorithm:
 
         # Modify the working dict
 
-        working["lons"] = [1, 2, 3, 4]
+        working["lats"] = [1, 2, 3, 4]
 
-        return (True, "alg1 Failed")
+        # Return success (True,'') or (Failure,'error string')
+        return (True, "")
 
     def finalize(self):
         """Perform final algorithm actions"""
-        log.info("Finalize algorithm %s", {self.alg_name})
+        log.info("Finalize algorithm %s", self.alg_name)

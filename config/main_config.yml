@@ -1,0 +1,6 @@
+project: "CLEV2ER"
+
+log_files:
+  errors: /tmp/errors2.log
+  info:   /tmp/info2.log
+  debug:  /tmp/debug2.log

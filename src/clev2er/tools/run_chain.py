@@ -1,9 +1,17 @@
 """ Tool to run the CLEV2ER LI+IW chain
+
+    Setup requires: PYTHONPATH to include $CLEV2ER_BASE_DIR/src
+
+        export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
+        export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
+
 """
 
+import argparse
 import importlib
 import logging
-from os import environ
+import os
+import sys
 
 import yaml
 from netCDF4 import Dataset  # pylint: disable=E0611
@@ -25,24 +33,72 @@ def exception_hook(exc_type, exc_value, exc_traceback):
 def main():
     """main function for tool"""
 
+    try:
+        base_dir = os.environ["CLEV2ER_BASE_DIR"]
+    except KeyError:
+        sys.exit("Error: environment variable CLEV2ER_BASE_DIR not set")
+
+    # ----------------------------------------------------------------------
+    # Process Command Line Arguments
+    # ----------------------------------------------------------------------
+
+    # initiate the command line parser
+    parser = argparse.ArgumentParser()
+
+    # add each argument
+    parser.add_argument(
+        "--conf",
+        "-c",
+        help=(
+            "[Optional] path of main YAML configuration file,"
+            "default=CLEV2ER_BASE_DIR/config/main_config.yml"
+        ),
+        default=f"{base_dir}/config/main_config.yml",
+    )
+
+    parser.add_argument(
+        "--alglist",
+        "-a",
+        help=(
+            "[Optional] path of algorithm list,"
+            "default=CLEV2ER_BASE_DIR/config/algorithm_list.yml"
+        ),
+        default=f"{base_dir}/config/algorithm_list.yml",
+    )
+
+    # read arguments from the command line
+    args = parser.parse_args()
+
+    config_dir = args.conf
+    if not os.path.exists(config_dir):
+        sys.exit(f"ERROR: config file {config_dir} does not exist")
+
+    algorithm_list_file = args.alglist
+    if not os.path.exists(algorithm_list_file):
+        sys.exit(f"ERROR: algorithm list file {algorithm_list_file} does not exist")
+
+    # -------------------------------------------------------------------------
+    # Load Project Configuration from $CLEV2ER_CONFIG_DIR/main_config.yml
+    #
+    # -  Note for local testing:
+    # -  export CLEV2ER_CONFIG_DIR=/Users/alanmuir/software/clev2er/config
+    # -------------------------------------------------------------------------
+
+    config_dir = args.conf
+
+    with open(config_dir, "r", encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+
     # -------------------------------------------------------------------------
     # Set the Log Level for the tool
     # -------------------------------------------------------------------------
+
     log = get_logger(
         default_log_level=logging.INFO,
-        log_file_error="/tmp/error.log",
-        log_file_info="/tmp/info.log",
-        log_file_debug="/tmp/debug.log",
+        log_file_error=config["log_files"]["errors"],
+        log_file_info=config["log_files"]["info"],
+        log_file_debug=config["log_files"]["debug"],
     )
-
-    # -------------------------------------------------------------------------
-    # Load Project Environment Variables
-    #     -  export CLEV2ER_CONFIG_DIR=/Users/alanmuir/software/clev2er/config
-    # -------------------------------------------------------------------------
-
-    config_dir = environ["CLEV2ER_CONFIG_DIR"]
-
-    config = {"project": "CLEV2ER"}  # config dict passed to every algorithm
 
     l1b_file = (
         "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
@@ -59,7 +115,7 @@ def main():
     # -------------------------------------------------------------------------------------------
     # Read the list of algorithms to use
     # -------------------------------------------------------------------------------------------
-    with open(f"{config_dir}/algorithm_list.yml", "r", encoding="utf-8") as file:
+    with open(algorithm_list_file, "r", encoding="utf-8") as file:
         yml = yaml.safe_load(file)
     algorithm_list = yml["algorithms"]
 
@@ -87,7 +143,7 @@ def main():
     for alg_obj in alg_object_list:
         success, error_str = alg_obj.process(nc, working_dict)
         if not success:
-            log.warning("Chain stopped because %s", {error_str})
+            log.warning("Chain stopped because %s", error_str)
             break
 
     # -------------------------------------------------------------------------------------------

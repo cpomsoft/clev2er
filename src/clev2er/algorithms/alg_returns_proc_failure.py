@@ -25,8 +25,8 @@ class Algorithm:
 
         log.info(
             "Initializing algorithm %s for project %s",
-            {self.alg_name},
-            {self.config["project"]},
+            self.alg_name,
+            self.config["project"],
         )
 
     def process(self, l1b, working):
@@ -44,8 +44,8 @@ class Algorithm:
 
         log.info(
             "Processing algorithm %s for project %s",
-            {self.alg_name},
-            {self.config["project"]},
+            self.alg_name,
+            self.config["project"],
         )
 
         # Test that input l1b is a Dataset type
@@ -63,4 +63,4 @@ class Algorithm:
 
     def finalize(self):
         """Perform final algorithm actions"""
-        log.info("Finalize algorithm %s", {self.alg_name})
+        log.info("Finalize algorithm %s", self.alg_name)
