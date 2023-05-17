@@ -84,9 +84,11 @@ def run_chain(
         for alg_obj in alg_object_list:
             success, error_str = alg_obj.process(nc, working_dict)
             if not success:
-                log.warning(
+                log.error(
                     "Chain run for L1b file: %s stopped because %s", l1b_file, error_str
                 )
+                if config["chain"]["stop_on_error"]:
+                    return (False, error_str)
                 break
 
         nc.close()
@@ -161,6 +163,14 @@ def main():
         const=1,
     )
 
+    parser.add_argument(
+        "--debug",
+        "-de",
+        help=("[Optional] debug mode"),
+        action="store_const",
+        const=1,
+    )
+
     # read arguments from the command line
     args = parser.parse_args()
 
@@ -187,7 +197,7 @@ def main():
     # -------------------------------------------------------------------------
 
     log = get_logger(
-        default_log_level=logging.INFO,
+        default_log_level=logging.DEBUG if args.debug else logging.INFO,
         log_file_error=config["log_files"]["errors"],
         log_file_info=config["log_files"]["info"],
         log_file_debug=config["log_files"]["debug"],
@@ -203,10 +213,10 @@ def main():
     if args.alglist:
         algorithm_list_file = args.alglist
     else:
-        if args.landice:
-            algorithm_list_file = config["algorithm_lists"]["land_ice"]
-        elif args.inlandwaters:
+        if args.inlandwaters:
             algorithm_list_file = config["algorithm_lists"]["inland_waters"]
+        else:
+            algorithm_list_file = config["algorithm_lists"]["land_ice"]
 
     log.info("Using algorithm list: %s", algorithm_list_file)
 
@@ -242,7 +252,15 @@ def main():
         "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
     )
 
-    run_chain([l1b_file], config, algorithm_list, log)
+    l1b_file_list = [l1b_file, l1b_file]
+
+    if config["chain"]["stop_on_error"]:
+        log.warning("Chain configured to stop on first error")
+
+    success, error_msg = run_chain(l1b_file_list, config, algorithm_list, log)
+    if not success:
+        log.error(error_msg)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
