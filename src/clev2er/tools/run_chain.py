@@ -11,7 +11,6 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 from clev2er.utils.logging import get_logger
 
 # too-many-locals, pylint: disable=R0914
-# too-many-arguments, pylint:  disable=R0913
 
 
 def exception_hook(exc_type, exc_value, exc_traceback):
