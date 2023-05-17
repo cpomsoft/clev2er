@@ -12,6 +12,8 @@ import importlib
 import logging
 import os
 import sys
+import types
+from typing import Optional, Type
 
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
@@ -25,13 +27,20 @@ from clev2er.utils.logging import get_logger
 # too-many-statements, pylint: disable=R0915
 
 
-def exception_hook(exc_type, exc_value, exc_traceback):
+def exception_hook(
+    exc_type: Type[BaseException],
+    exc_value: BaseException,
+    exc_traceback: Optional[types.TracebackType],
+) -> None:
     """
     log Exception traceback output to the error log, instead of just to the console
     Without this, these error can get missed when the console is not checked
     """
-    log = logging.getLogger("")
-    log.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    logging.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+
+# Set the excepthook to our custom function that logs exceptions to the error log
+sys.excepthook = exception_hook
 
 
 def run_chain(
@@ -107,13 +116,17 @@ def run_chain(
 def main():
     """main function for tool"""
 
+    # ----------------------------------------------------------------------
+    # Setup by getting essential package environment variables
+    # ----------------------------------------------------------------------
+
     try:
         base_dir = os.environ["CLEV2ER_BASE_DIR"]
     except KeyError:
         sys.exit("Error: environment variable CLEV2ER_BASE_DIR not set")
 
     # ----------------------------------------------------------------------
-    # Process Command Line Arguments
+    # Process Command Line Arguments for tool
     # ----------------------------------------------------------------------
 
     # initiate the command line parser
@@ -174,10 +187,6 @@ def main():
     # read arguments from the command line
     args = parser.parse_args()
 
-    config_file = args.conf
-    if not os.path.exists(config_file):
-        sys.exit(f"ERROR: config file {config_file} does not exist")
-
     # -------------------------------------------------------------------------
     # Load Project's main YAML configuration file
     #   - default is $CLEV2ER_BASE_DIR/config/main_config.yml
@@ -185,6 +194,8 @@ def main():
     # -------------------------------------------------------------------------
 
     config_file = args.conf
+    if not os.path.exists(config_file):
+        sys.exit(f"ERROR: config file {config_file} does not exist")
 
     try:
         config = EnvYAML(config_file)  # read the YML and parse environment variables
@@ -193,7 +204,10 @@ def main():
             f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
         )
     # -------------------------------------------------------------------------
-    # Set the Log Level for the tool
+    # Setup logging
+    #   - default log level is INFO unless --debug command line argument is set
+    #   - default log files paths for error, info, and debug are defined in the
+    #     main config file
     # -------------------------------------------------------------------------
 
     log = get_logger(
@@ -255,7 +269,7 @@ def main():
     l1b_file_list = [l1b_file, l1b_file]
 
     if config["chain"]["stop_on_error"]:
-        log.warning("Chain configured to stop on first error")
+        log.warning("**Chain configured to stop on first error**")
 
     success, error_msg = run_chain(l1b_file_list, config, algorithm_list, log)
     if not success:
