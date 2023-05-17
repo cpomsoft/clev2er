@@ -34,6 +34,74 @@ def exception_hook(exc_type, exc_value, exc_traceback):
     log.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
+def run_chain(
+    l1b_file_list: list[str],
+    config: dict,
+    algorithm_list: list[str],
+    log: logging.Logger,
+) -> bool:
+    """Run the algorithm chain on each L1b file in l1b_file_list
+
+    Args:
+        l1b_file_list (_type_): _description_
+        config (_type_): _description_
+        algorithm_list (_type_): _description_
+
+    Returns:
+        tuple(bool,str) : (chain_success, failure_msg)
+    """
+
+    # -------------------------------------------------------------------------------------------
+    # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
+    #   - runs each algorithm object's __init__() function
+    # -------------------------------------------------------------------------------------------
+    alg_object_list = []
+
+    for alg in algorithm_list:
+        try:
+            module = importlib.import_module(f"clev2er.algorithms.{alg}")
+            alg_obj = module.Algorithm(config)
+            alg_object_list.append(alg_obj)
+
+        except ImportError as exc:
+            return (False, f"Could not import algorithm {alg}, {exc}")
+
+    for l1b_file in l1b_file_list:
+        log.info("Processing %s", l1b_file)
+
+        try:
+            nc = Dataset(l1b_file)
+        except IOError:
+            log.error("Could not read netCDF file %s", l1b_file)
+            continue
+
+        # ------------------------------------------------------------------------
+        # Run each algorithms .process() function in order
+        # ------------------------------------------------------------------------
+
+        working_dict = {}
+
+        for alg_obj in alg_object_list:
+            success, error_str = alg_obj.process(nc, working_dict)
+            if not success:
+                log.warning(
+                    "Chain run for L1b file: %s stopped because %s", l1b_file, error_str
+                )
+                break
+
+        nc.close()
+
+    # -----------------------------------------------------------------------------
+    # Run each algorithms .finalize() function in order
+    # -----------------------------------------------------------------------------
+
+    for alg_obj in alg_object_list:
+        alg_obj.finalize()
+
+    # Completed successfully, so return True with no error msg
+    return (True, "")
+
+
 def main():
     """main function for tool"""
 
@@ -174,51 +242,7 @@ def main():
         "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
     )
 
-    try:
-        nc = Dataset(l1b_file)
-    except IOError:
-        assert False, f"Could not read netCDF file {l1b_file}"
-
-    # ds = xr.open_dataset(l1b_file)
-
-    # -------------------------------------------------------------------------------------------
-    # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
-    #   - runs each algorithm object's __init__() function
-    # -------------------------------------------------------------------------------------------
-    alg_object_list = []
-
-    for alg in algorithm_list:
-        try:
-            module = importlib.import_module(f"clev2er.algorithms.{alg}")
-            alg_obj = module.Algorithm(config)
-            alg_object_list.append(alg_obj)
-
-        except ImportError as exc:
-            assert False, f"Could not import algorithm {alg}, {exc}"
-
-    # -------------------------------------------------------------------------------------------
-    # Run each algorithms .process() function in order
-    # ------------------------------------------------------------------------------------------
-
-    working_dict = {}
-
-    for alg_obj in alg_object_list:
-        success, error_str = alg_obj.process(nc, working_dict)
-        if not success:
-            log.warning("Chain stopped because %s", error_str)
-            break
-
-    # -------------------------------------------------------------------------------------------
-    # Run each algorithms .finalize() function in order
-    # ------------------------------------------------------------------------------------------
-
-    for alg_obj in alg_object_list:
-        alg_obj.finalize()
-
-    # Show the contents of the working_dict
-    print("working_dict=", working_dict)
-
-    nc.close()
+    run_chain([l1b_file], config, algorithm_list, log)
 
 
 if __name__ == "__main__":
