@@ -114,6 +114,105 @@ def run_chain(
     return (True, "")
 
 
+def run_chain_on_single_file(
+    l1b_file: str,
+    alg_object_list,
+    log: logging.Logger,
+):
+    """_summary_
+
+    Args:
+        l1b_file (str): path of L1b file to process
+        alg_object_list (_type_): list of Algorithm objects
+        log (logging.Logger): logging instance to use
+
+    Returns:
+        Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
+    """
+    log.info("Processing %s", l1b_file)
+
+    try:
+        nc = Dataset(l1b_file)
+    except IOError:
+        log.error("Could not read netCDF file %s", l1b_file)
+        return (False, f"Could not read netCDF file {l1b_file}")
+
+    # ------------------------------------------------------------------------
+    # Run each algorithms .process() function in order
+    # ------------------------------------------------------------------------
+
+    working_dict = {}
+
+    for alg_obj in alg_object_list:
+        success, error_str = alg_obj.process(nc, working_dict)
+        if not success:
+            log.error(
+                "Processing of L1b file: %s stopped because %s", l1b_file, error_str
+            )
+            return (False, error_str)
+    nc.close()
+
+    return (True, "")
+
+
+def run_chain_parallel(
+    l1b_file_list: list[str],
+    config: dict,
+    algorithm_list: list[str],
+    log: logging.Logger,
+) -> bool:
+    """Run the algorithm chain on each L1b file in l1b_file_list
+
+    Args:
+        l1b_file_list (_type_): _description_
+        config (_type_): _description_
+        algorithm_list (_type_): _description_
+
+    Returns:
+        tuple(bool,str) : (chain_success, failure_msg)
+    """
+
+    # -------------------------------------------------------------------------------------------
+    # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
+    #   - runs each algorithm object's __init__() function
+    # -------------------------------------------------------------------------------------------
+    alg_object_list = []
+
+    for alg in algorithm_list:
+        try:
+            module = importlib.import_module(f"clev2er.algorithms.{alg}")
+            alg_obj = module.Algorithm(config)
+            alg_object_list.append(alg_obj)
+
+        except ImportError as exc:
+            return (False, f"Could not import algorithm {alg}, {exc}")
+
+    num_errors = 0
+    for l1b_file in l1b_file_list:
+        success, _ = run_chain_on_single_file(l1b_file, alg_object_list, log)
+        if not success:
+            num_errors += 1
+
+            if config["chain"]["stop_on_error"]:
+                log.error(
+                    "Chain stopped because of error processing L1b file %s", l1b_file
+                )
+                break
+
+    # -----------------------------------------------------------------------------
+    # Run each algorithms .finalize() function in order
+    # -----------------------------------------------------------------------------
+
+    for alg_obj in alg_object_list:
+        alg_obj.finalize()
+
+    # Completed successfully, so return True with no error msg
+    if num_errors > 0:
+        return (False, f"Number of errors {num_errors}")
+
+    return (True, "")
+
+
 def main():
     """main function for tool"""
 
@@ -299,7 +398,7 @@ def main():
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
 
-    success, error_msg = run_chain(l1b_file_list, config, algorithm_list, log)
+    success, error_msg = run_chain_parallel(l1b_file_list, config, algorithm_list, log)
     if not success:
         log.error(error_msg)
         sys.exit(1)
