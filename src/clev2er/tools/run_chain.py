@@ -13,6 +13,7 @@ import importlib
 import logging
 import os
 import sys
+import time
 import types
 from typing import Optional, Type
 
@@ -42,76 +43,6 @@ def exception_hook(
 
 # Set the excepthook to our custom function that logs exceptions to the error log
 sys.excepthook = exception_hook
-
-
-def run_chain(
-    l1b_file_list: list[str],
-    config: dict,
-    algorithm_list: list[str],
-    log: logging.Logger,
-) -> bool:
-    """Run the algorithm chain on each L1b file in l1b_file_list
-
-    Args:
-        l1b_file_list (_type_): _description_
-        config (_type_): _description_
-        algorithm_list (_type_): _description_
-
-    Returns:
-        tuple(bool,str) : (chain_success, failure_msg)
-    """
-
-    # -------------------------------------------------------------------------------------------
-    # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
-    #   - runs each algorithm object's __init__() function
-    # -------------------------------------------------------------------------------------------
-    alg_object_list = []
-
-    for alg in algorithm_list:
-        try:
-            module = importlib.import_module(f"clev2er.algorithms.{alg}")
-            alg_obj = module.Algorithm(config)
-            alg_object_list.append(alg_obj)
-
-        except ImportError as exc:
-            return (False, f"Could not import algorithm {alg}, {exc}")
-
-    for l1b_file in l1b_file_list:
-        log.info("Processing %s", l1b_file)
-
-        try:
-            nc = Dataset(l1b_file)
-        except IOError:
-            log.error("Could not read netCDF file %s", l1b_file)
-            continue
-
-        # ------------------------------------------------------------------------
-        # Run each algorithms .process() function in order
-        # ------------------------------------------------------------------------
-
-        working_dict = {}
-
-        for alg_obj in alg_object_list:
-            success, error_str = alg_obj.process(nc, working_dict)
-            if not success:
-                log.error(
-                    "Chain run for L1b file: %s stopped because %s", l1b_file, error_str
-                )
-                if config["chain"]["stop_on_error"]:
-                    return (False, error_str)
-                break
-
-        nc.close()
-
-    # -----------------------------------------------------------------------------
-    # Run each algorithms .finalize() function in order
-    # -----------------------------------------------------------------------------
-
-    for alg_obj in alg_object_list:
-        alg_obj.finalize()
-
-    # Completed successfully, so return True with no error msg
-    return (True, "")
 
 
 def run_chain_on_single_file(
@@ -155,7 +86,7 @@ def run_chain_on_single_file(
     return (True, "")
 
 
-def run_chain_parallel(
+def run_chain(
     l1b_file_list: list[str],
     config: dict,
     algorithm_list: list[str],
@@ -169,7 +100,8 @@ def run_chain_parallel(
         algorithm_list (_type_): _description_
 
     Returns:
-        tuple(bool,str) : (chain_success, failure_msg)
+        tuple(bool,int,int) : (chain success or failure, number_of_errors,
+                                  number of files processed)
     """
 
     # -------------------------------------------------------------------------------------------
@@ -185,11 +117,18 @@ def run_chain_parallel(
             alg_object_list.append(alg_obj)
 
         except ImportError as exc:
-            return (False, f"Could not import algorithm {alg}, {exc}")
+            log.error("Could not import algorithm %s, %s", alg, exc)
+            return (False, 1, 0)
 
+    # -------------------------------------------------------------------------------------------
+    #  Run algorithm chain's processing on each L1b file in l1b_file_list
+    # -------------------------------------------------------------------------------------------
     num_errors = 0
+    num_files_processed = 0
+
     for l1b_file in l1b_file_list:
         success, _ = run_chain_on_single_file(l1b_file, alg_object_list, log)
+        num_files_processed += 1
         if not success:
             num_errors += 1
 
@@ -208,9 +147,9 @@ def run_chain_parallel(
 
     # Completed successfully, so return True with no error msg
     if num_errors > 0:
-        return (False, f"Number of errors {num_errors}")
+        return (False, num_errors, num_files_processed)
 
-    return (True, "")
+    return (True, num_errors, num_files_processed)
 
 
 def main():
@@ -383,7 +322,7 @@ def main():
         l1b_file_list = [args.file]
     elif args.dir:
         l1b_file_list = glob.glob(args.dir + "/*.nc")
-    else:
+    else:  # use a test file in the list
         l1b_test_file = (
             "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
             "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
@@ -398,10 +337,29 @@ def main():
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
 
-    success, error_msg = run_chain_parallel(l1b_file_list, config, algorithm_list, log)
-    if not success:
-        log.error(error_msg)
-        sys.exit(1)
+    start_time = time.time()
+
+    success, number_errors, num_files_processed = run_chain(
+        l1b_file_list, config, algorithm_list, log
+    )
+
+    elapsed_time = time.time() - start_time
+
+    if success:
+        log.info(
+            "Chain successfully completed processing %d files of %d input files in %f seconds",
+            num_files_processed,
+            len(l1b_file_list),
+            elapsed_time,
+        )
+    else:
+        log.info(
+            "Chain completed with %d errors processing %d files of %d input files in %f seconds",
+            number_errors,
+            num_files_processed,
+            len(l1b_file_list),
+            elapsed_time,
+        )
 
 
 if __name__ == "__main__":
