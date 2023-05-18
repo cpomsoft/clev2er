@@ -11,6 +11,7 @@ import argparse
 import glob
 import importlib
 import logging
+import multiprocessing as mp
 import os
 import sys
 import time
@@ -60,6 +61,8 @@ def run_chain_on_single_file(
     Returns:
         Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
     """
+    log.debug("_" * 79)  # add a divider line in the log
+
     log.info("Processing %s", l1b_file)
 
     try:
@@ -126,21 +129,39 @@ def run_chain(
     num_errors = 0
     num_files_processed = 0
 
-    for l1b_file in l1b_file_list:
-        success, _ = run_chain_on_single_file(l1b_file, alg_object_list, log)
-        num_files_processed += 1
-        if not success:
-            num_errors += 1
+    if config["chain"]["use_multi-processing"]:
+        # With multi-processing we need to redirect logging to a stream
 
-            if config["chain"]["stop_on_error"]:
-                log.error(
-                    "Chain stopped because of error processing L1b file %s", l1b_file
-                )
-                break
+        log.warning(
+            "Multi-processing not yet fully implemented - requires mp logging support\n"
+            "change config['chain']['use_multi-processing'] to False"
+        )
+
+        with mp.Pool() as pool:
+            output = pool.starmap(
+                run_chain_on_single_file,
+                [(l1b_file, alg_object_list, log) for l1b_file in l1b_file_list],
+            )
+        print(output)
+    else:
+        for l1b_file in l1b_file_list:
+            success, _ = run_chain_on_single_file(l1b_file, alg_object_list, log)
+            num_files_processed += 1
+            if not success:
+                num_errors += 1
+
+                if config["chain"]["stop_on_error"]:
+                    log.error(
+                        "Chain stopped because of error processing L1b file %s",
+                        l1b_file,
+                    )
+                    break
 
     # -----------------------------------------------------------------------------
     # Run each algorithms .finalize() function in order
     # -----------------------------------------------------------------------------
+
+    log.debug("_" * 79)  # add a divider line in the log
 
     for alg_obj in alg_object_list:
         alg_obj.finalize()
