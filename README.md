@@ -1,3 +1,3 @@
 # CLEV2ER Algorithm Framework
 
-Initial test chain mockup for CLEV2ER LI+IW
+Pre-design of an Algorithm framework for CLEV2ER LI+IW project
