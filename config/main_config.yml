@@ -13,4 +13,5 @@ algorithm_lists:
 # and move to next file.
 chain:
   stop_on_error: true
-  use_multi-processing: true  # not working yet!
+  use_multi-processing: true
+  max_processes_for_multiprocessing: 8

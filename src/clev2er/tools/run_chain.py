@@ -11,11 +11,12 @@ import argparse
 import glob
 import importlib
 import logging
-import multiprocessing as mp
 import os
 import sys
 import time
 import types
+from logging.handlers import QueueHandler
+from multiprocessing import Process, Queue, current_process
 from typing import Optional, Type
 
 from envyaml import (  # for parsing YAML files which include environment variables
@@ -28,6 +29,7 @@ from clev2er.utils.logging import get_logger
 # too-many-locals, pylint: disable=R0914
 # too-many-branches, pylint: disable=R0912
 # too-many-statements, pylint: disable=R0915
+# too-many-arguments, pylint: disable=R0913
 
 
 def exception_hook(
@@ -49,27 +51,53 @@ sys.excepthook = exception_hook
 def run_chain_on_single_file(
     l1b_file: str,
     alg_object_list,
+    config: dict,
     log: logging.Logger,
-):
-    """_summary_
+    log_queue: Queue,
+    rval_queue: Queue,
+) -> tuple[bool, str]:
+    """Runs the algorithm chain on a single L1b file
 
     Args:
         l1b_file (str): path of L1b file to process
         alg_object_list (_type_): list of Algorithm objects
         log (logging.Logger): logging instance to use
+        log_queue (Queue): Queue for multi-processing logging
+        rval_queue (Queue) : Queue for multi-processing results
 
     Returns:
         Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
+        for multi-processing return values are instead queued -> rval_queue for this process
     """
-    log.debug("_" * 79)  # add a divider line in the log
 
-    log.info("Processing %s", l1b_file)
+    # Setup logging either for multi-processing or standard (single process)
+    if config["chain"]["use_multi-processing"]:
+        # create a logger
+        logger = logging.getLogger("mp")
+        # add a handler that uses the shared queue
+        logger.addHandler(QueueHandler(log_queue))
+        # log all messages, debug and up
+        logger.setLevel(logging.DEBUG)
+        # get the current process
+        process = current_process()
+        # report initial message
+        logger.debug("Child %s starting.", process.name)
+        thislog = logger
+    else:
+        thislog = log
+
+    thislog.debug("_" * 79)  # add a divider line in the log
+
+    thislog.info("Processing %s", l1b_file)
 
     try:
         nc = Dataset(l1b_file)
     except IOError:
-        log.error("Could not read netCDF file %s", l1b_file)
-        return (False, f"Could not read netCDF file {l1b_file}")
+        error_str = f"Could not read netCDF file {l1b_file}"
+        thislog.error(error_str)
+        if config["chain"]["use_multi-processing"]:
+            rval_queue.put((False, error_str))
+        return (False, error_str)
 
     # ------------------------------------------------------------------------
     # Run each algorithms .process() function in order
@@ -80,13 +108,71 @@ def run_chain_on_single_file(
     for alg_obj in alg_object_list:
         success, error_str = alg_obj.process(nc, working_dict)
         if not success:
-            log.error(
+            thislog.error(
                 "Processing of L1b file: %s stopped because %s", l1b_file, error_str
             )
+            if config["chain"]["use_multi-processing"]:
+                rval_queue.put((False, error_str))
             return (False, error_str)
     nc.close()
 
+    if config["chain"]["use_multi-processing"]:
+        rval_queue.put((True, ""))
     return (True, "")
+
+
+def mp_logger_process(queue, config) -> None:
+    """executed in a separate process that performs logging
+       used for when multi-processing only
+
+    Args:
+        queue (Queue): object created by multiprocessing.Queue()
+        config (dict): main config dictionary for log file paths
+    """
+    # create a logger
+    logger = logging.getLogger("mp")
+    log_format = "[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s"
+    log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
+
+    # only includes ERROR level messages
+    file_handler_error = logging.FileHandler(
+        config["log_files"]["errors"] + ".mp", mode="w"
+    )
+    file_handler_error.setFormatter(log_formatter)
+    file_handler_error.setLevel(logging.ERROR)
+    logger.addHandler(file_handler_error)
+
+    # include all allowed log levels up to INFO (ie ERROR, WARNING, INFO, not DEBUG)
+    file_handler_info = logging.FileHandler(
+        config["log_files"]["info"] + ".mp", mode="w"
+    )
+    file_handler_info.setFormatter(log_formatter)
+    file_handler_info.setLevel(logging.INFO)
+    logger.addHandler(file_handler_info)
+
+    # include all allowed log levels up to DEBUG
+    file_handler_debug = logging.FileHandler(
+        config["log_files"]["debug"] + ".mp", mode="w"
+    )
+    file_handler_debug.setFormatter(log_formatter)
+    file_handler_debug.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler_debug)
+
+    # Stream handler disabled for multi-processing as it causes intermixed log messages
+    # configure a stream handler
+    # logger.addHandler(logging.StreamHandler())
+    # log all messages, debug and up
+    # logger.setLevel(logging.DEBUG)
+
+    # run forever
+    while True:
+        # consume a log message, block until one arrives
+        message = queue.get()
+        # check for shutdown
+        if message is None:
+            break
+        # log the message
+        logger.handle(message)
 
 
 def run_chain(
@@ -124,7 +210,10 @@ def run_chain(
             return (False, 1, 0)
 
     # -------------------------------------------------------------------------------------------
-    #  Run algorithm chain's processing on each L1b file in l1b_file_list
+    #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list
+    #    - a different method required for multi-processing or standard sequential processing
+    #    - Note that choice of MP method is due to logging reliability constraints, which
+    #      caused problems with simpler more modern pool.starmap methods
     # -------------------------------------------------------------------------------------------
     num_errors = 0
     num_files_processed = 0
@@ -132,20 +221,64 @@ def run_chain(
     if config["chain"]["use_multi-processing"]:
         # With multi-processing we need to redirect logging to a stream
 
-        log.warning(
-            "Multi-processing not yet fully implemented - requires mp logging support\n"
-            "change config['chain']['use_multi-processing'] to False"
-        )
+        # create the shared queue
+        log_queue = Queue()
 
-        with mp.Pool() as pool:
-            output = pool.starmap(
-                run_chain_on_single_file,
-                [(l1b_file, alg_object_list, log) for l1b_file in l1b_file_list],
+        # create a logger
+        new_logger = logging.getLogger("mp")
+        # add a handler that uses the shared queue
+        new_logger.addHandler(QueueHandler(log_queue))
+        # log all messages, debug and up
+        new_logger.setLevel(logging.DEBUG)
+        # start the logger process
+        logger_p = Process(target=mp_logger_process, args=(log_queue, config))
+        logger_p.start()
+
+        # report initial message
+        new_logger.info("Main process started.")
+
+        rval_queues = [Queue() for l1b_file in l1b_file_list]
+
+        # configure child processes
+        num_procs = len(l1b_file_list)
+        processes = [
+            Process(
+                target=run_chain_on_single_file,
+                args=(
+                    l1b_file_list[i],
+                    alg_object_list,
+                    config,
+                    None,
+                    log_queue,
+                    rval_queues[i],
+                ),
             )
-        print(output)
-    else:
+            for i in range(num_procs)
+        ]
+        # start child processes
+        for process in processes:
+            process.start()
+        # wait for child processes to finish
+
+        rvals = []
+        for i in range(num_procs):
+            rval = rval_queues[i].get()
+            rvals.append(rval)
+            if not rval[0]:
+                num_errors += 1
+            num_files_processed += 1
+
+        for process in processes:
+            process.join()
+
+        # shutdown the queue correctly
+        log_queue.put(None)
+
+    else:  # Normal sequential processing (when multi-processing is disabled)
         for l1b_file in l1b_file_list:
-            success, _ = run_chain_on_single_file(l1b_file, alg_object_list, log)
+            success, _ = run_chain_on_single_file(
+                l1b_file, alg_object_list, config, log, None, None
+            )
             num_files_processed += 1
             if not success:
                 num_errors += 1
@@ -166,6 +299,8 @@ def run_chain(
     for alg_obj in alg_object_list:
         alg_obj.finalize()
 
+    log.info("run_chain() completed successfully")
+
     # Completed successfully, so return True with no error msg
     if num_errors > 0:
         return (False, num_errors, num_files_processed)
@@ -173,7 +308,7 @@ def run_chain(
     return (True, num_errors, num_files_processed)
 
 
-def main():
+def main() -> None:
     """main function for tool"""
 
     # ----------------------------------------------------------------------

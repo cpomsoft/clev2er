@@ -1,5 +1,6 @@
 """ clev2er.algorithms.alg1 """
 import logging
+import time
 
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -52,6 +53,8 @@ class Algorithm:
         # Modify the working dict
 
         working["lats"] = [1, 2, 3, 4]
+
+        time.sleep(5)
 
         # Return success (True,'') or (Failure,'error string')
         return (True, "")
