@@ -2,6 +2,7 @@
 import logging
 import time
 
+from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
 
 # Similar lines in 2 files, pylint: disable=R0801
@@ -26,6 +27,7 @@ class Algorithm:
             self.alg_name,
         )
 
+    @Timer(name=__name__)
     def process(self, l1b, working):
         """CLEV2ER Algorithm
 

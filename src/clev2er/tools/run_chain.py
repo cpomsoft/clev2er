@@ -16,9 +16,12 @@ import sys
 import time
 import types
 from logging.handlers import QueueHandler
+from math import ceil
 from multiprocessing import Process, Queue, current_process
 from typing import Optional, Type
 
+import numpy as np
+from codetiming import Timer
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
 )
@@ -96,7 +99,7 @@ def run_chain_on_single_file(
         error_str = f"Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi-processing"]:
-            rval_queue.put((False, error_str))
+            rval_queue.put((False, error_str, Timer.timers))
         return (False, error_str)
 
     # ------------------------------------------------------------------------
@@ -112,12 +115,12 @@ def run_chain_on_single_file(
                 "Processing of L1b file: %s stopped because %s", l1b_file, error_str
             )
             if config["chain"]["use_multi-processing"]:
-                rval_queue.put((False, error_str))
+                rval_queue.put((False, error_str, Timer.timers))
             return (False, error_str)
     nc.close()
 
     if config["chain"]["use_multi-processing"]:
-        rval_queue.put((True, ""))
+        rval_queue.put((True, "", Timer.timers))
     return (True, "")
 
 
@@ -193,6 +196,8 @@ def run_chain(
                                   number of files processed)
     """
 
+    n_files = len(l1b_file_list)
+
     # -------------------------------------------------------------------------------------------
     # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
     #   - runs each algorithm object's __init__() function
@@ -221,7 +226,7 @@ def run_chain(
     if config["chain"]["use_multi-processing"]:
         # With multi-processing we need to redirect logging to a stream
 
-        # create the shared queue
+        # create a shared logging queue for multiple processes to use
         log_queue = Queue()
 
         # create a logger
@@ -234,42 +239,67 @@ def run_chain(
         logger_p = Process(target=mp_logger_process, args=(log_queue, config))
         logger_p.start()
 
-        # report initial message
-        new_logger.info("Main process started.")
+        # Divide up the input files in to chunks equal to maximum number of processes
+        # allowed == config["chain"]["max_processes_for_multiprocessing"]
 
-        rval_queues = [Queue() for l1b_file in l1b_file_list]
+        log.info(
+            "Using multi-processing with max %d cores",
+            config["chain"]["max_processes_for_multiprocessing"],
+        )
 
-        # configure child processes
-        num_procs = len(l1b_file_list)
-        processes = [
-            Process(
-                target=run_chain_on_single_file,
-                args=(
-                    l1b_file_list[i],
-                    alg_object_list,
-                    config,
-                    None,
-                    log_queue,
-                    rval_queues[i],
-                ),
+        num_chunks = ceil(
+            n_files / config["chain"]["max_processes_for_multiprocessing"]
+        )
+        file_indices = list(range(n_files))
+        file_indices_chunks = np.array_split(file_indices, num_chunks)
+
+        for chunk_num, file_indices in enumerate(file_indices_chunks):
+            chunked_l1b_file_list = np.array(l1b_file_list)[file_indices]
+            log.debug(
+                f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}"
             )
-            for i in range(num_procs)
-        ]
-        # start child processes
-        for process in processes:
-            process.start()
-        # wait for child processes to finish
 
-        rvals = []
-        for i in range(num_procs):
-            rval = rval_queues[i].get()
-            rvals.append(rval)
-            if not rval[0]:
-                num_errors += 1
-            num_files_processed += 1
+            # Create separate queue for each new process to handle function return values
+            rval_queues = [Queue() for l1b_file in chunked_l1b_file_list]
 
-        for process in processes:
-            process.join()
+            # configure child processes
+            num_procs = len(chunked_l1b_file_list)
+            processes = [
+                Process(
+                    target=run_chain_on_single_file,
+                    args=(
+                        chunked_l1b_file_list[i],
+                        alg_object_list,
+                        config,
+                        None,
+                        log_queue,
+                        rval_queues[i],
+                    ),
+                )
+                for i in range(num_procs)
+            ]
+            # start child processes
+            for process in processes:
+                process.start()
+            # wait for child processes to finish
+
+            rvals = []  # store return values from algorithm processes
+            for i in range(num_procs):
+                # rval contains (bool,str, dict): (algorithm process success/failure, error str,
+                # Timer.timers)
+                rval = rval_queues[i].get()
+                rvals.append(rval)
+                if not rval[0]:
+                    num_errors += 1
+                num_files_processed += 1
+                # rval[2] returns the Timer.timers dict for algorithms process() function
+                # ie a dict containing timers['alg_name']= the number of seconds elapsed
+                Timer.timers = {  # add the all the elapsed times for this algorithm
+                    k: rval[2].get(k, 0) + Timer.timers.get(k, 0) for k in set(rval[2])
+                }
+
+            for process in processes:
+                process.join()
 
         # shutdown the queue correctly
         log_queue.put(None)
@@ -299,12 +329,25 @@ def run_chain(
     for alg_obj in alg_object_list:
         alg_obj.finalize()
 
-    log.info("run_chain() completed successfully")
+    log.info(
+        "run_chain() completed processing %d files with %d errors",
+        num_files_processed,
+        num_errors,
+    )
 
-    # Completed successfully, so return True with no error msg
+    # Elapsed time for each algorithm.
+    # Note if multi-processing, process times are added for each algorithm
+    # (so total time processing will be less)
+    #  - ie for processes p1 and p2,
+    #  -    alg1.time =(p1.alg1.time +p2.alg1.time +,..)
+    #  -    alg2.time =(p1.alg2.time +p2.alg2.time +,..)
+
+    print(Timer.timers)
+
     if num_errors > 0:
         return (False, num_errors, num_files_processed)
 
+    # Completed successfully, so return True with no error msg
     return (True, num_errors, num_files_processed)
 
 
@@ -391,6 +434,28 @@ def main() -> None:
         const=1,
     )
 
+    parser.add_argument(
+        "--multiprocessing",
+        "-mp",
+        help=(
+            "[Optional] use multi-processing, overrides main config file use_multi-processing "
+            "setting to true"
+        ),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
+        "--sequentialprocessing",
+        "-sp",
+        help=(
+            "[Optional] use sequential (standard) processing, overrides main config file "
+            "use_multi-processing setting to false"
+        ),
+        action="store_const",
+        const=1,
+    )
+
     # read arguments from the command line
     args = parser.parse_args()
 
@@ -410,6 +475,10 @@ def main() -> None:
         sys.exit(
             f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
         )
+    if args.multiprocessing:
+        config["chain"]["use_multi-processing"] = True
+    if args.sequentialprocessing:
+        config["chain"]["use_multi-processing"] = False
 
     # -------------------------------------------------------------------------
     # Setup logging

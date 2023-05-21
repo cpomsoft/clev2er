@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.9"
 numpy = "^1.24.3"
 envyaml = "^1.10"
+codetiming = "^1.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
