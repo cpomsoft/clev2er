@@ -9,7 +9,8 @@ Pre-design of an Algorithm framework for CLEV2ER LI+IW project
 * dynamic algorithm loading from YML list(s) : config/li_algorithm_list.yml, iw_algorithm_list.yml
 * logging
 * multi-processing (+logging support)
-* timing
+* algorithm timing
+* chain timing
 
 ## Packaging/Workflow
 
