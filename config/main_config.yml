@@ -1,17 +1,22 @@
+# Main configuration file for CLEV2ER chain
 project: "CLEV2ER"
 
+# Default locations for log files
 log_files:
   errors: ${CLEV2ER_BASE_DIR}/logs/errors.log
   info:   ${CLEV2ER_BASE_DIR}/logs/info.log
   debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
 
+# Default algorithm lists for Land Ice and Inland Waters
 algorithm_lists:
   land_ice: ${CLEV2ER_BASE_DIR}/config/li_algorithms.yml
   inland_waters: ${CLEV2ER_BASE_DIR}/config/iw_algorithms.yml
 
-# default operation is to skip file if an algorithm returns failure
-# and move to next file.
+# Processing chain operation settings
+
 chain:
-  stop_on_error: true
   use_multi-processing: true
   max_processes_for_multiprocessing: 7
+  # default is to skip file if an algorithm returns failure and continue
+  stop_on_error: true 
+  
