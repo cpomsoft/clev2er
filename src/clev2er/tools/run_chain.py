@@ -12,6 +12,7 @@ import glob
 import importlib
 import logging
 import os
+import re
 import sys
 import time
 import types
@@ -51,6 +52,89 @@ def exception_hook(
 sys.excepthook = exception_hook
 
 
+def sort_file_by_number(filename: str) -> None:
+    """sort log file by N , where log lines contain the string [fN]
+
+    Args:
+        filename (str): log file path
+    """
+    with open(filename, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+
+    # Extract the numbers following [f and remove [fn] from each line
+    numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
+    sorted_lines = [
+        re.sub(r"\[f\d+\]", "", line) for _, line in sorted(zip(numbers, lines))
+    ]
+
+    # Write the sorted lines back to the file
+    with open(filename, "w", encoding="utf-8") as file:
+        file.writelines(sorted_lines)
+
+
+def insert_txtfile1_in_txtfile2_after_line_containing_string(
+    file1: str, file2: str, target_string: str
+) -> None:
+    """Inserts txtfile1 in txtfile2 after line containing target_string
+
+    Args:
+        file1 (str): path of txt file1
+        file2 (str): path of txt file2
+        target_string (str): string to search for in file2 and insert contents of file1 after
+    """
+    with open(file1, "r", encoding="utf-8") as fd1:
+        content1 = fd1.read()
+
+    with open(file2, "r", encoding="utf-8") as fd2:
+        lines = fd2.readlines()
+
+    new_lines = []
+    for line in lines:
+        new_lines.append(line)
+        if target_string in line:
+            new_lines.append(content1)
+
+    with open(file2, "w", encoding="utf-8") as fd2:
+        fd2.writelines(new_lines)
+
+
+def append_file(file1_path: str, file2_path: str) -> None:
+    """appends contents of file1_path to end of  file2_path
+
+    Args:
+        file1_path (str): txt file to append
+        file2_path (str): txt file to append to end of
+    """
+    with open(file1_path, "r", encoding="utf-8") as file1:
+        with open(file2_path, "a", encoding="utf-8") as file2:
+            file2.write(file1.read())
+
+
+def remove_strings_from_file(filename: str) -> None:
+    """removes any string [fN] from the txt file
+
+        where N is any integer
+
+    Args:
+        filename (str): file name
+    """
+    # Open the input file in read mode
+    with open(filename, "r", encoding="utf-8") as file:
+        # Read all the lines from the file
+        lines = file.readlines()
+
+    # Create a regular expression pattern to match strings of the form '[fN]'
+    pattern = r"\[f\d+\]"
+
+    # Remove the matched strings from each line
+    modified_lines = [re.sub(pattern, "", line) for line in lines]
+
+    # Open the modified file in write mode
+    with open(filename, "w", encoding="utf-8") as file:
+        # Write the modified lines to the file
+        file.writelines(modified_lines)
+
+
 def run_chain_on_single_file(
     l1b_file: str,
     alg_object_list,
@@ -58,6 +142,7 @@ def run_chain_on_single_file(
     log: logging.Logger,
     log_queue: Queue,
     rval_queue: Queue,
+    filenum: int,
 ) -> tuple[bool, str]:
     """Runs the algorithm chain on a single L1b file
 
@@ -84,19 +169,19 @@ def run_chain_on_single_file(
         # get the current process
         process = current_process()
         # report initial message
-        logger.debug("Child %s starting.", process.name)
+        logger.debug("[f%d] Child %s starting.", filenum, process.name)
         thislog = logger
     else:
         thislog = log
 
-    thislog.debug("_" * 79)  # add a divider line in the log
+    thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
 
-    thislog.info("Processing %s", l1b_file)
+    thislog.info("[f%d] Processing file %d: %s", filenum, filenum + 1, l1b_file)
 
     try:
         nc = Dataset(l1b_file)
     except IOError:
-        error_str = f"Could not read netCDF file {l1b_file}"
+        error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi-processing"]:
             rval_queue.put((False, error_str, Timer.timers))
@@ -109,10 +194,14 @@ def run_chain_on_single_file(
     working_dict = {}
 
     for alg_obj in alg_object_list:
-        success, error_str = alg_obj.process(nc, working_dict)
+        success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
         if not success:
             thislog.error(
-                "Processing of L1b file: %s stopped because %s", l1b_file, error_str
+                "[f%d] Processing of L1b file %d : %s stopped because %s",
+                filenum,
+                filenum + 1,
+                l1b_file,
+                error_str,
             )
             if config["chain"]["use_multi-processing"]:
                 rval_queue.put((False, error_str, Timer.timers))
@@ -206,7 +295,9 @@ def run_chain(
 
     for alg in algorithm_list:
         try:
-            module = importlib.import_module(f"clev2er.algorithms.{alg}")
+            module = importlib.import_module(
+                f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
+            )
             alg_obj = module.Algorithm(config)
             alg_object_list.append(alg_obj)
 
@@ -274,6 +365,7 @@ def run_chain(
                         None,
                         log_queue,
                         rval_queues[i],
+                        file_indices[i],
                     ),
                 )
                 for i in range(num_procs)
@@ -305,9 +397,9 @@ def run_chain(
         log_queue.put(None)
 
     else:  # Normal sequential processing (when multi-processing is disabled)
-        for l1b_file in l1b_file_list:
+        for fnum, l1b_file in enumerate(l1b_file_list):
             success, _ = run_chain_on_single_file(
-                l1b_file, alg_object_list, config, log, None, None
+                l1b_file, alg_object_list, config, log, None, None, fnum
             )
             num_files_processed += 1
             if not success:
@@ -330,7 +422,8 @@ def run_chain(
         alg_obj.finalize()
 
     log.info(
-        "run_chain() completed processing %d files with %d errors",
+        "chain '%s' completed processing %d files with %d errors",
+        config["chain"]["chain_name"],
         num_files_processed,
         num_errors,
     )
@@ -417,22 +510,6 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--landice",
-        "-li",
-        help=("[Optional] use default land ice algorithms"),
-        action="store_const",
-        const=1,
-    )
-
-    parser.add_argument(
-        "--inlandwaters",
-        "-iw",
-        help=("[Optional] use default inlandwaters algorithms"),
-        action="store_const",
-        const=1,
-    )
-
-    parser.add_argument(
         "--quiet",
         "-q",
         help=("[Optional] do not output log messages to stdout"),
@@ -443,7 +520,10 @@ def main() -> None:
     parser.add_argument(
         "--debug",
         "-de",
-        help=("[Optional] debug mode"),
+        help=(
+            "[Optional] debug mode. log.DEBUG messages are output to the debug log file, "
+            "configured in the main config file. By default log.DEBUG messages are not output."
+        ),
         action="store_const",
         const=1,
     )
@@ -473,6 +553,9 @@ def main() -> None:
     # read arguments from the command line
     args = parser.parse_args()
 
+    if not args.name:
+        sys.exit("ERROR: missing command line argument --name <chain_name>")
+
     # -------------------------------------------------------------------------
     # Load Project's main YAML configuration file
     #   - default is $CLEV2ER_BASE_DIR/config/main_config.yml
@@ -493,6 +576,8 @@ def main() -> None:
         config["chain"]["use_multi-processing"] = True
     if args.sequentialprocessing:
         config["chain"]["use_multi-processing"] = False
+
+    config["chain"]["chain_name"] = args.name
 
     # -------------------------------------------------------------------------
     # Setup logging
@@ -518,10 +603,7 @@ def main() -> None:
     if args.alglist:
         algorithm_list_file = args.alglist
     else:
-        if args.inlandwaters:
-            algorithm_list_file = config["algorithm_lists"]["inland_waters"]
-        else:
-            algorithm_list_file = config["algorithm_lists"]["land_ice"]
+        algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
 
     log.info("Using algorithm list: %s", algorithm_list_file)
 
@@ -599,6 +681,47 @@ def main() -> None:
             len(l1b_file_list),
             elapsed_time,
         )
+
+    if config["chain"]["use_multi-processing"]:
+        # sort .mp log files by filenum processed (as they will be jumbled)
+        sort_file_by_number(config["log_files"]["errors"] + ".mp")
+        sort_file_by_number(config["log_files"]["info"] + ".mp")
+        sort_file_by_number(config["log_files"]["debug"] + ".mp")
+
+        # put .mp log contents into main log file
+        insert_txtfile1_in_txtfile2_after_line_containing_string(
+            config["log_files"]["info"] + ".mp",
+            config["log_files"]["info"],
+            "Using multi-processing with max",
+        )
+        insert_txtfile1_in_txtfile2_after_line_containing_string(
+            config["log_files"]["debug"] + ".mp",
+            config["log_files"]["debug"],
+            "Using multi-processing with max",
+        )
+        append_file(
+            config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]
+        )
+
+        # remove all the .mp temporary log files
+        for file_path in [
+            config["log_files"]["errors"] + ".mp",
+            config["log_files"]["info"] + ".mp",
+            config["log_files"]["debug"] + ".mp",
+        ]:
+            try:
+                # Check if the file exists
+                if os.path.exists(file_path):
+                    # Delete the file
+                    os.remove(file_path)
+            except OSError as exc:
+                log.error(
+                    "Error occurred while deleting the file %s : %s", file_path, exc
+                )
+    else:
+        remove_strings_from_file(config["log_files"]["info"])
+        remove_strings_from_file(config["log_files"]["errors"])
+        remove_strings_from_file(config["log_files"]["debug"])
 
 
 if __name__ == "__main__":
