@@ -1,4 +1,6 @@
 # Main configuration file for CLEV2ER chain
+#  - you can use env variables in this file
+
 project: "CLEV2ER"
 
 # Default locations for log files
