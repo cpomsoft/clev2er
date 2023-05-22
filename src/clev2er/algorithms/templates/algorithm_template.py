@@ -1,4 +1,4 @@
-""" clev2er.algorithms.alg2 """
+""" clev2er.algorithms.algorithm_template """
 import logging
 import time
 
@@ -50,13 +50,17 @@ class Algorithm:
 
         if not isinstance(l1b, Dataset):
             log.error("l1b parameter is not a netCDF4 Dataset type")
-            return (True, "l1b parameter is not a netCDF4 Dataset type")
+            return (False, "l1b parameter is not a netCDF4 Dataset type")
 
-        # Modify the working dict
+        # Perform the algorithm processing, store results that need to passed
+        # down the chain in the 'working' dict
+        # ie working["lats"] = [1, 2, 3, 4]
+        # -------------------------------------------------------------------
 
         working["lats"] = [1, 2, 3, 4]
+        time.sleep(5)  # dummy processing - remove
 
-        time.sleep(3)
+        # -------------------------------------------------------------------
 
         # Return success (True,'') or (Failure,'error string')
         return (True, "")

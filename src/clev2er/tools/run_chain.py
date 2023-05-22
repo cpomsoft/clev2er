@@ -371,6 +371,29 @@ def main() -> None:
     parser = argparse.ArgumentParser()
 
     # add each argument
+
+    parser.add_argument(
+        "--name",
+        "-n",
+        help=(
+            "name (str) : chain name. Should contain no spaces or special chars other than _. "
+            "Algorithm modules for this chain are located in "
+            "${CLEV2ER_BASE_DIR}/src/algorithms/<name>.\n"
+            "Actual algorithms used for the chain and their order are chosen in "
+            "a separate algorithm list (see --alglist)"
+        ),
+        required=True,
+    )
+
+    parser.add_argument(
+        "--alglist",
+        "-a",
+        help=(
+            "[Optional] path of algorithm list YML file,"
+            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>.yml "
+        ),
+    )
+
     parser.add_argument(
         "--conf",
         "-c",
@@ -379,15 +402,6 @@ def main() -> None:
             "default=$CLEV2ER_BASE_DIR/config/main_config.yml"
         ),
         default=f"{base_dir}/config/main_config.yml",
-    )
-
-    parser.add_argument(
-        "--alglist",
-        "-a",
-        help=(
-            "[Optional] path of algorithm list,"
-            "default is defined in the main configuration file, and depends on "
-        ),
     )
 
     parser.add_argument(
