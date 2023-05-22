@@ -28,12 +28,14 @@ class Algorithm:
         )
 
     @Timer(name=__name__)
-    def process(self, l1b, working):
+    def process(self, l1b, working, mplog, filenum):
         """CLEV2ER Algorithm
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             working (dict): working data passed between algorithms
+            mplog: multi-processing safe logger to use
+            filenum (int) : file number of list of L1b files
 
         Returns:
             Tuple : (success (bool), failure_reason (str))
@@ -41,15 +43,16 @@ class Algorithm:
             (False,'error string'), or (True,'')
         """
 
-        log.debug(
-            "Processing algorithm %s",
+        mplog.debug(
+            "[f%d] Processing algorithm %s",
+            filenum,
             self.alg_name,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            log.error("l1b parameter is not a netCDF4 Dataset type")
+            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # Perform the algorithm processing, store results that need to passed
