@@ -208,6 +208,8 @@ def run_chain_on_single_file(
             return (False, error_str)
     nc.close()
 
+    print(f"working_dict={working_dict}")
+
     if config["chain"]["use_multi-processing"]:
         rval_queue.put((True, "", Timer.timers))
     return (True, "")
