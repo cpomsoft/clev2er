@@ -11,6 +11,7 @@ import argparse
 import glob
 import importlib
 import logging
+import multiprocessing as mp
 import os
 import re
 import sys
@@ -659,6 +660,8 @@ def main() -> None:
 
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
+
+    mp.set_start_method("spawn")
 
     start_time = time.time()
 
