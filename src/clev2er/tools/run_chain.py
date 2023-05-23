@@ -160,7 +160,7 @@ def run_chain_on_single_file(
     """
 
     # Setup logging either for multi-processing or standard (single process)
-    if config["chain"]["use_multi-processing"]:
+    if config["chain"]["use_multi_processing"]:
         # create a logger
         logger = logging.getLogger("mp")
         # add a handler that uses the shared queue
@@ -184,7 +184,7 @@ def run_chain_on_single_file(
     except IOError:
         error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
-        if config["chain"]["use_multi-processing"]:
+        if config["chain"]["use_multi_processing"]:
             rval_queue.put((False, error_str, Timer.timers))
         return (False, error_str)
 
@@ -204,14 +204,14 @@ def run_chain_on_single_file(
                 l1b_file,
                 error_str,
             )
-            if config["chain"]["use_multi-processing"]:
+            if config["chain"]["use_multi_processing"]:
                 rval_queue.put((False, error_str, Timer.timers))
             return (False, error_str)
     nc.close()
 
     print(f"working_dict={working_dict}")
 
-    if config["chain"]["use_multi-processing"]:
+    if config["chain"]["use_multi_processing"]:
         rval_queue.put((True, "", Timer.timers))
     return (True, "")
 
@@ -317,7 +317,7 @@ def run_chain(
     num_errors = 0
     num_files_processed = 0
 
-    if config["chain"]["use_multi-processing"]:
+    if config["chain"]["use_multi_processing"]:
         # With multi-processing we need to redirect logging to a stream
 
         # create a shared logging queue for multiple processes to use
@@ -535,7 +535,7 @@ def main() -> None:
         "--multiprocessing",
         "-mp",
         help=(
-            "[Optional] use multi-processing, overrides main config file use_multi-processing "
+            "[Optional] use multi-processing, overrides main config file use_multi_processing "
             "setting to true"
         ),
         action="store_const",
@@ -547,7 +547,7 @@ def main() -> None:
         "-sp",
         help=(
             "[Optional] use sequential (standard) processing, overrides main config file "
-            "use_multi-processing setting to false"
+            "use_multi_processing setting to false"
         ),
         action="store_const",
         const=1,
@@ -576,9 +576,9 @@ def main() -> None:
             f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
         )
     if args.multiprocessing:
-        config["chain"]["use_multi-processing"] = True
+        config["chain"]["use_multi_processing"] = True
     if args.sequentialprocessing:
-        config["chain"]["use_multi-processing"] = False
+        config["chain"]["use_multi_processing"] = False
 
     config["chain"]["chain_name"] = args.name
 
@@ -661,7 +661,10 @@ def main() -> None:
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
 
-    mp.set_start_method("spawn")
+    if config["chain"]["use_multi_processing"]:
+        # change the default method of multi-processing for Linux from
+        # fork to spawn
+        mp.set_start_method("spawn")
 
     start_time = time.time()
 
@@ -687,7 +690,7 @@ def main() -> None:
             elapsed_time,
         )
 
-    if config["chain"]["use_multi-processing"]:
+    if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
         sort_file_by_number(config["log_files"]["errors"] + ".mp")
         sort_file_by_number(config["log_files"]["info"] + ".mp")

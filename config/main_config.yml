@@ -17,8 +17,7 @@ algorithm_lists:
 # Processing chain operation settings
 
 chain:
-  use_multi-processing: true
+  use_multi_processing: true
   max_processes_for_multiprocessing: 7
   # default is to skip file if an algorithm returns failure and continue
-  stop_on_error: true 
-  
+  stop_on_error: true
