@@ -19,5 +19,5 @@ Pre-design of an Algorithm framework for CLEV2ER LI+IW project
 
 ## Packaging/Workflow
 
-* pre-commit git hooks
+* pre-commit git hooks for static code analysis
 * poetry package dependency management
