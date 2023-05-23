@@ -275,7 +275,7 @@ def run_chain(
     config: dict,
     algorithm_list: list[str],
     log: logging.Logger,
-) -> bool:
+) -> tuple[bool, int, int]:
     """Run the algorithm chain on each L1b file in l1b_file_list
 
     Args:
