@@ -29,7 +29,7 @@ class Algorithm:
 
         # set some test data up
 
-        self.testvar = 7
+        self.testvar = 1
 
     @Timer(name=__name__)
     def process(self, l1b, working, mplog, filenum):
