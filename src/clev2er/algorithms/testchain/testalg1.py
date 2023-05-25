@@ -1,6 +1,5 @@
 """ clev2er.algorithms.testalg1 """
 import logging
-import time
 
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -72,7 +71,6 @@ class Algorithm:
         # -------------------------------------------------------------------
 
         working[self.alg_name] = [self.testdata]
-        time.sleep(5)  # dummy processing - remove
 
         # --------------------------------------------------------
 

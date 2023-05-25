@@ -1,0 +1,4 @@
+# List of algorithms to call in order
+algorithms:
+  - alg_find_mode  # finds the instrument mode of L1b, skip SAR files
+  - alg_area_bounds # fast area check, skip files definitely outside Antarctica and Greenland

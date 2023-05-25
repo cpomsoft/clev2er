@@ -66,7 +66,6 @@ def get_logger(
     file_handler_debug.setFormatter(log_formatter)
     file_handler_debug.setLevel(logging.DEBUG)
     log.addHandler(file_handler_debug)
-    print("log file (DEBUG):", log_file_debug)
 
     # set the allowed log level
     #   - logging.DEBUG will allow all levels (DEBUG, INFO, WARNING, ERROR)
@@ -75,8 +74,5 @@ def get_logger(
     #   - logging.ERROR will allow all levels (ERROR)
 
     log.setLevel(default_log_level)
-
-    print("log file (INFO) :", log_file_info)
-    print("log file (ERROR):", log_file_error)
 
     return log

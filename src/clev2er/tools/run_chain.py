@@ -197,19 +197,28 @@ def run_chain_on_single_file(
     for alg_obj in alg_object_list:
         success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
         if not success:
-            thislog.error(
-                "[f%d] Processing of L1b file %d : %s stopped because %s",
-                filenum,
-                filenum + 1,
-                l1b_file,
-                error_str,
-            )
+            if "SKIP_OK" not in error_str:
+                thislog.error(
+                    "[f%d] Processing of L1b file %d : %s stopped because %s",
+                    filenum,
+                    filenum + 1,
+                    l1b_file,
+                    error_str,
+                )
+            else:
+                thislog.debug(
+                    "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
+                    filenum,
+                    filenum + 1,
+                    l1b_file,
+                    error_str,
+                )
             if config["chain"]["use_multi_processing"]:
                 rval_queue.put((False, error_str, Timer.timers))
             return (False, error_str)
     nc.close()
 
-    print(f"working_dict={working_dict}")
+    # thislog.debug("[f%d] working_dict=%s", filenum, working_dict)
 
     if config["chain"]["use_multi_processing"]:
         rval_queue.put((True, "", Timer.timers))
@@ -384,7 +393,7 @@ def run_chain(
                 # Timer.timers)
                 rval = rval_queues[i].get()
                 rvals.append(rval)
-                if not rval[0]:
+                if not rval[0] and "SKIP_OK" not in rval[1]:
                     num_errors += 1
                 num_files_processed += 1
                 # rval[2] returns the Timer.timers dict for algorithms process() function
@@ -401,10 +410,13 @@ def run_chain(
 
     else:  # Normal sequential processing (when multi-processing is disabled)
         for fnum, l1b_file in enumerate(l1b_file_list):
-            success, _ = run_chain_on_single_file(
+            success, error_str = run_chain_on_single_file(
                 l1b_file, alg_object_list, config, log, None, None, fnum
             )
             num_files_processed += 1
+            if not success and "SKIP_OK" in error_str:
+                log.debug("Skipping file")
+                continue
             if not success:
                 num_errors += 1
 
@@ -438,7 +450,14 @@ def run_chain(
     #  -    alg1.time =(p1.alg1.time +p2.alg1.time +,..)
     #  -    alg2.time =(p1.alg2.time +p2.alg2.time +,..)
 
-    print(Timer.timers)
+    log.info("\n%sAlgorithm Cumulative Processing Time%s", "-" * 20, "-" * 20)
+
+    for algname, cumulative_time in Timer.timers.items():
+        log.info("%s %.3f s", algname, cumulative_time)
+
+    # for key in Timer.timers.keys():
+    #     log.info("%s %.3f s", key, Timer.timers[key])
+    # print(Timer.timers)
 
     if num_errors > 0:
         return (False, num_errors, num_files_processed)
@@ -674,6 +693,8 @@ def main() -> None:
 
     elapsed_time = time.time() - start_time
 
+    log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
+
     if success:
         log.info(
             "Chain successfully completed processing %d files of %d input files in %f seconds",
@@ -689,6 +710,13 @@ def main() -> None:
             len(l1b_file_list),
             elapsed_time,
         )
+
+    log.info("\n%sLog Files          %s", "-" * 20, "-" * 20)
+
+    log.info("log file (INFO): %s", config["log_files"]["info"])
+    log.info("log file (ERRORS): %s", config["log_files"]["errors"])
+    if args.debug:
+        log.info("log file (DEBUG): %s", config["log_files"]["debug"])
 
     if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
