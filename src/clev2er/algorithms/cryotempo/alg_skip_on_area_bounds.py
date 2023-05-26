@@ -1,4 +1,4 @@
-""" clev2er.algorithms.cryotempo.alg_area_bounds """
+""" clev2er.algorithms.cryotempo.alg_skip_on_area_bounds """
 import logging
 
 import numpy as np

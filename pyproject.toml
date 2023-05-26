@@ -10,6 +10,8 @@ python = "^3.9"
 numpy = "^1.24.3"
 envyaml = "^1.10"
 codetiming = "^1.4.0"
+netcdf4 = "^1.6.3"
+pyproj = "^3.5.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -17,6 +19,7 @@ black = "*"
 pre-commit = "*"
 pylint = "*"
 isort = "*"
+pytest = "^7.3.1"
 
 [build-system]
 requires = ["poetry-core"]
