@@ -1,4 +1,5 @@
 # List of algorithms to call in order
 algorithms:
   - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
-  - alg_skip_on_area_bounds # fast area check, skip files definitely outside Antarctica and Greenland
+  - alg_skip_on_area_bounds # fast area check, skip files definitely outside Antarctica and Greenlan
+  - alg_surface_type        # get surface type from Bedmachine

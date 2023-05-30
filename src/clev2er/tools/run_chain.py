@@ -215,6 +215,7 @@ def run_chain_on_single_file(
                 )
             if config["chain"]["use_multi_processing"]:
                 rval_queue.put((False, error_str, Timer.timers))
+            nc.close()
             return (False, error_str)
     nc.close()
 
@@ -326,7 +327,10 @@ def run_chain(
     num_errors = 0
     num_files_processed = 0
 
-    if config["chain"]["use_multi_processing"]:
+    # --------------------------------------------------------------------------------------------
+    # Parallel Processing (optional)
+    # --------------------------------------------------------------------------------------------
+    if config["chain"]["use_multi_processing"]:  # pylint: disable=R1702
         # With multi-processing we need to redirect logging to a stream
 
         # create a shared logging queue for multiple processes to use
@@ -362,11 +366,12 @@ def run_chain(
                 f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}"
             )
 
+            num_procs = len(chunked_l1b_file_list)
+
             # Create separate queue for each new process to handle function return values
-            rval_queues = [Queue() for l1b_file in chunked_l1b_file_list]
+            rval_queues = [Queue() for _ in range(num_procs)]
 
             # configure child processes
-            num_procs = len(chunked_l1b_file_list)
             processes = [
                 Process(
                     target=run_chain_on_single_file,
@@ -385,29 +390,31 @@ def run_chain(
             # start child processes
             for process in processes:
                 process.start()
+
             # wait for child processes to finish
-
-            rvals = []  # store return values from algorithm processes
-            for i in range(num_procs):
-                # rval contains (bool,str, dict): (algorithm process success/failure, error str,
-                # Timer.timers)
-                rval = rval_queues[i].get()
-                rvals.append(rval)
-                if not rval[0] and "SKIP_OK" not in rval[1]:
-                    num_errors += 1
-                num_files_processed += 1
-                # rval[2] returns the Timer.timers dict for algorithms process() function
-                # ie a dict containing timers['alg_name']= the number of seconds elapsed
-                Timer.timers = {  # add the all the elapsed times for this algorithm
-                    k: rval[2].get(k, 0) + Timer.timers.get(k, 0) for k in set(rval[2])
-                }
-
-            for process in processes:
+            for i, process in enumerate(processes):
                 process.join()
+                # retrieve return values of each process function from queue
+                # rval=(bool, str, Timer.timers)
+                while not rval_queues[i].empty():
+                    rval = rval_queues[i].get()
+                    if not rval[0] and "SKIP_OK" not in rval[1]:
+                        num_errors += 1
+                    num_files_processed += 1
+                    # rval[2] returns the Timer.timers dict for algorithms process() function
+                    # ie a dict containing timers['alg_name']= the number of seconds elapsed
+                    for key, value in rval[2].items():
+                        if key in Timer.timers:
+                            Timer.timers.add(key, value)
+                        else:
+                            Timer.timers.add(key, value)
 
         # shutdown the queue correctly
         log_queue.put(None)
 
+    # --------------------------------------------------------------------------------------------
+    # Sequential Processing
+    # --------------------------------------------------------------------------------------------
     else:  # Normal sequential processing (when multi-processing is disabled)
         for fnum, l1b_file in enumerate(l1b_file_list):
             success, error_str = run_chain_on_single_file(
@@ -452,6 +459,7 @@ def run_chain(
 
     log.info("\n%sAlgorithm Cumulative Processing Time%s", "-" * 20, "-" * 20)
 
+    log.info("%s", Timer.timers)
     for algname, cumulative_time in Timer.timers.items():
         log.info("%s %.3f s", algname, cumulative_time)
 
@@ -529,6 +537,13 @@ def main() -> None:
         "--dir",
         "-d",
         help=("[Optional] path of a directory containing input L1b files"),
+    )
+
+    parser.add_argument(
+        "--max_files",
+        "-mf",
+        help=("[Optional] limit number of input files to this number"),
+        type=int,
     )
 
     parser.add_argument(
@@ -673,6 +688,10 @@ def main() -> None:
 
         l1b_file_list = [l1b_test_file]
 
+    if args.max_files:
+        if len(l1b_file_list) > args.max_files:
+            l1b_file_list = l1b_file_list[: args.max_files]
+
     # --------------------------------------------------------------------
     # Run the chain on the file list
     # --------------------------------------------------------------------
@@ -697,14 +716,14 @@ def main() -> None:
 
     if success:
         log.info(
-            "Chain successfully completed processing %d files of %d input files in %f seconds",
+            "Chain successfully completed processing %d files of %d input files in %.2f seconds",
             num_files_processed,
             len(l1b_file_list),
             elapsed_time,
         )
     else:
         log.info(
-            "Chain completed with %d errors processing %d files of %d input files in %f seconds",
+            "Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
             number_errors,
             num_files_processed,
             len(l1b_file_list),

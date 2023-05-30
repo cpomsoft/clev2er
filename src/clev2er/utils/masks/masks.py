@@ -53,11 +53,11 @@ class Mask:
         if mask_name not in mask_list:
             raise ValueError(f"{mask_name} not in supported mask_list")
 
+        log.info("Setting up %s..", mask_name)
+
         if mask_name == "greenland_area_xylimits_mask":
             # Greenland rectangular mask for rapid masking
             self.mask_type = "xylimits"  # 'xylimits', 'polygon', 'grid','latlimits'
-
-            log.info("Setting up Greenland xylimits mask..")
 
             self.xlimits = [
                 -630000,
@@ -144,6 +144,7 @@ class Mask:
             self.mask_grid = np.array(nc.variables["mask"][:]).astype(int)
             self.mask_grid = np.flipud(self.mask_grid)
             nc.close()
+            del nc
             self.crs_bng = CRS("epsg:3413")  # Polar Stereo - South (70N, 45W)
             self.mask_grid_possible_values = [0, 1, 2, 3, 4]  # values in the mask_grid
             self.grid_value_names = [

@@ -3,6 +3,7 @@
 # These imports required by Algorithm template
 import logging
 
+import numpy as np
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -82,6 +83,7 @@ class Algorithm:
                 "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
                 exc,
             )
+
         self.antarctic_surface_mask = Mask(
             "antarctica_bedmachine_v2_grid_mask",
             mask_path=mask_file,
@@ -137,7 +139,43 @@ class Algorithm:
         # down the chain in the 'working' dict
         # -------------------------------------------------------------------
 
-        working["test"] = 0
+        if "hemisphere" not in working:
+            mplog.error("[f%d] hemisphere not set in shared_dict", filenum)
+            return (False, "hemisphere not set in shared_dict")
+
+        # Select the appropriate mask, depending on hemisphere
+        if working["hemisphere"] == "south":
+            surface_mask = self.antarctic_surface_mask
+        else:
+            surface_mask = self.greenland_surface_mask
+
+        # Get source surface types from mask
+        #   AIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice lake_vostok
+        #   GIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice non-Greenland land
+        surface_type_20_ku = surface_mask.grid_mask_values(
+            working["lats_nadir"], working["lons_nadir"]
+        )
+
+        # ocean_locations = np.where(surface_type_20_ku == 0)[0]
+        icefree_land_locations = np.where(surface_type_20_ku == 1)[0]
+        grounded_ice_locations = np.where(surface_type_20_ku == 2)[0]
+        floating_ice_locations = np.where(surface_type_20_ku == 3)[0]
+
+        # Map source surface type values to Cryo-TEMPO values: 0=ocean, 1=grounded_ice,
+        # 2=floating_ice, 3=ice_free_land,4=non-Greenland land
+        # Ocean (0) and non-Greenland land (4) is already correctly mapped
+        if icefree_land_locations.size > 0:
+            surface_type_20_ku[icefree_land_locations] = 3
+        if grounded_ice_locations.size > 0:
+            surface_type_20_ku[grounded_ice_locations] = 1
+        if floating_ice_locations.size > 0:
+            surface_type_20_ku[floating_ice_locations] = 2
+
+        if working["hemisphere"] == "south":
+            # Replace surface type 4 (Lake Vostok) with surface type 2 (grounded ice)
+            lake_vostok_surface_indices = np.where(surface_type_20_ku == 4)[0]
+            if lake_vostok_surface_indices.size > 0:
+                surface_type_20_ku[lake_vostok_surface_indices] = 1
 
         # Return success (True,'')
         return (True, "")
