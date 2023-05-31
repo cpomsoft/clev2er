@@ -82,7 +82,6 @@ class Algorithm:
         # down the chain in the 'working' dict
         # -------------------------------------------------------------------
 
-        # find which hemisphere we are in
         try:
             first_record_lat = l1b.first_record_lat / 1e6
             last_record_lat = l1b.last_record_lat / 1e6
@@ -106,7 +105,8 @@ class Algorithm:
         # have first records between 62N and 69S
         if working["instr_mode"] == "LRM" and (62.0 > first_record_lat > -69.0):
             mplog.info(
-                "[f%d] Skipping as LRM file outside cryosphere, [%.2fN -> %.2fN]",
+                "[f%d] File %d: Skipping as LRM file outside cryosphere, [%.2fN -> %.2fN]",
+                filenum,
                 filenum,
                 first_record_lat,
                 last_record_lat,
@@ -122,7 +122,11 @@ class Algorithm:
         # If it is SIN then there are are no passes over Ant or Grn that also have first
         # records between 58N and 59S
         if working["instr_mode"] == "SIN" and (58.0 > first_record_lat > -59.0):
-            mplog.info("[f%d] Skipping as SIN file outside cryosphere", filenum)
+            mplog.info(
+                "[f%d] Skipping file %d as SIN file outside cryosphere",
+                filenum,
+                filenum,
+            )
             return (
                 False,
                 (
@@ -148,14 +152,21 @@ class Algorithm:
                 break
 
         if northern_hemisphere and southern_hemisphere:
-            error_str = "File is in both northern and southern polar areas"
+            error_str = f"File {filenum} is in both northern and southern polar areas"
             mplog.error("[f%d] %s", filenum, error_str)
             return (False, error_str)
 
         if "hemisphere" not in working:
-            error_str = "hemisphere could not be determined"
+            error_str = f"hemisphere of file {filenum} could not be determined"
             mplog.error("[f%d] %s", filenum, error_str)
             return (False, error_str)
+
+        mplog.info(
+            "[f%d] File %d is in %s hemisphere",
+            filenum,
+            filenum,
+            working["hemisphere"],
+        )
 
         working["lats_nadir"] = lat_20_ku
         working["lons_nadir"] = lon_20_ku
@@ -170,7 +181,9 @@ class Algorithm:
             inmask, _, _ = self.greenland_mask.points_inside(lat_20_ku, lon_20_ku)
             if not np.any(inmask):
                 mplog.info(
-                    "[f%d] No locations within Greenland rectangular mask", filenum
+                    "[f%d] File %d: No locations within Greenland rectangular mask",
+                    filenum,
+                    filenum,
                 )
                 return (
                     False,
@@ -178,7 +191,9 @@ class Algorithm:
                 )
 
             mplog.info(
-                "[f%d] Locations found within Greenland rectangular mask", filenum
+                "[f%d] File %d: Locations found within Greenland rectangular mask",
+                filenum,
+                filenum,
             )
 
         # Return success (True,'')

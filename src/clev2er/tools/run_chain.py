@@ -177,7 +177,7 @@ def run_chain_on_single_file(
 
     thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
 
-    thislog.info("[f%d] Processing file %d: %s", filenum, filenum + 1, l1b_file)
+    thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
 
     try:
         nc = Dataset(l1b_file)
@@ -193,6 +193,7 @@ def run_chain_on_single_file(
     # ------------------------------------------------------------------------
 
     working_dict = {}
+    working_dict["l1b_file_name"] = l1b_file
 
     for alg_obj in alg_object_list:
         success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
@@ -201,7 +202,7 @@ def run_chain_on_single_file(
                 thislog.error(
                     "[f%d] Processing of L1b file %d : %s stopped because %s",
                     filenum,
-                    filenum + 1,
+                    filenum,
                     l1b_file,
                     error_str,
                 )
@@ -209,7 +210,7 @@ def run_chain_on_single_file(
                 thislog.debug(
                     "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
                     filenum,
-                    filenum + 1,
+                    filenum,
                     l1b_file,
                     error_str,
                 )
@@ -459,13 +460,8 @@ def run_chain(
 
     log.info("\n%sAlgorithm Cumulative Processing Time%s", "-" * 20, "-" * 20)
 
-    log.info("%s", Timer.timers)
     for algname, cumulative_time in Timer.timers.items():
         log.info("%s %.3f s", algname, cumulative_time)
-
-    # for key in Timer.timers.keys():
-    #     log.info("%s %.3f s", key, Timer.timers[key])
-    # print(Timer.timers)
 
     if num_errors > 0:
         return (False, num_errors, num_files_processed)

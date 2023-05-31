@@ -65,7 +65,11 @@ class Algorithm:
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            mplog.error(
+                "[f%d] File %d: l1b parameter is not a netCDF4 Dataset type",
+                filenum,
+                filenum,
+            )
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -80,7 +84,7 @@ class Algorithm:
             elif "SARIN" in l1b.sir_op_mode:
                 working["instr_mode"] = "SIN"
             elif "SAR" in l1b.sir_op_mode:
-                mplog.info("[f%d] skipping as wrong mode", filenum)
+                mplog.info("[f%d] File %d skipping as wrong mode", filenum, filenum)
                 return (False, "SKIP_OK: SAR mode file not required")
             else:
                 error_str = (

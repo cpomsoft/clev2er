@@ -7,44 +7,55 @@ from clev2er.utils.masks.masks import Mask
 
 
 @pytest.mark.parametrize(
-    "mask_name,index_inside,num_inside,lats,lons,grid_values",
+    "mask_name,indices_inside,lats,lons,grid_values",
     [
         (
             "greenland_area_xylimits_mask",
-            0,  # index of point inside
-            1,  # number inside
+            [0],  # indices of points inside
             [75.0, 34],  # lats
             [-38, 16],  # lons
             None,  # grid values in mask to indicate inside,, xylimits have no values
         ),
         (
             "greenland_area_xylimits_mask",
-            None,  # index of point inside
-            0,  # number inside
+            [],  # indices of points inside
             [72.0],  # lats
             [-10],  # lons
             None,  # grid values in mask to indicate inside, xylimits have no values
         ),
         (
             "greenland_bedmachine_v3_grid_mask",
-            0,  # index of point inside
-            1,  # number inside
+            [0],  # indices of points inside
             [75.0, 34],  # lats
             [-38, 16],  # lons
             [1, 2],  # grid values in mask to indicate inside
         ),
-        ("greenland_bedmachine_v3_grid_mask", None, 0, [72.0], [-10], [1, 2]),
+        ("greenland_bedmachine_v3_grid_mask", [], [72.0], [-10], [1, 2]),
+        (
+            "antarctica_iceandland_dilated_10km_grid_mask",
+            [0, 1],  # indices of points inside
+            [-76.82, -70.65, -59.493],  # lats
+            [55, -64.057, 98.364],  # lons
+            [1],  # grid values in mask to indicate inside
+        ),
+        (
+            "greenland_iceandland_dilated_10km_grid_mask",
+            [0],  # indices of points inside
+            [78.657, -70.65, -59.493],  # lats
+            [-36.33, -64.057, 98.364],  # lons
+            [1],  # grid values in mask to indicate inside
+        ),
     ],
 )
 def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
-    mask_name, index_inside, num_inside, lats, lons, grid_values
+    mask_name, indices_inside, lats, lons, grid_values
 ):
     """test of Mask.points_inside()
 
     Args:
-        mask_name (str): _description_
-        index_inside (_type_): _description_
-        num_inside (_type_): _description_
+        mask_name (str): name of Mask
+        indices_inside (list[int]): list of indices inside mask, or empty list []
+        num_inside (int): number of points inside mask
         lats (_type_): _description_
         lons (_type_): _description_
         grid_values (_type_): _description_
@@ -53,14 +64,19 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
 
     true_inside, _, _ = thismask.points_inside(lats, lons, basin_numbers=grid_values)
 
-    # Check number of points inside mask is expected
-    assert (
-        np.count_nonzero(true_inside) == num_inside
-    ), f"number of points inside mask should be {num_inside}, lats: {lats}, lons: {lons}"
+    expected_number_inside = len(indices_inside)
 
-    if num_inside > 0:
-        # Check index inside is expected
-        assert np.where(true_inside)[0][0] == index_inside
+    # Check number of points inside mask is expected
+    assert np.count_nonzero(true_inside) == expected_number_inside, (
+        f"number of points inside mask should be {expected_number_inside},"
+        f"for lats: {lats}, lons: {lons}"
+    )
+
+    if expected_number_inside > 0:
+        for index_inside in indices_inside:
+            assert true_inside[
+                index_inside
+            ], f"Index {index_inside} should be inside mask"
 
 
 @pytest.mark.parametrize(

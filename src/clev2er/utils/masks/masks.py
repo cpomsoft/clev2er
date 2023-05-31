@@ -17,6 +17,12 @@ mask_list = [
     "greenland_area_xylimits_mask",  # rectangular mask for Greenland
     "antarctica_bedmachine_v2_grid_mask",  # Antarctic Bedmachine v2 surface type mask
     "greenland_bedmachine_v3_grid_mask",  # Greenland Bedmachine v3 surface type mask
+    "antarctica_iceandland_dilated_10km_grid_mask",  # Antarctic ice (grounded+floating) and
+    # ice free land mask (source BedMachine v2) ,
+    # dilated by 10km out into the ocean
+    "greenland_iceandland_dilated_10km_grid_mask",  # Greenland ice (grounded+floating) and ice free
+    # land mask  (source BedMachine v3) , dilated by
+    # 10km out into the ocean
 ]
 
 # too-many-instance-attributes, pylint: disable=R0902
@@ -55,6 +61,8 @@ class Mask:
 
         log.info("Setting up %s..", mask_name)
 
+        # -----------------------------------------------------------------------------
+
         if mask_name == "greenland_area_xylimits_mask":
             # Greenland rectangular mask for rapid masking
             self.mask_type = "xylimits"  # 'xylimits', 'polygon', 'grid','latlimits'
@@ -70,6 +78,8 @@ class Mask:
             self.crs_bng = CRS(
                 "epsg:3413"
             )  # Polar Stereo - North -latitude of origin 70N, 45W
+
+        # -----------------------------------------------------------------------------
 
         elif mask_name == "antarctica_bedmachine_v2_grid_mask":
             # Antarctica surface type grid mask from BedMachine v2, 500m resolution
@@ -111,6 +121,8 @@ class Mask:
                 "Lake Vostok",
             ]
             self.grid_colors = ["blue", "brown", "grey", "green", "red"]
+
+        # -----------------------------------------------------------------------------
 
         elif mask_name == "greenland_bedmachine_v3_grid_mask":
             # Greenland surface type grid mask from BedMachine v3, 150m resolution
@@ -156,8 +168,71 @@ class Mask:
             ]
             self.grid_colors = ["blue", "brown", "grey", "green", "white"]
 
+        # -----------------------------------------------------------------------------
+
+        # Antarctica surface type grid mask derived from BedMachine v2, 500m resolution
+        #    - 0='Other', 1='Ice (grounded+floating)+ice-free land, dilated by 10km in to  ocean'
+        elif mask_name == "antarctica_iceandland_dilated_10km_grid_mask":
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPDATA_DIR"]}/RESOURCES/surface_discrimination_masks'
+                    "/antarctica/bedmachine_v2/dilated_10km_mask.npz"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            self.num_x = 13333
+            self.num_y = 13333
+            self.minxm = -3333000
+            self.minym = -3333000
+            self.binsize = 500  # meters
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South (71S, 0E)
+            self.mask_grid = np.load(mask_file, allow_pickle=True).get("mask_grid")
+            self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
+            self.grid_value_names = ["outside", "inside Antarctic dilated mask"]
+            self.grid_colors = ["blue", "darkgrey"]
+        # -----------------------------------------------------------------------------
+
+        # Greenland surface type grid mask derived from BedMachine v3, 150m resolution
+        #    - 0='Other', 1='Ice (grounded+floating)+ice-free land, dilated by 10km in to  ocean'
+        elif mask_name == "greenland_iceandland_dilated_10km_grid_mask":
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPDATA_DIR"]}/RESOURCES/surface_discrimination_masks'
+                    "/greenland/bedmachine_v3/dilated_10km_mask.npz"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            self.num_x = 10218
+            self.num_y = 18346
+            self.binsize = 150  # meters
+            self.minxm = -652925
+            self.minym = -632675 - (self.num_y * self.binsize)
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - South (70N, 45W)
+
+            self.mask_grid = np.load(mask_file, allow_pickle=True).get("mask_grid")
+            self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
+            self.grid_value_names = ["outside", "inside Greenland dilated mask"]
+            self.grid_colors = ["blue", "darkgrey"]
+        # -----------------------------------------------------------------------------
+
         else:
             raise ValueError(f"mask name: {mask_name} not supported")
+
+        # -----------------------------------------------------------------------------
 
         # Setup the Transforms
         self.xy_to_lonlat_transformer = Transformer.from_proj(
@@ -252,6 +327,9 @@ class Mask:
                     for basin in basin_numbers:
                         if self.mask_grid[jj, ii] == basin:
                             inmask[i] = True
+                else:
+                    if self.mask_grid[jj, ii] > 0:
+                        inmask[i] = True
         else:
             return inmask, None, None
 

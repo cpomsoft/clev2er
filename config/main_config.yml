@@ -25,3 +25,5 @@ chain:
 surface_type_masks:
   antarctica_bedmachine_v2_grid_mask: ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc
   greenland_bedmachine_v3_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/BedMachineGreenland-2017-09-20.nc
+  antarctica_iceandland_dilated_10km_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/dilated_10km_mask.npz
+  greenland_iceandland_dilated_10km_grid_mask:   ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/dilated_10km_mask.npz

@@ -73,9 +73,23 @@ class Algorithm:
         # \/ Add algorithm initialization here \/
         # --------------------------------------------------------
 
+        # For multi-processing we do the init() in the Algorithm.process() function
+        # This avoids pickling the init() data which is very slow
+        if config["chain"]["use_multi_processing"]:
+            return
+
+        self.init()
+
+    def init(self) -> None:
+        """Algorithm initialization
+
+         Loads Bedmachine surface type Masks
+
+        Returns: None
+        """
         # Antarctic surface type mask from BedMachine v2
         try:
-            mask_file = config["surface_type_masks"][
+            mask_file = self.config["surface_type_masks"][
                 "antarctica_bedmachine_v2_grid_mask"
             ]
         except KeyError as exc:
@@ -83,6 +97,7 @@ class Algorithm:
                 "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
                 exc,
             )
+            return
 
         self.antarctic_surface_mask = Mask(
             "antarctica_bedmachine_v2_grid_mask",
@@ -90,7 +105,7 @@ class Algorithm:
         )
         # Greenland surface type mask from BedMachine v3
         try:
-            mask_file = config["surface_type_masks"][
+            mask_file = self.config["surface_type_masks"][
                 "greenland_bedmachine_v3_grid_mask"
             ]
         except KeyError as exc:
@@ -98,17 +113,20 @@ class Algorithm:
                 "surface_type_masks:greenland_bedmachine_v3_grid_mask not in config file: %s",
                 exc,
             )
+            return
 
         self.greenland_surface_mask = Mask(
             "greenland_bedmachine_v3_grid_mask",
-            mask_path=config["surface_type_masks"]["greenland_bedmachine_v3_grid_mask"],
+            mask_path=mask_file,
         )
 
-        # --------------------------------------------------------
-
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):
+    def process(self, l1b, working, mplog, filenum):  # noqa pylint:disable=R0914
         """CLEV2ER Algorithm
+
+        Interpolate surface type data from Bedmachine for nadir locations of L1b
+        Transpose surface type values from Bedmachine grid to CryoTEMPO values:
+        0=ocean, 1=grounded_ice, 2=floating_ice, 3=ice_free_land,4=non-Greenland land
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
@@ -120,7 +138,19 @@ class Algorithm:
             Tuple : (success (bool), failure_reason (str))
             ie
             (False,'error string'), or (True,'')
+
+        IMPORTANT NOTE: when logging within this function you must use the mplog logger
+        with a filenum as an argument as follows:
+        mplog.debug,info,error("[f%d] your message",filenum)
+        This is required to support logging during multi-processing
         """
+
+        # When using multi-processing it is faster to initialize the algorithm
+        # within each Algorithm.process(), rather than once in the main process's
+        # Algorithm.__init__().
+        # This avoids having to pickle the initialized data arrays (which is extremely slow)
+        if self.config["chain"]["use_multi_processing"]:
+            self.init()
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -156,7 +186,14 @@ class Algorithm:
             working["lats_nadir"], working["lons_nadir"]
         )
 
-        # ocean_locations = np.where(surface_type_20_ku == 0)[0]
+        mplog.debug(
+            "[f%d] surface_type_20_ku of file %d %s",
+            filenum,
+            filenum,
+            str(surface_type_20_ku),
+        )
+
+        ocean_locations = np.where(surface_type_20_ku == 0)[0]
         icefree_land_locations = np.where(surface_type_20_ku == 1)[0]
         grounded_ice_locations = np.where(surface_type_20_ku == 2)[0]
         floating_ice_locations = np.where(surface_type_20_ku == 3)[0]
@@ -176,6 +213,76 @@ class Algorithm:
             lake_vostok_surface_indices = np.where(surface_type_20_ku == 4)[0]
             if lake_vostok_surface_indices.size > 0:
                 surface_type_20_ku[lake_vostok_surface_indices] = 1
+
+        # --------------------------------------------------------------------------------
+        # Check if the L1b file contains no locations over grounded or floating ice or
+        # ice free land. If so skip the file
+        # --------------------------------------------------------------------------------
+
+        if (
+            grounded_ice_locations.size
+            + floating_ice_locations.size
+            + icefree_land_locations.size
+        ) == 0:
+            mplog.info(
+                "[f%d] File %d Skipped: No grounded or floating ice or icefree_land in file %s",
+                filenum,
+                filenum,
+                working["l1b_file_name"],
+            )
+            return (
+                False,
+                (
+                    "SKIP_OK, No grounded or floating ice or icefree_land in file "
+                    f'{working["l1b_file_name"]}'
+                ),
+            )
+
+        # Save the CryoTEMPO adapted surface type
+        working["cryotempo_surface_type"] = surface_type_20_ku
+
+        # Calculate % of each surface type using CryoTEMPO values
+        # 0=ocean, 1=grounded_ice, 2=floating_ice, 3=ice_free_land,4=non-Greenland land
+
+        ocean_locations = np.where(surface_type_20_ku == 0)[0]
+        grounded_ice_locations = np.where(surface_type_20_ku == 1)[0]
+        floating_ice_locations = np.where(surface_type_20_ku == 2)[0]
+        icefree_land_locations = np.where(surface_type_20_ku == 3)[0]
+        non_grn_land_locations = np.where(surface_type_20_ku == 4)[0]
+
+        total_records = len(surface_type_20_ku)
+        n_ocean_locations = len(ocean_locations)
+        n_icefree_land_locations = len(icefree_land_locations)
+        n_grounded_ice_locations = len(grounded_ice_locations)
+        n_floating_ice_locations = len(floating_ice_locations)
+        n_non_grn_land_locations = len(non_grn_land_locations)
+
+        mplog.info(
+            "[f%d] %% grounded_ice %.2f%%",
+            filenum,
+            n_grounded_ice_locations * 100.0 / total_records,
+        )
+
+        mplog.info(
+            "[f%d] %% floating_ice %.2f%%",
+            filenum,
+            n_floating_ice_locations * 100.0 / total_records,
+        )
+
+        mplog.info(
+            "[f%d] %% icefree_land %.2f%%",
+            filenum,
+            n_icefree_land_locations * 100.0 / total_records,
+        )
+
+        mplog.info(
+            "[f%d] %% non-Greenland land %.2f%%",
+            filenum,
+            n_non_grn_land_locations * 100.0 / total_records,
+        )
+        mplog.info(
+            "[f%d] %% ocean %.2f%%", filenum, n_ocean_locations * 100.0 / total_records
+        )
 
         # Return success (True,'')
         return (True, "")
