@@ -9,19 +9,14 @@ log_files:
   info:   ${CLEV2ER_BASE_DIR}/logs/info.log
   debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
 
-# Default algorithm lists for Land Ice and Inland Waters
-algorithm_lists:
-  land_ice: ${CLEV2ER_BASE_DIR}/config/li_algorithms.yml
-  inland_waters: ${CLEV2ER_BASE_DIR}/config/iw_algorithms.yml
-
 # Processing chain operation settings
-
 chain:
   use_multi_processing: true
   max_processes_for_multiprocessing: 7
   # default is to skip file if an algorithm returns failure and continue
   stop_on_error: true
 
+# Resource Locators
 surface_type_masks:
   antarctica_bedmachine_v2_grid_mask: ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc
   greenland_bedmachine_v3_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/BedMachineGreenland-2017-09-20.nc
