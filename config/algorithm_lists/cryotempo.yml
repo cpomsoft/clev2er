@@ -4,3 +4,4 @@ algorithms:
   - alg_skip_on_area_bounds # fast area check, skip files definitely outside Antarctica and Greenlan
   - alg_surface_type        # get surface type from Bedmachine, skip file if no grounded or floating ice
   - alg_dilated_coastal_mask # mask records > 10km from Ant/Grn coast, skip if no records in mask
+  - alg_fes2014b_tide_correction # get FES2014b tide corrections

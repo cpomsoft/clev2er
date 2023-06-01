@@ -163,6 +163,12 @@ class Algorithm:
             )
 
         n_in_dilated_surface_mask = np.count_nonzero(required_surface_mask)
+        if n_in_dilated_surface_mask == 0:
+            mplog.info(
+                "[f%d] skipping as no locations inside dilated mask",
+                filenum,
+            )
+            return (False, "SKIP_OK, no locations inside dilated mask")
 
         num_records = len(working["lats_nadir"])
 

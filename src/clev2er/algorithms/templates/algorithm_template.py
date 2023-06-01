@@ -1,17 +1,24 @@
-""" clev2er.algorithms.testalg1 """
+""" clev2er.algorithms.cryotempo.alg_fes2014b_tide_correction """
+
+# These imports required by Algorithm template
 import logging
-import time
 
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
+
+# -------------------------------------------------
+
 
 # Similar lines in 2 files, pylint: disable=R0801
 
 log = logging.getLogger(__name__)
 
 
+# Too many return statements, pylint: disable=R0911
+
+
 class Algorithm:
-    """Clev2er  algorithm"""
+    """Algorithm to"""
 
     def __init__(self, config) -> None:
         """initializes the Algorithm
@@ -29,15 +36,20 @@ class Algorithm:
             self.alg_name,
         )
 
-        # --------------------------------------------------------
-        # \/ Add algorithm initialization here \/
-        # --------------------------------------------------------
+        # For multi-processing we do the init() in the Algorithm.process() function
+        # This avoids pickling the init() data which is very slow
+        if config["chain"]["use_multi_processing"]:
+            return
 
-        self.testdata = 1
+        self.init()
 
-        # --------------------------------------------------------
+    def init(self) -> None:
+        """Algorithm initialization
 
-    @Timer(name=__name__)
+        Returns: None
+        """
+
+    @Timer(name=__name__, text="", logger=None)
     def process(self, l1b, working, mplog, filenum):
         """CLEV2ER Algorithm
 
@@ -51,7 +63,19 @@ class Algorithm:
             Tuple : (success (bool), failure_reason (str))
             ie
             (False,'error string'), or (True,'')
+
+        IMPORTANT NOTE: when logging within this function you must use the mplog logger
+        with a filenum as an argument as follows:
+        mplog.debug,info,error("[f%d] your message",filenum)
+        This is required to support logging during multi-processing
         """
+
+        # When using multi-processing it is faster to initialize the algorithm
+        # within each Algorithm.process(), rather than once in the main process's
+        # Algorithm.__init__().
+        # This avoids having to pickle the initialized data arrays (which is extremely slow)
+        if self.config["chain"]["use_multi_processing"]:
+            self.init()
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -68,15 +92,11 @@ class Algorithm:
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
         # down the chain in the 'working' dict
-        # ie working["lats"] = [1, 2, 3, 4]
         # -------------------------------------------------------------------
 
-        working[self.alg_name] = [self.testdata]
-        time.sleep(5)  # dummy processing - remove
+        working["dummy"] = True
 
-        # --------------------------------------------------------
-
-        # Return success (True,'') or (Failure,'error string')
+        # Return success (True,'')
         return (True, "")
 
     def finalize(self):
