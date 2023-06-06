@@ -59,6 +59,7 @@ def test_alg_fes2014b_tide_correction() -> None:
 
     # setup dummy shared_dict results from other algorithms
     shared_dict["l1b_file_name"] = l1b_file
+    shared_dict["num_20hz_records"] = l1b["lat_20_ku"].size
     shared_dict["hemisphere"] = "south"
     shared_dict["instr_mode"] = "SIN"
 

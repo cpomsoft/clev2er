@@ -54,9 +54,9 @@ class Algorithm:
         if config["chain"]["use_multi_processing"]:
             return
 
-        self.init()
+        self.init(log, 0)
 
-    def init(self) -> None:
+    def init(self, mplog, filenum) -> None:
         """Algorithm initialization
 
          Loads Bedmachine surface type Masks
@@ -69,9 +69,10 @@ class Algorithm:
                 "greenland_iceandland_dilated_10km_grid_mask"
             ]
         except KeyError as exc:
-            log.error(
-                "surface_type_masks:greenland_iceandland_dilated_10km_grid_mask "
+            mplog.error(
+                "[f%d] surface_type_masks:greenland_iceandland_dilated_10km_grid_mask "
                 "not in config file %s",
+                filenum,
                 exc,
             )
             return
@@ -87,9 +88,10 @@ class Algorithm:
                 "antarctica_iceandland_dilated_10km_grid_mask"
             ]
         except KeyError as exc:
-            log.error(
-                "surface_type_masks:antarctica_iceandland_dilated_10km_grid_mask "
+            mplog.error(
+                "[f%d] surface_type_masks:antarctica_iceandland_dilated_10km_grid_mask "
                 "not in config file: %s",
+                filenum,
                 exc,
             )
             return
@@ -100,7 +102,7 @@ class Algorithm:
         )
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):
+    def process(self, l1b, shared_dict, mplog, filenum):
         """CLEV2ER Algorithm
 
         Interpolate surface type data from Bedmachine for nadir locations of L1b
@@ -109,7 +111,7 @@ class Algorithm:
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            working (dict): working data passed between algorithms
+            shared_dict (dict): shared_dict data passed between algorithms
             mplog: multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
@@ -129,7 +131,7 @@ class Algorithm:
         # Algorithm.__init__().
         # This avoids having to pickle the initialized data arrays (which is extremely slow)
         if self.config["chain"]["use_multi_processing"]:
-            self.init()
+            self.init(mplog, filenum)
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -145,21 +147,21 @@ class Algorithm:
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'working' dict
+        # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
-        if "hemisphere" not in working:
+        if "hemisphere" not in shared_dict:
             mplog.error("[f%d] hemisphere not set in shared_dict", filenum)
             return (False, "hemisphere not set in shared_dict")
 
         # Select the appropriate mask, depending on hemisphere
-        if working["hemisphere"] == "south":
+        if shared_dict["hemisphere"] == "south":
             required_surface_mask, _, _ = self.antarctic_dilated_mask.points_inside(
-                working["lats_nadir"], working["lons_nadir"]
+                shared_dict["lats_nadir"], shared_dict["lons_nadir"]
             )
         else:
             required_surface_mask, _, _ = self.greenland_dilated_mask.points_inside(
-                working["lats_nadir"], working["lons_nadir"]
+                shared_dict["lats_nadir"], shared_dict["lons_nadir"]
             )
 
         n_in_dilated_surface_mask = np.count_nonzero(required_surface_mask)
@@ -170,7 +172,7 @@ class Algorithm:
             )
             return (False, "SKIP_OK, no locations inside dilated mask")
 
-        num_records = len(working["lats_nadir"])
+        num_records = shared_dict["num_20hz_records"]
 
         percent_inside = n_in_dilated_surface_mask * 100.0 / num_records
 
@@ -180,7 +182,7 @@ class Algorithm:
             percent_inside,
         )
 
-        working["dilated_surface_mask"] = required_surface_mask
+        shared_dict["dilated_surface_mask"] = required_surface_mask
 
         # Return success (True,'')
         return (True, "")

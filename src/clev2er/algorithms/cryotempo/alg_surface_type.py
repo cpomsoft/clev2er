@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
 
 
 # Too many return statements, pylint: disable=R0911
+# Too many statements, pylint: disable=R0915
+# Too many locals, pylint: disable=R0914
+# Too many branches, pylint: disable=R0912
 
 
 class Algorithm:
@@ -78,9 +81,9 @@ class Algorithm:
         if config["chain"]["use_multi_processing"]:
             return
 
-        self.init()
+        self.init(log, 0)
 
-    def init(self) -> None:
+    def init(self, mplog, filenum) -> None:
         """Algorithm initialization
 
          Loads Bedmachine surface type Masks
@@ -93,8 +96,9 @@ class Algorithm:
                 "antarctica_bedmachine_v2_grid_mask"
             ]
         except KeyError as exc:
-            log.error(
-                "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
+            mplog.error(
+                "[f%d] surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
+                filenum,
                 exc,
             )
             return
@@ -109,8 +113,9 @@ class Algorithm:
                 "greenland_bedmachine_v3_grid_mask"
             ]
         except KeyError as exc:
-            log.error(
-                "surface_type_masks:greenland_bedmachine_v3_grid_mask not in config file: %s",
+            mplog.error(
+                "[f%d] surface_type_masks:greenland_bedmachine_v3_grid_mask not in config file: %s",
+                filenum,
                 exc,
             )
             return
@@ -121,7 +126,7 @@ class Algorithm:
         )
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):  # noqa pylint:disable=R0914
+    def process(self, l1b, shared_dict, mplog, filenum):  # noqa pylint:disable=R0914
         """CLEV2ER Algorithm
 
         Interpolate surface type data from Bedmachine for nadir locations of L1b
@@ -130,7 +135,7 @@ class Algorithm:
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            working (dict): working data passed between algorithms
+            shared_dict (dict): shared_dict data passed between algorithms
             mplog: multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
@@ -150,7 +155,7 @@ class Algorithm:
         # Algorithm.__init__().
         # This avoids having to pickle the initialized data arrays (which is extremely slow)
         if self.config["chain"]["use_multi_processing"]:
-            self.init()
+            self.init(mplog, filenum)
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -166,15 +171,15 @@ class Algorithm:
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'working' dict
+        # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
-        if "hemisphere" not in working:
+        if "hemisphere" not in shared_dict:
             mplog.error("[f%d] hemisphere not set in shared_dict", filenum)
             return (False, "hemisphere not set in shared_dict")
 
         # Select the appropriate mask, depending on hemisphere
-        if working["hemisphere"] == "south":
+        if shared_dict["hemisphere"] == "south":
             surface_mask = self.antarctic_surface_mask
         else:
             surface_mask = self.greenland_surface_mask
@@ -183,7 +188,7 @@ class Algorithm:
         #   AIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice lake_vostok
         #   GIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice non-Greenland land
         surface_type_20_ku = surface_mask.grid_mask_values(
-            working["lats_nadir"], working["lons_nadir"]
+            shared_dict["lats_nadir"], shared_dict["lons_nadir"]
         )
 
         mplog.debug(
@@ -208,7 +213,7 @@ class Algorithm:
         if floating_ice_locations.size > 0:
             surface_type_20_ku[floating_ice_locations] = 2
 
-        if working["hemisphere"] == "south":
+        if shared_dict["hemisphere"] == "south":
             # Replace surface type 4 (Lake Vostok) with surface type 2 (grounded ice)
             lake_vostok_surface_indices = np.where(surface_type_20_ku == 4)[0]
             if lake_vostok_surface_indices.size > 0:
@@ -228,18 +233,18 @@ class Algorithm:
                 "[f%d] File %d Skipped: No grounded or floating ice or icefree_land in file %s",
                 filenum,
                 filenum,
-                working["l1b_file_name"],
+                shared_dict["l1b_file_name"],
             )
             return (
                 False,
                 (
                     "SKIP_OK, No grounded or floating ice or icefree_land in file "
-                    f'{working["l1b_file_name"]}'
+                    f'{shared_dict["l1b_file_name"]}'
                 ),
             )
 
         # Save the CryoTEMPO adapted surface type
-        working["cryotempo_surface_type"] = surface_type_20_ku
+        shared_dict["cryotempo_surface_type"] = surface_type_20_ku
 
         # Calculate % of each surface type using CryoTEMPO values
         # 0=ocean, 1=grounded_ice, 2=floating_ice, 3=ice_free_land,4=non-Greenland land
@@ -250,7 +255,13 @@ class Algorithm:
         icefree_land_locations = np.where(surface_type_20_ku == 3)[0]
         non_grn_land_locations = np.where(surface_type_20_ku == 4)[0]
 
-        total_records = len(surface_type_20_ku)
+        shared_dict["ocean_locations"] = ocean_locations
+        shared_dict["grounded_ice_locations"] = grounded_ice_locations
+        shared_dict["floating_ice_locations"] = floating_ice_locations
+        shared_dict["icefree_land_locations"] = icefree_land_locations
+        shared_dict["non_grn_land_locations"] = non_grn_land_locations
+
+        total_records = shared_dict["num_20hz_records"]
         n_ocean_locations = len(ocean_locations)
         n_icefree_land_locations = len(icefree_land_locations)
         n_grounded_ice_locations = len(grounded_ice_locations)

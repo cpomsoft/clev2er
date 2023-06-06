@@ -1,4 +1,4 @@
-""" clev2er.algorithms.cryotempo.alg_fes2014b_tide_correction """
+""" clev2er.algorithms.cryotempo.alg_template """
 
 # These imports required by Algorithm template
 import logging
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """Algorithm to"""
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: dict) -> None:
         """initializes the Algorithm
 
         Args:
@@ -31,32 +31,40 @@ class Algorithm:
         self.alg_name = __name__
         self.config = config
 
-        log.debug(
-            "Initializing algorithm %s",
-            self.alg_name,
-        )
-
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
         if config["chain"]["use_multi_processing"]:
             return
 
-        self.init()
+        _, _ = self.init(log, 0)
 
-    def init(self) -> None:
+    def init(self, mplog: logging.Logger, filenum: int) -> tuple[bool, str]:
         """Algorithm initialization
 
-        Returns: None
+        Args:
+            mplog (logging.Logger): log instance to use
+            filenum (int): file number being processed
+
+        Returns: (bool,str) : success or failure, error string
         """
+        mplog.debug(
+            "[f%d] Initializing algorithm %s",
+            filenum,
+            self.alg_name,
+        )
+
+        return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):
+    def process(
+        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
+    ) -> tuple[bool, str]:
         """CLEV2ER Algorithm
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            working (dict): working data passed between algorithms
-            mplog: multi-processing safe logger to use
+            shared_dict (dict): shared_dict data passed between algorithms
+            mplog (logging.Logger): multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -75,7 +83,9 @@ class Algorithm:
         # Algorithm.__init__().
         # This avoids having to pickle the initialized data arrays (which is extremely slow)
         if self.config["chain"]["use_multi_processing"]:
-            self.init()
+            rval, error_str = self.init(mplog, filenum)
+            if not rval:
+                return (rval, error_str)
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -91,10 +101,10 @@ class Algorithm:
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'working' dict
+        # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
-        working["dummy"] = True
+        shared_dict["dummy"] = True
 
         # Return success (True,'')
         return (True, "")

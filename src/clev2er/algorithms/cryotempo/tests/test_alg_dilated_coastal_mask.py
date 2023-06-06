@@ -60,6 +60,7 @@ def test_alg_dilated_coastal_mask() -> None:
 
     # setup dummy shared_dict results from other algorithms
     shared_dict["l1b_file_name"] = l1b_file
+    shared_dict["num_20hz_records"] = l1b["lat_20_ku"].size
     shared_dict["hemisphere"] = "south"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
@@ -97,6 +98,7 @@ def test_alg_dilated_coastal_mask() -> None:
 
     # setup dummy shared_dict results from other algorithms
     shared_dict["l1b_file_name"] = l1b_file
+    shared_dict["num_20hz_records"] = l1b["lat_20_ku"].size
     shared_dict["hemisphere"] = "north"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data

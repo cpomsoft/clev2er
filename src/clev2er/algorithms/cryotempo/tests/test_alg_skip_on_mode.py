@@ -39,12 +39,10 @@ def test_alg_skip_on_mode() -> None:
 
     # Run  Algorithm.process()
     shared_dict = {}
+    shared_dict["instr_mode"] = "LRM"
     success, error_str = thisalg.process(l1b, shared_dict, log, 0)
 
     assert success, f"Algorithm.process failed due to {error_str}"
-
-    # Test the output in the shared dict
-    assert shared_dict["instr_mode"] == "LRM"
 
     # -------------------------------------------------------------------------
     # Test with SIN file. Should return (True,'') and insert "SIN" in
@@ -59,12 +57,11 @@ def test_alg_skip_on_mode() -> None:
 
     # Run  Algorithm.process()
     shared_dict = {}
+    shared_dict["instr_mode"] = "SIN"
+
     success, error_str = thisalg.process(l1b, shared_dict, log, 0)
 
     assert success, f"Algorithm.process failed due to {error_str}"
-
-    # Test the output in the shared dict
-    assert shared_dict["instr_mode"] == "SIN"
 
     # -------------------------------------------------------------------------
     # Test with a SAR file. Should skip this file, returning False,'SKIP_OK ...'
@@ -78,9 +75,8 @@ def test_alg_skip_on_mode() -> None:
 
     # Run  Algorithm.process()
     shared_dict = {}
+    shared_dict["instr_mode"] = "SAR"
+
     success, error_str = thisalg.process(l1b, shared_dict, log, 0)
     assert "SKIP_OK" in error_str, "SKIP_OK should be included in error_str"
     assert success is False, f"Algorithm.process should fail {error_str}"
-
-    # Test the output in the shared dict
-    assert "instr_mode" not in shared_dict, "shared_dict should be empty"

@@ -5,9 +5,15 @@ import glob
 import logging
 import os
 
+from envyaml import (  # for parsing YAML files which include environment variables
+    EnvYAML,
+)
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import Algorithm
+
+# similar lines in two files, pylint: disable=R0801
+
 
 log = logging.getLogger(__name__)
 
@@ -18,8 +24,24 @@ def test_alg_skip_on_area_bounds() -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
 
+    config_file = f"{base_dir}/config/main_config.yml"
+    assert os.path.exists(config_file), f"config file {config_file} does not exist"
+
+    try:
+        config = EnvYAML(config_file)  # read the YML and parse environment variables
+    except ValueError as exc:
+        assert (
+            False
+        ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
+
+    # Set to Sequential Processing
+    config["chain"]["use_multi_processing"] = False
+
     # Initialise the Algorithm
-    thisalg = Algorithm(config=None)  # no config used for this alg
+    try:
+        thisalg = Algorithm(config=config)  # no config used for this alg
+    except KeyError as exc:
+        assert False, f"Could not initialize algorithm {exc}"
 
     # -------------------------------------------------------------------------
     # Test with LRM file. Should return (True,'') and insert "LRM" in

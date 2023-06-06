@@ -39,23 +39,42 @@ class Algorithm:
             self.alg_name,
         )
 
+        # For multi-processing we do the init() in the Algorithm.process() function
+        # This avoids pickling the init() data which is very slow
+        if config["chain"]["use_multi_processing"]:
+            return
+
+        self.init(log, 0)
+
         # --------------------------------------------------------
         # \/ Add algorithm initialization here \/
         # --------------------------------------------------------
 
-        # rectangular mask around Greenland for quick area filtering
-
-        self.greenland_mask = Mask("greenland_area_xylimits_mask")
-
         # --------------------------------------------------------
 
+    def init(self, mplog, filenum) -> None:
+        """Algorithm initialization
+        Args:
+            mplog (logger.log) : log instance to use
+            filenum (int): file number being processed
+        Returns: None
+        """
+
+        try:
+            # rectangular mask around Greenland for quick area filtering
+            self.greenland_mask = Mask("greenland_area_xylimits_mask")
+        except (ValueError, FileNotFoundError, KeyError) as exc:
+            mplog.error("[f%d] %s", filenum, exc)
+
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):
+    def process(
+        self, l1b, shared_dict, mplog, filenum
+    ):  # too-many-branches, pylint: disable=R0912
         """CLEV2ER Algorithm
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            working (dict): working data passed between algorithms
+            shared_dict (dict): shared_dict data passed between algorithms
             mplog: multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
@@ -64,6 +83,13 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
         """
+
+        # When using multi-processing it is faster to initialize the algorithm
+        # within each Algorithm.process(), rather than once in the main process's
+        # Algorithm.__init__().
+        # This avoids having to pickle the initialized data arrays (which is extremely slow)
+        if self.config["chain"]["use_multi_processing"]:
+            self.init(mplog, filenum)
 
         mplog.debug(
             "[f%d] Processing algorithm %s",
@@ -79,7 +105,7 @@ class Algorithm:
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'working' dict
+        # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
         try:
@@ -93,7 +119,7 @@ class Algorithm:
                 error_str,
             )
 
-        if "instr_mode" not in working:
+        if "instr_mode" not in shared_dict:
             error_str = "instr_mode missing from shared dict"
             mplog.error("[f%d] %s", filenum, error_str)
             return (
@@ -103,7 +129,7 @@ class Algorithm:
 
         # If it is LRM then there are are no passes over Ant or Grn that also
         # have first records between 62N and 69S
-        if working["instr_mode"] == "LRM" and (62.0 > first_record_lat > -69.0):
+        if shared_dict["instr_mode"] == "LRM" and (62.0 > first_record_lat > -69.0):
             mplog.info(
                 "[f%d] File %d: Skipping as LRM file outside cryosphere, [%.2fN -> %.2fN]",
                 filenum,
@@ -121,7 +147,7 @@ class Algorithm:
 
         # If it is SIN then there are are no passes over Ant or Grn that also have first
         # records between 58N and 59S
-        if working["instr_mode"] == "SIN" and (58.0 > first_record_lat > -59.0):
+        if shared_dict["instr_mode"] == "SIN" and (58.0 > first_record_lat > -59.0):
             mplog.info(
                 "[f%d] Skipping file %d as SIN file outside cryosphere",
                 filenum,
@@ -144,11 +170,11 @@ class Algorithm:
         for lat in lat_20_ku:
             if lat < -55.0:
                 southern_hemisphere = True
-                working["hemisphere"] = "south"
+                shared_dict["hemisphere"] = "south"
                 break
             if lat > 55.0:
                 northern_hemisphere = True
-                working["hemisphere"] = "north"
+                shared_dict["hemisphere"] = "north"
                 break
 
         if northern_hemisphere and southern_hemisphere:
@@ -156,7 +182,7 @@ class Algorithm:
             mplog.error("[f%d] %s", filenum, error_str)
             return (False, error_str)
 
-        if "hemisphere" not in working:
+        if "hemisphere" not in shared_dict:
             error_str = f"hemisphere of file {filenum} could not be determined"
             mplog.error("[f%d] %s", filenum, error_str)
             return (False, error_str)
@@ -165,11 +191,11 @@ class Algorithm:
             "[f%d] File %d is in %s hemisphere",
             filenum,
             filenum,
-            working["hemisphere"],
+            shared_dict["hemisphere"],
         )
 
-        working["lats_nadir"] = lat_20_ku
-        working["lons_nadir"] = lon_20_ku
+        shared_dict["lats_nadir"] = lat_20_ku
+        shared_dict["lons_nadir"] = lon_20_ku
 
         # --------------------------------------------------------------------------------------
         # For northern hemisphere only, we only need passes that go over Greenland, so can skip

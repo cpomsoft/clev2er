@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """Algorithm to find the instrument mode in a CS2 L1b file
 
-    if mode is LRM or SIN, working['instr_mode] is set to 'LRM' or 'SIN'
+    if mode is LRM or SIN, shared_dict['instr_mode] is set to 'LRM' or 'SIN'
 
     if mode is SAR, return (False,"SKIP_OK...")
 
@@ -41,12 +41,12 @@ class Algorithm:
         # --------------------------------------------------------
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, working, mplog, filenum):
+    def process(self, l1b, shared_dict, mplog, filenum):
         """CLEV2ER Algorithm
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            working (dict): working data passed between algorithms
+            shared_dict (dict): shared_dict data passed between algorithms
             mplog: multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
@@ -74,32 +74,19 @@ class Algorithm:
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'working' dict
+        # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
-        error_str = ""
 
         try:
-            if "LRM" in l1b.sir_op_mode:
-                working["instr_mode"] = "LRM"
-            elif "SARIN" in l1b.sir_op_mode:
-                working["instr_mode"] = "SIN"
-            elif "SAR" in l1b.sir_op_mode:
-                mplog.info("[f%d] File %d skipping as wrong mode", filenum, filenum)
+            if shared_dict["instr_mode"] == "SAR":
+                mplog.info("[f%d] skipping as SAR mode not required", filenum)
                 return (False, "SKIP_OK: SAR mode file not required")
-            else:
-                error_str = (
-                    f"Invalid mode attribute .sir_op_mode in L1b file {l1b.sir_op_mode}"
-                )
-        except AttributeError:
-            error_str = "Missing attribute .sir_op_mode in L1b file"
+        except KeyError:
+            mplog.error("[f%d] instr_mode not in shared_dict", filenum)
+            return (False, "instr_mode not in shared_dict")
 
         # --------------------------------------------------------
 
-        if error_str:
-            log.error(error_str)
-            return (False, error_str)
-
-        # Return success (True,'')
         return (True, "")
 
     def finalize(self):

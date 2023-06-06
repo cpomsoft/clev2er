@@ -14,7 +14,7 @@ chain:
   use_multi_processing: true
   max_processes_for_multiprocessing: 7
   # default is to skip file if an algorithm returns failure and continue
-  stop_on_error: true
+  stop_on_error: false
 
 # Resource Locators
 surface_type_masks:
@@ -24,3 +24,4 @@ surface_type_masks:
   greenland_iceandland_dilated_10km_grid_mask:   ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/dilated_10km_mask.npz
 tides:
   fes2014b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B/FES2014
+  cats2008a_base_dir: /raid6/cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides

@@ -9,7 +9,7 @@ Pre-design of an Algorithm framework for CLEV2ER LI+IW project
 * dynamic algorithm loading from YML list(s) : config/li_algorithm_list.yml, iw_algorithm_list.yml
   * algorithms are classes of type Algorithm with .__init__(), .process(), .finalize()
   * Algorithm.init() is called before any L1b file processing.
-  * Algorithm.process() is called on every L1b file, 
+  * Algorithm.process() is called on every L1b file,
   * Algorithm.finalize() is called after all files have been processed.
   * Each algorithm has access to: l1b Dataset, shared working dict, config dict
 * logging (+ multi-processing logging support)

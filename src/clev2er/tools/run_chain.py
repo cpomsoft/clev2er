@@ -369,6 +369,13 @@ def run_chain(
 
             num_procs = len(chunked_l1b_file_list)
 
+            log.info(
+                "Running process set %d of %d (containing %d processes)",
+                chunk_num + 1,
+                num_chunks,
+                num_procs,
+            )
+
             # Create separate queue for each new process to handle function return values
             rval_queues = [Queue() for _ in range(num_procs)]
 
@@ -524,6 +531,31 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--baseline",
+        "-b",
+        help=(
+            "[Optional] baseline of chain. Single uppercase char. Default=A. "
+            "Used to specify the chain config file, along with --version, and --name, "
+            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/"
+            "<chain_name>_<Baseline><Version>.yml"
+        ),
+        default="A",
+        type=str,
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        help=(
+            "[Optional] version of chain. integer 1-100, (do not zero pad), default=1 . "
+            "Used to specify the chain config file, along with --baseline, and --name, "
+            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>"
+            "_<Baseline><Version>.yml"
+        ),
+        default=1,
+        type=int,
+    )
+
+    parser.add_argument(
         "--file",
         "-f",
         help=("[Optional] path of a single input L1b file"),
@@ -611,6 +643,41 @@ def main() -> None:
         config["chain"]["use_multi_processing"] = False
 
     config["chain"]["chain_name"] = args.name
+
+    # -------------------------------------------------------------------------
+    # Merge chain config YAML file
+    #   - default is
+    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.yml
+    # where Baseline is one character 'A', 'B',..
+    #       Version is zero-padded integer : 001, 002,..
+    # -------------------------------------------------------------------------
+
+    # Load config file related to the chain_name
+
+    if len(args.baseline) != 1:
+        sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
+    if args.version < 1 or args.version > 100:
+        sys.exit("ERROR: --version <version>, must be an integer 1-100")
+
+    chain_config_file = (
+        f"{base_dir}/config/chain_configs/"
+        f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+    )
+    if not os.path.exists(chain_config_file):
+        sys.exit(f"ERROR: config file {chain_config_file} does not exist")
+
+    try:
+        chain_config = EnvYAML(
+            chain_config_file
+        )  # read the YML and parse environment variables
+    except ValueError as exc:
+        sys.exit(
+            f"ERROR: config file {chain_config_file} has invalid or "
+            f"unset environment variables : {exc}"
+        )
+
+    # merge the two config files (with precedence to the chain_config)
+    config = config.export() | chain_config.export()  # the export() converts to a dict
 
     # -------------------------------------------------------------------------
     # Setup logging
@@ -702,7 +769,7 @@ def main() -> None:
 
     start_time = time.time()
 
-    success, number_errors, num_files_processed = run_chain(
+    _, number_errors, num_files_processed = run_chain(
         l1b_file_list, config, algorithm_list, log
     )
 
@@ -710,21 +777,13 @@ def main() -> None:
 
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
-    if success:
-        log.info(
-            "Chain successfully completed processing %d files of %d input files in %.2f seconds",
-            num_files_processed,
-            len(l1b_file_list),
-            elapsed_time,
-        )
-    else:
-        log.info(
-            "Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
-            number_errors,
-            num_files_processed,
-            len(l1b_file_list),
-            elapsed_time,
-        )
+    log.info(
+        "Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
+        number_errors,
+        num_files_processed,
+        len(l1b_file_list),
+        elapsed_time,
+    )
 
     log.info("\n%sLog Files          %s", "-" * 20, "-" * 20)
 
