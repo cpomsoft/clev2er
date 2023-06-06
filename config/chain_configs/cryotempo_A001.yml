@@ -1,0 +1,21 @@
+
+# General descriptive information about this configuration file
+metadata:
+  description: "CryoTEMPO Land Ice processing  configuration file"
+  version: "A001"
+  # Set to "Operational" for files intended for operational use
+  purpose: "Test"
+  coverage_start: "2010-04-08 00:00:00"
+  coverage_end: "2049-12-31 23:59:59"
+
+# Waveform Quality Tests
+lrm_waveform_quality_tests:
+  low_peakiness_threshold: 0.85
+  high_peakiness_threshold: 3.0
+  total_power_threshold: 3e-16
+
+sin_waveform_quality_tests:
+  low_peakiness_threshold: 0.9
+  total_power_threshold: 5e-17
+  low_position_max_power: 2
+  high_position_max_power: 1011
