@@ -159,7 +159,7 @@ class Algorithm:
             )
 
         mplog.debug(
-            "[f%d] Waveforms passed QC %d of %d : %.2f",
+            "[f%d] Waveforms passed QC %d of  %d : %.2f",
             filenum,
             np.count_nonzero(waveforms_ok),
             len(waveforms_ok),
