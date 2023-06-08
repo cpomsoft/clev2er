@@ -703,13 +703,26 @@ def main() -> None:
     if args.alglist:
         algorithm_list_file = args.alglist
     else:
-        algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
-
-    log.info("Using algorithm list: %s", algorithm_list_file)
+        # Try to find an algorithm list for a specific baseline and version
+        algorithm_list_file = (
+            f"{base_dir}/config/algorithm_lists/"
+            f"{args.name}_{args.baseline}{args.version:03}.yml"
+        )
+        if not os.path.exists(algorithm_list_file):
+            algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
 
     if not os.path.exists(algorithm_list_file):
         log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
         sys.exit(1)
+
+    log.info(
+        "Chain name: %s : baseline %s, version %03d",
+        args.name,
+        args.baseline,
+        args.version,
+    )
+
+    log.info("Using algorithm list: %s", algorithm_list_file)
 
     # Load and parse the algorithm list
     try:
@@ -778,7 +791,8 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
+        "%s Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
+        args.name,
         number_errors,
         num_files_processed,
         len(l1b_file_list),

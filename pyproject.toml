@@ -20,6 +20,9 @@ pre-commit = "*"
 pylint = "*"
 isort = "*"
 pytest = "^7.3.1"
+sphinx = "^7.0.1"
+sphinxcontrib-napoleon = "^0.7"
+furo = "^2023.5.20"
 
 [build-system]
 requires = ["poetry-core"]

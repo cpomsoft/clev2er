@@ -2,6 +2,7 @@
 
 # These imports required by Algorithm template
 import logging
+from typing import Dict, Tuple
 
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -20,13 +21,14 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """Algorithm to"""
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: Dict[str, any]) -> None:
         """initializes the Algorithm
 
         Args:
             config (dict): configuration dictionary
 
-        Returns: None
+        Returns:
+            None
         """
         self.alg_name = __name__
         self.config = config
@@ -38,14 +40,15 @@ class Algorithm:
 
         _, _ = self.init(log, 0)
 
-    def init(self, mplog: logging.Logger, filenum: int) -> tuple[bool, str]:
+    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
         """Algorithm initialization
 
         Args:
             mplog (logging.Logger): log instance to use
             filenum (int): file number being processed
 
-        Returns: (bool,str) : success or failure, error string
+        Returns:
+            (bool,str) : success or failure, error string
         """
         mplog.debug(
             "[f%d] Initializing algorithm %s",
@@ -58,7 +61,7 @@ class Algorithm:
     @Timer(name=__name__, text="", logger=None)
     def process(
         self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
-    ) -> tuple[bool, str]:
+    ) -> Tuple[bool, str]:
         """CLEV2ER Algorithm
 
         Args:
