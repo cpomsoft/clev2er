@@ -12,6 +12,7 @@ envyaml = "^1.10"
 codetiming = "^1.4.0"
 netcdf4 = "^1.6.3"
 pyproj = "^3.5.0"
+pygments = "^2.15.1"
 
 
 [tool.poetry.group.dev.dependencies]
