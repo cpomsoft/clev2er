@@ -1,7 +1,0 @@
-clev2er
-=======
-
-.. toctree::
-   :maxdepth: 4
-
-   clev2er
