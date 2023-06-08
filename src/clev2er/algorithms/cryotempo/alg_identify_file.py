@@ -73,7 +73,7 @@ class Algorithm:
 
         > **IMPORTANT NOTE**: when logging within this function you must use the mplog logger
         with a filenum as an argument as follows:
-        mplog.debug,info,error("[f%d] your message",filenum)
+            `mplog.debug,info,error("[f%d] your message",filenum)`
         This is required to support logging during multi-processing
         """
 
