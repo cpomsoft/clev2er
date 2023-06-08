@@ -30,7 +30,7 @@ repos:
     hooks:
     - id: pdocs_build
       name: pdocs_build
-      entry: docsrc/pdocs_build.sh
+      entry: pdocs_build.sh
       language: script
       pass_filenames: false
 
