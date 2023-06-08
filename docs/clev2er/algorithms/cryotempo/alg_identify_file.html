@@ -144,7 +144,7 @@
 </span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">            ie</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">        IMPORTANT NOTE: when logging within this function you must use the mplog logger</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">        &gt; **IMPORTANT NOTE**: when logging within this function you must use the mplog logger</span>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">        with a filenum as an argument as follows:</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">        mplog.debug,info,error(&quot;[f%d] your message&quot;,filenum)</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        This is required to support logging during multi-processing</span>
@@ -281,7 +281,7 @@
 </span><span id="Algorithm-72"><a href="#Algorithm-72"><span class="linenos"> 72</span></a><span class="sd">            ie</span>
 </span><span id="Algorithm-73"><a href="#Algorithm-73"><span class="linenos"> 73</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
 </span><span id="Algorithm-74"><a href="#Algorithm-74"><span class="linenos"> 74</span></a>
-</span><span id="Algorithm-75"><a href="#Algorithm-75"><span class="linenos"> 75</span></a><span class="sd">        IMPORTANT NOTE: when logging within this function you must use the mplog logger</span>
+</span><span id="Algorithm-75"><a href="#Algorithm-75"><span class="linenos"> 75</span></a><span class="sd">        &gt; **IMPORTANT NOTE**: when logging within this function you must use the mplog logger</span>
 </span><span id="Algorithm-76"><a href="#Algorithm-76"><span class="linenos"> 76</span></a><span class="sd">        with a filenum as an argument as follows:</span>
 </span><span id="Algorithm-77"><a href="#Algorithm-77"><span class="linenos"> 77</span></a><span class="sd">        mplog.debug,info,error(&quot;[f%d] your message&quot;,filenum)</span>
 </span><span id="Algorithm-78"><a href="#Algorithm-78"><span class="linenos"> 78</span></a><span class="sd">        This is required to support logging during multi-processing</span>
@@ -462,7 +462,7 @@
 </span><span id="Algorithm.process-72"><a href="#Algorithm.process-72"><span class="linenos"> 72</span></a><span class="sd">            ie</span>
 </span><span id="Algorithm.process-73"><a href="#Algorithm.process-73"><span class="linenos"> 73</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
 </span><span id="Algorithm.process-74"><a href="#Algorithm.process-74"><span class="linenos"> 74</span></a>
-</span><span id="Algorithm.process-75"><a href="#Algorithm.process-75"><span class="linenos"> 75</span></a><span class="sd">        IMPORTANT NOTE: when logging within this function you must use the mplog logger</span>
+</span><span id="Algorithm.process-75"><a href="#Algorithm.process-75"><span class="linenos"> 75</span></a><span class="sd">        &gt; **IMPORTANT NOTE**: when logging within this function you must use the mplog logger</span>
 </span><span id="Algorithm.process-76"><a href="#Algorithm.process-76"><span class="linenos"> 76</span></a><span class="sd">        with a filenum as an argument as follows:</span>
 </span><span id="Algorithm.process-77"><a href="#Algorithm.process-77"><span class="linenos"> 77</span></a><span class="sd">        mplog.debug,info,error(&quot;[f%d] your message&quot;,filenum)</span>
 </span><span id="Algorithm.process-78"><a href="#Algorithm.process-78"><span class="linenos"> 78</span></a><span class="sd">        This is required to support logging during multi-processing</span>
@@ -539,10 +539,12 @@ shared_dict["instr_mode"]</p>
     ie
     (False,'error string'), or (True,'')</p>
 
-<p>IMPORTANT NOTE: when logging within this function you must use the mplog logger
-with a filenum as an argument as follows:
-mplog.debug,info,error("[f%d] your message",filenum)
-This is required to support logging during multi-processing</p>
+<blockquote>
+  <p><strong>IMPORTANT NOTE</strong>: when logging within this function you must use the mplog logger
+  with a filenum as an argument as follows:
+  mplog.debug,info,error("[f%d] your message",filenum)
+  This is required to support logging during multi-processing</p>
+</blockquote>
 </div>
 
 
