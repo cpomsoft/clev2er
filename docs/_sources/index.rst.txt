@@ -10,7 +10,7 @@ Welcome to CLEV2ER's documentation
    :maxdepth: 2
    :caption: Contents:
 
-Add some content here
+Add some lovely content here
 
 Indices and tables
 ==================

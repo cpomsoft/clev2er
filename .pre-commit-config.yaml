@@ -18,6 +18,14 @@ repos:
        language: system
        types: [python]
 
+-   repo: local
+    hooks:
+    - id: custom-script-sh
+      name: custom-script-sh
+      entry: docsrc/custom.sh
+      language: script
+      pass_filenames: false
+
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
