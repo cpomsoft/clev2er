@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to identify L1b file, find the instrument mode and number of records"""
+    """Algorithm to identify L1b file, find the instrument mode and *number*"""
 
     def __init__(self, config) -> None:
         """initializes the Algorithm
