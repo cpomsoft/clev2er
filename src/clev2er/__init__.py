@@ -1,7 +1,7 @@
 """
 # CLEV2ER Algorithm Framework
 
-Pre-design of an Algorithm framework for 
+**Pre-design** of an Algorithm framework for 
 -   CryoTEMPO Land Ice
 -   CLEV2ER Land Ice and Inland Waters
 -   Any other L2 chain
@@ -25,6 +25,7 @@ Pre-design of an Algorithm framework for
 
 * pre-commit git hooks for static code analysis
 * poetry package dependency management
+* pdoc automated documentation to GitHub pages
 
 
 """
