@@ -26,6 +26,5 @@ Pre-design of an Algorithm framework for
 * pre-commit git hooks for static code analysis
 * poetry package dependency management
 
-## Installation
-.. include:: ../../README.md
+
 """
