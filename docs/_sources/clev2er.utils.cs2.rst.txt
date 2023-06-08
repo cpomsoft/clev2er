@@ -1,0 +1,18 @@
+clev2er.utils.cs2 package
+=========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   clev2er.utils.cs2.waveform_quality
+
+Module contents
+---------------
+
+.. automodule:: clev2er.utils.cs2
+   :members:
+   :undoc-members:
+   :show-inheritance:
