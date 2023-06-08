@@ -18,11 +18,19 @@ repos:
        language: system
        types: [python]
 
+# -   repo: local
+#     hooks:
+#     - id: sphinx_build
+#       name: sphinx_build
+#       entry: docsrc/custom_sphinx_build.sh
+#       language: script
+#       pass_filenames: false
+
 -   repo: local
     hooks:
-    - id: sphinx_build
-      name: sphinx_build
-      entry: docsrc/custom_sphinx_build.sh
+    - id: pdocs_build
+      name: pdocs_build
+      entry: docsrc/pdocs_build.sh
       language: script
       pass_filenames: false
 

@@ -9,6 +9,8 @@ Welcome to CLEV2ER's documentation
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   modules
 
 Add some lovely content here
 
