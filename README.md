@@ -2,6 +2,8 @@
 
 Pre-design of an Algorithm framework for CLEV2ER LI+IW, SI projects
 
+Documentation at : <https://cpomsoft.github.io/clev2er/>
+
 ## Features
 
 * Command line tool : src/tools/run_chain.py
