@@ -29,6 +29,8 @@
 
 ## Installation
 
+Make sure you have *git* installed.  
+
 Clone the git repository: 
 
 with https:  
