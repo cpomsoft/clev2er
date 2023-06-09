@@ -23,7 +23,9 @@
 
 ## Packaging/Workflow
 
-* pre-commit git hooks for automated static code analysis
+* pre-commit git hooks for automated static code analysis. 
+These tools run whenever you do a `git commit`. 
+The commit will fail if any of the tests fail.  
     - lint
     - flake8
     - black
