@@ -29,7 +29,7 @@
 
 ## Installation
 
-Make sure you have *git* installed.  
+Make sure you have *git* installed on your system.  
 
 Clone the git repository: 
 
