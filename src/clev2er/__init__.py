@@ -99,6 +99,12 @@ To find all the command line options for *run_chain.py*, type:
 
 ## Developer Notes
 
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+
 ### Automatic documentation
 
 This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
