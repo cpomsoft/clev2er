@@ -27,6 +27,8 @@
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
 
+
+
 ## Environment Setup
 
 The following environment variables need to be set. In a bash shell this might be done
@@ -39,6 +41,14 @@ the PYTHONPATH to point to the packages src directory. Here is an example:
 export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 ```
+
+## Virtual Environment and Package Requirements
+
+This project uses *poetry* to manage package dependencies and virtual envs.  
+
+First, you need to install *poetry* on your system from 
+https://python-poetry.org/docs/#installation.
+
 
 ## Example of Running the Chain
 

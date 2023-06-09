@@ -29,6 +29,7 @@
     <li><a href="#features">Features</a></li>
     <li><a href="#packagingworkflow">Packaging/Workflow</a></li>
     <li><a href="#environment-setup">Environment Setup</a></li>
+    <li><a href="#virtual-environment-and-package-requirements">Virtual Environment and Package Requirements</a></li>
     <li><a href="#example-of-running-the-chain">Example of Running the Chain</a></li>
   </ul></li>
 </ul>
@@ -103,6 +104,13 @@ the PYTHONPATH to point to the packages src directory. Here is an example:  </p>
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 </code></pre>
 
+<h2 id="virtual-environment-and-package-requirements">Virtual Environment and Package Requirements</h2>
+
+<p>This project uses <em>poetry</em> to manage package dependencies and virtual envs.  </p>
+
+<p>First, you need to install <em>poetry</em> on your system from 
+<a href="https://python-poetry.org/docs/#installation">https://python-poetry.org/docs/#installation</a>.</p>
+
 <h2 id="example-of-running-the-chain">Example of Running the Chain</h2>
 
 <pre><code>cd $CLEV2ER_BASE_DIR/src/clev2er/tools
@@ -143,26 +151,36 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">* poetry package dependency management</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">* pdoc automated documentation to GitHub pages</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">## Environment Setup</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">The following environment variables need to be set. In a bash shell this might be done</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">by adding export lines to your $HOME/.bash_profile file.  </span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">the PYTHONPATH to point to the packages src directory. Here is an example:  </span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">```script</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">```</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">## Example of Running the Chain</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">## Environment Setup</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">The following environment variables need to be set. In a bash shell this might be done</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">by adding export lines to your $HOME/.bash_profile file.  </span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">the PYTHONPATH to point to the packages src directory. Here is an example:  </span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">```script</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">```</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">```script</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">cd $CLEV2ER_BASE_DIR/src/clev2er/tools</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">```</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">## Virtual Environment and Package Requirements</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">This project uses *poetry* to manage package dependencies and virtual envs.  </span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">First, you need to install *poetry* on your system from </span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">https://python-poetry.org/docs/#installation.</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">## Example of Running the Chain</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">```script</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">cd $CLEV2ER_BASE_DIR/src/clev2er/tools</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">```</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
