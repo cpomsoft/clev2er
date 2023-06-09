@@ -47,13 +47,31 @@ export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 This project uses *poetry* to manage package dependencies and virtual envs.  
 
 First, you need to install *poetry* on your system from 
-https://python-poetry.org/docs/#installation.
+https://python-poetry.org/docs/#installation.  
+
+Run the following command to install python dependencies for this package
+(for info, it uses settings in pyproject.toml to know what to install)
+
+`poetry install`  
+
+Finally, to load the virtual env, type:  
+
+`poetry shell`  
+
+You should now be setup to run processing chains, etc.
 
 
 ## Example of Running the Chain
+
+This example runs the processing chain *cryotempo* on every L1b file in 
+/path/to/l1b_files. It uses all the default configuration files for that chain.
 
 ```script
 cd $CLEV2ER_BASE_DIR/src/clev2er/tools
 python run_chain.py --name cryotempo -d /path/to/l1b_files
 ```
+
+To find all the command line options for *run_chain.py*, type:  
+
+`python run_chain.py -h`
 """

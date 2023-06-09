@@ -109,13 +109,31 @@ export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 <p>This project uses <em>poetry</em> to manage package dependencies and virtual envs.  </p>
 
 <p>First, you need to install <em>poetry</em> on your system from 
-<a href="https://python-poetry.org/docs/#installation">https://python-poetry.org/docs/#installation</a>.</p>
+<a href="https://python-poetry.org/docs/#installation">https://python-poetry.org/docs/#installation</a>.  </p>
+
+<p>Run the following command to install python dependencies for this package
+(for info, it uses settings in pyproject.toml to know what to install)</p>
+
+<p><code>poetry install</code>  </p>
+
+<p>Finally, to load the virtual env, type:  </p>
+
+<p><code>poetry shell</code>  </p>
+
+<p>You should now be setup to run processing chains, etc.</p>
 
 <h2 id="example-of-running-the-chain">Example of Running the Chain</h2>
+
+<p>This example runs the processing chain <em>cryotempo</em> on every L1b file in 
+/path/to/l1b_files. It uses all the default configuration files for that chain.</p>
 
 <pre><code>cd $CLEV2ER_BASE_DIR/src/clev2er/tools
 python run_chain.py --name cryotempo -d /path/to/l1b_files
 </code></pre>
+
+<p>To find all the command line options for <em>run_chain.py</em>, type:  </p>
+
+<p><code>python run_chain.py -h</code></p>
 </div>
 
                         <input id="mod-clev2er-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -171,16 +189,34 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">This project uses *poetry* to manage package dependencies and virtual envs.  </span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
 </span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">First, you need to install *poetry* on your system from </span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">https://python-poetry.org/docs/#installation.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">https://python-poetry.org/docs/#installation.  </span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">## Example of Running the Chain</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="sd">Run the following command to install python dependencies for this package</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="sd">(for info, it uses settings in pyproject.toml to know what to install)</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">```script</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">cd $CLEV2ER_BASE_DIR/src/clev2er/tools</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">```</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">`poetry install`  </span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">Finally, to load the virtual env, type:  </span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">`poetry shell`  </span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">You should now be setup to run processing chains, etc.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="sd">## Example of Running the Chain</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="sd">This example runs the processing chain *cryotempo* on every L1b file in </span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="sd">/path/to/l1b_files. It uses all the default configuration files for that chain.</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="sd">```script</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="sd">cd $CLEV2ER_BASE_DIR/src/clev2er/tools</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a><span class="sd">```</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a><span class="sd">To find all the command line options for *run_chain.py*, type:  </span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a><span class="sd">`python run_chain.py -h`</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
