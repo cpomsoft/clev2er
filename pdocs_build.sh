@@ -1,6 +1,6 @@
 #!/bin/sh
 
-pdoc -o docs src/clev2er  --logo "https://drive.google.com/file/d/14RcuFBIDA3tBH9kvGjqp8LxDvP5dK-5O/view?usp=sharing" --docformat google
+pdoc -o docs src/clev2er  --logo "http://www.cpom.ucl.ac.uk/downloads/mssl_logo.png" --docformat google
 git add docs
 
 exit 0
