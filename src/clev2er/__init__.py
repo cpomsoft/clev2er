@@ -27,7 +27,15 @@
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
 
+## Installation
 
+Clone the git repository:   
+with ssh:  
+`git clone https://github.com/cpomsoft/clev2er.git`
+or with ssh:  
+`git clone git@github.com:cpomsoft/clev2er.git`
+or with the GitHub CLI:
+`gh repo clone cpomsoft/clev2er`
 
 ## Environment Setup
 
