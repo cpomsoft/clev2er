@@ -24,11 +24,11 @@
 ## Packaging/Workflow
 
 * pre-commit git hooks for automated static code analysis
-- lint
-- flake8
-- black
-- pylint
-- isort
+    - lint
+    - flake8
+    - black
+    - pylint
+    - isort
 
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
