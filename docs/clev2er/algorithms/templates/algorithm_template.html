@@ -76,7 +76,7 @@
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="c1"># These imports required by Algorithm template</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">codetiming</span> <span class="kn">import</span> <span class="n">Timer</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>  <span class="c1"># pylint:disable=E0611</span>
@@ -95,7 +95,7 @@
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">:</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Algorithm to&quot;&quot;&quot;</span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;initializes the Algorithm</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">        Args:</span>
@@ -213,7 +213,7 @@
             <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm-22"><a href="#Algorithm-22"><span class="linenos"> 22</span></a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">:</span>
 </span><span id="Algorithm-23"><a href="#Algorithm-23"><span class="linenos"> 23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Algorithm to&quot;&quot;&quot;</span>
 </span><span id="Algorithm-24"><a href="#Algorithm-24"><span class="linenos"> 24</span></a>
-</span><span id="Algorithm-25"><a href="#Algorithm-25"><span class="linenos"> 25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm-25"><a href="#Algorithm-25"><span class="linenos"> 25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Algorithm-26"><a href="#Algorithm-26"><span class="linenos"> 26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;initializes the Algorithm</span>
 </span><span id="Algorithm-27"><a href="#Algorithm-27"><span class="linenos"> 27</span></a>
 </span><span id="Algorithm-28"><a href="#Algorithm-28"><span class="linenos"> 28</span></a><span class="sd">        Args:</span>
@@ -324,13 +324,13 @@
                                         <input id="Algorithm.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">Algorithm</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">built</span><span class="o">-</span><span class="ow">in</span> <span class="n">function</span> <span class="nb">any</span><span class="o">&gt;</span><span class="p">]</span></span>)</span>
+        <span class="name">Algorithm</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></span>)</span>
 
                 <label class="view-source-button" for="Algorithm.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#Algorithm.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.__init__-25"><a href="#Algorithm.__init__-25"><span class="linenos">25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.__init__-25"><a href="#Algorithm.__init__-25"><span class="linenos">25</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Algorithm.__init__-26"><a href="#Algorithm.__init__-26"><span class="linenos">26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;initializes the Algorithm</span>
 </span><span id="Algorithm.__init__-27"><a href="#Algorithm.__init__-27"><span class="linenos">27</span></a>
 </span><span id="Algorithm.__init__-28"><a href="#Algorithm.__init__-28"><span class="linenos">28</span></a><span class="sd">        Args:</span>

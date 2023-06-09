@@ -100,4 +100,26 @@ To find all the command line options for *run_chain.py*, type:
 
 ### Automatic documentation
 
+This user manual is hosted on GitHub pages.  
+
+Content is created from doctrings in the code, using the *pdoc* package : https://pdoc.dev
+
+The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
+(hook id: pdocs_build).
+Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`
+
+The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site 
+whenever a `git commit` is run.
+
+When a `git push` is run, GitHub automatically extracts the site from the 
+docs directory and publishes it.
+
+The front page of the site (ie this page) is located in the doctring within 
+`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.
+
+The docstring within `__init__.py` of each package directory should provide
+markdown to describe the directories beneath it.
+
+
+
 """

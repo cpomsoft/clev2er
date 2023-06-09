@@ -4,6 +4,7 @@
 import glob
 import logging
 import os
+from typing import Any, Dict
 
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
@@ -56,7 +57,7 @@ def test_alg_identify_file() -> None:
         assert False, f"{l1b_file} could not be read"
 
     # Run  Algorithm.process()
-    shared_dict = {}
+    shared_dict: Dict[str, Any] = {}
     success, error_str = thisalg.process(l1b, shared_dict, log, 0)
 
     assert success, f"Algorithm.process failed due to {error_str}"

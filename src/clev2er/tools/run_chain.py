@@ -20,7 +20,7 @@ import types
 from logging.handlers import QueueHandler
 from math import ceil
 from multiprocessing import Process, Queue, current_process
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 import numpy as np
 from codetiming import Timer
@@ -63,7 +63,13 @@ def sort_file_by_number(filename: str) -> None:
         lines = file.readlines()
 
     # Extract the numbers following [f and remove [fn] from each line
-    numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
+    # numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
+    numbers = []
+    for line in lines:
+        match = re.search(r"\[f(\d+)\]", line)
+        if match is not None:
+            number = int(match.group(1))
+            numbers.append(number)
     sorted_lines = [
         re.sub(r"\[f\d+\]", "", line) for _, line in sorted(zip(numbers, lines))
     ]
@@ -141,8 +147,8 @@ def run_chain_on_single_file(
     alg_object_list,
     config: dict,
     log: logging.Logger,
-    log_queue: Queue,
-    rval_queue: Queue,
+    log_queue: Optional[Queue],
+    rval_queue: Optional[Queue],
     filenum: int,
 ) -> tuple[bool, str]:
     """Runs the algorithm chain on a single L1b file
@@ -164,7 +170,8 @@ def run_chain_on_single_file(
         # create a logger
         logger = logging.getLogger("mp")
         # add a handler that uses the shared queue
-        logger.addHandler(QueueHandler(log_queue))
+        if log_queue is not None:
+            logger.addHandler(QueueHandler(log_queue))
         # log all messages, debug and up
         logger.setLevel(logging.DEBUG)
         # get the current process
@@ -185,7 +192,8 @@ def run_chain_on_single_file(
         error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
-            rval_queue.put((False, error_str, Timer.timers))
+            if rval_queue is not None:
+                rval_queue.put((False, error_str, Timer.timers))
         return (False, error_str)
 
     # ------------------------------------------------------------------------
@@ -215,7 +223,8 @@ def run_chain_on_single_file(
                     error_str,
                 )
             if config["chain"]["use_multi_processing"]:
-                rval_queue.put((False, error_str, Timer.timers))
+                if rval_queue is not None:
+                    rval_queue.put((False, error_str, Timer.timers))
             nc.close()
             return (False, error_str)
     nc.close()
@@ -223,7 +232,8 @@ def run_chain_on_single_file(
     # thislog.debug("[f%d] working_dict=%s", filenum, working_dict)
 
     if config["chain"]["use_multi_processing"]:
-        rval_queue.put((True, "", Timer.timers))
+        if rval_queue is not None:
+            rval_queue.put((True, "", Timer.timers))
     return (True, "")
 
 
@@ -335,7 +345,7 @@ def run_chain(
         # With multi-processing we need to redirect logging to a stream
 
         # create a shared logging queue for multiple processes to use
-        log_queue = Queue()
+        log_queue: Queue = Queue()
 
         # create a logger
         new_logger = logging.getLogger("mp")
@@ -377,7 +387,7 @@ def run_chain(
             )
 
             # Create separate queue for each new process to handle function return values
-            rval_queues = [Queue() for _ in range(num_procs)]
+            rval_queues: List[Queue] = [Queue() for _ in range(num_procs)]
 
             # configure child processes
             processes = [

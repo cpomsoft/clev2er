@@ -4,6 +4,7 @@
 import logging
 from os import environ
 from os.path import isfile
+from typing import Optional
 
 import numpy as np
 from netCDF4 import Dataset  # pylint: disable=E0611
@@ -34,7 +35,10 @@ class Mask:
     """class to handle area masking"""
 
     def __init__(
-        self, mask_name: str, basin_numbers: list[int] = None, mask_path: str = None
+        self,
+        mask_name: str,
+        basin_numbers: Optional[list[int]] = None,
+        mask_path: Optional[str] = None,
     ) -> None:
         """class initialization
 
@@ -87,7 +91,7 @@ class Mask:
 
             self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
 
-            if not mask_path:
+            if mask_path is None:
                 mask_file = (
                     f'{environ["CPDATA_DIR"]}/RESOURCES/surface_discrimination_masks'
                     "/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc"
@@ -246,7 +250,7 @@ class Mask:
         self,
         lats: np.ndarray,
         lons: np.ndarray,
-        basin_numbers: list[int] = None,
+        basin_numbers: Optional[list[int]] = None,
         inputs_are_xy: bool = False,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """find points inside mask

@@ -4,6 +4,7 @@
 import glob
 import logging
 import os
+from typing import Any, Dict
 
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
@@ -55,7 +56,7 @@ def test_alg_skip_on_area_bounds() -> None:
         assert False, f"{l1b_file} could not be read"
 
     # Run  Algorithm.process()
-    shared_dict = {}
+    shared_dict: Dict[str, Any] = {}
     # This should fail, as algorithm expects shared_dict['instr_mode'] to be present
     success, _ = thisalg.process(l1b, shared_dict, log, 0)
 

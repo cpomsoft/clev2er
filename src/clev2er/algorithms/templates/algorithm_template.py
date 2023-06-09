@@ -2,7 +2,7 @@
 
 # These imports required by Algorithm template
 import logging
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """Algorithm to"""
 
-    def __init__(self, config: Dict[str, any]) -> None:
+    def __init__(self, config: Dict[str, Any]) -> None:
         """initializes the Algorithm
 
         Args:
