@@ -30,7 +30,8 @@ The commit will fail if any of the tests fail for the following tools:
     - flake8
     - black
     - pylint
-    - isort  
+    - isort 
+    - mypy 
 
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
