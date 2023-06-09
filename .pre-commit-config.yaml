@@ -45,4 +45,4 @@ repos:
     hooks:
     -   id: flake8
         args: ['--max-line-length','100',
-               '--ignore','W291']
+               '--extend-ignore','W291']

@@ -477,8 +477,11 @@
 
             <div class="docstring"><p>initializes the Algorithm</p>
 
-<p>Args:
-    config (dict): configuration dictionary</p>
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>config (dict):</strong>  configuration dictionary</li>
+</ul>
 
 <p>Returns: None</p>
 </div>
@@ -517,9 +520,12 @@
 
             <div class="docstring"><p>Algorithm initialization</p>
 
-<p>Args:
-    mplog (logging.Logger): log instance to use
-    filenum (int): file number being processed</p>
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>mplog (logging.Logger):</strong>  log instance to use</li>
+<li><strong>filenum (int):</strong>  file number being processed</li>
+</ul>
 
 <p>Returns: (bool,str) : success or failure, error string</p>
 </div>
@@ -658,16 +664,22 @@
 
             <div class="docstring"><p>CLEV2ER Algorithm</p>
 
-<p>Args:
-    l1b (Dataset): input l1b file dataset (constant)
-    shared_dict (dict): shared_dict data passed between algorithms
-    mplog (logging.Logger): multi-processing safe logger to use
-    filenum (int) : file number of list of L1b files</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    Tuple : (success (bool), failure_reason (str))
-    ie
-    (False,'error string'), or (True,'')</p>
+<ul>
+<li><strong>l1b (Dataset):</strong>  input l1b file dataset (constant)</li>
+<li><strong>shared_dict (dict):</strong>  shared_dict data passed between algorithms</li>
+<li><strong>mplog (logging.Logger):</strong>  multi-processing safe logger to use</li>
+<li><strong>filenum (int) :</strong>  file number of list of L1b files</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Tuple : (success (bool), failure_reason (str))
+  ie
+  (False,'error string'), or (True,'')</p>
+</blockquote>
 
 <p>IMPORTANT NOTE: when logging within this function you must use the mplog logger
 with a filenum as an argument as follows:

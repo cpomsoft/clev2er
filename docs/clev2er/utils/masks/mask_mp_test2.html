@@ -728,11 +728,14 @@
 
             <div class="docstring"><p>class initialization</p>
 
-<p>Args:
-    mask_name (str): mask name, must be in global mask_list
-    basin_numbers (list[int], optional): list of grid values to select from grid masks
-                                         def=None
-    mask_path (str, optional): override default path of mask data file</p>
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>mask_name (str):</strong>  mask name, must be in global mask_list</li>
+<li><strong>basin_numbers (list[int], optional):</strong>  list of grid values to select from grid masks
+def=None</li>
+<li><strong>mask_path (str, optional):</strong>  override default path of mask data file</li>
+</ul>
 </div>
 
 
@@ -846,17 +849,23 @@
 It also returns (x,y) of all points to save having to transform
 them again.</p>
 
-<p>Args:
-    lats (np.ndarray|list[float]): list of latitude points
-    lons (np.ndarray|list[float]): list of longitude points
-    basin_numbers (list[int,], optional): list of basin numbers. Defaults to None.
-    inputs_are_xy (bool, optional): lats, lons are already transformed to x,y.
-                                    Defaults to False.</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    inmask(np.ndarray),x(np.ndarray),y(np.ndarray) : true where inside mask,
-                                                     transformed x locations, (all points)
-                                                     transformed y locations (all points)</p>
+<ul>
+<li><strong>lats (np.ndarray|list[float]):</strong>  list of latitude points</li>
+<li><strong>lons (np.ndarray|list[float]):</strong>  list of longitude points</li>
+<li><strong>basin_numbers (list[int,], optional):</strong>  list of basin numbers. Defaults to None.</li>
+<li><strong>inputs_are_xy (bool, optional):</strong>  lats, lons are already transformed to x,y.
+Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>inmask(np.ndarray),x(np.ndarray),y(np.ndarray) : true where inside mask,
+                                                   transformed x locations, (all points)
+                                                   transformed y locations (all points)</p>
+</blockquote>
 </div>
 
 
@@ -933,14 +942,20 @@ them again.</p>
 
             <div class="docstring"><p>Return the grid mask value at each input lats, lons interpolated grid location</p>
 
-<p>Args:
-    lats (np.ndarray): array of latitude (N) values in degrees
-    lons (np.ndarray): array of longitude (E) values in degrees
-    inputs_are_xy (bool): inputs are x,y values (m) instead of latitude, longitude values</p>
+<h6 id="arguments">Arguments:</h6>
 
-<p>Returns:
-    mask_values (np.ndarray): grid mask value at each input lats, lons interpolated
-                         grid location or np.NaN is outside area</p>
+<ul>
+<li><strong>lats (np.ndarray):</strong>  array of latitude (N) values in degrees</li>
+<li><strong>lons (np.ndarray):</strong>  array of longitude (E) values in degrees</li>
+<li><strong>inputs_are_xy (bool):</strong>  inputs are x,y values (m) instead of latitude, longitude values</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>mask_values (np.ndarray): grid mask value at each input lats, lons interpolated
+                       grid location or np.NaN is outside area</p>
+</blockquote>
 </div>
 
 

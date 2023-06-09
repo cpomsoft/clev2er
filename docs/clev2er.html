@@ -28,6 +28,8 @@
   <ul>
     <li><a href="#features">Features</a></li>
     <li><a href="#packagingworkflow">Packaging/Workflow</a></li>
+    <li><a href="#environment-setup">Environment Setup</a></li>
+    <li><a href="#example-of-running-the-chain">Example of Running the Chain</a></li>
   </ul></li>
 </ul>
 
@@ -57,7 +59,7 @@ clev2er    </h1>
 <p><strong>Pre-design</strong> of an Algorithm framework for </p>
 
 <ul>
-<li>CryoTEMPO Land Ice : <code><a href="clev2er/algorithms/cryotempo.html">clev2er.algorithms.cryotempo</a></code></li>
+<li>CryoTEMPO Land Ice : view the algorithms: <code><a href="clev2er/algorithms/cryotempo.html">clev2er.algorithms.cryotempo</a></code></li>
 <li>CLEV2ER Land Ice and Inland Waters</li>
 <li>Any other L1b->L2 chain</li>
 </ul>
@@ -88,6 +90,24 @@ clev2er    </h1>
 <li>poetry package dependency management</li>
 <li>pdoc automated documentation to GitHub pages</li>
 </ul>
+
+<h2 id="environment-setup">Environment Setup</h2>
+
+<p>The following environment variables need to be set. In a bash shell this might be done
+by adding export lines to your $HOME/.bash_profile file.  </p>
+
+<p>Set the <em>CLEV2ER_BASE_DIR</em> environment variable to the root of the clev2er package.  Then set
+the PYTHONPATH to point to the packages src directory. Here is an example:  </p>
+
+<pre><code>export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
+export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
+</code></pre>
+
+<h2 id="example-of-running-the-chain">Example of Running the Chain</h2>
+
+<pre><code>cd $CLEV2ER_BASE_DIR/src/clev2er/tools
+python run_chain.py --name cryotempo -d /path/to/l1b_files
+</code></pre>
 </div>
 
                         <input id="mod-clev2er-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -98,7 +118,7 @@ clev2er    </h1>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd"># CLEV2ER Algorithm Framework</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">**Pre-design** of an Algorithm framework for </span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">-   CryoTEMPO Land Ice : `clev2er.algorithms.cryotempo`</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">-   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">-   CLEV2ER Land Ice and Inland Waters</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">-   Any other L1b-&gt;L2 chain</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
@@ -123,8 +143,26 @@ clev2er    </h1>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">* poetry package dependency management</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">* pdoc automated documentation to GitHub pages</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">## Environment Setup</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">The following environment variables need to be set. In a bash shell this might be done</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">by adding export lines to your $HOME/.bash_profile file.  </span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">the PYTHONPATH to point to the packages src directory. Here is an example:  </span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">```script</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">```</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">## Example of Running the Chain</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">```script</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">cd $CLEV2ER_BASE_DIR/src/clev2er/tools</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">```</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 

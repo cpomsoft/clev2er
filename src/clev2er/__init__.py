@@ -2,7 +2,7 @@
 # CLEV2ER Algorithm Framework
 
 **Pre-design** of an Algorithm framework for 
--   CryoTEMPO Land Ice : `clev2er.algorithms.cryotempo`
+-   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
 -   CLEV2ER Land Ice and Inland Waters
 -   Any other L1b->L2 chain
 
@@ -27,5 +27,23 @@
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
 
+## Environment Setup
 
+The following environment variables need to be set. In a bash shell this might be done
+by adding export lines to your $HOME/.bash_profile file.  
+
+Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set
+the PYTHONPATH to point to the packages src directory. Here is an example:  
+
+```script
+export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
+export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
+```
+
+## Example of Running the Chain
+
+```script
+cd $CLEV2ER_BASE_DIR/src/clev2er/tools
+python run_chain.py --name cryotempo -d /path/to/l1b_files
+```
 """
