@@ -25,7 +25,7 @@
 
 * pre-commit git hooks for automated static code analysis. 
 These tools run whenever you do a `git commit`. 
-The commit will fail if any of the tests fail.  
+The commit will fail if any of the tests fail for the following tools:  
     - lint
     - flake8
     - black
