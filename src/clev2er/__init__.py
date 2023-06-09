@@ -101,9 +101,10 @@ To find all the command line options for *run_chain.py*, type:
 
 ### Automatic documentation
 
-This user manual is hosted on GitHub pages.  
+This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 
-Content is created from doctrings in the code, using the *pdoc* package : https://pdoc.dev
+Content is created from doctrings (optionally containing Markdown) in the code, 
+using the *pdoc* package : https://pdoc.dev
 
 The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
 (hook id: pdocs_build).
