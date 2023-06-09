@@ -29,11 +29,14 @@
 
 ## Installation
 
-Clone the git repository:   
-with ssh:  
+Clone the git repository: 
+
+with https:  
 `git clone https://github.com/cpomsoft/clev2er.git`  
+
 or with ssh:  
 `git clone git@github.com:cpomsoft/clev2er.git`  
+
 or with the GitHub CLI:  
 `gh repo clone cpomsoft/clev2er`  
 
