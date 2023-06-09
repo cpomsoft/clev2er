@@ -95,4 +95,9 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 To find all the command line options for *run_chain.py*, type:  
 
 `python run_chain.py -h`
+
+## Developer Notes
+
+### Automatic documentation
+
 """
