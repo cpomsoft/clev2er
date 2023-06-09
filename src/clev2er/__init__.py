@@ -30,7 +30,7 @@ The commit will fail if any of the tests fail.
     - flake8
     - black
     - pylint
-    - isort
+    - isort  
 
 * poetry package dependency management
 * pdoc automated documentation to GitHub pages
