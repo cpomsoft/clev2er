@@ -4,7 +4,7 @@
 **Pre-design** of an Algorithm framework for 
 -   CryoTEMPO Land Ice : `clev2er.algorithms.cryotempo`
 -   CLEV2ER Land Ice and Inland Waters
--   Any other L2 chain
+-   Any other L1b->L2 chain
 
 ## Features
 
