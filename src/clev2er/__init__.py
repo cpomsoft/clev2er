@@ -126,7 +126,8 @@ This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 Content is created from doctrings (optionally containing Markdown) in the code, 
 using the *pdoc* package : https://pdoc.dev
 
-Diagrams are implemented using Markdown and mermaid: https://mermaid.js.org
+Diagrams are implemented using Markdown : https://www.markdownguide.org/cheat-sheet/  
+and mermaid: https://mermaid.js.org
 
 The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
 (hook id: pdocs_build).
