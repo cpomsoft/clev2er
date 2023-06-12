@@ -6,6 +6,9 @@
 -   CLEV2ER Land Ice and Inland Waters
 -   Any other L1b->L2 chain
 
+The diagram below shows a simplified representation of the framework and its components.
+
+
 ```mermaid
 graph LR;
     L1b(L1b)-->Alg1
@@ -14,6 +17,13 @@ graph LR;
     Alg3-->Alg4;
     Alg4-->AlgN;
     AlgN-->L2(L2)
+    S(Shared Dict)
+    S<-.->Alg1 & Alg3 & Alg4 & AlgN
+    S-.->Alg2 
+```
+```mermaid
+graph LR;
+    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)
 ```
 
 ## Features
@@ -115,6 +125,8 @@ This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 
 Content is created from doctrings (optionally containing Markdown) in the code, 
 using the *pdoc* package : https://pdoc.dev
+
+Diagrams are implemented using Markdown and mermaid: https://mermaid.js.org
 
 The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
 (hook id: pdocs_build).
