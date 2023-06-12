@@ -1,29 +1,26 @@
-""" clev2er.algorithms.cryotempo.alg_template """
+""" clev2er.algorithms.templates.algorithm_template"""
 
 # These imports required by Algorithm template
 import logging
 from typing import Any, Dict, Tuple
 
-from codetiming import Timer
+from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
 
 # -------------------------------------------------
 
-
+# pylint config
 # Similar lines in 2 files, pylint: disable=R0801
+# Too many return statements, pylint: disable=R0911
 
 log = logging.getLogger(__name__)
 
 
-# Too many return statements, pylint: disable=R0911
-
-
 class Algorithm:
-    """Algorithm to"""
+    """Template Algorithm : include algorithm description here"""
 
     def __init__(self, config: Dict[str, Any]) -> None:
-        """initializes the Algorithm
-
+        """
         Args:
             config (dict): configuration dictionary
 
@@ -41,7 +38,7 @@ class Algorithm:
         _, _ = self.init(log, 0)
 
     def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
-        """Algorithm initialization
+        """Algorithm initialization template
 
         Args:
             mplog (logging.Logger): log instance to use
@@ -75,9 +72,11 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        IMPORTANT NOTE: when logging within this function you must use the mplog logger
-        with a filenum as an argument as follows:
-        mplog.debug,info,error("[f%d] your message",filenum)
+        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
+        the mplog logger with a filenum as an argument:
+
+        `mplog.error("[f%d] your message",filenum)`
+
         This is required to support logging during multi-processing
         """
 

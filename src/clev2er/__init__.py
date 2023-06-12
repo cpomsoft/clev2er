@@ -6,6 +6,16 @@
 -   CLEV2ER Land Ice and Inland Waters
 -   Any other L1b->L2 chain
 
+```mermaid
+graph LR;
+    L1b(L1b)-->Alg1
+    Alg1-->Alg2;
+    Alg2-->Alg3;
+    Alg3-->Alg4;
+    Alg4-->AlgN;
+    AlgN-->L2(L2)
+```
+
 ## Features
 
 * Command line tool : src/tools/run_chain.py
@@ -98,12 +108,6 @@ To find all the command line options for *run_chain.py*, type:
 `python run_chain.py -h`
 
 ## Developer Notes
-
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
 
 ### Automatic documentation
 

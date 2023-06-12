@@ -1,12 +1,17 @@
 """
------------------
-Top Level Algorithm Description
------------------
-The clev2er -> **algorithms** contains directories for each chain, using the chain name.  
 
-For example:  
+# Algorithm Directories
 
-`clev2er/algorithms/cryotempo`  
+The clev2er -> **algorithms** contains sub-directories for each chain.  
 
-in this case **cryotempo** is the chain name.
+For example:  `clev2er.algorithms.cryotempo`
+
+in this case **cryotempo** is the chain name, and the *cryotempo* directory contains
+algorithms for its chain.
+
+## Templates directory
+
+The `clev2er.algorithms.templates` directory contains a template algorithm to be copied for
+new chain algorithms.
+
 """
