@@ -28,7 +28,7 @@ graph LR;
 
 ## Features
 
-* Command line tool : src/tools/run_chain.py
+* Command line tool : src/clev2er/tools/run_chain.py
 * input L1b file selection (single file or multiple files)
 * dynamic algorithm loading from YML list(s)
   * algorithms are classes of type Algorithm with .__init__(), .process(), .finalize()
@@ -98,10 +98,25 @@ Run the following command to install python dependencies for this package
 
 Finally, to load the virtual env, type:  
 
-`poetry shell`  
+```
+cd $CLEV2ER_BASE_DIR
+poetry shell
+```  
 
 You should now be setup to run processing chains, etc.
 
+## Chain Configuration
+
+A number of different YML format configuration files are passed to 
+the chain's algorithms, via a merged python dictionary.
+
+### Main Configuration
+
+The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`  
+
+This contains settings for :  
+- default location of log files (INFO, DEBUG,ERROR)
+- default multi-processing settings (mp enabled/disabled, max number of cores)
 
 ## Example of Running the Chain
 
@@ -117,17 +132,20 @@ To find all the command line options for *run_chain.py*, type:
 
 `python run_chain.py -h`
 
+For further info, please see `clev2er.tools`
+
 ## Developer Notes
 
 ### Automatic documentation
 
 This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 
-Content is created from doctrings (optionally containing Markdown) in the code, 
+Content is created from doctrings 
+(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code ) 
+in the code, 
 using the *pdoc* package : https://pdoc.dev
 
-Diagrams are implemented using Markdown : https://www.markdownguide.org/cheat-sheet/  
-and mermaid: https://mermaid.js.org
+Diagrams are implemented using mermaid: https://mermaid.js.org
 
 The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
 (hook id: pdocs_build).
@@ -144,7 +162,5 @@ The front page of the site (ie this page) is located in the doctring within
 
 The docstring within `__init__.py` of each package directory should provide
 markdown to describe the directories beneath it.
-
-
 
 """

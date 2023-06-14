@@ -1,6 +1,6 @@
 """
 
-# Algorithm Directories
+## Algorithm Directories
 
 The clev2er -> **algorithms** contains sub-directories for each chain.  
 
