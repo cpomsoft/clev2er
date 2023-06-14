@@ -2,7 +2,8 @@
 
 Pre-design of an Algorithm framework for CLEV2ER LI+IW, SI projects
 
-Documentation at : <https://cpomsoft.github.io/clev2er/>
+**Documentation and API at : <https://cpomsoft.github.io/clev2er/>**
+
 
 ## Features
 
