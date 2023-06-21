@@ -29,8 +29,8 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """**Algorithm to retrack CS2 waveforms**
 
-    **For SARin** waveforms: `cs2_sin_max_coherence_retracker()`
-    **For LRM** waveforms: `cs2_tcog_retracker()`
+    **For SARin** waveforms: `cs2_sin_max_coherence_retracker()` called<br>
+    **For LRM** waveforms: `cs2_tcog_retracker()` called
 
     Tuning thesholds in config.
 
