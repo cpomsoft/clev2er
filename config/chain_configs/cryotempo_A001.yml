@@ -19,3 +19,30 @@ sin_waveform_quality_tests:
   total_power_threshold: 5e-17
   low_position_max_power: 2
   high_position_max_power: 1011
+
+# Retracker Thresholds
+# TCOG Retracker
+tcog_retracker:
+  retrack_threshold_lrm: 0.2
+  retrack_threshold_sin: 0.5
+  ref_bin_ind_lrm: 64
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.2
+
+# Maximum Coherence Retracker
+mc_retracker:
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.2
+  coherence_smoothing_width: 9 

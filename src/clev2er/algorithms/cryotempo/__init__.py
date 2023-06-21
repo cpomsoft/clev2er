@@ -10,18 +10,23 @@ Click on the algorithm names in the Submodules section to the left to view furth
 details on each Algorithm.
 
 ```mermaid
-graph TD;
+graph LR;
     AA(L1b)-->A
     A[alg_identify_file]-->B[alg_skip_on_mode]
     B-->C[alg_skip_on_area_bounds]
     C-->D[alg_dilated_coastal_mask]
-    D-->E[alg_fes2014b_tide_correction]
-    E-->F[alg_cats2008a_tide_correction]
+```
+```mermaid
+graph LR;
+    E[alg_cats2008a_tide_correction]-->F[alg_cats2008a_tide_correction]
     F-->G[alg_geo_corrections]
     G-->H[alg_waveform_quality]
-    H-->I[...]
-    I-->L2(L2)
 ```
+```mermaid
+graph LR;
+    I[alg_retrack]-->L2[L2]
+```
+
 
 
 

@@ -118,6 +118,11 @@ This contains settings for :
 - default location of log files (INFO, DEBUG,ERROR)
 - default multi-processing settings (mp enabled/disabled, max number of cores)
 
+### Chain Specific Configuration
+
+The default chain specific configuration file is 
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
+
 ## Example of Running the Chain
 
 This example runs the processing chain *cryotempo* on every L1b file in 

@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to find the instrument mode in a CS2 L1b file
+    """**Algorithm to find the instrument mode in a CS2 L1b file**
 
     if mode is LRM or SIN, shared_dict['instr_mode] is set to 'LRM' or 'SIN'
 

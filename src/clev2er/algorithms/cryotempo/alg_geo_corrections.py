@@ -21,13 +21,13 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to calculate geophysical corrections for l1b file
+    """**Algorithm to calculate geophysical corrections for a CS2 l1b file**
 
     1b) Calculate sum of geo-corrections
     Floating ice/ocean: DRY + WET + DAC + GIM + OT + LPEOT + OLT + SET + GPT
     Land ice:           DRY + WET +       GIM +              OLT + SET + GPT
-    to be stored in a new netcdf variable: sum_cor_20_ku
-    Use ind_meas_1hz_20_ku to find index in 20hz
+
+    Sum of geo -corrections returned in `shared_dict["sum_cor_20_ku"]`
 
     """
 

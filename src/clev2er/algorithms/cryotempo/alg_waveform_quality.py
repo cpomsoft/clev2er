@@ -24,10 +24,32 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to perform waveform quality checks"""
+    """**Algorithm to perform waveform quality checks**.
+
+    Separate checks for SARIN and LRM waveforms
+
+    SARIN waveforms : `sarin_waveform_qc_checks()`<br>
+        thresholds :<br>
+        config["sin_waveform_quality_tests"]["total_power_threshold"]<br>
+        config["sin_waveform_quality_tests"]["low_peakiness_threshold"]<br>
+        config["sin_waveform_quality_tests"]["low_position_max_power"]<br>
+        config["sin_waveform_quality_tests"]["high_position_max_power"]
+
+
+    LRM waveforms: `lrm_waveform_qc_checks()`<br>
+        config["lrm_waveform_quality_tests"]["total_power_threshold"]<br>
+        config["lrm_waveform_quality_tests"]["low_peakiness_threshold"]<br>
+        config["lrm_waveform_quality_tests"]["high_peakiness_threshold"]<br>
+
+    **Contribution to shared_dict**:<br>
+    `shared_dict["waveforms_to_include"]` : nd.array of size num_records containing bool vals
+    indicating to include waveform in future analysis based on waveform quality and being
+    inside dilated surface mask
+    """
 
     def __init__(self, config: dict) -> None:
-        """initializes the Algorithm
+        """initializes the Algorithm: calls the init() function
+        if not in multi-processing mode
 
         Args:
             config (dict): configuration dictionary
@@ -65,23 +87,28 @@ class Algorithm:
     def process(
         self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
     ) -> tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Algorithm process function to perform waveform quality checks
+            on SIN and LRM waveforms in a CS2 L1b dataset.
 
-        Args:
-            l1b (Dataset): input l1b file dataset (constant)
-            shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
-            filenum (int) : file number of list of L1b files
+        calculates `shared_dict["waveforms_to_include"]` :  nd.array of size num_records
+        containing bool vals indicating to include waveform in future analysis based on
+        waveform quality and being inside dilated surface mask
 
-        Returns:
-            Tuple : (success (bool), failure_reason (str))
-            ie
-            (False,'error string'), or (True,'')
+            Args:
+                l1b (Dataset): input l1b file dataset (constant)
+                shared_dict (dict): shared_dict data passed between algorithms
+                mplog (logging.Logger): multi-processing safe logger to use
+                filenum (int) : file number of list of L1b files
 
-        IMPORTANT NOTE: when logging within this function you must use the mplog logger
-        with a filenum as an argument as follows:
-        mplog.debug,info,error("[f%d] your message",filenum)
-        This is required to support logging during multi-processing
+            Returns:
+                Tuple : (success (bool), failure_reason (str))
+                ie
+                (False,'error string'), or (True,'')
+
+            IMPORTANT NOTE: when logging within this function you must use the mplog logger
+            with a filenum as an argument as follows:
+            mplog.debug,info,error("[f%d] your message",filenum)
+            This is required to support logging during multi-processing
         """
 
         # When using multi-processing it is faster to initialize the algorithm

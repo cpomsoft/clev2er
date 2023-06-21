@@ -16,6 +16,12 @@ chain:
   # default is to skip file if an algorithm returns failure and continue
   stop_on_error: false
 
+# Geophysical parameters
+geophysical:
+  earth_semi_major: 6378137.0
+  eccentricity: 0.08181919078479198
+  speed_light: 299792458.0
+
 # Resource Locators
 surface_type_masks:
   antarctica_bedmachine_v2_grid_mask: ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc

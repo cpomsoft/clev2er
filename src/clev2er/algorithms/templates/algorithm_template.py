@@ -17,10 +17,11 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Template Algorithm : include algorithm description here"""
+    """**Algorithm to do...**."""
 
     def __init__(self, config: Dict[str, Any]) -> None:
         """
+        Runs init() if not in multi-processing mode
         Args:
             config (dict): configuration dictionary
 
