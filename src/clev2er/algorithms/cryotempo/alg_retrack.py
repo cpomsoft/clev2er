@@ -29,10 +29,11 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """**Algorithm to retrack CS2 waveforms**
 
-    **For SARin** waveforms: `cs2_sin_max_coherence_retracker()` called<br>
+    **For SARin** waveforms:
+    `clev2er.utils.cs2.retrackers.cs2_sin_max_coherence_retracker` called<br>
     **For LRM** waveforms: `cs2_tcog_retracker()` called
 
-    Tuning thesholds in config.
+    Tuning thresholds are set in config.
 
     """
 
@@ -77,7 +78,7 @@ class Algorithm:
     def process(
         self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
     ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """CLEV2ER Algorithm to perform retracking
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
@@ -251,6 +252,11 @@ class Algorithm:
             0.5 * self.config["geophysical"]["speed_light"] * window_del_20_ku
             + shared_dict["sum_cor_20_ku"]
             + dr_meters
+        )
+
+        shared_dict["num_retracker_failures"] = n_retrack_failed
+        shared_dict["percent_retracker_failure"] = (
+            100.0 * n_retrack_failed / n_waveforms_to_include
         )
 
         # Return success (True,'')

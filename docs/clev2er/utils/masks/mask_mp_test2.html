@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 13.1.1"/>
+    <meta name="generator" content="pdoc 14.0.0"/>
     <title>clev2er.utils.masks.mask_mp_test2 API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -61,18 +61,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Mask.latlon_to_xy">latlon_to_xy</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#Algorithm">Algorithm</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Algorithm.__init__">Algorithm</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Algorithm.process">process</a>
                         </li>
                 </ul>
 
@@ -1011,80 +999,6 @@ Defaults to False.</li>
 </blockquote>
 </div>
 
-
-                            </div>
-                </section>
-                <section id="Algorithm">
-                            <input id="Algorithm-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Algorithm</span>:
-
-                <label class="view-source-button" for="Algorithm-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Algorithm"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm-267"><a href="#Algorithm-267"><span class="linenos">267</span></a><span class="k">class</span> <span class="nc">Algorithm</span><span class="p">:</span>
-</span><span id="Algorithm-268"><a href="#Algorithm-268"><span class="linenos">268</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-</span><span id="Algorithm-269"><a href="#Algorithm-269"><span class="linenos">269</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing algorithm&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-270"><a href="#Algorithm-270"><span class="linenos">270</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">thismask</span> <span class="o">=</span> <span class="n">mask</span>
-</span><span id="Algorithm-271"><a href="#Algorithm-271"><span class="linenos">271</span></a>
-</span><span id="Algorithm-272"><a href="#Algorithm-272"><span class="linenos">272</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-</span><span id="Algorithm-273"><a href="#Algorithm-273"><span class="linenos">273</span></a>        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="Algorithm-274"><a href="#Algorithm-274"><span class="linenos">274</span></a>        <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">72.0</span><span class="p">,</span> <span class="mf">73.0</span><span class="p">])</span>
-</span><span id="Algorithm-275"><a href="#Algorithm-275"><span class="linenos">275</span></a>        <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">38</span><span class="p">,</span> <span class="o">-</span><span class="mi">39</span><span class="p">])</span>
-</span><span id="Algorithm-276"><a href="#Algorithm-276"><span class="linenos">276</span></a>        <span class="n">mask_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thismask</span><span class="o">.</span><span class="n">grid_mask_values</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">)</span>
-</span><span id="Algorithm-277"><a href="#Algorithm-277"><span class="linenos">277</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mask_values</span><span class="p">)</span>
-</span><span id="Algorithm-278"><a href="#Algorithm-278"><span class="linenos">278</span></a>        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="Algorithm-279"><a href="#Algorithm-279"><span class="linenos">279</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-</span></pre></div>
-
-
-    
-
-                            <div id="Algorithm.__init__" class="classattr">
-                                        <input id="Algorithm.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="name">Algorithm</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">mask</span></span>)</span>
-
-                <label class="view-source-button" for="Algorithm.__init__-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Algorithm.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.__init__-268"><a href="#Algorithm.__init__-268"><span class="linenos">268</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-</span><span id="Algorithm.__init__-269"><a href="#Algorithm.__init__-269"><span class="linenos">269</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing algorithm&quot;</span><span class="p">)</span>
-</span><span id="Algorithm.__init__-270"><a href="#Algorithm.__init__-270"><span class="linenos">270</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">thismask</span> <span class="o">=</span> <span class="n">mask</span>
-</span></pre></div>
-
-
-    
-
-                            </div>
-                            <div id="Algorithm.process" class="classattr">
-                                        <input id="Algorithm.process-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">process</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">i</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="Algorithm.process-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Algorithm.process"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.process-272"><a href="#Algorithm.process-272"><span class="linenos">272</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-</span><span id="Algorithm.process-273"><a href="#Algorithm.process-273"><span class="linenos">273</span></a>        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="Algorithm.process-274"><a href="#Algorithm.process-274"><span class="linenos">274</span></a>        <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">72.0</span><span class="p">,</span> <span class="mf">73.0</span><span class="p">])</span>
-</span><span id="Algorithm.process-275"><a href="#Algorithm.process-275"><span class="linenos">275</span></a>        <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">38</span><span class="p">,</span> <span class="o">-</span><span class="mi">39</span><span class="p">])</span>
-</span><span id="Algorithm.process-276"><a href="#Algorithm.process-276"><span class="linenos">276</span></a>        <span class="n">mask_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thismask</span><span class="o">.</span><span class="n">grid_mask_values</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">)</span>
-</span><span id="Algorithm.process-277"><a href="#Algorithm.process-277"><span class="linenos">277</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mask_values</span><span class="p">)</span>
-</span><span id="Algorithm.process-278"><a href="#Algorithm.process-278"><span class="linenos">278</span></a>        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="Algorithm.process-279"><a href="#Algorithm.process-279"><span class="linenos">279</span></a>        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-</span></pre></div>
-
-
-    
 
                             </div>
                 </section>

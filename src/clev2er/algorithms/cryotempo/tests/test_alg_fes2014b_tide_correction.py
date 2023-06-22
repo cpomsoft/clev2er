@@ -68,7 +68,6 @@ def test_alg_fes2014b_tide_correction() -> None:
         l1b["lon_20_ku"][:].data % 360.0
     )  # [-180,+180E] -> 0..360E
 
-    # This should fail, as no matching FES2014b
     success, _ = thisalg.process(l1b, shared_dict, log, 0)
 
     assert success, "Should succeed as matching FES2014b file available"
