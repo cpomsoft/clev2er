@@ -18,7 +18,7 @@ graph LR;
 ```
 ```mermaid
 graph LR;
-    E[alg_cats2008a_tide_correction]-->F[alg_cats2008a_tide_correction]
+    E[alg_cats2008a_tide_correction]-->F[alg_fes2014b_tide_correction]
     F-->G[alg_geo_corrections]
     G-->H[alg_waveform_quality]
 ```
