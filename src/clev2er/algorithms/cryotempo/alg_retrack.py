@@ -140,10 +140,11 @@ class Algorithm:
                 dr_meters,
                 _,  # leading_edge_start
                 _,  # leading_edge_stop
-                _,  # pwr_at_rtrk_point
+                pwr_at_rtrk_point,
                 n_retrack_failed,
                 _,  # retracker_flags
             ) = retrack_cs2_sin_max_coherence(
+                plot_flag=self.config["mc_retracker"]["show_plots"],
                 waveforms=pwr_waveform_20_ku,  # input waveforms
                 coherence=coherence_waveform_20_ku,  # coherence waveform (SIN only)
                 ref_bin_ind_sin=ref_bin_index,
@@ -190,10 +191,11 @@ class Algorithm:
                 dr_meters,
                 _,  # leading_edge_start
                 _,  # leading_edge_stop
-                _,  # pwr_at_rtrk_point,
+                pwr_at_rtrk_point,
                 n_retrack_failed,
                 _,  # retracker_flags
             ) = retrack_tcog_waveforms_cs2(
+                plot_flag=self.config["tcog_retracker"]["show_plots"],
                 waveforms=pwr_waveform_20_ku,  # input waveforms
                 retrack_threshold_lrm=ref_bin_index,
                 ref_bin_ind_lrm=self.config["tcog_retracker"][
@@ -247,6 +249,8 @@ class Algorithm:
         # --------------------------------------------------------------------------------------
 
         window_del_20_ku = l1b.variables["window_del_20_ku"][:].data
+
+        shared_dict["pwr_at_rtrk_point"] = pwr_at_rtrk_point
 
         shared_dict["range_cor_20_ku"] = (
             0.5 * self.config["geophysical"]["speed_light"] * window_del_20_ku

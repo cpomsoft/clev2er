@@ -34,6 +34,7 @@ tcog_retracker:
   noise_threshold: 0.3
   le_id_threshold: 0.05
   le_dp_threshold: 0.2
+  show_plots: false
 
 # Maximum Coherence Retracker
 mc_retracker:
@@ -46,3 +47,9 @@ mc_retracker:
   le_id_threshold: 0.05
   le_dp_threshold: 0.2
   coherence_smoothing_width: 9 
+  show_plots: false
+
+# Backscatter
+backscatter:
+  sigma_bias_lrm: 3.45         
+  sigma_bias_sin: 13.23   

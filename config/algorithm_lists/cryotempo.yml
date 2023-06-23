@@ -11,3 +11,4 @@ algorithms:
  # - alg_dump # dump the shared dict
   - alg_waveform_quality # waveform quality checks for LRM & SIN
   - alg_retrack # calls LRM (TCOG) or SIN (MC) retrackers
+  - alg_backscatter # calculate backscatter
