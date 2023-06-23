@@ -24,7 +24,13 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """**Algorithm to Calculate Backscatter from CS2 L1b dataset**."""
+    """**Algorithm to Calculate Backscatter from CS2 L1b dataset**.
+
+    **Required from other algorithms**
+    -   shared_dict["pwr_at_rtrk_point"]
+    -   shared_dict["range_cor_20_ku"]
+
+    """
 
     def __init__(self, config: Dict[str, Any]) -> None:
         """
