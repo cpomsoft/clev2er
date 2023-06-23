@@ -24,7 +24,8 @@ graph LR;
 ```
 ```mermaid
 graph LR;
-    I[alg_retrack]-->L2[L2]
+    I[alg_retrack]-->J[alg_backscatter]
+    J-->L2[L2]
 ```
 
 
