@@ -21,6 +21,13 @@ class Algorithm:
     Depending on the mode (LRM, SIN) we can reject files that are in
     certain lat or lon ranges, as we know they do not pass over
     Greenland or Antarctica
+
+    **Contribution to shared dictionary**
+
+    - shared_dict["lats_nadir"]
+    - shared_dict["lons_nadir"]
+    - shared_dict["hemisphere"]
+
     """
 
     def __init__(self, config) -> None:

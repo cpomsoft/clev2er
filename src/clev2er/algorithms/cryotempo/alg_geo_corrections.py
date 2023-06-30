@@ -27,7 +27,9 @@ class Algorithm:
     Floating ice/ocean: DRY + WET + DAC + GIM + OT + LPEOT + OLT + SET + GPT
     Land ice:           DRY + WET +       GIM +              OLT + SET + GPT
 
-    Sum of geo -corrections returned in `shared_dict["sum_cor_20_ku"]`
+    **Contribution to Shared Dict **
+
+        - shared_dict["sum_cor_20_ku"] : sum of geo -corrections
 
     """
 

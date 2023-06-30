@@ -16,6 +16,10 @@ class Algorithm:
 
     if mode is SAR, return (False,"SKIP_OK...")
 
+    **Contribution to shared dictionary**
+
+    None
+
     """
 
     def __init__(self, config) -> None:

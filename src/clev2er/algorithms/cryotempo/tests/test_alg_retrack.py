@@ -70,7 +70,7 @@ def test_alg_retrack(l1b_file) -> None:
         assert False, f"Could not initialize algorithm {exc}"
 
     # -------------------------------------------------------------------------
-    # Test with SIN L1b file
+    # Test with L1b file
 
     l1b_file = f"{base_dir}/testdata/cs2/l1bfiles/{l1b_file}"
     try:
@@ -97,6 +97,7 @@ def test_alg_retrack(l1b_file) -> None:
     # Dummy some geo corrections with just dry tropo
     shared_dict["sum_cor_20_ku"] = mod_dry_tropo_cor_20
 
+    # Can set these to show waveforms in the retrackers (note blocks)
     config["tcog_retracker"]["show_plots"] = False
     config["mc_retracker"]["show_plots"] = False
 

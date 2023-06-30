@@ -22,6 +22,12 @@ class Algorithm:
 
     1. find the instrument mode
     2. find the number of records
+
+    **Contribution to shared dictionary**
+
+    - shared_dict["instr_mode"]
+    - shared_dict["num_20hz_records"]
+
     """
 
     def __init__(self, config) -> None:

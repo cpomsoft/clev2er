@@ -26,12 +26,14 @@ class Algorithm:
     and extract the tide corrections.
 
     **Requires from shared dictionary**:
+
     - `shared_dict["l1b_file_name"]` : str
     - `shared_dict["hemisphere"]` : str
     - `shared_dict["instr_mode"]` : str
     - `shared_dict["num_20hz_records"]` : int
 
     **Outputs to shared dictionary**:
+
     - `shared_dict["cats_tide"]` : np.ndarray
     """
 

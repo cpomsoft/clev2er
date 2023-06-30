@@ -24,21 +24,21 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to find the surface type from Bedmachine v2 (ANT)/v3 (GRN)
+    """**Algorithm to find the surface type from Bedmachine v2 (ANT)/v3 (GRN)**
+
     corresponding to L1b records
-     Uses
-     Bedmachine v2 for Antarctica : https://nsidc.org/data/nsidc-0756/versions/2
-                 cpom mask : antarctica_bedmachine_v2_grid_mask
-     Bedmachine v3 for Greenland : https://nsidc.org/data/idbmg4
-                 cpom mask: greenland_bedmachine_v3_grid_mask
-     Antarctica mask values: 0,1,2,3,4 = ocean ice_free_land grounded_ice
+     Uses:
+     -  Bedmachine v2 for Antarctica : https://nsidc.org/data/nsidc-0756/versions/2
+     -  Bedmachine v3 for Greenland : https://nsidc.org/data/idbmg4
+
+    Antarctica mask values: 0,1,2,3,4 = ocean ice_free_land grounded_ice
                                         floating_ice lake_vostok
-     Greenland mask values: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice
+    Greenland mask values: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice
                                         non-Greenland land
 
-     Remap to Cryo-TEMPO surface type values (from ATBD):
+    Remap to Cryo-TEMPO surface type values (from ATBD):
 
-       Antarctica:
+    Antarctica:
        CT --  surface (source value)
              0  --  ocean (0)
              1  --  grounded ice (2 (grounded Ice) and 4 (Lake Vostok))
@@ -52,7 +52,6 @@ class Algorithm:
              2  --  floating ice (3)
              3  --  ice free land (1)
              4  --  non-Greenland land (4)
-     ------------------------------------------------------------------------
 
     """
 

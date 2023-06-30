@@ -20,7 +20,14 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """Algorithm to get FES2014b tide correction for locations in l1b file"""
+    """Algorithm to get FES2014b tide correction for locations in l1b file
+
+    **Contribution to Shared Dict **
+        - shared_dict["fes2014b_corrections"]["ocean_tide_20"] : np.ndarray
+        - shared_dict["fes2014b_corrections"]["ocean_tide_eq_20"] : np.ndarray
+        - shared_dict["fes2014b_corrections"]["load_tide_20"] : np.ndarray
+
+    """
 
     def __init__(self, config) -> None:
         """initializes the Algorithm

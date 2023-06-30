@@ -35,6 +35,14 @@ class Algorithm:
 
     Tuning thresholds are set in config.
 
+    **Contribution to shared dictionary**
+
+    - shared_dict["ind_wfm_retrack_20_ku"]: (np.ndarray) closest bin number to retracking point(s)
+    - shared_dict["pwr_at_rtrk_point"] : (np.ndarray) waveform power at the retracking point
+    - shared_dict["range_cor_20_ku"] : (np.ndarray) corrected range (retracked and geo-corrected)
+    - shared_dict["num_retracker_failures"] (int) : number of retracker failures
+    - shared_dict["percent_retracker_failure"]  (float) : percentage of retracker failures
+
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -147,7 +155,7 @@ class Algorithm:
                 plot_flag=self.config["mc_retracker"]["show_plots"],
                 waveforms=pwr_waveform_20_ku,  # input waveforms
                 coherence=coherence_waveform_20_ku,  # coherence waveform (SIN only)
-                ref_bin_ind_sin=ref_bin_index,
+                ref_bin_ind_sin=self.config["mc_retracker"]["ref_bin_ind_sin"],
                 wf_oversampling_factor=self.config["mc_retracker"][
                     "wf_oversampling_factor"
                 ],  # Waveform oversampling factor
@@ -197,7 +205,9 @@ class Algorithm:
             ) = retrack_tcog_waveforms_cs2(
                 plot_flag=self.config["tcog_retracker"]["show_plots"],
                 waveforms=pwr_waveform_20_ku,  # input waveforms
-                retrack_threshold_lrm=ref_bin_index,
+                retrack_threshold_lrm=self.config["tcog_retracker"][
+                    "retrack_threshold_lrm"
+                ],
                 ref_bin_ind_lrm=self.config["tcog_retracker"][
                     "ref_bin_ind_lrm"
                 ],  # from CS2 Baseline-D User Manual, p36;
@@ -242,6 +252,8 @@ class Algorithm:
 
         # set Nan values to Fillvalue of -32768
         ind_wfm_retrack_20_ku[np.isnan(ind_wfm_retrack_20_ku)] = -32768
+
+        shared_dict["ind_wfm_retrack_20_ku"] = ind_wfm_retrack_20_ku
 
         # --------------------------------------------------------------------------------------
         # Step 1d) Calculate Corrected Range : range_cor_xxxx_20_ku = 0.5 * c * window_del_20_ku

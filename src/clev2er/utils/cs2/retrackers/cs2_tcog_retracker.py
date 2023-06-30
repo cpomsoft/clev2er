@@ -181,6 +181,20 @@ def retrack_tcog_waveforms_cs2(
                            col 6 (index 5): 0 or 1 if  TCOG retracking point could not be found
     """
 
+    if retrack_threshold_lrm < 0.0 or retrack_threshold_lrm > 1.0:
+        raise ValueError(
+            f"retrack_threshold_lrm {retrack_threshold_lrm} not between 0. and 1."
+        )
+    if retrack_threshold_sin < 0.0 or retrack_threshold_sin > 1.0:
+        raise ValueError(
+            f"retrack_threshold_sin {retrack_threshold_sin} not between 0. and 1."
+        )
+    if noise_threshold < 0.0 or noise_threshold > 1.0:
+        raise ValueError(f"noise_threshold {noise_threshold} not between 0. and 1.")
+
+    if le_dp_threshold < 0.0 or le_dp_threshold > 1.0:
+        raise ValueError(f"le_dp_threshold {le_dp_threshold} not between 0. and 1.")
+
     if l1b_file and waveforms:
         raise ValueError(
             "Must have either l1b_file or waveforms, not both as input to function"
@@ -220,6 +234,9 @@ def retrack_tcog_waveforms_cs2(
         else:
             raise ValueError("waveforms size must be (,128) for LRM or (,1024) for SIN")
         wfs = waveforms
+
+    log.debug("retrack_threshold_lrm %f", retrack_threshold_lrm)
+    log.debug("retrack_threshold_sin %f", retrack_threshold_sin)
 
     # -------------------------
     # Define system parameters
@@ -289,11 +306,10 @@ def retrack_tcog_waveforms_cs2(
         # skip waveform if include_measurements_array[i] is set to False
         if include_measurements_array is not None:
             if not include_measurements_array[i]:
+                log.debug("Skipping as include_measurements_array is false")
                 continue
 
-        if debug_flag:
-            print("----------------------------------------------")
-            print("retracking waveform ", i, " of ", n_waveforms)
+        log.debug("retracking waveform %d of %d", i, n_waveforms)
 
         # compute max amplitude
         wf_max = np.max(waveform)
@@ -302,7 +318,7 @@ def retrack_tcog_waveforms_cs2(
 
         if wf_max == 0.0:
             if debug_flag:
-                print("wf_max is 0 so skipping")
+                log.debug("wf_max is 0 so skipping")
             # set flag
             retrack_flag[i][0] = 1
             continue
@@ -363,7 +379,7 @@ def retrack_tcog_waveforms_cs2(
         if (wf_noise_mean > noise_threshold) or np.isnan(wf_noise_mean):
             # set flag
             retrack_flag[i][0] = 1
-
+            log.debug("%d : mean noise above a predefined threshold", i)
             # do not attempt retracking and leave as nan
 
         else:  # continue with retracking
@@ -431,6 +447,7 @@ def retrack_tcog_waveforms_cs2(
                     # set flag
                     retrack_flag[i][1] = 1
                     # exit search for leading edge
+                    log.debug("%d no samples above noise floor", i)
                     break
 
                 # Select the first leading edge index found
@@ -464,6 +481,7 @@ def retrack_tcog_waveforms_cs2(
                         # set flag
                         retrack_flag[i][3] = 1
                         # exit search for leading edge
+                        log.debug("%d: reached end of waveform", i)
                         break
                 else:
                     # -------------------------------------------------------------------
@@ -536,6 +554,14 @@ def retrack_tcog_waveforms_cs2(
                         (wfi > retrack_wf_threshold_tcog)
                         & (wf_bin_numi > wf_bin_numi[le_index])
                     )[0]
+
+                    if plot_flag:
+                        # Plot echo and smoothed echo for debugging
+                        plt.plot(wfi)
+                        # plt.ylim(0, 1)
+                        plt.show()
+                    log.debug("retrack_wf_threshold_tcog %f", retrack_wf_threshold_tcog)
+
                     n_samples_above_threshold = len(samples_above_threshold)
                     log.debug("n_samples_above_threshold=%d", n_samples_above_threshold)
                     if n_samples_above_threshold > 0:
@@ -546,7 +572,7 @@ def retrack_tcog_waveforms_cs2(
 
                 if retrack_flag[i][5]:
                     log.debug("TCOG retracker failed, so skipping")
-                    break
+                    continue
 
                 if plot_flag:
                     print("TCOG : ", wf_bin_numi[retrack_ind_tcog], retrack_ind_tcog)
@@ -715,6 +741,7 @@ def retrack_tcog_waveforms_cs2(
     if lrm_mode:
         # compute range offsets from reference to retracked bins
         dr_bin_tcog = np.array(retrack_point_tcog)[:, 0] - ref_bin_ind_lrm
+        log.debug("dr_bin_tcog %s", dr_bin_tcog)
 
         # convert offsets to meters
         dr_meters_tcog = dr_bin_tcog * rbin_size_lrm
