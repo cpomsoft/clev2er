@@ -73,6 +73,7 @@ from clev2er.utils.cs2.retrackers.fastsmooth import (  # waveform smoothing filt
 
 # too-many-arguments,too-many-locals, too-many-statements pylint: disable=R0912,R0913,R0914,R0915
 # too-many-nested-blocks, pylint: disable=R1702
+# pylint: disable=R0801
 
 log = logging.getLogger(__name__)
 
