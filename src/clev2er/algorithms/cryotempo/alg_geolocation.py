@@ -5,6 +5,7 @@ import logging
 import os
 from typing import Any, Dict, Tuple
 
+import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -178,7 +179,10 @@ class Algorithm:
             )
 
         shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
-        shared_dict["lon_poca_20_ku"] = lon_poca_20_ku
+
+        np.seterr(under="ignore")  # otherwise next line can fail
+        shared_dict["lon_poca_20_ku"] = lon_poca_20_ku % 360.0
+
         shared_dict["height_20_ku"] = height_20_ku
 
         # Return success (True,'')

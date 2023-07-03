@@ -318,16 +318,23 @@ def run_chain(
     alg_object_list = []
 
     for alg in algorithm_list:
+        # Import Algorithm
         try:
             module = importlib.import_module(
                 f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
             )
-            alg_obj = module.Algorithm(config)
-            alg_object_list.append(alg_obj)
-
         except ImportError as exc:
             log.error("Could not import algorithm %s, %s", alg, exc)
             return (False, 1, 0)
+
+        # Load/Initialize algorithm
+        try:
+            alg_obj = module.Algorithm(config)
+        except (FileNotFoundError, IOError, KeyError) as exc:
+            log.error("Could not initialize algorithm %s, %s", alg, exc)
+            return (False, 1, 0)
+
+        alg_object_list.append(alg_obj)
 
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list

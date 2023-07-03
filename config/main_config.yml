@@ -40,3 +40,9 @@ dem_dirs:
   antarctic_dem_1km: rema_ant_1km
   greenland_dem_1km: arcticdem_1km
 
+uncertainty_tables:
+  base_dir: /raid6/cryo-tempo/land_ice/uncertainty/data/uncertainty_tables
+
+slope_data:
+  cpom_ant_2018_1km_slopes: ${CPDATA_DIR}/SATS/RA/DEMS/ant_cpom_cs2_1km/Antarctica_Cryosat2_1km_DEMv1.0_slope.unpacked.tif
+  awi_grn_2013_1km_slopes:  ${CPDATA_DIR}/SATS/RA/DEMS/grn_awi_2013_dem/grn_awi_2013_dem_slope.nc
