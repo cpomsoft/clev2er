@@ -103,7 +103,7 @@ class Algorithm:
             if not rval:
                 return (rval, error_str)
 
-        mplog.debug(
+        mplog.info(
             "[f%d] Processing algorithm %s",
             filenum,
             self.alg_name,

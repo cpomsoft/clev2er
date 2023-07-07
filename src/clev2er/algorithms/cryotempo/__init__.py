@@ -25,8 +25,10 @@ graph LR;
 ```mermaid
 graph LR;
     I[alg_retrack]-->J[alg_backscatter]
-    J-->K[alg_geolocate]
-    K-->L2[L2]
+    J-->K[alg_geolocate_lrm]
+    K-->L[alg_geolocate_sin]
+    L-->L2[L2]
+
 ```
 
 

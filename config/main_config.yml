@@ -29,6 +29,12 @@ surface_type_masks:
   antarctica_iceandland_dilated_10km_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/dilated_10km_mask.npz
   greenland_iceandland_dilated_10km_grid_mask:   ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/dilated_10km_mask.npz
 
+basin_masks:
+  antarctic_grounded_and_floating_2km_grid_mask: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/antarctica/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins/basins/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins_2km.nc
+  greenland_icesheet_2km_grid_mask:  ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/zwally_2012_grn_icesheet_basins/basins/Zwally_GIS_basins_2km.nc
+  antarctic_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/antarctica/rignot_2016_imbie2_ant_grounded_icesheet_basins/basins/rignot_2016_imbie2_ant_grounded_icesheet_basins_2km.nc
+  greenland_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/GRE_Basins_IMBIE2_v1.3/basins/rignot_2016_imbie2_grn_grounded_icesheet_basins_2km.nc
+
 tides:
   fes2014b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B/FES2014
   cats2008a_base_dir: /raid6/cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides

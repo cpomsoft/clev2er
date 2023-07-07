@@ -26,6 +26,15 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """**Algorithm to find the surface type from Bedmachine v2 (ANT)/v3 (GRN)**
 
+    Contributions to shared_dict:
+        shared_dict["ocean_locations"] : (ndarray), ocean locations
+        shared_dict["grounded_ice_locations"]  : (ndarray), grounded ice locations
+        shared_dict["floating_ice_locations"]  : (ndarray), floating ice locations
+        shared_dict["icefree_land_locations"]  : (ndarray), ice free land locations
+        shared_dict["non_grn_land_locations"]  : (ndarray), locations of land locs not in Greenland
+        shared_dict["cryotempo_surface_type"]  : (ndarray), values of surface type as specified
+                                                 CT (0..4), as shown below
+
     corresponding to L1b records
      Uses:
      -  Bedmachine v2 for Antarctica : https://nsidc.org/data/nsidc-0756/versions/2

@@ -1,4 +1,4 @@
-""" clev2er.algorithms.templates.algorithm_template"""
+""" clev2er.algorithms.templates.alg_template"""
 
 # These imports required by Algorithm template
 import logging
@@ -90,10 +90,10 @@ class Algorithm:
             if not rval:
                 return (rval, error_str)
 
-        mplog.debug(
+        mplog.info(
             "[f%d] Processing algorithm %s",
             filenum,
-            self.alg_name,
+            self.alg_name.rsplit(".", maxsplit=1)[-1],
         )
 
         # Test that input l1b is a Dataset type

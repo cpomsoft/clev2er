@@ -24,6 +24,14 @@ mask_list = [
     "greenland_iceandland_dilated_10km_grid_mask",  # Greenland ice (grounded+floating) and ice free
     # land mask  (source BedMachine v3) , dilated by
     # 10km out into the ocean
+    "antarctic_grounded_and_floating_2km_grid_mask",
+    # Antarctic grounded and floating ice, 2km grid, source: Zwally 2012
+    "greenland_icesheet_2km_grid_mask",
+    # Greenland ice sheet grounded ice mask, from 2km grid, source: Zwally 2012. Can select basins
+    "antarctic_icesheet_2km_grid_mask_rignot2016",
+    # Antarctic ice sheet grounded ice mask + islands, from 2km grid, source: Rignot 2016
+    "greenland_icesheet_2km_grid_mask_rignot2016",
+    # Greenland ice sheet grounded ice mask, from 2km grid, source: Rignot 2016. Can select basins
 ]
 
 # too-many-instance-attributes, pylint: disable=R0902
@@ -232,6 +240,212 @@ class Mask:
             self.grid_value_names = ["outside", "inside Greenland dilated mask"]
             self.grid_colors = ["blue", "darkgrey"]
         # -----------------------------------------------------------------------------
+
+        elif mask_name == "antarctic_grounded_and_floating_2km_grid_mask":
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPOM_SOFTWARE_DIR"]}/cpom/resources/drainage_basins/antarctica'
+                    "/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins/"
+                    "basins/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins_2km.nc"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            nc = Dataset(mask_file)
+
+            self.num_x = nc.dimensions["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_NX"].size
+            self.num_y = nc.dimensions["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_NY"].size
+
+            self.minxm = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_MINXM"][:]
+            self.minym = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_MINYM"][:]
+            self.binsize = nc.variables["binsize"][:]
+            self.mask_grid = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE"][:]
+            nc.close()
+
+            self.mask_grid_possible_values = list(range(28))  # values in the mask_grid
+            self.grid_value_names = [f"Basin-{i}" for i in range(28)]
+            self.grid_value_names[0] = "Unknown"
+
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+
+        elif mask_name == "greenland_icesheet_2km_grid_mask":
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPOM_SOFTWARE_DIR"]}/cpom/resources/drainage_basins/greenland/'
+                    "zwally_2012_grn_icesheet_basins/basins/Zwally_GIS_basins_2km.nc"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            nc = Dataset(mask_file)
+
+            self.num_x = nc.dimensions["gre_basin_nx"].size
+            self.num_y = nc.dimensions["gre_basin_ny"].size
+
+            self.minxm = nc.variables["gre_basin_minxm"][:]
+            self.minym = nc.variables["gre_basin_minym"][:]
+            self.binsize = nc.variables["gre_basin_binsize"][:]
+            self.mask_grid = np.array(nc.variables["gre_basin_mask"][:]).astype(int)
+            nc.close()
+            self.crs_bng = CRS(
+                "epsg:3413"
+            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.grid_value_names = [
+                "None",
+                "1.1",
+                "1.2",
+                "1.3",
+                "1.4",
+                "2.1",
+                "2.2",
+                "3.1",
+                "3.2",
+                "3.3",
+                "4.1",
+                "4.2",
+                "4.3",
+                "5.0",
+                "6.1",
+                "6.2",
+                "7.1",
+                "7.2",
+                "8.1",
+                "8.2",
+            ]
+            self.mask_grid_possible_values = list(range(20))  # values in the mask_grid
+            self.grid_colors = [
+                "blue",
+                "bisque",
+                "darkorange",
+                "moccasin",
+                "gold",
+                "greenyellow",
+                "yellowgreen",
+                "gray",
+                "lightgray",
+                "silver",
+                "purple",
+                "sandybrown",
+                "peachpuff",
+                "coral",
+                "tomato",
+                "navy",
+                "lavender",
+                "olivedrab",
+                "lightyellow",
+                "sienna",
+            ]
+
+        elif mask_name == "antarctic_icesheet_2km_grid_mask_rignot2016":
+            # basin mask values are : 0..18, or 999 (unknown)
+            #
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPOM_SOFTWARE_DIR"]}/cpom/resources/drainage_basins/antarctica/'
+                    "rignot_2016_imbie2_ant_grounded_icesheet_basins/basins/"
+                    "rignot_2016_imbie2_ant_grounded_icesheet_basins_2km.nc"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            nc = Dataset(mask_file)
+
+            self.num_x = 2820
+            self.num_y = 2420
+            self.minxm = -2820000  # meters
+            self.minym = -2420000  # meters
+            self.binsize = 2000  # meters
+            self.mask_grid = nc.variables["basinmask"][:]
+            nc.close()
+
+            self.mask_grid_possible_values = list(range(19))  # values in the mask_grid
+            self.grid_value_names = [
+                "Islands",
+                "West H-Hp",
+                "West F-G",
+                "East E-Ep",
+                "East D-Dp",
+                "East Cp-D",
+                "East B-C",
+                "East A-Ap",
+                "East Jpp-K",
+                "West G-H",
+                "East Dp-E",
+                "East Ap-B",
+                "East C-Cp",
+                "East K-A",
+                "West J-Jpp",
+                "Peninsula Ipp-J",
+                "Peninsula I-Ipp",
+                "Peninsula Hp-I",
+                "West Ep-F",
+            ]
+
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+
+        elif mask_name == "greenland_icesheet_2km_grid_mask_rignot2016":
+            self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
+
+            if not mask_path:
+                mask_file = (
+                    f'{environ["CPOM_SOFTWARE_DIR"]}/cpom/resources/drainage_basins/greenland/'
+                    "GRE_Basins_IMBIE2_v1.3/basins/"
+                    "rignot_2016_imbie2_grn_grounded_icesheet_basins_2km.nc"
+                )
+            else:
+                mask_file = mask_path
+
+            if not isfile(mask_file):
+                log.error("mask file %s does not exist", mask_file)
+                raise FileNotFoundError("mask file does not exist")
+
+            nc = Dataset(mask_file)
+
+            self.crs_bng = CRS(
+                "epsg:3413"
+            )  # Polar Stereo - North -latitude of origin 70N, 45
+
+            self.num_x = 1000
+            self.num_y = 1550
+            self.minxm = -1000000  # meters
+            self.minym = -3500000  # meters
+            self.binsize = 2000  # meters
+            self.mask_grid = nc.variables["basinmask"][:]
+            nc.close()
+
+            self.mask_grid_possible_values = list(range(57))  # values in the mask_grid
+
+            # 0 (unclassified), 1-50 (ice caps), 51 (NW), 52(CW), 53(SW), 54(SE), 55(NE), 56(NO)
+            self.grid_value_names = ["Ice cap -" + str(i) for i in range(57)]
+            self.grid_value_names[0] = "unclassified"
+            self.grid_value_names[51] = "NW"
+            self.grid_value_names[52] = "CW"
+            self.grid_value_names[53] = "SW"
+            self.grid_value_names[54] = "SE"
+            self.grid_value_names[55] = "NE"
+            self.grid_value_names[56] = "NO"
+
+            self.crs_bng = CRS(
+                "epsg:3413"
+            )  # Polar Stereo - North -latitude of origin 70N, 45
 
         else:
             raise ValueError(f"mask name: {mask_name} not supported")

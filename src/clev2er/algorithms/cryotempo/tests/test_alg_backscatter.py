@@ -26,10 +26,7 @@ log = logging.getLogger(__name__)
     ],
 )
 def test_alg_backscatter(l1b_file) -> None:
-    """test of clev2er.algorithms.cryotempo.alg_backscatter.py
-
-    runs retracker algorithm on an LRM and SIN L1b file
-    """
+    """test of clev2er.algorithms.cryotempo.alg_backscatter.py"""
 
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None

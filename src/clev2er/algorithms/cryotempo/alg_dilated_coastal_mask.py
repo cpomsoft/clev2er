@@ -27,6 +27,9 @@ class Algorithm:
     Mask('antarctica_iceandland_dilated_10km_grid_mask')
     Mask('greenland_iceandland_dilated_10km_grid_mask')
 
+    # Contributions to shared_dict:
+        shared_dict["dilated_surface_mask"] : (ndarray) of bool, True is inside dilated mask
+
     """
 
     def __init__(self, config) -> None:
