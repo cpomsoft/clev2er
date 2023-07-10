@@ -3,6 +3,7 @@
 """
 import logging
 import os
+import string
 
 import numpy as np
 import pytest
@@ -95,9 +96,18 @@ def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
             False
         ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
 
-    # Load cryotempo chain config file
-    config_file = f"{base_dir}/config/chain_configs/cryotempo_A001.yml"
-    assert os.path.exists(config_file), f"config file {config_file} does not exist"
+    # Load cryotempo chain config file by finding latest baseline
+    # ie baseline B before A
+    reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+    baseline = None
+    for _baseline in reverse_alphabet_list:
+        config_file = f"{base_dir}/config/chain_configs/cryotempo_{_baseline}001.yml"
+        if os.path.exists(config_file):
+            baseline = _baseline
+            break
+    assert baseline, "No cryotempo baseline config file found"
+
+    log.info("Using config file %s", config_file)
 
     try:
         chain_config = EnvYAML(
@@ -223,12 +233,10 @@ def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
     assert success, "retracker algorithm should not fail"
 
     # Run this algorithm's  process() function
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, log, 0)
     if shared_dict["instr_mode"] == "SIN":
-        assert (
-            "SKIP_OK" in error_str and not success
-        ), "Should skip SIN file with SKIP_OK"
-        log.info("File Skipped as not LRM")
+        assert success, "Should succeed with SIN file, but do nothing"
+
     if shared_dict["instr_mode"] == "LRM":
         assert success, "algorithm should not fail"
 

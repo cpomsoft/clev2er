@@ -136,8 +136,8 @@ class Dem:
         """
         this_dem_dir = None
         if self.config:
-            if "dems" in self.config and self.name in self.config["dems"]:
-                this_dem_dir = self.config["dems"][self.name]
+            if "dem_dirs" in self.config and self.name in self.config["dem_dirs"]:
+                this_dem_dir = self.config["dem_dirs"][self.name]
         if this_dem_dir is None and self.dem_dir:
             this_dem_dir = self.dem_dir
         if this_dem_dir is None:

@@ -3,6 +3,7 @@
 """
 import logging
 import os
+import string
 from typing import Any, Dict
 
 import numpy as np
@@ -18,6 +19,7 @@ from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
 )
 
 # Similar lines in 2 files, pylint: disable=R0801
+# pylint: disable=too-many-statements
 
 log = logging.getLogger(__name__)
 
@@ -51,9 +53,18 @@ def test_alg_basin_ids(l1b_file) -> None:
             False
         ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
 
-    # Load cryotempo chain config file
-    config_file = f"{base_dir}/config/chain_configs/cryotempo_A001.yml"
-    assert os.path.exists(config_file), f"config file {config_file} does not exist"
+    # Load cryotempo chain config file by finding latest baseline
+    # ie baseline B before A
+    reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+    baseline = None
+    for _baseline in reverse_alphabet_list:
+        config_file = f"{base_dir}/config/chain_configs/cryotempo_{_baseline}001.yml"
+        if os.path.exists(config_file):
+            baseline = _baseline
+            break
+    assert baseline, "No cryotempo baseline config file found"
+
+    log.info("Using config file %s", config_file)
 
     try:
         chain_config = EnvYAML(

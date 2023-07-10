@@ -1,11 +1,12 @@
-""" clev2er.algorithms.templates.alg_template"""
+""" clev2er.algorithms.templates.alg_ref_dem"""
 
-# These imports required by Algorithm template
 import logging
 from typing import Any, Dict, Tuple
 
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
+
+from clev2er.utils.dems.dems import Dem
 
 # -------------------------------------------------
 
@@ -17,7 +18,14 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """**Algorithm to do...**."""
+    """**Algorithm to find reference DEM elevation values for each track location
+
+    **Contribution to shared dictionary**
+
+        - shared_dict['dem_elevation_values'] : (ndarray), reference DEM elevation values (m) for
+                                                           each track location
+
+    """
 
     def __init__(self, config: Dict[str, Any]) -> None:
         """
@@ -53,6 +61,14 @@ class Algorithm:
             filenum,
             self.alg_name,
         )
+        # -----------------------------------------------------------------
+        #  \/ Place Algorithm initialization steps here \/
+        # -----------------------------------------------------------------
+
+        # Load DEMs for Antarctica and Greenland
+
+        self.dem_ant = Dem("rema_ant_1km", config=self.config)
+        self.dem_grn = Dem("arcticdem_1km", config=self.config)
 
         return (True, "")
 
@@ -107,7 +123,26 @@ class Algorithm:
         # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
-        shared_dict["dummy"] = True
+        # -------------------------------------------------------------------
+        # Find Dem values for each location in m
+        # -------------------------------------------------------------------
+
+        if shared_dict["hemisphere"] == "south":
+            dem_elevation_values = self.dem_ant.interp_dem(
+                shared_dict["latitudes"],
+                shared_dict["longitudes"],
+                method="linear",
+                xy_is_latlon=True,
+            )
+        else:
+            dem_elevation_values = self.dem_grn.interp_dem(
+                shared_dict["latitudes"],
+                shared_dict["longitudes"],
+                method="linear",
+                xy_is_latlon=True,
+            )
+
+        shared_dict["dem_elevation_values"] = dem_elevation_values
 
         # Return success (True,'')
         return (True, "")

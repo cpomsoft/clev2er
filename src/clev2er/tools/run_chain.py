@@ -229,8 +229,6 @@ def run_chain_on_single_file(
             return (False, error_str)
     nc.close()
 
-    # thislog.debug("[f%d] working_dict=%s", filenum, working_dict)
-
     if config["chain"]["use_multi_processing"]:
         if rval_queue is not None:
             rval_queue.put((True, "", Timer.timers))

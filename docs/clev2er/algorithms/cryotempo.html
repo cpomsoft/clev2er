@@ -57,14 +57,18 @@
                     <li><a href="cryotempo/alg_dilated_coastal_mask.html">alg_dilated_coastal_mask</a></li>
                     <li><a href="cryotempo/alg_dump.html">alg_dump</a></li>
                     <li><a href="cryotempo/alg_fes2014b_tide_correction.html">alg_fes2014b_tide_correction</a></li>
+                    <li><a href="cryotempo/alg_filter_height.html">alg_filter_height</a></li>
                     <li><a href="cryotempo/alg_geo_corrections.html">alg_geo_corrections</a></li>
                     <li><a href="cryotempo/alg_geolocate_lrm.html">alg_geolocate_lrm</a></li>
                     <li><a href="cryotempo/alg_geolocate_sin.html">alg_geolocate_sin</a></li>
                     <li><a href="cryotempo/alg_identify_file.html">alg_identify_file</a></li>
+                    <li><a href="cryotempo/alg_product_output.html">alg_product_output</a></li>
+                    <li><a href="cryotempo/alg_ref_dem.html">alg_ref_dem</a></li>
                     <li><a href="cryotempo/alg_retrack.html">alg_retrack</a></li>
                     <li><a href="cryotempo/alg_skip_on_area_bounds.html">alg_skip_on_area_bounds</a></li>
                     <li><a href="cryotempo/alg_skip_on_mode.html">alg_skip_on_mode</a></li>
                     <li><a href="cryotempo/alg_surface_type.html">alg_surface_type</a></li>
+                    <li><a href="cryotempo/alg_template.html">alg_template</a></li>
                     <li><a href="cryotempo/alg_uncertainty.html">alg_uncertainty</a></li>
                     <li><a href="cryotempo/alg_waveform_quality.html">alg_waveform_quality</a></li>
             </ul>
@@ -110,7 +114,9 @@ details on each Algorithm.</p>
     I[alg_retrack]--&gt;J[alg_backscatter]
     J--&gt;K[alg_geolocate_lrm]
     K--&gt;L[alg_geolocate_sin]
-    L--&gt;L2[L2]
+    L--&gt;M[alg_basin_ids]
+    M--&gt;N[alg_ref_dems]
+    N--&gt;O[alg_product_output]
 
 </div></pre>
 </div>
@@ -148,11 +154,11 @@ details on each Algorithm.</p>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    I[alg_retrack]--&gt;J[alg_backscatter]</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    J--&gt;K[alg_geolocate_lrm]</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    K--&gt;L[alg_geolocate_sin]</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    L--&gt;L2[L2]</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">```</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    L--&gt;M[alg_basin_ids]</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    M--&gt;N[alg_ref_dems]</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    N--&gt;O[alg_product_output]</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">```</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">&quot;&quot;&quot;</span>

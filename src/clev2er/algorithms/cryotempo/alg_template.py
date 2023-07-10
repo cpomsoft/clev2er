@@ -1,15 +1,10 @@
-""" clev2er.algorithms.cryotempo.alg_geolocate_lrm"""
+""" clev2er.algorithms.templates.alg_template"""
 
-# These imports required by Algorithm template
 import logging
-import os
 from typing import Any, Dict, Tuple
 
-import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
-
-from clev2er.utils.cs2.geolocate.geolocate_lrm import geolocate_lrm
 
 # -------------------------------------------------
 
@@ -21,18 +16,11 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """**Algorithm to geolocate measurements to the POCA (point of closest approach) for LRM**
+    """**Algorithm to do...**.
 
-    Also to calculate height_20_ku
+    **Contribution to shared dictionary**
 
-    ** Contribution to Shared Dictionary **
-
-        - shared_dict["lat_poca_20_ku"] : np.ndarray (POCA latitudes)
-        - shared_dict["lon_poca_20_ku"] : np.ndarray (POCA longitudes)
-        - shared_dict["height_20_ku"]   : np.ndarray (elevations)
-        - shared_dict["latitudes"]   : np.ndarray (final latitudes == POCA or nadir if failed)
-        - shared_dict["longitudes"]   : np.ndarray (final lons == POCA or nadir if failed)
-
+        - shared_dict['param'] : (type), param description
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -63,24 +51,22 @@ class Algorithm:
 
         Returns:
             (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
         """
         mplog.debug(
             "[f%d] Initializing algorithm %s",
             filenum,
             self.alg_name,
         )
-
-        # Check slope models file
-        if not os.path.isfile(self.config["slope_models"]["model_file"]):
-            mplog.error(
-                "[f%d] slope model file: %s not found",
-                filenum,
-                self.config["slope_models"]["model_file"],
-            )
-            return (
-                False,
-                f'slope model file: {self.config["slope_models"]["model_file"]} not found',
-            )
+        # -----------------------------------------------------------------
+        #  \/ Place Algorithm initialization steps here \/
+        # -----------------------------------------------------------------
 
         return (True, "")
 
@@ -118,10 +104,10 @@ class Algorithm:
             if not rval:
                 return (rval, error_str)
 
-        mplog.debug(
+        mplog.info(
             "[f%d] Processing algorithm %s",
             filenum,
-            self.alg_name,
+            self.alg_name.rsplit(".", maxsplit=1)[-1],
         )
 
         # Test that input l1b is a Dataset type
@@ -131,53 +117,11 @@ class Algorithm:
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
-        # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'shared_dict' dict
+        # Perform the algorithm processing, store results that need to be passed
+        # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
 
-        # --------------------------------------------------------------------
-        # Geo-location (slope correction)
-        # --------------------------------------------------------------------
-
-        if shared_dict["instr_mode"] != "LRM":
-            mplog.info("[f%d] algorithm skipped as not LRM file", filenum)
-            return (True, "algorithm skipped as not LRM file")
-
-        mplog.info("[f%d] Calling LRM geolocation", filenum)
-
-        height_20_ku, lat_poca_20_ku, lon_poca_20_ku = geolocate_lrm(
-            l1b,
-            self.config,
-            shared_dict["cryotempo_surface_type"],
-            shared_dict["range_cor_20_ku"],
-        )
-        mplog.info("[f%d] LRM geolocation completed", filenum)
-
-        shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
-        np.seterr(under="ignore")  # otherwise next line can fail
-        shared_dict["lon_poca_20_ku"] = lon_poca_20_ku % 360.0
-        shared_dict["height_20_ku"] = height_20_ku
-
-        # Calculate final product latitudes, longitudes from POCA, set to
-        # nadir where no POCA available
-
-        poca_failed = np.where(np.isnan(lat_poca_20_ku))[0]
-
-        latitudes = lat_poca_20_ku
-        longitudes = lon_poca_20_ku
-
-        if poca_failed.size > 0:
-            mplog.info(
-                "[f%d] POCA replaced by nadir in %d of %d measurements ",
-                filenum,
-                poca_failed.size,
-                latitudes.size,
-            )
-            latitudes[poca_failed] = l1b["lat_20_ku"][:].data[poca_failed]
-            longitudes[poca_failed] = l1b["lon_20_ku"][:].data[poca_failed]
-
-        shared_dict["latitudes"] = latitudes
-        shared_dict["longitudes"] = longitudes
+        shared_dict["dummy"] = True
 
         # Return success (True,'')
         return (True, "")

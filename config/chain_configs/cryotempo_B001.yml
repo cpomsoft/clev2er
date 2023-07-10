@@ -1,12 +1,16 @@
+# Cryo-TEMPO Baseline settings
+project: cryotempo
+theme: landice
+baseline: B
+version: 1
+# base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
+product_base_dir: /raid6/cryo-tempo/product_baselines
 
-# General descriptive information about this configuration file
-metadata:
-  description: "CryoTEMPO Land Ice processing  configuration file"
-  version: "A001"
-  # Set to "Operational" for files intended for operational use
-  purpose: "Test"
-  coverage_start: "2010-04-08 00:00:00"
-  coverage_end: "2049-12-31 23:59:59"
+# Default locations for log files
+log_files:
+  errors: ${CLEV2ER_BASE_DIR}/logs/errors.log
+  info:   ${CLEV2ER_BASE_DIR}/logs/info.log
+  debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
 
 # CS2 instrument parameters
 instrument:
@@ -90,3 +94,15 @@ sin_geolocation:
   # solution (as determined by delta from a DEM)
   unwrap: True
   unwrap_trigger_m: 0
+
+height_filters:
+  # maximum difference to the reference dem elevation in m
+  max_diff_to_ref_dem: 50
+  max_elevation_antarctica: 4900
+  min_elevation_antarctica: -500
+  max_elevation_greenland: 3900
+  min_elevation_greenland: -500
+
+
+  
+  

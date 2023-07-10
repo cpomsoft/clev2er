@@ -7,12 +7,15 @@ algorithms:
   - alg_dilated_coastal_mask # mask records > 10km from Ant/Grn coast, skip if no records in mask
   - alg_fes2014b_tide_correction # get FES2014b tide corrections
   - alg_cats2008a_tide_correction # get CATS2008a tide corrections
-  - alg_geo_corrections # calculate sum of geo-corrections
- # - alg_dump # dump the shared dict
+  - alg_geo_corrections  # calculate sum of geo-corrections
   - alg_waveform_quality # waveform quality checks for LRM & SIN
-  - alg_retrack # calls LRM (TCOG) or SIN (MC) retrackers
-  - alg_backscatter # calculate backscatter
-  - alg_geolocate_lrm   # geolocate LRM measurements to POCA and calc height
-  - alg_geolocate_sin   # geolocate SIN measurements to POCA and calc height
-  - alg_basin_ids # find ice sheet basin ids for each track location
+  - alg_retrack          # calls LRM (TCOG) or SIN (MC) retrackers
+  - alg_backscatter      # calculate backscatter
+  - alg_geolocate_lrm    # geolocate LRM measurements to POCA and calc height
+  - alg_geolocate_sin    # geolocate SIN measurements to POCA and calc height
+  - alg_basin_ids        # find ice sheet basin ids for each track location
+  - alg_ref_dems         # get reference DEM elevations for track
+  - alg_filter_height    # apply filters to height
+  - alg_product_output   # create the final L2 product
+ # - alg_dump            # dump the shared dict
 

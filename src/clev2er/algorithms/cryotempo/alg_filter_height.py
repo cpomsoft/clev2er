@@ -1,15 +1,11 @@
-""" clev2er.algorithms.cryotempo.alg_geolocate_sin"""
+""" clev2er.algorithms.templates.alg_filter_height"""
 
-# These imports required by Algorithm template
 import logging
 from typing import Any, Dict, Tuple
 
 import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
-
-from clev2er.utils.cs2.geolocate.geolocate_sin import geolocate_sin
-from clev2er.utils.dems.dems import Dem
 
 # -------------------------------------------------
 
@@ -21,18 +17,13 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """**Algorithm to geolocate measurements to the POCA (point of closest approach) for SIN**
+    """**Algorithm to filter height**.
 
-    Also to calculate height_20_ku
+    - filter on maximum diff to ref dem
 
-    ** Contribution to Shared Dictionary **
+    **Contribution to shared dictionary**
 
-        - shared_dict["lat_poca_20_ku"] : np.ndarray (POCA latitudes)
-        - shared_dict["lon_poca_20_ku"] : np.ndarray (POCA longitudes)
-        - shared_dict["height_20_ku"]   : np.ndarray (elevations)
-        - shared_dict["latitudes"]   : np.ndarray (final latitudes == POCA or nadir if failed)
-        - shared_dict["longitudes"]   : np.ndarray (final lons == POCA or nadir if failed)
-
+        - shared_dict['height_filt'] : (type), filtered height
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -63,22 +54,22 @@ class Algorithm:
 
         Returns:
             (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
         """
         mplog.debug(
             "[f%d] Initializing algorithm %s",
             filenum,
             self.alg_name,
         )
-
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
         # -----------------------------------------------------------------
-
-        # Get the DEMs required for SIN slope correction
-        # DEM file locations are stored in config
-
-        self.dem_ant = Dem("rema_ant_1km", config=self.config)
-        self.dem_grn = Dem("arcticdem_1km", config=self.config)
 
         return (True, "")
 
@@ -119,7 +110,7 @@ class Algorithm:
         mplog.info(
             "[f%d] Processing algorithm %s",
             filenum,
-            self.alg_name,
+            self.alg_name.rsplit(".", maxsplit=1)[-1],
         )
 
         # Test that input l1b is a Dataset type
@@ -129,54 +120,81 @@ class Algorithm:
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
-        # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'shared_dict' dict
+        # Perform the algorithm processing, store results that need to be passed
+        # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
 
-        # --------------------------------------------------------------------
-        # Geo-location (slope correction)
-        # --------------------------------------------------------------------
+        if "height_20_ku" not in shared_dict:
+            mplog.error("[f%d] height_20_ku is not in shared_dict", filenum)
+            return (False, "height_20_ku is not in shared_dict")
 
-        if shared_dict["instr_mode"] != "SIN":
-            mplog.info("[f%d] algorithm skipped as not SIN file", filenum)
-            return (True, "algorithm skipped as not SIN file")
+        if "dem_elevation_values" not in shared_dict:
+            mplog.error("[f%d] dem_elevation_values is not in shared_dict", filenum)
+            return (False, "dem_elevation_values is not in shared_dict")
 
-        mplog.info("[f%d] Calling SIN geolocation", filenum)
-        height_20_ku, lat_poca_20_ku, lon_poca_20_ku = geolocate_sin(
-            l1b,
-            self.config,
-            self.dem_ant,
-            self.dem_grn,
-            shared_dict["range_cor_20_ku"],
-            shared_dict["ind_wfm_retrack_20_ku"],
-        )
-        mplog.info("[f%d] SIN geolocation completed", filenum)
+        if "height_filters" not in self.config:
+            mplog.error("[f%d] height_filters not in config", filenum)
+            return (False, "height_filters not in config")
 
-        shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
-        np.seterr(under="ignore")  # otherwise next line can fail
-        shared_dict["lon_poca_20_ku"] = lon_poca_20_ku % 360.0
-        shared_dict["height_20_ku"] = height_20_ku
+        # Test if config contains required height filters
+        height_filters = [
+            "max_diff_to_ref_dem",
+            "min_elevation_antarctica",
+            "max_elevation_antarctica",
+            "min_elevation_greenland",
+            "max_elevation_greenland",
+        ]
+        for height_filter in height_filters:
+            if height_filter not in self.config["height_filters"]:
+                mplog.error(
+                    "[f%d] height_filters.%s not in config", filenum, height_filter
+                )
+                return (False, f"height_filters.{height_filter} not in config")
 
-        # Calculate final product latitudes, longitudes from POCA, set to
-        # nadir where no POCA available
+        shared_dict["height_filt"] = shared_dict["height_20_ku"].copy()
 
-        poca_failed = np.where(np.isnan(lat_poca_20_ku))[0]
+        # -------------------------------------------------------------------------
+        # Set elevation to nan where it differs from reference DEM by more than Nm
+        # --------------------------------------------------------------------------
 
-        latitudes = lat_poca_20_ku
-        longitudes = lon_poca_20_ku
+        max_diff = self.config["height_filters"]["max_diff_to_ref_dem"]
 
-        if poca_failed.size > 0:
+        elevation_outliers = np.where(
+            np.abs(shared_dict["height_20_ku"] - shared_dict["dem_elevation_values"])
+            > max_diff
+        )[0]
+        if elevation_outliers.size > 0:
+            shared_dict["height_filt"][elevation_outliers] = np.nan
             mplog.info(
-                "[f%d] POCA replaced by nadir in %d of %d measurements ",
+                "[f%d] Number of elevation outliers > |50m| from DEM : %d",
                 filenum,
-                poca_failed.size,
-                latitudes.size,
+                elevation_outliers.size,
             )
-            latitudes[poca_failed] = l1b["lat_20_ku"][:].data[poca_failed]
-            longitudes[poca_failed] = l1b["lon_20_ku"][:].data[poca_failed]
 
-        shared_dict["latitudes"] = latitudes
-        shared_dict["longitudes"] = longitudes
+        # ----------------------------------------------------------------------------
+        # Set elevation to nan where it < or > min/max allowed elevation
+        # ----------------------------------------------------------------------------
+
+        if shared_dict["hemisphere"] == "south":
+            max_elevation = self.config["height_filters"]["max_elevation_antarctica"]
+            min_elevation = self.config["height_filters"]["min_elevation_antarctica"]
+        else:
+            max_elevation = self.config["height_filters"]["max_elevation_greenland"]
+            min_elevation = self.config["height_filters"]["min_elevation_greenland"]
+
+        elevation_outliers = np.where(
+            (shared_dict["height_20_ku"] > max_elevation)
+            | (shared_dict["height_20_ku"] < min_elevation)
+        )[0]
+        if elevation_outliers.size > 0:
+            shared_dict["height_filt"][elevation_outliers] = np.nan
+            mplog.info(
+                "[f%d] Number of elevation values outside allowed range %.2f %.2f: %d",
+                filenum,
+                min_elevation,
+                max_elevation,
+                elevation_outliers.size,
+            )
 
         # Return success (True,'')
         return (True, "")

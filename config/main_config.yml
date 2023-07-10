@@ -1,14 +1,6 @@
 # Main configuration file for CLEV2ER chain
 #  - you can use env variables in this file
 
-project: "CLEV2ER"
-
-# Default locations for log files
-log_files:
-  errors: ${CLEV2ER_BASE_DIR}/logs/errors.log
-  info:   ${CLEV2ER_BASE_DIR}/logs/info.log
-  debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
-
 # Processing chain operation settings
 chain:
   use_multi_processing: false
@@ -22,7 +14,10 @@ geophysical:
   eccentricity: 0.08181919078479198
   speed_light: 299792458.0
 
+#-------------------------------------------------------------------------------------
 # Resource Locators
+#-------------------------------------------------------------------------------------
+
 surface_type_masks:
   antarctica_bedmachine_v2_grid_mask: ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc
   greenland_bedmachine_v3_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/BedMachineGreenland-2017-09-20.nc
@@ -43,8 +38,8 @@ slope_models:
   model_file: /raid6/cpdata/RESOURCES/slope_models/cs2/CS_OPER_AUX_SLPMSL_00000000T000000_99999999T999999_0007.DBL
 
 dem_dirs:
-  antarctic_dem_1km: rema_ant_1km
-  greenland_dem_1km: arcticdem_1km
+  rema_ant_1km: ${CPDATA_DIR}/SATS/RA/DEMS/rema_1km_dem
+  arcticdem_1km: ${CPDATA_DIR}/SATS/RA/DEMS/arctic_dem_1km
 
 uncertainty_tables:
   base_dir: /raid6/cryo-tempo/land_ice/uncertainty/data/uncertainty_tables
@@ -52,3 +47,6 @@ uncertainty_tables:
 slope_data:
   cpom_ant_2018_1km_slopes: ${CPDATA_DIR}/SATS/RA/DEMS/ant_cpom_cs2_1km/Antarctica_Cryosat2_1km_DEMv1.0_slope.unpacked.tif
   awi_grn_2013_1km_slopes:  ${CPDATA_DIR}/SATS/RA/DEMS/grn_awi_2013_dem/grn_awi_2013_dem_slope.nc
+
+leap_seconds: ${CPOM_SOFTWARE_DIR}/cpom/resources/leap_seconds/leap-seconds.list
+

@@ -1,9 +1,10 @@
 """pytest of algorithm
-   clev2er.algorithms.cryotempo.alg_retrack.py
+   clev2er.algorithms.cryotempo.alg_filter_height.py
 """
 import logging
 import os
 import string
+from typing import Any, Dict
 
 import numpy as np
 import pytest
@@ -12,10 +13,9 @@ from envyaml import (  # for parsing YAML files which include environment variab
 )
 from netCDF4 import Dataset  # pylint: disable=E0611
 
-from clev2er.algorithms.cryotempo.alg_retrack import Algorithm
+from clev2er.algorithms.cryotempo.alg_filter_height import Algorithm
 
 # Similar lines in 2 files, pylint: disable=R0801
-# pylint: disable=too-many-statements
 
 log = logging.getLogger(__name__)
 
@@ -23,15 +23,14 @@ log = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "l1b_file",
     [
-        ("CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc"),
-        ("CS_OFFL_SIR_LRM_1B_20200930T231147_20200930T232634_D001.nc"),
+        ("CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc"),  # SIN, over AIS
+        ("CS_OFFL_SIR_SIN_1B_20190511T005631_20190511T005758_D001.nc"),  # SIN, over GIS
+        ("CS_OFFL_SIR_LRM_1B_20200911T023800_20200911T024631_D001.nc"),  # LRM, over AIS
+        ("CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc"),  # LRM, over GRN
     ],
 )
-def test_alg_retrack(l1b_file) -> None:
-    """test of clev2er.algorithms.cryotempo.alg_retrack.py
-
-    runs retracker algorithm on an LRM and SIN L1b file
-    """
+def test_alg_filter_height(l1b_file) -> None:
+    """test of clev2er.algorithms.cryotempo.alg_filter_height.py"""
 
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
@@ -57,7 +56,7 @@ def test_alg_retrack(l1b_file) -> None:
             break
     assert baseline, "No cryotempo baseline config file found"
 
-    log.info("Using config file %s", config_file)
+    log.info("Using config file %s ", config_file)
 
     try:
         chain_config = EnvYAML(
@@ -74,7 +73,9 @@ def test_alg_retrack(l1b_file) -> None:
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False
 
-    # Initialise the Algorithm
+    # Initialise any other Algorithms required by test
+
+    # Initialise the Algorithm being tested
     try:
         thisalg = Algorithm(config=config)  # no config used for this alg
     except KeyError as exc:
@@ -91,36 +92,38 @@ def test_alg_retrack(l1b_file) -> None:
         assert False, f"{l1b_file} could not be read"
 
     # Run  Algorithm.process()
-    shared_dict = {}
+    shared_dict: Dict[str, Any] = {}
 
     # setup dummy shared_dict results from other algorithms
-    shared_dict["l1b_file_name"] = l1b_file
-    shared_dict["num_20hz_records"] = l1b["lat_20_ku"].size
     if "SIR_SIN_1B" in l1b_file:
         shared_dict["instr_mode"] = "SIN"
     if "SIR_LRM_1B" in l1b_file:
         shared_dict["instr_mode"] = "LRM"
-    shared_dict["waveforms_to_include"] = np.full_like(l1b["lat_20_ku"][:].data, True)
-    ind_meas_1hz_20_ku = l1b.variables["ind_meas_1hz_20_ku"][:].data
-    mod_dry_tropo_cor_20 = l1b.variables["mod_dry_tropo_cor_01"][:].data[
-        ind_meas_1hz_20_ku
-    ]  # DRY
-    # Dummy some geo corrections with just dry tropo
-    shared_dict["sum_cor_20_ku"] = mod_dry_tropo_cor_20
+    shared_dict["hemisphere"] = "south"
 
-    # Can set these to show waveforms in the retrackers (note blocks)
-    config["tcog_retracker"]["show_plots"] = False
-    config["mc_retracker"]["show_plots"] = False
+    # Mock height_20_ku
+    shared_dict["height_20_ku"] = np.full_like(
+        l1b["lat_20_ku"][:].data, 4899.0, dtype="float"
+    )
+    shared_dict["height_20_ku"][0:5] = 6000.0
+    shared_dict["height_20_ku"][6] = 4920.0
+
+    # Mock dem_elevation_values
+    shared_dict["dem_elevation_values"] = np.full_like(
+        l1b["lat_20_ku"][:].data, 4899.0, dtype="float"
+    )
+
+    # Run other alg process required by test to fill in
+    # required shared_dict parameters
 
     # Run the alg process
     success, _ = thisalg.process(l1b, shared_dict, log, 0)
     assert success, "algorithm should not fail"
 
-    assert "range_cor_20_ku" in shared_dict, "range_cor_20_ku not in shared_dict"
-    assert (
-        shared_dict["percent_retracker_failure"] < 5
-    ), "more than 5% retracker failure"
-    assert (
-        shared_dict["percent_retracker_failure"] >= 0
-        and shared_dict["percent_retracker_failure"] <= 100
-    ), f'% retracker failure ({shared_dict["percent_retracker_failure"]}) not in range 0..100%'
+    # Test outputs of algorithm
+
+    assert "height_filt" in shared_dict, "height_filt should be in shared_dict"
+    num_invalid = np.count_nonzero(np.isnan(shared_dict["height_filt"]))
+    assert num_invalid == 6
+    num_invalid = np.count_nonzero(np.isnan(shared_dict["height_20_ku"]))
+    assert num_invalid == 0
