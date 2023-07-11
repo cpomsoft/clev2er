@@ -68,7 +68,7 @@ class Algorithm:
 
     **Contribution to shared dictionary**
 
-        None
+        shared_dict['product_filename']: (str), path of L2 Cryo-Tempo product file created
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -497,11 +497,123 @@ class Algorithm:
             "surface slope via phase information in SARIn mode. "
             "Where elevation can not be calculated, the value is set to Nan."
         )
-        nc_var[:] = shared_dict["height_20_ku"]
+        nc_var[:] = shared_dict["height_filt"]  # use final filtered height
+
+        # Backscatter (from sig0_20_ku)
+        nc_var = dset.createVariable("backscatter", "double", ("time",))
+        nc_var.units = "dB"
+        nc_var.coordinates = "longitude latitude"
+        nc_var.long_name = "backscatter coefficient"
+        nc_var.standard_name = "surface_backscattering_coefficient_of_radar_wave"
+        nc_var.comment = (
+            "The measured backscatter from the surface, corrected for instrument effects, and "
+            "including a system bias that calibrates the results against previous missions. "
+            "The backscatter is computed from the amplitude of the waveform in Watts, "
+            "as measured by the retracker. The measured power is used to solve the radar "
+            "equation to recover the value for backscatter."
+        )
+        nc_var[:] = shared_dict["sig0_20_ku"]
+
+        # surface_type
+        nc_var = dset.createVariable(
+            "surface_type", np.byte, ("time",), fill_value=-128
+        )
+        nc_var.coordinates = "longitude latitude"
+        nc_var.long_name = "surface type from mask"
+        nc_var.flag_values = "0b, 1b, 2b, 3b, 4b"
+        nc_var.valid_min = 0
+        nc_var.valid_max = 4
+        nc_var.flag_meanings = (
+            "ocean grounded_ice floating_ice ice_free_land "
+            "non_greenland_land(used for tracks over Greenland only)"
+        )
+        nc_var.comment = (
+            "Surface type identifier, for use in discriminating different surfaces types "
+            "within the Land Ice TDP domain; derived from the BedMachine Greenland version "
+            "3 (Morlighem et al., 2017) and BedMachine Antarctica version 2 (Morlighem, 2020) "
+            "datasets."
+        )
+        if shared_dict["hemisphere"] == "south":
+            nc_var.source = "https://nsidc.org/data/nsidc-0756/versions/2"
+        else:
+            nc_var.source = "https://nsidc.org/data/idbmg4"
+        nc_var[:] = shared_dict["cryotempo_surface_type"]
+
+        # reference_dem
+        nc_var = dset.createVariable("reference_dem", "double", ("time",))
+        nc_var.units = "m"
+        nc_var.coordinates = "longitude latitude"
+        nc_var.long_name = "reference elevation from external Digital Elevation Model"
+        nc_var.standard_name = "height_above_reference_ellipsoid"
+        nc_var.comment = (
+            "Reference elevation values at each measurement location, extracted from an "
+            "auxiliary Digital Elevation Model (DEM). "
+            "The 1km REMA v1.1 mosaic is used for Antarctica and the 1 km ArcticDEM v3 "
+            "mosaic is used for Greenland."
+        )
+        nc_var[:] = shared_dict["dem_elevation_values"]
+
+        # basin_id  : Zwally basins : values 0 (outside mask),
+        # 1-27 (mask values for Antarctica), 1-19 (for Greenland)
+        nc_var = dset.createVariable("basin_id", np.byte, ("time",), fill_value=-128)
+        nc_var.units = "basin number"
+        nc_var.long_name = "Glacialogical basin identification number"
+        if shared_dict["hemisphere"] == "south":
+            nc_var.comment = (
+                "IMBIE glacialogical basin id number (Zwally et al., 2012) "
+                "associated with each measurement. "
+                "Values are : 0 (outside mask), 1-27 (basin values for Antarctica)"
+            )
+        else:
+            nc_var.comment = (
+                "IMBIE glacialogical basin id number (Zwally et al., 2012) "
+                "associated with each measurement. "
+                "Values 0 (outside mask), 1-19 (basin values for Greenland)"
+            )
+        nc_var.source = "IMBIE http://imbie.org/imbie-2016/drainage-basins/"
+        nc_var[:] = shared_dict["basin_mask_values_zwally"]
+
+        # basin_id2  :   Rignot basins : values 0 (outside mask), 1-19 Antarctica, 1-7 Greenland
+        nc_var = dset.createVariable("basin_id2", np.byte, ("time",), fill_value=-128)
+        nc_var.units = "basin number"
+        nc_var.long_name = "Glacialogical basin identification number"
+        if shared_dict["hemisphere"] == "south":
+            nc_var.comment = (
+                "IMBIE glacialogical basin id number (Rignot et al., 2016) associated "
+                "with each measurement. Values are : 0 (unclassified), 1:Islands, "
+                "2: West H-Hp, 3:West F-G, 4:East E-Ep, 5: East D-Dp, "
+                "6: East Cp-D, 7: East B-C, 8: East A-Ap, 9: East Jpp-K, 10: West G-H,"
+                " 11: East Dp-E, 12: East Ap-B, 13: East C-Cp, 14: East K-A, 15: West "
+                "J-Jpp, 16: Peninsula Ipp-J, 17: Peninsula I-Ipp, 18: "
+                "Peninsula Hp-I, 19: West Ep-F"
+            )
+        else:
+            nc_var.comment = (
+                "IMBIE glacialogical basin id number (Rignot et al., 2016) associated "
+                "with each measurement. Values: 0 (unclassified), 1 (ice caps), "
+                "2(NW Greenland), 3(CW Greenland), 4(SW Greenland), "
+                "5(SE Greenland), 6(NE Greenland), 7(NO North Greenland)"
+            )
+        nc_var.source = "IMBIE http://imbie.org/imbie-2016/drainage-basins/"
+        nc_var[:] = shared_dict["basin_mask_values_rignot"]
+
+        # Uncertainty
+        nc_var = dset.createVariable("uncertainty", "double", ("time",))
+        nc_var.units = "m"
+        nc_var.coordinates = "longitude latitude"
+        nc_var.long_name = "uncertainty of elevation parameter"
+        nc_var.standard_name = "elevation_uncertainty"
+        nc_var.comment = (
+            "Uncertainty associated with the ice sheet elevation measurement; defined as the "
+            "precision measured at orbital cross-overs per 0.1 degree band of slope."
+        )
+        nc_var[:] = shared_dict["uncertainty"]
 
         # ----------------------------------------------------------------
         # Close netCDF dataset
         dset.close()
+
+        shared_dict["product_filename"] = product_filename
 
         # Return success (True,'')
         return (True, "")

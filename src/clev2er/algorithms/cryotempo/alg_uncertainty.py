@@ -1,6 +1,5 @@
-""" clev2er.algorithms.templates.algorithm_template"""
+""" clev2er.algorithms.templates.alg_uncertainty"""
 
-# These imports required by Algorithm template
 import logging
 import os
 from typing import Any, Dict, Tuple
@@ -24,7 +23,12 @@ log = logging.getLogger(__name__)
 
 
 class Algorithm:
-    """**Algorithm to do...**."""
+    """**Algorithm to retrieve elevation uncertainty from (CS2-IS2) derived uncertainty table and
+    surface slope at each measurement**
+
+    **Contribution to shared_dict**
+        -shared_dict["uncertainty"] : (np.ndarray) uncertainty at each track location
+    """
 
     def __init__(self, config: Dict[str, Any]) -> None:
         """
@@ -184,21 +188,20 @@ class Algorithm:
         # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
 
-        latitudes = shared_dict["lat_poca_20_ku"]
-        longitudes = shared_dict["lon_poca_20_ku"]
-        poca_failed = np.where(np.isnan(latitudes))[0]
-
-        if poca_failed.size > 0:
-            latitudes[poca_failed] = shared_dict["lat_nadir"][poca_failed]
-            longitudes[poca_failed] = shared_dict["lon_nadir"][poca_failed]
+        # Calculate uncertainty from POCA (or nadir if POCA failed) parameters:
+        # shared_dict["latitudes"], shared_dict["longitudes"]
 
         if shared_dict["hemisphere"] == "south":
-            slopes = self.slope_ant.interp_slope_from_lat_lon(latitudes, longitudes)
+            slopes = self.slope_ant.interp_slope_from_lat_lon(
+                shared_dict["latitudes"], shared_dict["longitudes"]
+            )
             uncertainty = calc_uncertainty(
                 slopes, self.ut_table_ant, self.ut_min_slope_ant, self.ut_max_slope_ant
             )
         else:
-            slopes = self.slope_grn.interp_slope_from_lat_lon(latitudes, longitudes)
+            slopes = self.slope_grn.interp_slope_from_lat_lon(
+                shared_dict["latitudes"], shared_dict["longitudes"]
+            )
             uncertainty = calc_uncertainty(
                 slopes, self.ut_table_grn, self.ut_min_slope_grn, self.ut_max_slope_grn
             )

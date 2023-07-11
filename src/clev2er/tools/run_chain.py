@@ -14,6 +14,7 @@ import logging
 import multiprocessing as mp
 import os
 import re
+import string
 import sys
 import time
 import types
@@ -549,12 +550,13 @@ def main() -> None:
         "--baseline",
         "-b",
         help=(
-            "[Optional] baseline of chain. Single uppercase char. Default=A. "
+            "[Optional] baseline of chain. Single uppercase char. ie A-Z "
             "Used to specify the chain config file, along with --version, and --name, "
             "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/"
-            "<chain_name>_<Baseline><Version>.yml"
+            "<chain_name>_<Baseline><Version>.yml. If not specified will search for "
+            "highest baseline config file available (ie if config files for baseline A and B "
+            "exist, baseline B config file will be selected)"
         ),
-        default="A",
         type=str,
     )
     parser.add_argument(
@@ -580,6 +582,19 @@ def main() -> None:
         "--dir",
         "-d",
         help=("[Optional] path of a directory containing input L1b files"),
+    )
+
+    parser.add_argument(
+        "--month",
+        "-m",
+        help=("[Optional] month number (1,12) to use to select L1b files"),
+        type=int,
+    )
+    parser.add_argument(
+        "--year",
+        "-y",
+        help=("[Optional] year number (YYYY) to use to select L1b files"),
+        type=int,
     )
 
     parser.add_argument(
@@ -669,15 +684,28 @@ def main() -> None:
 
     # Load config file related to the chain_name
 
-    if len(args.baseline) != 1:
-        sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
     if args.version < 1 or args.version > 100:
         sys.exit("ERROR: --version <version>, must be an integer 1-100")
 
-    chain_config_file = (
-        f"{base_dir}/config/chain_configs/"
-        f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
-    )
+    if args.baseline:
+        if len(args.baseline) != 1:
+            sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
+        chain_config_file = (
+            f"{base_dir}/config/chain_configs/"
+            f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+        )
+        baseline = args.baseline
+    else:
+        reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+        for _baseline in reverse_alphabet_list:
+            chain_config_file = (
+                f"{base_dir}/config/chain_configs/cryotempo_{_baseline}"
+                f"{args.version:03}.yml"
+            )
+            if os.path.exists(chain_config_file):
+                baseline = _baseline
+                break
+
     if not os.path.exists(chain_config_file):
         sys.exit(f"ERROR: config file {chain_config_file} does not exist")
 
@@ -721,7 +749,7 @@ def main() -> None:
         # Try to find an algorithm list for a specific baseline and version
         algorithm_list_file = (
             f"{base_dir}/config/algorithm_lists/"
-            f"{args.name}_{args.baseline}{args.version:03}.yml"
+            f"{args.name}_{baseline}{args.version:03}.yml"
         )
         if not os.path.exists(algorithm_list_file):
             algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
@@ -733,7 +761,7 @@ def main() -> None:
     log.info(
         "Chain name: %s : baseline %s, version %03d",
         args.name,
-        args.baseline,
+        baseline,
         args.version,
     )
 
@@ -763,21 +791,45 @@ def main() -> None:
         )
         sys.exit(1)
 
+    # Extract the optional file choosers
+    l1b_file_list = []
+    try:
+        l1b_file_selector_modules = yml["l1b_file_selectors"]
+    except KeyError:
+        l1b_file_selector_modules = []
+        log.info("No file chooser modules found")
+
+    if len(l1b_file_selector_modules) > 0:
+        for file_selector_module in l1b_file_selector_modules:
+            # Import module
+            try:
+                module = importlib.import_module(
+                    f"clev2er.algorithms.{config['chain']['chain_name']}.{file_selector_module}"
+                )
+            except ImportError as exc:
+                log.error("Could not import module %s, %s", file_selector_module, exc)
+                sys.exit(1)
+
+            finder = module.FileFinder()
+            if args.month and args.year:
+                finder.add_month_specifier(args.month)
+                finder.add_year_specifier(args.year)
+
+            files = finder.find_files()
+            if len(files) > 0:
+                l1b_file_list.extend(files)
+
+            log.info(files)
+
     # --------------------------------------------------------------------
     # Choose the input L1b file list
     # --------------------------------------------------------------------
 
     if args.file:
         l1b_file_list = [args.file]
-    elif args.dir:
-        l1b_file_list = glob.glob(args.dir + "/*.nc")
-    else:  # use a test file in the list
-        l1b_test_file = (
-            "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
-            "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
-        )
 
-        l1b_file_list = [l1b_test_file]
+    if args.dir:
+        l1b_file_list = glob.glob(args.dir + "/*.nc")
 
     if args.max_files:
         if len(l1b_file_list) > args.max_files:
@@ -858,6 +910,7 @@ def main() -> None:
                     "Error occurred while deleting the file %s : %s", file_path, exc
                 )
     else:
+        # remove the multi-processing marker string '[fN]' from log files
         remove_strings_from_file(config["log_files"]["info"])
         remove_strings_from_file(config["log_files"]["errors"])
         remove_strings_from_file(config["log_files"]["debug"])

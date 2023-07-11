@@ -12,6 +12,10 @@ from envyaml import (  # for parsing YAML files which include environment variab
 )
 from netCDF4 import Dataset  # pylint: disable=E0611
 
+from clev2er.algorithms.cryotempo.alg_backscatter import (
+    Algorithm as Backscatter,
+)
+from clev2er.algorithms.cryotempo.alg_basin_ids import Algorithm as BasinIds
 from clev2er.algorithms.cryotempo.alg_cats2008a_tide_correction import (
     Algorithm as Cats2008a,
 )
@@ -20,6 +24,9 @@ from clev2er.algorithms.cryotempo.alg_dilated_coastal_mask import (
 )
 from clev2er.algorithms.cryotempo.alg_fes2014b_tide_correction import (
     Algorithm as Fes2014b,
+)
+from clev2er.algorithms.cryotempo.alg_filter_height import (
+    Algorithm as FilterHeight,
 )
 from clev2er.algorithms.cryotempo.alg_geo_corrections import (
     Algorithm as GeoCorrections,
@@ -34,6 +41,7 @@ from clev2er.algorithms.cryotempo.alg_identify_file import (
     Algorithm as IdentifyFile,
 )
 from clev2er.algorithms.cryotempo.alg_product_output import Algorithm
+from clev2er.algorithms.cryotempo.alg_ref_dem import Algorithm as RefDem
 from clev2er.algorithms.cryotempo.alg_retrack import Algorithm as Retracker
 from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
     Algorithm as SkipArea,
@@ -41,6 +49,9 @@ from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
 from clev2er.algorithms.cryotempo.alg_skip_on_mode import Algorithm as SkipMode
 from clev2er.algorithms.cryotempo.alg_surface_type import (
     Algorithm as SurfaceType,
+)
+from clev2er.algorithms.cryotempo.alg_uncertainty import (
+    Algorithm as Uncertainty,
 )
 from clev2er.algorithms.cryotempo.alg_waveform_quality import (
     Algorithm as WaveformQuality,
@@ -160,6 +171,11 @@ def test_alg_product_output(l1b_file) -> None:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
+        backscatter = Backscatter(config=config)
+    except KeyError as exc:
+        assert False, f"Could not initialize algorithm {exc}"
+
+    try:
         geolocate_lrm = Geolocate_Lrm(config=config)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
@@ -168,6 +184,26 @@ def test_alg_product_output(l1b_file) -> None:
         geolocate_sin = Geolocate_Sin(config=config)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
+
+    try:
+        filter_height = FilterHeight(config=config)
+    except KeyError as exc:
+        assert False, f"Could not initialize FilterHeight algorithm {exc}"
+
+    try:
+        basin_ids = BasinIds(config=config)
+    except KeyError as exc:
+        assert False, f"Could not initialize BasinIds algorithm {exc}"
+
+    try:
+        ref_dem = RefDem(config=config)
+    except KeyError as exc:
+        assert False, f"Could not initialize RefDem algorithm {exc}"
+
+    try:
+        uncertainty = Uncertainty(config=config)
+    except KeyError as exc:
+        assert False, f"Could not initialize Uncertainty algorithm {exc}"
 
     # Initialise the Algorithm being tested
     try:
@@ -226,14 +262,75 @@ def test_alg_product_output(l1b_file) -> None:
     success, _ = retracker.process(l1b, shared_dict, log, 0)
     assert success, "retracker algorithm should not fail"
 
+    success, _ = backscatter.process(l1b, shared_dict, log, 0)
+    assert success, "backscatter algorithm should not fail"
+
     success, _ = geolocate_lrm.process(l1b, shared_dict, log, 0)
     assert success, "geolocate_lrm algorithm should not fail"
 
     success, _ = geolocate_sin.process(l1b, shared_dict, log, 0)
     assert success, "geolocate_sin algorithm should not fail"
 
+    success, _ = basin_ids.process(l1b, shared_dict, log, 0)
+    assert success, "basin_ids algorithm should not fail"
+
+    success, _ = ref_dem.process(l1b, shared_dict, log, 0)
+    assert success, "ref_dem algorithm should not fail"
+
+    success, _ = filter_height.process(l1b, shared_dict, log, 0)
+    assert success, "filter_height algorithm should not fail"
+
+    success, _ = uncertainty.process(l1b, shared_dict, log, 0)
+    assert success, "uncertainty algorithm should not fail"
+
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
-    assert success, "algorithm should not fail"
+    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    assert success, f"algorithm should not fail {error_str}"
 
     # Test outputs of algorithm
+
+    assert "product_filename" in shared_dict, "product_filename not in shared_dict"
+
+    dset = Dataset(shared_dict["product_filename"], "r")
+
+    # check that all these netcdf parameters are in product
+    # and of correct length
+    ct_params = [
+        "time",
+        "latitude",
+        "longitude",
+        "instrument_mode",
+        "elevation",
+        "backscatter",
+        "surface_type",
+        "reference_dem",
+        "basin_id",
+        "basin_id2",
+        "uncertainty",
+    ]
+
+    for param in ct_params:
+        assert len(dset[param][:].data) == len(l1b["lat_20_ku"][:].data)
+
+    ct_attributes = [
+        "title",
+        "project",
+        "doi2",
+        "creator_name",
+        "creator_url",
+        "date_created",
+        "platform",
+        "sensor",
+        "instrument_mode",
+        "src_esa_l1b_file",
+        "ascending_start_record",
+        "descending_start_record",
+        "geospatial_lat_min",
+        "geospatial_lat_max",
+        "geospatial_lon_min",
+    ]
+
+    for attr in ct_attributes:
+        assert attr in dset.ncattrs()
+
+    dset.close()

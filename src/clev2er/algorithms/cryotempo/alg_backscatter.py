@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 class Algorithm:
     """**Algorithm to Calculate Backscatter from CS2 L1b dataset**.
 
+    **Contribution to shared_dict**
+        - shared_dict["sig0_20_ku"] (np.ndarray) : array of backscatter values
     **Required from other algorithms**
     -   shared_dict["pwr_at_rtrk_point"]
     -   shared_dict["range_cor_20_ku"]
