@@ -9,6 +9,8 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.algorithms.cryotempo.alg_skip_on_mode import Algorithm
 
+# pylint: disable=R0801
+
 log = logging.getLogger(__name__)
 
 
