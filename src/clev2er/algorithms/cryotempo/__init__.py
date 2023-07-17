@@ -30,9 +30,11 @@ graph LR;
     K-->L[alg_geolocate_sin]
     L-->M[alg_basin_ids]
     M-->N[alg_ref_dems]
-    N-->O[alg_filter_height]
-    O-->P[alg_uncertainty]
-    P-->Q[alg_product_output]
+```
+```mermaid
+graph LR;
+    N[alg_filter_height]-->O[alg_uncertainty]
+    O-->P[alg_product_output]
 ```
 
 
