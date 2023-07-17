@@ -723,6 +723,21 @@ def main() -> None:
     config = config.export() | chain_config.export()  # the export() converts to a dict
 
     # -------------------------------------------------------------------------
+    # Check we have enough input command line args
+    # -------------------------------------------------------------------------
+
+    if not args.file and not args.dir and not (args.year and args.month):
+        sys.exit(
+            f"usage error: No inputs specified for the {args.name} chain. Must have either "
+            "\n--file <single L1b file as input>,"
+            "\n--dir <input all L1b files in this directory>, or "
+            "\n--year <YYYY> and --month <M> : search for files for specified year and month."
+            "\nThe options --year, --month are used as inputs to l1b_file_selectors modules "
+            f"\nspecified in the {args.name} chain algorithms list and l1b_base_dir "
+            f"\nfrom the {args.name } config file."
+        )
+
+    # -------------------------------------------------------------------------
     # Setup logging
     #   - default log level is INFO unless --debug command line argument is set
     #   - default log files paths for error, info, and debug are defined in the
@@ -791,35 +806,41 @@ def main() -> None:
         )
         sys.exit(1)
 
-    # Extract the optional file choosers
-    l1b_file_list = []
-    try:
-        l1b_file_selector_modules = yml["l1b_file_selectors"]
-    except KeyError:
-        l1b_file_selector_modules = []
-        log.info("No file chooser modules found")
+    if args.file:
+        l1b_file_list = [args.file]
+    else:
+        # Extract the optional file choosers
+        l1b_file_list = []
+        try:
+            l1b_file_selector_modules = yml["l1b_file_selectors"]
+        except KeyError:
+            l1b_file_selector_modules = []
+            log.info("No file chooser modules found")
 
-    if len(l1b_file_selector_modules) > 0:
-        for file_selector_module in l1b_file_selector_modules:
-            # Import module
-            try:
-                module = importlib.import_module(
-                    f"clev2er.algorithms.{config['chain']['chain_name']}.{file_selector_module}"
-                )
-            except ImportError as exc:
-                log.error("Could not import module %s, %s", file_selector_module, exc)
-                sys.exit(1)
+        if len(l1b_file_selector_modules) > 0:
+            for file_selector_module in l1b_file_selector_modules:
+                # Import module
+                try:
+                    module = importlib.import_module(
+                        f"clev2er.algorithms.{config['chain']['chain_name']}.{file_selector_module}"
+                    )
+                except ImportError as exc:
+                    log.error(
+                        "Could not import module %s, %s", file_selector_module, exc
+                    )
+                    sys.exit(1)
 
-            finder = module.FileFinder()
-            if args.month and args.year:
-                finder.add_month_specifier(args.month)
-                finder.add_year_specifier(args.year)
+                finder = module.FileFinder()
+                if args.month and args.year:
+                    finder.add_month(args.month)
+                    finder.add_year(args.year)
 
-            files = finder.find_files()
-            if len(files) > 0:
-                l1b_file_list.extend(files)
+                finder.set_base_path(config["l1b_base_dir"])
+                files = finder.find_files()
+                if len(files) > 0:
+                    l1b_file_list.extend(files)
 
-            log.info(files)
+                log.info(files)
 
     # --------------------------------------------------------------------
     # Choose the input L1b file list

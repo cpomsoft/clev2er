@@ -103,7 +103,8 @@ details on each Algorithm.</p>
     AA(L1b)--&gt;A
     A[alg_identify_file]--&gt;B[alg_skip_on_mode]
     B--&gt;C[alg_skip_on_area_bounds]
-    C--&gt;D[alg_dilated_coastal_mask]
+    C--&gt;D[alg_surface_type]
+    D--&gt;E[alg_dilated_coastal_mask]
 </div></pre>
 
 <pre class="mermaid-pre"><div class="mermaid">graph LR;
@@ -118,8 +119,9 @@ details on each Algorithm.</p>
     K--&gt;L[alg_geolocate_sin]
     L--&gt;M[alg_basin_ids]
     M--&gt;N[alg_ref_dems]
-    N--&gt;O[alg_product_output]
-
+    N--&gt;O[alg_filter_height]
+    O--&gt;P[alg_uncertainty]
+    P--&gt;Q[alg_product_output]
 </div></pre>
 </div>
 
@@ -143,27 +145,29 @@ details on each Algorithm.</p>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    AA(L1b)--&gt;A</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    A[alg_identify_file]--&gt;B[alg_skip_on_mode]</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    B--&gt;C[alg_skip_on_area_bounds]</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    C--&gt;D[alg_dilated_coastal_mask]</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">```</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">```mermaid</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">graph LR;</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    E[alg_cats2008a_tide_correction]--&gt;F[alg_fes2014b_tide_correction]</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    F--&gt;G[alg_geo_corrections]</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    G--&gt;H[alg_waveform_quality]</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">```</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">```mermaid</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">graph LR;</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">    I[alg_retrack]--&gt;J[alg_backscatter]</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    J--&gt;K[alg_geolocate_lrm]</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    K--&gt;L[alg_geolocate_sin]</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    L--&gt;M[alg_basin_ids]</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    M--&gt;N[alg_ref_dems]</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    N--&gt;O[alg_product_output]</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">```</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    C--&gt;D[alg_surface_type]</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    D--&gt;E[alg_dilated_coastal_mask]</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">```</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">```mermaid</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">graph LR;</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    E[alg_cats2008a_tide_correction]--&gt;F[alg_fes2014b_tide_correction]</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    F--&gt;G[alg_geo_corrections]</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    G--&gt;H[alg_waveform_quality]</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">```</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">```mermaid</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">graph LR;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    I[alg_retrack]--&gt;J[alg_backscatter]</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    J--&gt;K[alg_geolocate_lrm]</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    K--&gt;L[alg_geolocate_sin]</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    L--&gt;M[alg_basin_ids]</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    M--&gt;N[alg_ref_dems]</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">    N--&gt;O[alg_filter_height]</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">    O--&gt;P[alg_uncertainty]</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="sd">    P--&gt;Q[alg_product_output]</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">```</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 

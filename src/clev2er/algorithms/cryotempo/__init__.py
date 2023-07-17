@@ -14,7 +14,8 @@ graph LR;
     AA(L1b)-->A
     A[alg_identify_file]-->B[alg_skip_on_mode]
     B-->C[alg_skip_on_area_bounds]
-    C-->D[alg_dilated_coastal_mask]
+    C-->D[alg_surface_type]
+    D-->E[alg_dilated_coastal_mask]
 ```
 ```mermaid
 graph LR;
@@ -29,8 +30,9 @@ graph LR;
     K-->L[alg_geolocate_sin]
     L-->M[alg_basin_ids]
     M-->N[alg_ref_dems]
-    N-->O[alg_product_output]
-
+    N-->O[alg_filter_height]
+    O-->P[alg_uncertainty]
+    P-->Q[alg_product_output]
 ```
 
 

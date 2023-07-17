@@ -3,6 +3,7 @@
 import glob
 import logging
 import os
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -26,8 +27,6 @@ class FileFinder:
     ##Options
 
     finder.set_base_path(path)
-
-
 
     Raises: FileNotFoundError : if base_path is not a valid directory
     """
@@ -91,7 +90,7 @@ class FileFinder:
         file_list = []
 
         if len(self.years) < 1:
-            raise ValueError("Empty year list in find_files(). Use .add_year() first")
+            sys.exit("usage error: --year must be specified on command line")
 
         if len(self.months) == 0:
             self.months = list(range(1, 13))

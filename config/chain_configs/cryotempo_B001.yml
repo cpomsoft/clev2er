@@ -3,6 +3,7 @@ project: cryotempo
 theme: landice
 baseline: B
 version: 1
+l1b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B
 # base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
 product_base_dir: /raid6/cryo-tempo/product_baselines
 
