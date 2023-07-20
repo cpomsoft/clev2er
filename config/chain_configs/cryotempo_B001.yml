@@ -1,0 +1,109 @@
+# Cryo-TEMPO Baseline settings
+project: cryotempo
+theme: landice
+baseline: B
+version: 1
+l1b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B
+# base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
+product_base_dir: /raid6/cryo-tempo/product_baselines
+
+# Default locations for log files
+log_files:
+  errors: ${CLEV2ER_BASE_DIR}/logs/errors.log
+  info:   ${CLEV2ER_BASE_DIR}/logs/info.log
+  debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
+
+# CS2 instrument parameters
+instrument:
+  wavelength: 0.022084
+  baseline: 1.1676
+  # The '+' in the exponential format below is ABSOLUTELY required, or the variable will be seen as a string
+  chirp_slope: 7.142857E+12
+
+# Calibration parameters derived by experiment
+calibration:
+  inferred_angle_cal_mult: 1.02775
+  inferred_angle_cal_add: 0.0
+
+# Waveform Quality Tests
+lrm_waveform_quality_tests:
+  low_peakiness_threshold: 0.85
+  high_peakiness_threshold: 3.0
+  total_power_threshold: 3e-16
+
+sin_waveform_quality_tests:
+  low_peakiness_threshold: 0.9
+  total_power_threshold: 5e-17
+  low_position_max_power: 2
+  high_position_max_power: 1011
+
+# Retracker Thresholds
+# TCOG Retracker
+tcog_retracker:
+  retrack_threshold_lrm: 0.2
+  retrack_threshold_sin: 0.5
+  ref_bin_ind_lrm: 64
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.2
+  show_plots: false
+
+# Maximum Coherence Retracker
+mc_retracker:
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.2
+  coherence_smoothing_width: 9 
+  show_plots: false
+
+# Backscatter
+backscatter:
+  sigma_bias_lrm: 3.45         
+  sigma_bias_sin: 13.23   
+
+# Geolocation
+sin_geolocation:
+  # Flag heights out of these bounds as bad
+  height_min: -2000.0
+  height_max: 10000.0
+  # Phase method: 1 = least_squares; 2 = curve_fit; 3 = sample window
+  phase_method: 3
+  # Window centred on retrack location
+  phase_window_width: 10
+  # If do_three True then do two additional fits, seeded with non-zero phase slope
+  do_three: True
+  # These parameters are for the sample window method only
+  # If mask is True, mask out coherence values lower than the threshold
+  mask: False
+  mask_coh_ths: 0.7
+  # How to sample the window:
+  #   max = take the phase at maximum coherence
+  #   interp = linear interpolate phase from the two bins bounding the retrack point
+  #   Default in the average of these is to take the mean of the non-masked values.
+  window_method: "max"
+  # If True, geolocate using computed phase and unwrapped phase and keep the better
+  # solution (as determined by delta from a DEM)
+  unwrap: True
+  unwrap_trigger_m: 0
+
+height_filters:
+  # maximum difference to the reference dem elevation in m
+  max_diff_to_ref_dem: 50
+  max_elevation_antarctica: 4900
+  min_elevation_antarctica: -500
+  max_elevation_greenland: 3900
+  min_elevation_greenland: -500
+
+
+  
+  

@@ -1,10 +1,11 @@
+files: "\\.(py)$"
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
-    -   id: trailing-whitespace
+    #-   id: trailing-whitespace
 -   repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
@@ -17,6 +18,22 @@ repos:
        language: system
        types: [python]
 
+# -   repo: local
+#     hooks:
+#     - id: sphinx_build
+#       name: sphinx_build
+#       entry: docsrc/custom_sphinx_build.sh
+#       language: script
+#       pass_filenames: false
+
+-   repo: local
+    hooks:
+    - id: pdocs_build
+      name: pdocs_build
+      entry: pdocs_build.sh
+      language: script
+      pass_filenames: false
+
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
@@ -27,4 +44,10 @@ repos:
     rev: 6.0.0
     hooks:
     -   id: flake8
-        args: [--max-line-length=100]
+        args: ['--max-line-length','100',
+               '--extend-ignore','W291,W503,W504,E203']
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.3.0  
+    hooks:
+    -   id: mypy
+        args: [--ignore-missing-imports]

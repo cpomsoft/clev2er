@@ -14,13 +14,14 @@ import logging
 import multiprocessing as mp
 import os
 import re
+import string
 import sys
 import time
 import types
 from logging.handlers import QueueHandler
 from math import ceil
 from multiprocessing import Process, Queue, current_process
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 import numpy as np
 from codetiming import Timer
@@ -29,7 +30,7 @@ from envyaml import (  # for parsing YAML files which include environment variab
 )
 from netCDF4 import Dataset  # pylint: disable=E0611
 
-from clev2er.utils.logging import get_logger
+from clev2er.utils.logging_funcs import get_logger
 
 # too-many-locals, pylint: disable=R0914
 # too-many-branches, pylint: disable=R0912
@@ -63,7 +64,13 @@ def sort_file_by_number(filename: str) -> None:
         lines = file.readlines()
 
     # Extract the numbers following [f and remove [fn] from each line
-    numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
+    # numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
+    numbers = []
+    for line in lines:
+        match = re.search(r"\[f(\d+)\]", line)
+        if match is not None:
+            number = int(match.group(1))
+            numbers.append(number)
     sorted_lines = [
         re.sub(r"\[f\d+\]", "", line) for _, line in sorted(zip(numbers, lines))
     ]
@@ -141,8 +148,8 @@ def run_chain_on_single_file(
     alg_object_list,
     config: dict,
     log: logging.Logger,
-    log_queue: Queue,
-    rval_queue: Queue,
+    log_queue: Optional[Queue],
+    rval_queue: Optional[Queue],
     filenum: int,
 ) -> tuple[bool, str]:
     """Runs the algorithm chain on a single L1b file
@@ -164,7 +171,8 @@ def run_chain_on_single_file(
         # create a logger
         logger = logging.getLogger("mp")
         # add a handler that uses the shared queue
-        logger.addHandler(QueueHandler(log_queue))
+        if log_queue is not None:
+            logger.addHandler(QueueHandler(log_queue))
         # log all messages, debug and up
         logger.setLevel(logging.DEBUG)
         # get the current process
@@ -177,7 +185,7 @@ def run_chain_on_single_file(
 
     thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
 
-    thislog.info("[f%d] Processing file %d: %s", filenum, filenum + 1, l1b_file)
+    thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
 
     try:
         nc = Dataset(l1b_file)
@@ -185,7 +193,8 @@ def run_chain_on_single_file(
         error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
-            rval_queue.put((False, error_str, Timer.timers))
+            if rval_queue is not None:
+                rval_queue.put((False, error_str, Timer.timers))
         return (False, error_str)
 
     # ------------------------------------------------------------------------
@@ -193,26 +202,37 @@ def run_chain_on_single_file(
     # ------------------------------------------------------------------------
 
     working_dict = {}
+    working_dict["l1b_file_name"] = l1b_file
 
     for alg_obj in alg_object_list:
         success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
         if not success:
-            thislog.error(
-                "[f%d] Processing of L1b file %d : %s stopped because %s",
-                filenum,
-                filenum + 1,
-                l1b_file,
-                error_str,
-            )
+            if "SKIP_OK" not in error_str:
+                thislog.error(
+                    "[f%d] Processing of L1b file %d : %s stopped because %s",
+                    filenum,
+                    filenum,
+                    l1b_file,
+                    error_str,
+                )
+            else:
+                thislog.debug(
+                    "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
+                    filenum,
+                    filenum,
+                    l1b_file,
+                    error_str,
+                )
             if config["chain"]["use_multi_processing"]:
-                rval_queue.put((False, error_str, Timer.timers))
+                if rval_queue is not None:
+                    rval_queue.put((False, error_str, Timer.timers))
+            nc.close()
             return (False, error_str)
     nc.close()
 
-    print(f"working_dict={working_dict}")
-
     if config["chain"]["use_multi_processing"]:
-        rval_queue.put((True, "", Timer.timers))
+        if rval_queue is not None:
+            rval_queue.put((True, "", Timer.timers))
     return (True, "")
 
 
@@ -275,7 +295,7 @@ def run_chain(
     config: dict,
     algorithm_list: list[str],
     log: logging.Logger,
-) -> bool:
+) -> tuple[bool, int, int]:
     """Run the algorithm chain on each L1b file in l1b_file_list
 
     Args:
@@ -297,16 +317,23 @@ def run_chain(
     alg_object_list = []
 
     for alg in algorithm_list:
+        # Import Algorithm
         try:
             module = importlib.import_module(
                 f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
             )
-            alg_obj = module.Algorithm(config)
-            alg_object_list.append(alg_obj)
-
         except ImportError as exc:
             log.error("Could not import algorithm %s, %s", alg, exc)
             return (False, 1, 0)
+
+        # Load/Initialize algorithm
+        try:
+            alg_obj = module.Algorithm(config)
+        except (FileNotFoundError, IOError, KeyError) as exc:
+            log.error("Could not initialize algorithm %s, %s", alg, exc)
+            return (False, 1, 0)
+
+        alg_object_list.append(alg_obj)
 
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list
@@ -317,11 +344,14 @@ def run_chain(
     num_errors = 0
     num_files_processed = 0
 
-    if config["chain"]["use_multi_processing"]:
+    # --------------------------------------------------------------------------------------------
+    # Parallel Processing (optional)
+    # --------------------------------------------------------------------------------------------
+    if config["chain"]["use_multi_processing"]:  # pylint: disable=R1702
         # With multi-processing we need to redirect logging to a stream
 
         # create a shared logging queue for multiple processes to use
-        log_queue = Queue()
+        log_queue: Queue = Queue()
 
         # create a logger
         new_logger = logging.getLogger("mp")
@@ -353,11 +383,19 @@ def run_chain(
                 f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}"
             )
 
+            num_procs = len(chunked_l1b_file_list)
+
+            log.info(
+                "Running process set %d of %d (containing %d processes)",
+                chunk_num + 1,
+                num_chunks,
+                num_procs,
+            )
+
             # Create separate queue for each new process to handle function return values
-            rval_queues = [Queue() for l1b_file in chunked_l1b_file_list]
+            rval_queues: List[Queue] = [Queue() for _ in range(num_procs)]
 
             # configure child processes
-            num_procs = len(chunked_l1b_file_list)
             processes = [
                 Process(
                     target=run_chain_on_single_file,
@@ -376,35 +414,40 @@ def run_chain(
             # start child processes
             for process in processes:
                 process.start()
+
             # wait for child processes to finish
-
-            rvals = []  # store return values from algorithm processes
-            for i in range(num_procs):
-                # rval contains (bool,str, dict): (algorithm process success/failure, error str,
-                # Timer.timers)
-                rval = rval_queues[i].get()
-                rvals.append(rval)
-                if not rval[0]:
-                    num_errors += 1
-                num_files_processed += 1
-                # rval[2] returns the Timer.timers dict for algorithms process() function
-                # ie a dict containing timers['alg_name']= the number of seconds elapsed
-                Timer.timers = {  # add the all the elapsed times for this algorithm
-                    k: rval[2].get(k, 0) + Timer.timers.get(k, 0) for k in set(rval[2])
-                }
-
-            for process in processes:
+            for i, process in enumerate(processes):
                 process.join()
+                # retrieve return values of each process function from queue
+                # rval=(bool, str, Timer.timers)
+                while not rval_queues[i].empty():
+                    rval = rval_queues[i].get()
+                    if not rval[0] and "SKIP_OK" not in rval[1]:
+                        num_errors += 1
+                    num_files_processed += 1
+                    # rval[2] returns the Timer.timers dict for algorithms process() function
+                    # ie a dict containing timers['alg_name']= the number of seconds elapsed
+                    for key, value in rval[2].items():
+                        if key in Timer.timers:
+                            Timer.timers.add(key, value)
+                        else:
+                            Timer.timers.add(key, value)
 
         # shutdown the queue correctly
         log_queue.put(None)
 
+    # --------------------------------------------------------------------------------------------
+    # Sequential Processing
+    # --------------------------------------------------------------------------------------------
     else:  # Normal sequential processing (when multi-processing is disabled)
         for fnum, l1b_file in enumerate(l1b_file_list):
-            success, _ = run_chain_on_single_file(
+            success, error_str = run_chain_on_single_file(
                 l1b_file, alg_object_list, config, log, None, None, fnum
             )
             num_files_processed += 1
+            if not success and "SKIP_OK" in error_str:
+                log.debug("Skipping file")
+                continue
             if not success:
                 num_errors += 1
 
@@ -438,7 +481,10 @@ def run_chain(
     #  -    alg1.time =(p1.alg1.time +p2.alg1.time +,..)
     #  -    alg2.time =(p1.alg2.time +p2.alg2.time +,..)
 
-    print(Timer.timers)
+    log.info("\n%sAlgorithm Cumulative Processing Time%s", "-" * 20, "-" * 20)
+
+    for algname, cumulative_time in Timer.timers.items():
+        log.info("%s %.3f s", algname, cumulative_time)
 
     if num_errors > 0:
         return (False, num_errors, num_files_processed)
@@ -501,6 +547,32 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--baseline",
+        "-b",
+        help=(
+            "[Optional] baseline of chain. Single uppercase char. ie A-Z "
+            "Used to specify the chain config file, along with --version, and --name, "
+            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/"
+            "<chain_name>_<Baseline><Version>.yml. If not specified will search for "
+            "highest baseline config file available (ie if config files for baseline A and B "
+            "exist, baseline B config file will be selected)"
+        ),
+        type=str,
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        help=(
+            "[Optional] version of chain. integer 1-100, (do not zero pad), default=1 . "
+            "Used to specify the chain config file, along with --baseline, and --name, "
+            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>"
+            "_<Baseline><Version>.yml"
+        ),
+        default=1,
+        type=int,
+    )
+
+    parser.add_argument(
         "--file",
         "-f",
         help=("[Optional] path of a single input L1b file"),
@@ -510,6 +582,26 @@ def main() -> None:
         "--dir",
         "-d",
         help=("[Optional] path of a directory containing input L1b files"),
+    )
+
+    parser.add_argument(
+        "--month",
+        "-m",
+        help=("[Optional] month number (1,12) to use to select L1b files"),
+        type=int,
+    )
+    parser.add_argument(
+        "--year",
+        "-y",
+        help=("[Optional] year number (YYYY) to use to select L1b files"),
+        type=int,
+    )
+
+    parser.add_argument(
+        "--max_files",
+        "-mf",
+        help=("[Optional] limit number of input files to this number"),
+        type=int,
     )
 
     parser.add_argument(
@@ -583,6 +675,69 @@ def main() -> None:
     config["chain"]["chain_name"] = args.name
 
     # -------------------------------------------------------------------------
+    # Merge chain config YAML file
+    #   - default is
+    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.yml
+    # where Baseline is one character 'A', 'B',..
+    #       Version is zero-padded integer : 001, 002,..
+    # -------------------------------------------------------------------------
+
+    # Load config file related to the chain_name
+
+    if args.version < 1 or args.version > 100:
+        sys.exit("ERROR: --version <version>, must be an integer 1-100")
+
+    if args.baseline:
+        if len(args.baseline) != 1:
+            sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
+        chain_config_file = (
+            f"{base_dir}/config/chain_configs/"
+            f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+        )
+        baseline = args.baseline
+    else:
+        reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+        for _baseline in reverse_alphabet_list:
+            chain_config_file = (
+                f"{base_dir}/config/chain_configs/cryotempo_{_baseline}"
+                f"{args.version:03}.yml"
+            )
+            if os.path.exists(chain_config_file):
+                baseline = _baseline
+                break
+
+    if not os.path.exists(chain_config_file):
+        sys.exit(f"ERROR: config file {chain_config_file} does not exist")
+
+    try:
+        chain_config = EnvYAML(
+            chain_config_file
+        )  # read the YML and parse environment variables
+    except ValueError as exc:
+        sys.exit(
+            f"ERROR: config file {chain_config_file} has invalid or "
+            f"unset environment variables : {exc}"
+        )
+
+    # merge the two config files (with precedence to the chain_config)
+    config = config.export() | chain_config.export()  # the export() converts to a dict
+
+    # -------------------------------------------------------------------------
+    # Check we have enough input command line args
+    # -------------------------------------------------------------------------
+
+    if not args.file and not args.dir and not (args.year and args.month):
+        sys.exit(
+            f"usage error: No inputs specified for the {args.name} chain. Must have either "
+            "\n--file <single L1b file as input>,"
+            "\n--dir <input all L1b files in this directory>, or "
+            "\n--year <YYYY> and --month <M> : search for files for specified year and month."
+            "\nThe options --year, --month are used as inputs to l1b_file_selectors modules "
+            f"\nspecified in the {args.name} chain algorithms list and l1b_base_dir "
+            f"\nfrom the {args.name } config file."
+        )
+
+    # -------------------------------------------------------------------------
     # Setup logging
     #   - default log level is INFO unless --debug command line argument is set
     #   - default log files paths for error, info, and debug are defined in the
@@ -606,13 +761,26 @@ def main() -> None:
     if args.alglist:
         algorithm_list_file = args.alglist
     else:
-        algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
-
-    log.info("Using algorithm list: %s", algorithm_list_file)
+        # Try to find an algorithm list for a specific baseline and version
+        algorithm_list_file = (
+            f"{base_dir}/config/algorithm_lists/"
+            f"{args.name}_{baseline}{args.version:03}.yml"
+        )
+        if not os.path.exists(algorithm_list_file):
+            algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
 
     if not os.path.exists(algorithm_list_file):
         log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
         sys.exit(1)
+
+    log.info(
+        "Chain name: %s : baseline %s, version %03d",
+        args.name,
+        baseline,
+        args.version,
+    )
+
+    log.info("Using algorithm list: %s", algorithm_list_file)
 
     # Load and parse the algorithm list
     try:
@@ -638,21 +806,55 @@ def main() -> None:
         )
         sys.exit(1)
 
+    if args.file:
+        l1b_file_list = [args.file]
+    else:
+        # Extract the optional file choosers
+        l1b_file_list = []
+        try:
+            l1b_file_selector_modules = yml["l1b_file_selectors"]
+        except KeyError:
+            l1b_file_selector_modules = []
+            log.info("No file chooser modules found")
+
+        if len(l1b_file_selector_modules) > 0:
+            for file_selector_module in l1b_file_selector_modules:
+                # Import module
+                try:
+                    module = importlib.import_module(
+                        f"clev2er.algorithms.{config['chain']['chain_name']}.{file_selector_module}"
+                    )
+                except ImportError as exc:
+                    log.error(
+                        "Could not import module %s, %s", file_selector_module, exc
+                    )
+                    sys.exit(1)
+
+                finder = module.FileFinder()
+                if args.month and args.year:
+                    finder.add_month(args.month)
+                    finder.add_year(args.year)
+
+                finder.set_base_path(config["l1b_base_dir"])
+                files = finder.find_files()
+                if len(files) > 0:
+                    l1b_file_list.extend(files)
+
+                log.info(files)
+
     # --------------------------------------------------------------------
     # Choose the input L1b file list
     # --------------------------------------------------------------------
 
     if args.file:
         l1b_file_list = [args.file]
-    elif args.dir:
-        l1b_file_list = glob.glob(args.dir + "/*.nc")
-    else:  # use a test file in the list
-        l1b_test_file = (
-            "/cpdata/SATS/RA/CRY/L1B/SIN/2020/08/"
-            "CS_OFFL_SIR_SIN_1B_20200831T200752_20200831T200913_D001.nc"
-        )
 
-        l1b_file_list = [l1b_test_file]
+    if args.dir:
+        l1b_file_list = glob.glob(args.dir + "/*.nc")
+
+    if args.max_files:
+        if len(l1b_file_list) > args.max_files:
+            l1b_file_list = l1b_file_list[: args.max_files]
 
     # --------------------------------------------------------------------
     # Run the chain on the file list
@@ -668,27 +870,29 @@ def main() -> None:
 
     start_time = time.time()
 
-    success, number_errors, num_files_processed = run_chain(
+    _, number_errors, num_files_processed = run_chain(
         l1b_file_list, config, algorithm_list, log
     )
 
     elapsed_time = time.time() - start_time
 
-    if success:
-        log.info(
-            "Chain successfully completed processing %d files of %d input files in %f seconds",
-            num_files_processed,
-            len(l1b_file_list),
-            elapsed_time,
-        )
-    else:
-        log.info(
-            "Chain completed with %d errors processing %d files of %d input files in %f seconds",
-            number_errors,
-            num_files_processed,
-            len(l1b_file_list),
-            elapsed_time,
-        )
+    log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
+
+    log.info(
+        "%s Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
+        args.name,
+        number_errors,
+        num_files_processed,
+        len(l1b_file_list),
+        elapsed_time,
+    )
+
+    log.info("\n%sLog Files          %s", "-" * 20, "-" * 20)
+
+    log.info("log file (INFO): %s", config["log_files"]["info"])
+    log.info("log file (ERRORS): %s", config["log_files"]["errors"])
+    if args.debug:
+        log.info("log file (DEBUG): %s", config["log_files"]["debug"])
 
     if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
@@ -727,6 +931,7 @@ def main() -> None:
                     "Error occurred while deleting the file %s : %s", file_path, exc
                 )
     else:
+        # remove the multi-processing marker string '[fN]' from log files
         remove_strings_from_file(config["log_files"]["info"])
         remove_strings_from_file(config["log_files"]["errors"])
         remove_strings_from_file(config["log_files"]["debug"])
