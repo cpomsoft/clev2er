@@ -212,8 +212,6 @@ class Dem:
             binsize,
         ) = self.get_geotiff_extent(demfile)
 
-        log.info("ncols %d nrows %d", ncols, nrows)
-
         if self.store_in_shared_memory:
             # First try attaching to an existing shared memory buffer if it
             # exists with the DEMs name

@@ -315,9 +315,13 @@ def run_chain(
     #   - runs each algorithm object's __init__() function
     # -------------------------------------------------------------------------------------------
     alg_object_list = []
+    shared_mem_alg_object_list = []  # duplicate list used to call initialization
+    # of shared memory resources where used.
 
     for alg in algorithm_list:
-        # Import Algorithm
+        # --------------------------------------------------------------------
+        # Dynamically import each Algorithm from the list
+        # --------------------------------------------------------------------
         try:
             module = importlib.import_module(
                 f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
@@ -325,6 +329,11 @@ def run_chain(
         except ImportError as exc:
             log.error("Could not import algorithm %s, %s", alg, exc)
             return (False, 1, 0)
+
+        # --------------------------------------------------------------------
+        # Create an instance of each Algorithm,
+        #   - runs its __init__(config) function
+        # --------------------------------------------------------------------
 
         # Load/Initialize algorithm
         try:
@@ -334,6 +343,28 @@ def run_chain(
             return (False, 1, 0)
 
         alg_object_list.append(alg_obj)
+
+        # --------------------------------------------------------------------
+        # Create a second instance of each Algorithm for multi-processing
+        # shared memory buffer allocations,
+        #   - runs its __init__(config) function
+        # Note that the .process() function is never run for this instance
+        # --------------------------------------------------------------------
+
+        if (
+            config["chain"]["use_multi_processing"]
+            and config["chain"]["use_shared_memory"]
+        ):
+            # Load/Initialize algorithm
+            try:
+                alg_obj_shm = module.Algorithm(config | {"init_shared_mem": True})
+            except (FileNotFoundError, IOError, KeyError) as exc:
+                log.error(
+                    "Could not initialize algorithm for shared_memory %s, %s", alg, exc
+                )
+                return (False, 1, 0)
+
+            shared_mem_alg_object_list.append(alg_obj_shm)
 
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list
@@ -806,8 +837,16 @@ def main() -> None:
         )
         sys.exit(1)
 
+    # -------------------------------------------------------------------------------------------
+    #  Select input L1b files
+    #   - single file : args.file
+    #   - multiple files : args.dir
+    # -------------------------------------------------------------------------------------------
+
     if args.file:
         l1b_file_list = [args.file]
+    elif args.dir:
+        l1b_file_list = glob.glob(args.dir + "/*.nc")
     else:
         # Extract the optional file choosers
         l1b_file_list = []
@@ -841,16 +880,6 @@ def main() -> None:
                     l1b_file_list.extend(files)
 
                 log.info(files)
-
-    # --------------------------------------------------------------------
-    # Choose the input L1b file list
-    # --------------------------------------------------------------------
-
-    if args.file:
-        l1b_file_list = [args.file]
-
-    if args.dir:
-        l1b_file_list = glob.glob(args.dir + "/*.nc")
 
     if args.max_files:
         if len(l1b_file_list) > args.max_files:

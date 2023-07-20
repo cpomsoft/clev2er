@@ -5,6 +5,9 @@
 chain:
   use_multi_processing: false
   max_processes_for_multiprocessing: 7
+  use_shared_memory: false # for multi-processing, allocate SharedMemory buffers
+                           # on Algorithm initialization for resources such as DEM
+                           # arrays. This can greatly reduce overall memory usage for MP
   # default is to skip file if an algorithm returns failure and continue
   stop_on_error: true
 
