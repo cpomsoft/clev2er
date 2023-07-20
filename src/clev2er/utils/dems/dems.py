@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import logging
 import os
+from multiprocessing.shared_memory import SharedMemory
+from typing import Any
 
 import numpy as np
 import rasterio  # to extract GeoTIFF extents
@@ -15,6 +17,8 @@ from rasterio.errors import RasterioIOError
 from scipy.interpolate import interpn
 from scipy.ndimage import gaussian_filter
 from tifffile import imread  # to support large TIFF files
+
+# pylint: disable=too-many-arguments
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +42,7 @@ class Dem:
         filled: bool = True,
         config: None | dict = None,
         dem_dir: str | None = None,
+        store_in_shared_memory: bool = False,
     ):
         """class initialization function
 
@@ -46,7 +51,7 @@ class Dem:
             filled (bool, optional): Use filled version of DEM if True. Defaults to True.
             config (dict, optional): configuration dictionary, defaults to None
             dem_dir (str, optional): path of directory containing DEM. Defaults to None
-
+            store_in_shared_memory (bool, optional): stores zdem array in SharedMemory
         Raises:
             ValueError: when name not in global dem_list
         """
@@ -67,6 +72,16 @@ class Dem:
         self.mindemx = None
         self.mindemy = None
         self.binsize = None
+        self.store_in_shared_memory = store_in_shared_memory
+        self.shape = ()
+        self.dtype = np.float32
+        self.shared_mem: Any = None
+        self.shared_mem_child = False  # set to True if a child process
+        # is accessing the Dem's shared memory
+        # default is False (parent process which allocates
+        # the shared memory). Necessary for tracking who
+        # unlinks (parent) or closes (child) the shared
+        # memory at the end
 
         self.load()
 
@@ -158,6 +173,29 @@ class Dem:
 
         return this_path
 
+    def clean_up(self):
+        """Free up, close or release any shared memory or other resources associated
+        with DEM
+        """
+        if self.store_in_shared_memory:
+            try:
+                if self.shared_mem is not None:
+                    if self.shared_mem_child:
+                        self.shared_mem.close()
+                        log.info(
+                            "closed shared memory for %s in child process", self.name
+                        )
+                        print("closing in child")
+                    else:
+                        self.shared_mem.close()
+                        self.shared_mem.unlink()
+                        log.info(
+                            "closed shared memory for %s in parent process", self.name
+                        )
+
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                log.error("Shared memory for %s could not be closed %s", self.name, exc)
+
     def load_geotiff(self, demfile: str):
         """Load a GeoTIFF file
 
@@ -174,7 +212,45 @@ class Dem:
             binsize,
         ) = self.get_geotiff_extent(demfile)
 
-        self.zdem = imread(demfile)
+        log.info("ncols %d nrows %d", ncols, nrows)
+
+        if self.store_in_shared_memory:
+            # First try attaching to an existing shared memory buffer if it
+            # exists with the DEMs name
+            try:
+                self.shared_mem = SharedMemory(name=self.name, create=False)
+                self.zdem = np.ndarray(
+                    shape=(nrows, ncols), dtype=self.dtype, buffer=self.shared_mem.buf
+                )
+                self.shared_mem_child = True
+
+                print("child: attached to existing shared memory")
+
+            except FileNotFoundError:
+                zdem = imread(demfile)
+
+                # Create the shared memory with the appropriate size
+                self.shared_mem = SharedMemory(
+                    name=self.name, create=True, size=zdem.nbytes
+                )
+
+                # Link the shared memory to the zdem data
+                self.zdem = np.ndarray(
+                    zdem.shape, dtype=zdem.dtype, buffer=self.shared_mem.buf
+                )
+
+                # Copy the data from zdem to the shared_np_array
+                self.zdem[:] = zdem[:]
+
+                print("parent: created shared memory")
+        else:
+            self.zdem = imread(demfile)
+            log.info(
+                "%s zdem.shape %s",
+                self.name,
+                self.zdem.shape,
+            )
+            log.info("zdem.dtype %s", self.zdem.dtype)
 
         # Set void data to Nan
         if self.void_value:
@@ -215,6 +291,7 @@ class Dem:
             )  # Polar Stereo - North -lat of origin 70N, 45
             self.southern_hemisphere = False
             self.void_value = -9999
+            self.dtype = np.float32
 
         # --------------------------------------------------------------------------------
         elif self.name == "rema_ant_1km":
@@ -238,6 +315,7 @@ class Dem:
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
             self.southern_hemisphere = True
             self.void_value = -9999
+            self.dtype = np.float32
 
         # --------------------------------------------------------------------------------
         elif self.name == "rema_ant_1km_v2":
@@ -264,6 +342,7 @@ class Dem:
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
             self.southern_hemisphere = True
             self.void_value = -9999
+            self.dtype = np.float32
 
         # --------------------------------------------------------------------------------
 

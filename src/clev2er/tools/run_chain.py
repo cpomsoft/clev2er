@@ -30,7 +30,7 @@ from envyaml import (  # for parsing YAML files which include environment variab
 )
 from netCDF4 import Dataset  # pylint: disable=E0611
 
-from clev2er.utils.logging import get_logger
+from clev2er.utils.logging_funcs import get_logger
 
 # too-many-locals, pylint: disable=R0914
 # too-many-branches, pylint: disable=R0912
