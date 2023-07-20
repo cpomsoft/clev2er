@@ -2,3 +2,6 @@
 
 # Good variable names which should always be accepted, separated by a comma.
 good-names=nc,i,j,x,y,z,xs,ys,m,n,p,q,ii,jj
+
+[MESSAGES CONTROL] 
+disable=trailing-whitespace

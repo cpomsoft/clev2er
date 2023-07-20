@@ -71,10 +71,10 @@ or with ssh:
 or with the GitHub CLI:  
 `gh repo clone cpomsoft/clev2er`  
 
-## Environment Setup
+## Shell Environment Setup
 
-The following environment variables need to be set. In a bash shell this might be done
-by adding export lines to your $HOME/.bash_profile file.  
+The following shell environment variables need to be set. In a bash shell this might be 
+done by adding export lines to your $HOME/.bash_profile file.  
 
 Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set
 the PYTHONPATH to point to the packages src directory. Here is an example:  
@@ -86,46 +86,70 @@ export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 
 ## Virtual Environment and Package Requirements
 
-This project uses *poetry* to manage package dependencies and virtual envs.  
+This project uses *poetry* to manage package dependencies and virtual envs.
 
-First, you need to install *poetry* on your system from 
-https://python-poetry.org/docs/#installation.  
+First, you need to install *poetry* on your system from
+https://python-poetry.org/docs/#installation.
+
+You should also then ensure that poetry is in your path, such that the command
+
+`poetry --version`
+
+returns the poetry version number. You may need to modify your 
+PATH variable in order to achieve this.
+
+### Install Python v3.10
+
+Install a minimal python 3.10 environment. One way of doing this is to 
+use the `conda` tool.
+
+```
+conda create -n python310 python=3.10
+conda activate python310
+```
+
 
 Run the following command to install python dependencies for this package
 (for info, it uses settings in pyproject.toml to know what to install)
 
-`poetry install`  
+### Install packages using Poetry
+
+```
+cd $CLEV2ER_BASE_DIR
+poetry install
+poetry update
+```
 
 Finally, to load the virtual env, type:  
 
 ```
 cd $CLEV2ER_BASE_DIR
 poetry shell
-```  
+```
 
 You should now be setup to run processing chains, etc.
 
 ## Chain Configuration
 
-A number of different YML format configuration files are passed to 
+A number of different YML format configuration files are passed to
 the chain's algorithms, via a merged python dictionary.
 
 ### Main Configuration
 
-The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`  
+The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
 
-This contains settings for :  
+This contains settings for :
 - default location of log files (INFO, DEBUG,ERROR)
 - default multi-processing settings (mp enabled/disabled, max number of cores)
 
 ### Chain Specific Configuration
 
-The default chain specific configuration file is 
+The default chain specific configuration file is
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
 ## Example of Running the Chain
 
-This example runs the processing chain *cryotempo* on every L1b file in 
+This example runs the processing chain *cryotempo* on every L1b file in
 /path/to/l1b_files. It uses all the default configuration files for that chain.
 
 ```script
@@ -133,7 +157,7 @@ cd $CLEV2ER_BASE_DIR/src/clev2er/tools
 python run_chain.py --name cryotempo -d /path/to/l1b_files
 ```
 
-To find all the command line options for *run_chain.py*, type:  
+To find all the command line options for *run_chain.py*, type:
 
 `python run_chain.py -h`
 
@@ -145,24 +169,24 @@ For further info, please see `clev2er.tools`
 
 This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 
-Content is created from doctrings 
-(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code ) 
-in the code, 
+Content is created from doctrings
+(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )
+in the code,
 using the *pdoc* package : https://pdoc.dev
 
 Diagrams are implemented using mermaid: https://mermaid.js.org
 
-The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook 
+The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook
 (hook id: pdocs_build).
 Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`
 
-The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site 
+The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site
 whenever a `git commit` is run.
 
-When a `git push` is run, GitHub automatically extracts the site from the 
+When a `git push` is run, GitHub automatically extracts the site from the
 docs directory and publishes it.
 
-The front page of the site (ie this page) is located in the doctring within 
+The front page of the site (ie this page) is located in the doctring within
 `$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.
 
 The docstring within `__init__.py` of each package directory should provide
