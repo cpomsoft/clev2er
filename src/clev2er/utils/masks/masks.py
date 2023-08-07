@@ -1,10 +1,12 @@
 """Class for area masking
 """
 
+import hashlib
 import logging
+from multiprocessing.shared_memory import SharedMemory
 from os import environ
 from os.path import isfile
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 from netCDF4 import Dataset  # pylint: disable=E0611
@@ -47,6 +49,7 @@ class Mask:
         mask_name: str,
         basin_numbers: Optional[list[int]] = None,
         mask_path: Optional[str] = None,
+        store_in_shared_memory: bool = False,
     ) -> None:
         """class initialization
 
@@ -55,10 +58,13 @@ class Mask:
             basin_numbers (list[int], optional): list of grid values to select from grid masks
                                                  def=None
             mask_path (str, optional): override default path of mask data file
-
+            store_in_shared_memory (bool, optional): stores/access mask array in SharedMemory
         """
         self.mask_name = mask_name
         self.basin_numbers = basin_numbers
+        self.store_in_shared_memory = store_in_shared_memory
+        self.shared_mem: Any = None
+        self.shared_mem_child = False  # set to True if a child process
 
         self.mask_type = None  # 'xylimits', 'polygon', 'grid','latlimits'
 
@@ -111,18 +117,17 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            # read netcdf file
-            nc = Dataset(mask_file)
+            self.num_x = 13333  # mask dimension in x direction
+            self.num_y = 13333  # mask dimension in y direction
+            self.dtype = np.uint8  # data type used for mask array.
+            # values are 0..4, so using uint8 to reduce memory
 
-            self.num_x = nc.dimensions["x"].size
-            self.num_y = nc.dimensions["y"].size
+            self.load_netcdf_mask(mask_file, flip=True)
 
             self.minxm = -3333000
             self.minym = -3333000
             self.binsize = 500
-            self.mask_grid = np.array(nc.variables["mask"][:]).astype(int)
-            self.mask_grid = np.flipud(self.mask_grid)
-            nc.close()
+
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South (71S, 0E)
             self.mask_grid_possible_values = [0, 1, 2, 3, 4]  # values in the mask_grid
             self.grid_value_names = [
@@ -156,19 +161,17 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            # read netcdf file
+            self.num_x = 10218  # mask dimension in x direction
+            self.num_y = 18346  # mask dimension in y direction
+            self.dtype = np.uint8  # data type used for mask array.
+            # values are 0..4, so using uint8 to reduce memory
 
-            nc = Dataset(mask_file)
+            self.load_netcdf_mask(mask_file, flip=True)
 
-            self.num_x = nc.dimensions["x"].size
-            self.num_y = nc.dimensions["y"].size
             self.binsize = 150
             self.minxm = -652925
             self.minym = -632675 - (self.num_y * self.binsize)
-            self.mask_grid = np.array(nc.variables["mask"][:]).astype(int)
-            self.mask_grid = np.flipud(self.mask_grid)
-            nc.close()
-            del nc
+
             self.crs_bng = CRS("epsg:3413")  # Polar Stereo - South (70N, 45W)
             self.mask_grid_possible_values = [0, 1, 2, 3, 4]  # values in the mask_grid
             self.grid_value_names = [
@@ -201,11 +204,12 @@ class Mask:
 
             self.num_x = 13333
             self.num_y = 13333
+            self.dtype = np.uint8  # data type used for mask array.
             self.minxm = -3333000
             self.minym = -3333000
             self.binsize = 500  # meters
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South (71S, 0E)
-            self.mask_grid = np.load(mask_file, allow_pickle=True).get("mask_grid")
+            self.load_npz_mask(mask_file)
             self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
             self.grid_value_names = ["outside", "inside Antarctic dilated mask"]
             self.grid_colors = ["blue", "darkgrey"]
@@ -230,12 +234,12 @@ class Mask:
 
             self.num_x = 10218
             self.num_y = 18346
+            self.dtype = np.uint8  # data type used for mask array.
             self.binsize = 150  # meters
             self.minxm = -652925
             self.minym = -632675 - (self.num_y * self.binsize)
             self.crs_bng = CRS("epsg:3413")  # Polar Stereo - South (70N, 45W)
-
-            self.mask_grid = np.load(mask_file, allow_pickle=True).get("mask_grid")
+            self.load_npz_mask(mask_file)
             self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
             self.grid_value_names = ["outside", "inside Greenland dilated mask"]
             self.grid_colors = ["blue", "darkgrey"]
@@ -257,16 +261,19 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            nc = Dataset(mask_file)
+            self.num_x = 2820
+            self.num_y = 2420
+            self.dtype = np.uint8
 
-            self.num_x = nc.dimensions["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_NX"].size
-            self.num_y = nc.dimensions["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_NY"].size
+            self.load_netcdf_mask(
+                mask_file,
+                flip=False,
+                nc_mask_var="ANT_ZWALLY_BASINMASK_INCFLOATING_ICE",
+            )
 
-            self.minxm = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_MINXM"][:]
-            self.minym = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE_MINYM"][:]
-            self.binsize = nc.variables["binsize"][:]
-            self.mask_grid = nc.variables["ANT_ZWALLY_BASINMASK_INCFLOATING_ICE"][:]
-            nc.close()
+            self.minxm = -2820000
+            self.minym = -2420000
+            self.binsize = 2000  # km
 
             self.mask_grid_possible_values = list(range(28))  # values in the mask_grid
             self.grid_value_names = [f"Basin-{i}" for i in range(28)]
@@ -289,16 +296,16 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            nc = Dataset(mask_file)
+            self.num_x = 1000
+            self.num_y = 1550
+            self.dtype = np.uint8
 
-            self.num_x = nc.dimensions["gre_basin_nx"].size
-            self.num_y = nc.dimensions["gre_basin_ny"].size
+            self.minxm = -1000000
+            self.minym = -3500000
+            self.binsize = 2000
 
-            self.minxm = nc.variables["gre_basin_minxm"][:]
-            self.minym = nc.variables["gre_basin_minym"][:]
-            self.binsize = nc.variables["gre_basin_binsize"][:]
-            self.mask_grid = np.array(nc.variables["gre_basin_mask"][:]).astype(int)
-            nc.close()
+            self.load_netcdf_mask(mask_file, flip=False, nc_mask_var="gre_basin_mask")
+
             self.crs_bng = CRS(
                 "epsg:3413"
             )  # Polar Stereo - North -latitude of origin 70N, 45
@@ -366,15 +373,16 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            nc = Dataset(mask_file)
-
             self.num_x = 2820
             self.num_y = 2420
+            self.dtype = np.uint8
+
             self.minxm = -2820000  # meters
             self.minym = -2420000  # meters
             self.binsize = 2000  # meters
-            self.mask_grid = nc.variables["basinmask"][:]
-            nc.close()
+
+            self.dtype = np.uint8
+            self.load_netcdf_mask(mask_file, flip=False, nc_mask_var="basinmask")
 
             self.mask_grid_possible_values = list(range(19))  # values in the mask_grid
             self.grid_value_names = [
@@ -417,19 +425,13 @@ class Mask:
                 log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
-            nc = Dataset(mask_file)
-
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45
-
             self.num_x = 1000
             self.num_y = 1550
             self.minxm = -1000000  # meters
             self.minym = -3500000  # meters
             self.binsize = 2000  # meters
-            self.mask_grid = nc.variables["basinmask"][:]
-            nc.close()
+            self.dtype = np.uint8
+            self.load_netcdf_mask(mask_file, flip=False, nc_mask_var="basinmask")
 
             self.mask_grid_possible_values = list(range(57))  # values in the mask_grid
 
@@ -459,6 +461,153 @@ class Mask:
         self.lonlat_to_xy_transformer = Transformer.from_proj(
             self.crs_wgs, self.crs_bng, always_xy=True
         )
+
+    def load_netcdf_mask(self, mask_file: str, flip=True, nc_mask_var: str = "mask"):
+        """load mask array from netcdf grid masks
+
+        Args:
+            mask_file (str) : path of netcdf mask file
+            flip (bool, optional): _description_. Defaults to True.
+            nc_mask_var (str): variable name in netcdf file containing mask data, def='mask'
+        """
+        if self.store_in_shared_memory:
+            # Create a unique 8 char name hashed mask name
+            # this is required because shared memory doesn't like long names
+            hash_name = hashlib.md5(self.mask_name.encode()).hexdigest()[:8]
+            try:  # Attaching to existing shared memory with this mask name
+                self.shared_mem = SharedMemory(name=hash_name, create=False)
+                self.mask_grid = np.ndarray(
+                    shape=(self.num_y, self.num_x),
+                    dtype=self.dtype,
+                    buffer=self.shared_mem.buf,
+                )
+                self.shared_mem_child = True
+
+                print("child: attached to existing shared memory")
+
+            except FileNotFoundError:  # Create shared memory with this mask name
+                # first, load the mask array from the netcdf file
+                with Dataset(mask_file) as nc:
+                    mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(
+                        self.dtype
+                    )
+                    if flip:
+                        mask_grid = np.flipud(
+                            mask_grid
+                        )  # flip each column in the up/down dirn
+
+                # Create the shared memory with the appropriate size
+                self.shared_mem = SharedMemory(
+                    name=hash_name, create=True, size=mask_grid.nbytes
+                )
+
+                # Create an ndarray of the correct size linked to the shared mem
+                self.mask_grid = np.ndarray(
+                    mask_grid.shape,
+                    dtype=mask_grid.dtype,
+                    buffer=self.shared_mem.buf,
+                )
+
+                # Copy the data from mask_grid to the shared_np_array
+                self.mask_grid[:] = mask_grid[:]
+
+                print("parent: created shared memory")
+
+        else:  # load normally without using shared memory
+            # read netcdf file
+            with Dataset(mask_file) as nc:
+                self.mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(
+                    self.dtype
+                )
+                if flip:
+                    self.mask_grid = np.flipud(self.mask_grid)
+                self.num_x = nc.dimensions["x"].size
+                self.num_y = nc.dimensions["y"].size
+
+    def load_npz_mask(self, mask_file: str):
+        """load mask array from npz grid masks
+
+        Args:
+            mask_file (str) : path of npz mask file
+        """
+        if self.store_in_shared_memory:
+            # Create a unique 8 char name hashed mask name
+            # this is required because shared memory doesn't like long names
+            hash_name = hashlib.md5(self.mask_name.encode()).hexdigest()[:8]
+
+            try:  # Attaching to existing shared memory with this mask name
+                self.shared_mem = SharedMemory(name=hash_name, create=False)
+                self.mask_grid = np.ndarray(
+                    shape=(self.num_y, self.num_x),
+                    dtype=self.dtype,
+                    buffer=self.shared_mem.buf,
+                )
+                self.shared_mem_child = True
+
+                print("child: attached to existing shared memory")
+
+            except FileNotFoundError:  # Create shared memory with this mask name
+                # first, load the mask array from the npz file
+                mask_grid = (
+                    np.load(mask_file, allow_pickle=True)
+                    .get("mask_grid")
+                    .astype(self.dtype)
+                )
+
+                # Create the shared memory with the appropriate size
+                self.shared_mem = SharedMemory(
+                    name=hash_name, create=True, size=mask_grid.nbytes
+                )
+
+                # Create an ndarray of the correct size linked to the shared mem
+                self.mask_grid = np.ndarray(
+                    mask_grid.shape,
+                    dtype=mask_grid.dtype,
+                    buffer=self.shared_mem.buf,
+                )
+
+                # Copy the data from mask_grid to the shared_np_array
+                self.mask_grid[:] = mask_grid[:]
+
+                print("parent: created shared memory")
+
+        else:  # load normally without using shared memory
+            # read npz file
+            self.mask_grid = (
+                np.load(mask_file, allow_pickle=True)
+                .get("mask_grid")
+                .astype(self.dtype)
+            )
+
+    def clean_up(self):
+        """Free up, close or release any shared memory or other resources associated
+        with DEM
+        """
+        if self.store_in_shared_memory:
+            try:
+                if self.shared_mem is not None:
+                    if self.shared_mem_child:
+                        self.shared_mem.close()
+                        log.info(
+                            "closed shared memory for %s in child process",
+                            self.mask_name,
+                        )
+                        print("closing in child")
+                    else:
+                        self.shared_mem.close()
+                        self.shared_mem.unlink()
+                        log.info(
+                            "closed shared memory for %s in parent process",
+                            self.mask_name,
+                        )
+
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                log.error(
+                    "Shared memory for %s could not be closed %s", self.mask_name, exc
+                )
+                raise IOError(
+                    f'Shared memory for {self.mask_name} could not be closed {exc}"'
+                ) from exc
 
     def points_inside(
         self,

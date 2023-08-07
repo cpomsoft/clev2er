@@ -1,10 +1,23 @@
-""" Tool to run the CLEV2ER LI+IW chain
+""" Main command line run control tool for CLEV2ER algorithm framework chains
 
-    Setup requires: PYTHONPATH to include $CLEV2ER_BASE_DIR/src
+    Setup requires: 
+        
+        Set CLEV2ER_BASE_DIR to point to the base directory of the CLEV2ER framework
+            export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
 
-        export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
-        export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
+        PYTHONPATH to include $CLEV2ER_BASE_DIR/src
+            export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 
+    Example usage:
+        To list all command line options:
+
+        `python run_chain.py -h`
+
+        a) Run the cryotempo land ice chain on all l1b files in 
+           $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles
+
+        `python run_chain.py --name cryotempo --dir $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles`
+        
 """
 
 import argparse
@@ -21,7 +34,7 @@ import types
 from logging.handlers import QueueHandler
 from math import ceil
 from multiprocessing import Process, Queue, current_process
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 
 import numpy as np
 from codetiming import Timer
@@ -36,6 +49,7 @@ from clev2er.utils.logging_funcs import get_logger
 # too-many-branches, pylint: disable=R0912
 # too-many-statements, pylint: disable=R0915
 # too-many-arguments, pylint: disable=R0913
+# pylint: disable=too-many-lines
 
 
 def exception_hook(
@@ -145,7 +159,7 @@ def remove_strings_from_file(filename: str) -> None:
 
 def run_chain_on_single_file(
     l1b_file: str,
-    alg_object_list,
+    alg_object_list: list[Any],
     config: dict,
     log: logging.Logger,
     log_queue: Optional[Queue],
@@ -156,7 +170,7 @@ def run_chain_on_single_file(
 
     Args:
         l1b_file (str): path of L1b file to process
-        alg_object_list (_type_): list of Algorithm objects
+        alg_object_list (list[Algorithm]): list of Algorithm objects
         log (logging.Logger): logging instance to use
         log_queue (Queue): Queue for multi-processing logging
         rval_queue (Queue) : Queue for multi-processing results
@@ -187,48 +201,59 @@ def run_chain_on_single_file(
 
     thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
 
-    try:
-        nc = Dataset(l1b_file)
+    try:  # and open the NetCDF file
+        with Dataset(l1b_file) as nc:
+            # ------------------------------------------------------------------------
+            # Run each algorithms .process() function in order
+            # ------------------------------------------------------------------------
+
+            working_dict = {}
+            working_dict["l1b_file_name"] = l1b_file
+
+            for alg_obj in alg_object_list:
+                success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
+                if not success:
+                    if "SKIP_OK" not in error_str:
+                        thislog.error(
+                            "[f%d] Processing of L1b file %d : %s stopped because %s",
+                            filenum,
+                            filenum,
+                            l1b_file,
+                            error_str,
+                        )
+                    else:
+                        thislog.debug(
+                            "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
+                            filenum,
+                            filenum,
+                            l1b_file,
+                            error_str,
+                        )
+                    if config["chain"]["use_multi_processing"]:
+                        if rval_queue is not None:
+                            rval_queue.put((False, error_str, Timer.timers))
+                    # Free up resources by running the Algorithm.finalize() on each
+                    # algorithm instance
+                    for alg_obj in alg_object_list:
+                        alg_obj.finalize()
+                    return (False, error_str)
+
+            # Free up resources by running the Algorithm.finalize() on each
+            # algorithm instance
+            for alg_obj in alg_object_list:
+                alg_obj.finalize()
+
     except IOError:
         error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
             if rval_queue is not None:
-                rval_queue.put((False, error_str, Timer.timers))
+                rval_queue.put(
+                    (False, error_str, Timer.timers)
+                )  # pass the function return values
+                # back to the parent process
+                # via a queue
         return (False, error_str)
-
-    # ------------------------------------------------------------------------
-    # Run each algorithms .process() function in order
-    # ------------------------------------------------------------------------
-
-    working_dict = {}
-    working_dict["l1b_file_name"] = l1b_file
-
-    for alg_obj in alg_object_list:
-        success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
-        if not success:
-            if "SKIP_OK" not in error_str:
-                thislog.error(
-                    "[f%d] Processing of L1b file %d : %s stopped because %s",
-                    filenum,
-                    filenum,
-                    l1b_file,
-                    error_str,
-                )
-            else:
-                thislog.debug(
-                    "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
-                    filenum,
-                    filenum,
-                    l1b_file,
-                    error_str,
-                )
-            if config["chain"]["use_multi_processing"]:
-                if rval_queue is not None:
-                    rval_queue.put((False, error_str, Timer.timers))
-            nc.close()
-            return (False, error_str)
-    nc.close()
 
     if config["chain"]["use_multi_processing"]:
         if rval_queue is not None:
@@ -296,12 +321,14 @@ def run_chain(
     algorithm_list: list[str],
     log: logging.Logger,
 ) -> tuple[bool, int, int]:
-    """Run the algorithm chain on each L1b file in l1b_file_list
+    """Run the algorithm chain in algorithm_list on each L1b file in l1b_file_list
+       using the configuration settings in config
 
     Args:
-        l1b_file_list (_type_): _description_
-        config (_type_): _description_
-        algorithm_list (_type_): _description_
+        l1b_file_list (list[str]): list of l1b files paths to process
+        config (dict): configuration dictionary. This is the named chain config and the
+                                                 main config merged
+        algorithm_list (list[str]): list of algorithm names
 
     Returns:
         tuple(bool,int,int) : (chain success or failure, number_of_errors,
@@ -315,7 +342,8 @@ def run_chain(
     #   - runs each algorithm object's __init__() function
     # -------------------------------------------------------------------------------------------
     alg_object_list = []
-    shared_mem_alg_object_list = []  # duplicate list used to call initialization
+    shared_mem_alg_object_list: List[Any] = []
+    # duplicate list used to call initialization
     # of shared memory resources where used.
 
     for alg in algorithm_list:
@@ -349,6 +377,8 @@ def run_chain(
         # shared memory buffer allocations,
         #   - runs its __init__(config) function
         # Note that the .process() function is never run for this instance
+        # We merge  {"_init_shared_mem": True} to the config so that the
+        # Algorithm knows to run any shared memory initialization
         # --------------------------------------------------------------------
 
         if (
@@ -357,11 +387,15 @@ def run_chain(
         ):
             # Load/Initialize algorithm
             try:
-                alg_obj_shm = module.Algorithm(config | {"init_shared_mem": True})
+                alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True})
             except (FileNotFoundError, IOError, KeyError) as exc:
                 log.error(
                     "Could not initialize algorithm for shared_memory %s, %s", alg, exc
                 )
+                # If there is a failure we must clean up any shared memory already allocated
+                for alg_obj_shm in shared_mem_alg_object_list:
+                    alg_obj_shm.finalize()
+
                 return (False, 1, 0)
 
             shared_mem_alg_object_list.append(alg_obj_shm)
@@ -494,6 +528,9 @@ def run_chain(
     # -----------------------------------------------------------------------------
 
     log.debug("_" * 79)  # add a divider line in the log
+
+    for alg_obj_shm in shared_mem_alg_object_list:
+        alg_obj_shm.finalize()
 
     for alg_obj in alg_object_list:
         alg_obj.finalize()
@@ -676,6 +713,14 @@ def main() -> None:
         const=1,
     )
 
+    parser.add_argument(
+        "--sharedmem",
+        "-sm",
+        help=("[Optional] use shared memory when multi-processing is enabled"),
+        action="store_const",
+        const=1,
+    )
+
     # read arguments from the command line
     args = parser.parse_args()
 
@@ -702,6 +747,15 @@ def main() -> None:
         config["chain"]["use_multi_processing"] = True
     if args.sequentialprocessing:
         config["chain"]["use_multi_processing"] = False
+    if args.sharedmem:
+        if config["chain"]["use_multi_processing"]:
+            config["chain"]["use_shared_memory"] = True
+        else:
+            sys.exit(
+                "ERROR: --sharedmem option must be used  with multi-processing enabled"
+                "\nEither through the --multiprocessing command line option, or"
+                "\nthrough the chain:use_multi_processing setting in the main config file"
+            )
 
     config["chain"]["chain_name"] = args.name
 
@@ -904,6 +958,10 @@ def main() -> None:
     )
 
     elapsed_time = time.time() - start_time
+
+    # --------------------------------------------------------------------
+    # Log chain summary stats
+    # --------------------------------------------------------------------
 
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 

@@ -38,7 +38,11 @@ class Algorithm:
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
         if config["chain"]["use_multi_processing"]:
-            return
+            # only continue with initialization if setting up shared memory
+            if not config["chain"]["use_shared_memory"]:
+                return
+            if "_init_shared_mem" not in config:
+                return
 
         _, _ = self.init(log, 0)
 
@@ -67,6 +71,15 @@ class Algorithm:
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
         # -----------------------------------------------------------------
+
+        # Check for special case where we create a shared memory
+        # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
+        # run_chain.py and should not be included in the config files
+        init_shared_mem = "_init_shared_mem" in self.config
+
+        # if  init_shared_mem, perform any specific shared memory initialization
+        if init_shared_mem:
+            pass
 
         return (True, "")
 

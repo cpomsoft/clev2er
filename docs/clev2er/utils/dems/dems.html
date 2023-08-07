@@ -161,7 +161,7 @@
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">            filled (bool, optional): Use filled version of DEM if True. Defaults to True.</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">            config (dict, optional): configuration dictionary, defaults to None</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">            dem_dir (str, optional): path of directory containing DEM. Defaults to None</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores zdem array in SharedMemory</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores/accesses zdem array in SharedMemory</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">        Raises:</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">            ValueError: when name not in global dem_list</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">        &quot;&quot;&quot;</span>
@@ -324,7 +324,7 @@
 </span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a>
 </span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_in_shared_memory</span><span class="p">:</span>
 </span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a>            <span class="c1"># First try attaching to an existing shared memory buffer if it</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>            <span class="c1"># exists with the DEMs name</span>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>            <span class="c1"># exists with the DEMs name. If that is unavailable, create the shared memory</span>
 </span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>            <span class="k">try</span><span class="p">:</span>
 </span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">shared_mem</span> <span class="o">=</span> <span class="n">SharedMemory</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">zdem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span>
@@ -634,7 +634,7 @@
 </span><span id="Dem-52"><a href="#Dem-52"><span class="linenos"> 52</span></a><span class="sd">            filled (bool, optional): Use filled version of DEM if True. Defaults to True.</span>
 </span><span id="Dem-53"><a href="#Dem-53"><span class="linenos"> 53</span></a><span class="sd">            config (dict, optional): configuration dictionary, defaults to None</span>
 </span><span id="Dem-54"><a href="#Dem-54"><span class="linenos"> 54</span></a><span class="sd">            dem_dir (str, optional): path of directory containing DEM. Defaults to None</span>
-</span><span id="Dem-55"><a href="#Dem-55"><span class="linenos"> 55</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores zdem array in SharedMemory</span>
+</span><span id="Dem-55"><a href="#Dem-55"><span class="linenos"> 55</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores/accesses zdem array in SharedMemory</span>
 </span><span id="Dem-56"><a href="#Dem-56"><span class="linenos"> 56</span></a><span class="sd">        Raises:</span>
 </span><span id="Dem-57"><a href="#Dem-57"><span class="linenos"> 57</span></a><span class="sd">            ValueError: when name not in global dem_list</span>
 </span><span id="Dem-58"><a href="#Dem-58"><span class="linenos"> 58</span></a><span class="sd">        &quot;&quot;&quot;</span>
@@ -797,7 +797,7 @@
 </span><span id="Dem-215"><a href="#Dem-215"><span class="linenos">215</span></a>
 </span><span id="Dem-216"><a href="#Dem-216"><span class="linenos">216</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_in_shared_memory</span><span class="p">:</span>
 </span><span id="Dem-217"><a href="#Dem-217"><span class="linenos">217</span></a>            <span class="c1"># First try attaching to an existing shared memory buffer if it</span>
-</span><span id="Dem-218"><a href="#Dem-218"><span class="linenos">218</span></a>            <span class="c1"># exists with the DEMs name</span>
+</span><span id="Dem-218"><a href="#Dem-218"><span class="linenos">218</span></a>            <span class="c1"># exists with the DEMs name. If that is unavailable, create the shared memory</span>
 </span><span id="Dem-219"><a href="#Dem-219"><span class="linenos">219</span></a>            <span class="k">try</span><span class="p">:</span>
 </span><span id="Dem-220"><a href="#Dem-220"><span class="linenos">220</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">shared_mem</span> <span class="o">=</span> <span class="n">SharedMemory</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="Dem-221"><a href="#Dem-221"><span class="linenos">221</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">zdem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span>
@@ -1104,7 +1104,7 @@
 </span><span id="Dem.__init__-52"><a href="#Dem.__init__-52"><span class="linenos">52</span></a><span class="sd">            filled (bool, optional): Use filled version of DEM if True. Defaults to True.</span>
 </span><span id="Dem.__init__-53"><a href="#Dem.__init__-53"><span class="linenos">53</span></a><span class="sd">            config (dict, optional): configuration dictionary, defaults to None</span>
 </span><span id="Dem.__init__-54"><a href="#Dem.__init__-54"><span class="linenos">54</span></a><span class="sd">            dem_dir (str, optional): path of directory containing DEM. Defaults to None</span>
-</span><span id="Dem.__init__-55"><a href="#Dem.__init__-55"><span class="linenos">55</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores zdem array in SharedMemory</span>
+</span><span id="Dem.__init__-55"><a href="#Dem.__init__-55"><span class="linenos">55</span></a><span class="sd">            store_in_shared_memory (bool, optional): stores/accesses zdem array in SharedMemory</span>
 </span><span id="Dem.__init__-56"><a href="#Dem.__init__-56"><span class="linenos">56</span></a><span class="sd">        Raises:</span>
 </span><span id="Dem.__init__-57"><a href="#Dem.__init__-57"><span class="linenos">57</span></a><span class="sd">            ValueError: when name not in global dem_list</span>
 </span><span id="Dem.__init__-58"><a href="#Dem.__init__-58"><span class="linenos">58</span></a><span class="sd">        &quot;&quot;&quot;</span>
@@ -1149,7 +1149,7 @@
 <li><strong>filled (bool, optional):</strong>  Use filled version of DEM if True. Defaults to True.</li>
 <li><strong>config (dict, optional):</strong>  configuration dictionary, defaults to None</li>
 <li><strong>dem_dir (str, optional):</strong>  path of directory containing DEM. Defaults to None</li>
-<li><strong>store_in_shared_memory (bool, optional):</strong>  stores zdem array in SharedMemory</li>
+<li><strong>store_in_shared_memory (bool, optional):</strong>  stores/accesses zdem array in SharedMemory</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
@@ -1402,7 +1402,7 @@ with DEM</p>
 </span><span id="Dem.load_geotiff-215"><a href="#Dem.load_geotiff-215"><span class="linenos">215</span></a>
 </span><span id="Dem.load_geotiff-216"><a href="#Dem.load_geotiff-216"><span class="linenos">216</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_in_shared_memory</span><span class="p">:</span>
 </span><span id="Dem.load_geotiff-217"><a href="#Dem.load_geotiff-217"><span class="linenos">217</span></a>            <span class="c1"># First try attaching to an existing shared memory buffer if it</span>
-</span><span id="Dem.load_geotiff-218"><a href="#Dem.load_geotiff-218"><span class="linenos">218</span></a>            <span class="c1"># exists with the DEMs name</span>
+</span><span id="Dem.load_geotiff-218"><a href="#Dem.load_geotiff-218"><span class="linenos">218</span></a>            <span class="c1"># exists with the DEMs name. If that is unavailable, create the shared memory</span>
 </span><span id="Dem.load_geotiff-219"><a href="#Dem.load_geotiff-219"><span class="linenos">219</span></a>            <span class="k">try</span><span class="p">:</span>
 </span><span id="Dem.load_geotiff-220"><a href="#Dem.load_geotiff-220"><span class="linenos">220</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">shared_mem</span> <span class="o">=</span> <span class="n">SharedMemory</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="Dem.load_geotiff-221"><a href="#Dem.load_geotiff-221"><span class="linenos">221</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">zdem</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span>

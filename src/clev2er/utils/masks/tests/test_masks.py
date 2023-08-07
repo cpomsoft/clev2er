@@ -64,6 +64,8 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
 
     true_inside, _, _ = thismask.points_inside(lats, lons, basin_numbers=grid_values)
 
+    thismask.clean_up()  # free up shared memory
+
     expected_number_inside = len(indices_inside)
 
     # Check number of points inside mask is expected
@@ -105,9 +107,11 @@ def test_mask_grid_mask_values(mask_name, lats, lons, expected_surface_type) -> 
     Returns:
         None
     """
-    thismask = Mask(mask_name)
+    thismask = Mask(mask_name, store_in_shared_memory=True)
 
     mask_values = thismask.grid_mask_values(lats, lons)
+
+    thismask.clean_up()  # free up shared memory
 
     assert len(mask_values) == len(
         lats
@@ -126,9 +130,16 @@ def test_mask_grid_mask_values(mask_name, lats, lons, expected_surface_type) -> 
 
 def test_mask_loading():
     """test loading mask file using non-default path"""
+    thismask = None
     try:
-        _ = Mask("greenland_bedmachine_v3_grid_mask", mask_path="/tmp/none")
+        thismask = Mask("greenland_bedmachine_v3_grid_mask", mask_path="/tmp/none")
     except FileNotFoundError as exc:
         assert True, f"{exc} raised"
     else:
         assert False, "mask_path is invalid so should fail"
+    finally:
+        try:
+            if thismask is not None:
+                thismask.clean_up()
+        except IOError:  # pylint: disable=bare-except
+            pass

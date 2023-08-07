@@ -51,7 +51,7 @@ class Dem:
             filled (bool, optional): Use filled version of DEM if True. Defaults to True.
             config (dict, optional): configuration dictionary, defaults to None
             dem_dir (str, optional): path of directory containing DEM. Defaults to None
-            store_in_shared_memory (bool, optional): stores zdem array in SharedMemory
+            store_in_shared_memory (bool, optional): stores/accesses zdem array in SharedMemory
         Raises:
             ValueError: when name not in global dem_list
         """
@@ -214,7 +214,7 @@ class Dem:
 
         if self.store_in_shared_memory:
             # First try attaching to an existing shared memory buffer if it
-            # exists with the DEMs name
+            # exists with the DEMs name. If that is unavailable, create the shared memory
             try:
                 self.shared_mem = SharedMemory(name=self.name, create=False)
                 self.zdem = np.ndarray(

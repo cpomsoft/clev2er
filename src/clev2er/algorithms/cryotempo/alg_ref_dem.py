@@ -39,10 +39,17 @@ class Algorithm:
         self.alg_name = __name__
         self.config = config
 
+        self.dem_ant: Any = None
+        self.dem_grn: Any = None
+
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
         if config["chain"]["use_multi_processing"]:
-            return
+            # only continue with initialization if setting up shared memory
+            if not config["chain"]["use_shared_memory"]:
+                return
+            if "_init_shared_mem" not in config:
+                return
 
         _, _ = self.init(log, 0)
 
@@ -66,9 +73,22 @@ class Algorithm:
         # -----------------------------------------------------------------
 
         # Load DEMs for Antarctica and Greenland
+        # Check for special case where we create a shared memory
+        # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
+        # run_chain.py and should not be included in the config files
+        init_shared_mem = "_init_shared_mem" in self.config
 
-        self.dem_ant = Dem("rema_ant_1km", config=self.config)
-        self.dem_grn = Dem("arcticdem_1km", config=self.config)
+        self.dem_ant = Dem(
+            "rema_ant_1km",
+            config=self.config,
+            store_in_shared_memory=init_shared_mem,
+        )
+
+        self.dem_grn = Dem(
+            "arcticdem_1km", config=self.config, store_in_shared_memory=init_shared_mem
+        )
+        # Important Note :
+        #     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()
 
         return (True, "")
 
@@ -154,5 +174,12 @@ class Algorithm:
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
         # --------------------------------------------------------
+
+        # Must run Dem.clean_up() for each Dem instance so that any shared memory is
+        # unlinked, closed.
+        if self.dem_ant is not None:
+            self.dem_ant.clean_up()
+        if self.dem_grn is not None:
+            self.dem_grn.clean_up()
 
         # --------------------------------------------------------
