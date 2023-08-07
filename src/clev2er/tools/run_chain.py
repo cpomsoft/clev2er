@@ -1,6 +1,6 @@
 """ Main command line run control tool for CLEV2ER algorithm framework chains
 
-    Setup requires: 
+    Setup requires:
         
         Set CLEV2ER_BASE_DIR to point to the base directory of the CLEV2ER framework
             export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er

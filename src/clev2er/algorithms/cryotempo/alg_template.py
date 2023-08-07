@@ -78,7 +78,11 @@ class Algorithm:
         init_shared_mem = "_init_shared_mem" in self.config
 
         # if  init_shared_mem, perform any specific shared memory initialization
-        if init_shared_mem:
+        # in Dem or Mask classes.
+        # ie thismask=Mask(...,store_in_shared_memory=init_shared_mem)
+        #    thisdem=Dem(...,store_in_shared_memory=init_shared_mem)
+
+        if init_shared_mem:  # remove this in real algorithm
             pass
 
         return (True, "")
@@ -134,7 +138,7 @@ class Algorithm:
         # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
 
-        shared_dict["dummy"] = True
+        shared_dict["dummy"] = True  # example
 
         # Return success (True,'')
         return (True, "")
@@ -146,5 +150,7 @@ class Algorithm:
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
         # --------------------------------------------------------
+
+        # Important : free any shared memory resources used here
 
         # --------------------------------------------------------
