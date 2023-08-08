@@ -134,6 +134,7 @@ the following first (example uses python 3.10)
 
 ```
 poetry env use $(which python3.10)
+poetry shell
 ```
 
 You should now be setup to run processing chains, etc.
