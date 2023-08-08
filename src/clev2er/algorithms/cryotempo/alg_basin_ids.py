@@ -268,7 +268,7 @@ class Algorithm:
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
 
-        try:
+        try:  # try is required as algorithm may not have been initialized
             if self.zwally_basin_mask_ant is not None:
                 self.zwally_basin_mask_ant.clean_up()
             if self.zwally_basin_mask_grn is not None:

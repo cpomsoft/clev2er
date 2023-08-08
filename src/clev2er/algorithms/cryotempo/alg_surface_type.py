@@ -347,7 +347,7 @@ class Algorithm:
 
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
-        try:
+        try:  # try is required as algorithm may not have been initialized
             if self.greenland_surface_mask is not None:
                 self.greenland_surface_mask.clean_up()
             if self.antarctic_surface_mask is not None:

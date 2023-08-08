@@ -127,6 +127,15 @@ cd $CLEV2ER_BASE_DIR
 poetry shell
 ```
 
+Depending upon your local environment `poetry shell` may gives errors if it can't
+tell which python env to use. In this case
+you may need to tell poetry which python env to use, by running
+the following first (example uses python 3.10)
+
+```
+poetry env use $(which python3.10)
+```
+
 You should now be setup to run processing chains, etc.
 
 ## Chain Configuration
