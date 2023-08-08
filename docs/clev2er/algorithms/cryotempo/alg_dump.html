@@ -205,15 +205,21 @@
 </span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final algorithm actions&quot;&quot;&quot;</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">        Args:</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -321,15 +327,21 @@
 </span><span id="Algorithm-114"><a href="#Algorithm-114"><span class="linenos">114</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
 </span><span id="Algorithm-115"><a href="#Algorithm-115"><span class="linenos">115</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span><span id="Algorithm-116"><a href="#Algorithm-116"><span class="linenos">116</span></a>
-</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Algorithm-118"><a href="#Algorithm-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final algorithm actions&quot;&quot;&quot;</span>
-</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a>
-</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="Algorithm-122"><a href="#Algorithm-122"><span class="linenos">122</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="Algorithm-123"><a href="#Algorithm-123"><span class="linenos">123</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="Algorithm-118"><a href="#Algorithm-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a>
+</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="Algorithm-122"><a href="#Algorithm-122"><span class="linenos">122</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="Algorithm-123"><a href="#Algorithm-123"><span class="linenos">123</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Algorithm-124"><a href="#Algorithm-124"><span class="linenos">124</span></a>
-</span><span id="Algorithm-125"><a href="#Algorithm-125"><span class="linenos">125</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-125"><a href="#Algorithm-125"><span class="linenos">125</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
+</span><span id="Algorithm-126"><a href="#Algorithm-126"><span class="linenos">126</span></a>
+</span><span id="Algorithm-127"><a href="#Algorithm-127"><span class="linenos">127</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-128"><a href="#Algorithm-128"><span class="linenos">128</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="Algorithm-129"><a href="#Algorithm-129"><span class="linenos">129</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-130"><a href="#Algorithm-130"><span class="linenos">130</span></a>
+</span><span id="Algorithm-131"><a href="#Algorithm-131"><span class="linenos">131</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -524,25 +536,38 @@ This is required to support logging during multi-processing</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">finalize</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+        <span class="name">finalize</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="Algorithm.finalize-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#Algorithm.finalize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.finalize-117"><a href="#Algorithm.finalize-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Algorithm.finalize-118"><a href="#Algorithm.finalize-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final algorithm actions&quot;&quot;&quot;</span>
-</span><span id="Algorithm.finalize-119"><a href="#Algorithm.finalize-119"><span class="linenos">119</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="Algorithm.finalize-120"><a href="#Algorithm.finalize-120"><span class="linenos">120</span></a>
-</span><span id="Algorithm.finalize-121"><a href="#Algorithm.finalize-121"><span class="linenos">121</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="Algorithm.finalize-122"><a href="#Algorithm.finalize-122"><span class="linenos">122</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="Algorithm.finalize-123"><a href="#Algorithm.finalize-123"><span class="linenos">123</span></a>        <span class="c1"># --------------------------------------------------------</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.finalize-117"><a href="#Algorithm.finalize-117"><span class="linenos">117</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="Algorithm.finalize-118"><a href="#Algorithm.finalize-118"><span class="linenos">118</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="Algorithm.finalize-119"><a href="#Algorithm.finalize-119"><span class="linenos">119</span></a>
+</span><span id="Algorithm.finalize-120"><a href="#Algorithm.finalize-120"><span class="linenos">120</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm.finalize-121"><a href="#Algorithm.finalize-121"><span class="linenos">121</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="Algorithm.finalize-122"><a href="#Algorithm.finalize-122"><span class="linenos">122</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="Algorithm.finalize-123"><a href="#Algorithm.finalize-123"><span class="linenos">123</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Algorithm.finalize-124"><a href="#Algorithm.finalize-124"><span class="linenos">124</span></a>
-</span><span id="Algorithm.finalize-125"><a href="#Algorithm.finalize-125"><span class="linenos">125</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-125"><a href="#Algorithm.finalize-125"><span class="linenos">125</span></a>        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
+</span><span id="Algorithm.finalize-126"><a href="#Algorithm.finalize-126"><span class="linenos">126</span></a>
+</span><span id="Algorithm.finalize-127"><a href="#Algorithm.finalize-127"><span class="linenos">127</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-128"><a href="#Algorithm.finalize-128"><span class="linenos">128</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="Algorithm.finalize-129"><a href="#Algorithm.finalize-129"><span class="linenos">129</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-130"><a href="#Algorithm.finalize-130"><span class="linenos">130</span></a>
+</span><span id="Algorithm.finalize-131"><a href="#Algorithm.finalize-131"><span class="linenos">131</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Perform final algorithm actions</p>
+            <div class="docstring"><p>Perform final clean up actions for algorithm</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>stage (int, optional):</strong>  Can be set to track at what stage the</li>
+<li>finalize() function was called</li>
+</ul>
 </div>
 
 

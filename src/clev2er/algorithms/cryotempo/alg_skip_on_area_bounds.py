@@ -1,5 +1,6 @@
 """ clev2er.algorithms.cryotempo.alg_skip_on_area_bounds """
 import logging
+from typing import Tuple
 
 import numpy as np
 from codetiming import Timer
@@ -46,25 +47,36 @@ class Algorithm:
             self.alg_name,
         )
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
-
-        self.init(log, 0)
-
         # --------------------------------------------------------
         # \/ Add algorithm initialization here \/
         # --------------------------------------------------------
 
-        # --------------------------------------------------------
+        # For multi-processing we do the init() in the Algorithm.process() function
+        # This avoids pickling the init() data which is very slow
+        if config["chain"]["use_multi_processing"]:
+            # only continue with initialization if setting up shared memory
+            if not config["chain"]["use_shared_memory"]:
+                return
+            if "_init_shared_mem" not in config:
+                return
+        # Run the algorithm initialization function when doing sequential processing
+        # or setting up shared memory resources
+        _, _ = self.init(log, 0)
 
-    def init(self, mplog, filenum) -> None:
+    def init(self, mplog, filenum) -> Tuple[bool, str]:
         """Algorithm initialization
-        Args:
-            mplog (logger.log) : log instance to use
-            filenum (int): file number being processed
-        Returns: None
+
+         Loads Bedmachine surface type Masks
+
+        Returns:
+            (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
         """
 
         try:
@@ -72,6 +84,8 @@ class Algorithm:
             self.greenland_mask = Mask("greenland_area_xylimits_mask")
         except (ValueError, FileNotFoundError, KeyError) as exc:
             mplog.error("[f%d] %s", filenum, exc)
+
+        return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
     def process(
@@ -232,9 +246,15 @@ class Algorithm:
         # Return success (True,'')
         return (True, "")
 
-    def finalize(self):
-        """Perform final algorithm actions"""
-        log.debug("Finalize algorithm %s", self.alg_name)
+    def finalize(self, stage: int = 0):
+        """Perform final clean up actions for algorithm
+
+        Args:
+            stage (int, optional): Can be set to track at what stage the
+            finalize() function was called
+        """
+
+        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/

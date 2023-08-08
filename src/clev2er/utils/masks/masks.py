@@ -521,8 +521,6 @@ class Mask:
                 )
                 if flip:
                     self.mask_grid = np.flipud(self.mask_grid)
-                self.num_x = nc.dimensions["x"].size
-                self.num_y = nc.dimensions["y"].size
 
     def load_npz_mask(self, mask_file: str):
         """load mask array from npz grid masks

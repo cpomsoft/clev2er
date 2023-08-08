@@ -13,10 +13,20 @@
 
         `python run_chain.py -h`
 
+        b) Run the cryotempo land ice chain on a single L2b file:
+
+        `python run_chain.py --name cryotempo -f \
+        $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles/\
+            CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc`
+
         a) Run the cryotempo land ice chain on all l1b files in 
            $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles
 
         `python run_chain.py --name cryotempo --dir $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles`
+
+         Run with multi-processing and shared memory enabled (also can set these in main config):
+
+        `python run_chain.py --name cryotempo -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles -sm -mp`
         
 """
 
@@ -166,7 +176,9 @@ def run_chain_on_single_file(
     rval_queue: Optional[Queue],
     filenum: int,
 ) -> tuple[bool, str]:
-    """Runs the algorithm chain on a single L1b file
+    """Runs the algorithm chain on a single L1b file.
+
+       This function is run in a separate process if multi-processing is enabled.
 
     Args:
         l1b_file (str): path of L1b file to process
@@ -211,6 +223,8 @@ def run_chain_on_single_file(
             working_dict["l1b_file_name"] = l1b_file
 
             for alg_obj in alg_object_list:
+                # Run the Algorithm's process() function. Note that for multi-processing
+                # the process() function also calls the init() function first
                 success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
                 if not success:
                     if "SKIP_OK" not in error_str:
@@ -235,13 +249,13 @@ def run_chain_on_single_file(
                     # Free up resources by running the Algorithm.finalize() on each
                     # algorithm instance
                     for alg_obj in alg_object_list:
-                        alg_obj.finalize()
+                        alg_obj.finalize(stage=5)
                     return (False, error_str)
 
             # Free up resources by running the Algorithm.finalize() on each
             # algorithm instance
             for alg_obj in alg_object_list:
-                alg_obj.finalize()
+                alg_obj.finalize(stage=6)
 
     except IOError:
         error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
@@ -394,7 +408,7 @@ def run_chain(
                 )
                 # If there is a failure we must clean up any shared memory already allocated
                 for alg_obj_shm in shared_mem_alg_object_list:
-                    alg_obj_shm.finalize()
+                    alg_obj_shm.finalize(stage=4)
 
                 return (False, 1, 0)
 
@@ -530,10 +544,10 @@ def run_chain(
     log.debug("_" * 79)  # add a divider line in the log
 
     for alg_obj_shm in shared_mem_alg_object_list:
-        alg_obj_shm.finalize()
+        alg_obj_shm.finalize(stage=2)
 
     for alg_obj in alg_object_list:
-        alg_obj.finalize()
+        alg_obj.finalize(stage=3)
 
     log.info(
         "chain '%s' completed processing %d files with %d errors",

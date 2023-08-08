@@ -2,6 +2,7 @@
 
 # These imports required by Algorithm template
 import logging
+from typing import Tuple
 
 import numpy as np
 from codetiming import Timer
@@ -55,17 +56,36 @@ class Algorithm:
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
         if config["chain"]["use_multi_processing"]:
-            return
+            # only continue with initialization if setting up shared memory
+            if not config["chain"]["use_shared_memory"]:
+                return
+            if "_init_shared_mem" not in config:
+                return
+        # Run the algorithm initialization function when doing sequential processing
+        # or setting up shared memory resources
+        _, _ = self.init(log, 0)
 
-        self.init(log, 0)
-
-    def init(self, mplog, filenum) -> None:
+    def init(self, mplog, filenum) -> Tuple[bool, str]:
         """Algorithm initialization
 
          Loads Bedmachine surface type Masks
 
-        Returns: None
+        Returns:
+            (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
         """
+
+        # Check for special case where we create a shared memory
+        # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
+        # run_chain.py and should not be included in the config files
+        init_shared_mem = "_init_shared_mem" in self.config
+
         # Greenland dilated coastal mask (ie includes Greenland + 10km out to ocean)
         try:
             mask_file = self.config["surface_type_masks"][
@@ -74,15 +94,16 @@ class Algorithm:
         except KeyError as exc:
             mplog.error(
                 "[f%d] surface_type_masks:greenland_iceandland_dilated_10km_grid_mask "
-                "not in config file %s",
+                "not in config file, KeyError: %s",
                 filenum,
                 exc,
             )
-            return
+            raise KeyError(exc) from None
 
         self.greenland_dilated_mask = Mask(
             "greenland_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
+            store_in_shared_memory=init_shared_mem,
         )
         # Antarctic dilated coastal mask (ie includes Antarctica (grounded+floating)
         # + 10km out to ocean
@@ -97,12 +118,18 @@ class Algorithm:
                 filenum,
                 exc,
             )
-            return
+            raise KeyError(exc) from None
 
         self.antarctic_dilated_mask = Mask(
             "antarctica_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
+            store_in_shared_memory=init_shared_mem,
         )
+
+        # Important Note :
+        #     each Mask classes instance must run Mask.clean_up() in Algorithm.finalize()
+
+        return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
     def process(self, l1b, shared_dict, mplog, filenum):
@@ -190,12 +217,27 @@ class Algorithm:
         # Return success (True,'')
         return (True, "")
 
-    def finalize(self):
-        """Perform final algorithm actions"""
-        log.debug("Finalize algorithm %s", self.alg_name)
+    def finalize(self, stage: int = 0):
+        """Perform final clean up actions for algorithm
+
+        Args:
+            stage (int, optional): Can be set to track at what stage the
+            finalize() function was called
+        """
+
+        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
         # --------------------------------------------------------
+        # Must run Mask.clean_up() for each Mask instance so that any shared memory is
+        # unlinked, closed.
+        try:
+            if self.greenland_dilated_mask is not None:
+                self.greenland_dilated_mask.clean_up()
+            if self.antarctic_dilated_mask is not None:
+                self.antarctic_dilated_mask.clean_up()
+        except AttributeError as exc:
+            log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
 
         # --------------------------------------------------------

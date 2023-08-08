@@ -43,7 +43,11 @@ class Algorithm:
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
         if config["chain"]["use_multi_processing"]:
-            return
+            # only continue with initialization if setting up shared memory
+            if not config["chain"]["use_shared_memory"]:
+                return
+            if "_init_shared_mem" not in config:
+                return
 
         _, _ = self.init(log, 0)
 
@@ -56,12 +60,24 @@ class Algorithm:
 
         Returns:
             (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
         """
         mplog.debug(
             "[f%d] Initializing algorithm %s",
             filenum,
             self.alg_name,
         )
+
+        # Check for special case where we create a shared memory
+        # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
+        # run_chain.py and should not be included in the config files
+        init_shared_mem = "_init_shared_mem" in self.config
 
         # ---------------------------------------------------------------------------------
         # Load Basin Masks required to create 'basin_id' netCDF variable
@@ -98,6 +114,7 @@ class Algorithm:
         self.zwally_basin_mask_ant = Mask(
             "antarctic_grounded_and_floating_2km_grid_mask",
             mask_path=mask_paths["antarctic_grounded_and_floating_2km_grid_mask"],
+            store_in_shared_memory=init_shared_mem,
         )  # source: Zwally 2012, ['unknown','1',..'27']
 
         # Load: greenland_icesheet_2km_grid_mask
@@ -107,6 +124,7 @@ class Algorithm:
         self.zwally_basin_mask_grn = Mask(
             "greenland_icesheet_2km_grid_mask",
             mask_path=mask_paths["greenland_icesheet_2km_grid_mask"],
+            store_in_shared_memory=init_shared_mem,
         )
 
         # Load: antarctic_icesheet_2km_grid_mask_rignot2016
@@ -118,6 +136,7 @@ class Algorithm:
         self.rignot_basin_mask_ant = Mask(
             "antarctic_icesheet_2km_grid_mask_rignot2016",
             mask_path=mask_paths["antarctic_icesheet_2km_grid_mask_rignot2016"],
+            store_in_shared_memory=init_shared_mem,
         )
 
         # Load: greenland_icesheet_2km_grid_mask_rignot2016
@@ -126,7 +145,11 @@ class Algorithm:
         self.rignot_basin_mask_grn = Mask(
             "greenland_icesheet_2km_grid_mask_rignot2016",
             mask_path=mask_paths["greenland_icesheet_2km_grid_mask_rignot2016"],
+            store_in_shared_memory=init_shared_mem,
         )
+
+        # Important Note :
+        #     each Mask classes instance must run Mask.clean_up() in Algorithm.finalize()
 
         return (True, "")
 
@@ -229,12 +252,33 @@ class Algorithm:
         # Return success (True,'')
         return (True, "")
 
-    def finalize(self):
-        """Perform final algorithm actions"""
-        log.debug("Finalize algorithm %s", self.alg_name)
+    def finalize(self, stage: int = 0):
+        """Perform final clean up actions for algorithm
+
+        Args:
+            stage (int, optional): Can be set to track at what stage the
+            finalize() function was called
+        """
+
+        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
         # --------------------------------------------------------
+        # Must run Mask.clean_up() for each Mask instance so that any shared memory is
+        # unlinked, closed.
+
+        try:
+            if self.zwally_basin_mask_ant is not None:
+                self.zwally_basin_mask_ant.clean_up()
+            if self.zwally_basin_mask_grn is not None:
+                self.zwally_basin_mask_grn.clean_up()
+
+            if self.rignot_basin_mask_ant is not None:
+                self.rignot_basin_mask_ant.clean_up()
+            if self.rignot_basin_mask_grn is not None:
+                self.rignot_basin_mask_grn.clean_up()
+        except AttributeError as exc:
+            log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
 
         # --------------------------------------------------------

@@ -227,9 +227,15 @@ class Algorithm:
         # Return success (True,'')
         return (True, "")
 
-    def finalize(self):
-        """Perform final algorithm actions"""
-        log.debug("Finalize algorithm %s", self.alg_name)
+    def finalize(self, stage: int = 0):
+        """Perform final clean up actions for algorithm
+
+        Args:
+            stage (int, optional): Can be set to track at what stage the
+            finalize() function was called
+        """
+
+        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
