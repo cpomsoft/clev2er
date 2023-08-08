@@ -717,6 +717,16 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--nprocs",
+        "-np",
+        help=(
+            "[Optional] maximum number of cores to split multi-processing on. "
+            "Overrides setting in main config file"
+        ),
+        type=int,
+    )
+
+    parser.add_argument(
         "--sequentialprocessing",
         "-sp",
         help=(
@@ -770,6 +780,8 @@ def main() -> None:
                 "\nEither through the --multiprocessing command line option, or"
                 "\nthrough the chain:use_multi_processing setting in the main config file"
             )
+    if args.nprocs:
+        config["chain"]["max_processes_for_multiprocessing"] = args.nprocs
 
     config["chain"]["chain_name"] = args.name
 
