@@ -36,8 +36,8 @@ basin_masks:
   greenland_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/GRE_Basins_IMBIE2_v1.3/basins/rignot_2016_imbie2_grn_grounded_icesheet_basins_2km.nc
 
 tides:
-  fes2014b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B/FES2014
-  cats2008a_base_dir: /raid6/cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides
+  fes2014b_base_dir: ${FES2014B_BASE_DIR}
+  cats2008a_base_dir: ${CATS2008A_BASE_DIR}
 
 slope_models:
   model_file: /raid6/cpdata/RESOURCES/slope_models/cs2/CS_OPER_AUX_SLPMSL_00000000T000000_99999999T999999_0007.DBL
