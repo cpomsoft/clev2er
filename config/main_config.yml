@@ -36,11 +36,12 @@ basin_masks:
   greenland_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/GRE_Basins_IMBIE2_v1.3/basins/rignot_2016_imbie2_grn_grounded_icesheet_basins_2km.nc
 
 tides:
-  fes2014b_base_dir: ${FES2014B_BASE_DIR}
-  cats2008a_base_dir: ${CATS2008A_BASE_DIR}
+  fes2014b_base_dir: ${FES2014B_BASE_DIR} # set to base dir of FES2014 (containing LRM,SIN/<YYYY>/<MM>/CS*.fes2014b.nc)
+  cats2008a_base_dir: ${CATS2008A_BASE_DIR} # set to base dir of CATS2008a (containing <YYYY>/<MM>/CS*_cats2008a_tides.nc)
 
 slope_models:
-  model_file: /raid6/cpdata/RESOURCES/slope_models/cs2/CS_OPER_AUX_SLPMSL_00000000T000000_99999999T999999_0007.DBL
+  # Set to dir containing /cs2/CS_OPER_AUX_SLPMSL*.DBL
+  model_file: ${CS2_SLOPE_MODELS_DIR}/cs2/CS_OPER_AUX_SLPMSL_00000000T000000_99999999T999999_0007.DBL
 
 dem_dirs:
   rema_ant_1km: ${CPDATA_DIR}/SATS/RA/DEMS/rema_1km_dem
