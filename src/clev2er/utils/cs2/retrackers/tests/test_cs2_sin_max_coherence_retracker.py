@@ -6,7 +6,8 @@ import os
 
 import numpy as np
 import pytest
-from cpom.altimetry.level2.cs2.retrackers.cs2_sin_max_coherence_retracker import (
+
+from clev2er.utils.cs2.retrackers.cs2_sin_max_coherence_retracker import (
     retrack_cs2_sin_max_coherence,
 )
 
