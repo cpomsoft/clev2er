@@ -1,7 +1,6 @@
 """pytest of algorithm
    clev2er.algorithms.cryotempo.alg_skip_on_area_bounds.py
 """
-import glob
 import logging
 import os
 from typing import Any, Dict
@@ -48,10 +47,10 @@ def test_alg_skip_on_area_bounds() -> None:
     # Test with LRM file. Should return (True,'') and insert "LRM" in
     #                     shared_dict["instr_mode"]
 
-    l1b_file = glob.glob(
+    l1b_file = (
         f"{base_dir}/testdata/cs2/l1bfiles/"
         "CS_OFFL_SIR_LRM_1B_20200930T191158_20200930T191302_D001.nc"
-    )[0]
+    )
     try:
         l1b = Dataset(l1b_file)
         log.info("Opened %s", l1b_file)
@@ -74,7 +73,10 @@ def test_alg_skip_on_area_bounds() -> None:
 
     assert success is False, "should fail as L1b file is outside cryosphere"
 
-    l1b_file = glob.glob(f"{base_dir}/testdata/cs2/l1bfiles/*LRM*.nc")[2]
+    l1b_file = (
+        f"{base_dir}/testdata/cs2/l1bfiles/"
+        "CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc"
+    )
     try:
         l1b = Dataset(l1b_file)
         log.info("Opened %s", l1b_file)
