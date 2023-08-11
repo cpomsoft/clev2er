@@ -4,6 +4,7 @@
 
 import glob
 import logging
+import multiprocessing as mp
 import os
 
 import pytest
@@ -43,6 +44,9 @@ def test_run_chain(mp_enabled):
 
     config["chain"]["chain_name"] = chain_name
     config["chain"]["use_multi_processing"] = mp_enabled
+
+    if mp_enabled:
+        mp.set_start_method("spawn")
 
     algorithm_list_file = f"{base_dir}/config/algorithm_lists/{chain_name}.yml"
 
