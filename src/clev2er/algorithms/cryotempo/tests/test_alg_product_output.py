@@ -315,7 +315,7 @@ def test_alg_product_output(l1b_file) -> None:
     ct_attributes = [
         "title",
         "project",
-        "doi2",
+        "doi",
         "creator_name",
         "creator_url",
         "date_created",
