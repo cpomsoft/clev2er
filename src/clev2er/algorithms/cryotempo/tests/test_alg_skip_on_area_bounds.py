@@ -48,7 +48,10 @@ def test_alg_skip_on_area_bounds() -> None:
     # Test with LRM file. Should return (True,'') and insert "LRM" in
     #                     shared_dict["instr_mode"]
 
-    l1b_file = glob.glob(f"{base_dir}/testdata/cs2/l1bfiles/*LRM*.nc")[0]
+    l1b_file = glob.glob(
+        f"{base_dir}/testdata/cs2/l1bfiles/"
+        "CS_OFFL_SIR_LRM_1B_20200930T191158_20200930T191302_D001.nc"
+    )[0]
     try:
         l1b = Dataset(l1b_file)
         log.info("Opened %s", l1b_file)
