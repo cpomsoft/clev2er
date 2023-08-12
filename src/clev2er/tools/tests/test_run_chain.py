@@ -45,6 +45,7 @@ def test_run_chain(mp_enabled):
     config["chain"]["chain_name"] = chain_name
     config["chain"]["use_multi_processing"] = mp_enabled
 
+    # Need to set MP mode, so Linux doesn't default to fork()
     if mp_enabled:
         mp.set_start_method("spawn")
 
