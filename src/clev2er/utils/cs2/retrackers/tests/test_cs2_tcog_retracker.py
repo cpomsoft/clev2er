@@ -25,8 +25,9 @@ def lrm_file():
         str: path of LRM L1b file
     """
     return (
-        os.environ["CPDATA_DIR"]
-        + "/SATS/RA/CRY/L1B/LRM/2019/05/CS_OFFL_SIR_LRM_1B_20190504T122726_20190504T123244_D001.nc"
+        os.environ["CLEV2ER_BASE_DIR"]
+        + "/testdata/cs2/l1bfiles/"
+        + "CS_OFFL_SIR_LRM_1B_20190504T122726_20190504T123244_D001.nc"
     )
 
 
@@ -38,7 +39,7 @@ def sin_file():
         str: path of SIN L1b file
     """
     return (
-        os.environ["CPDATA_DIR"] + "/SATS/RA/CRY/L1B/SARIN/SARIN_ESA_BaselineD/201905/"
+        os.environ["CLEV2ER_BASE_DIR"] + "/testdata/cs2/l1bfiles/"
         "CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc"
     )
 
