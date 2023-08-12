@@ -3,15 +3,15 @@ project: cryotempo
 theme: landice
 baseline: B
 version: 1
-l1b_base_dir: /raid6/cpdata/SATS/RA/CRY/L1B
+l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B
 # base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
 product_base_dir: /raid6/cryo-tempo/product_baselines
 
 # Default locations for log files
 log_files:
-  errors: ${CLEV2ER_BASE_DIR}/logs/errors.log
-  info:   ${CLEV2ER_BASE_DIR}/logs/info.log
-  debug:  ${CLEV2ER_BASE_DIR}/logs/debug.log
+  errors: /raid6/cryo-tempo/land_ice/logs/errors.log
+  info:   /raid6/cryo-tempo/land_ice/logs/info.log
+  debug:  /raid6/cryo-tempo/land_ice/logs/debug.log
 
 # CS2 instrument parameters
 instrument:
