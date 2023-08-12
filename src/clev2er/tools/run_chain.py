@@ -520,6 +520,7 @@ def run_chain(
     # --------------------------------------------------------------------------------------------
     else:  # Normal sequential processing (when multi-processing is disabled)
         for fnum, l1b_file in enumerate(l1b_file_list):
+            log.info("Processing file %d of %d.........................", fnum, n_files)
             success, error_str = run_chain_on_single_file(
                 l1b_file, alg_object_list, config, log, None, None, fnum
             )
@@ -959,7 +960,7 @@ def main() -> None:
                 if len(files) > 0:
                     l1b_file_list.extend(files)
 
-                log.info(files)
+            log.info("Total number of L1b file found:  %d", len(l1b_file_list))
 
     if args.max_files:
         if len(l1b_file_list) > args.max_files:
