@@ -151,6 +151,12 @@ class Algorithm:
                 "no CATS tide correction required for northern hemisphere",
             )
 
+        mplog.info(
+            "[f%d] floating_ice_locations %d",
+            filenum,
+            len(shared_dict["floating_ice_locations"]),
+        )
+
         if shared_dict["instr_mode"] != "SIN":
             mplog.debug(
                 "[f%d] no CATS tide correction required for %s mode",
