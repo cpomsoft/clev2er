@@ -190,7 +190,7 @@ class Algorithm:
             ind_wfm_retrack_20_ku = 512.0 + np.array(dr_bin)
 
         else:
-            log.info("Retracking LRM waveform using TCOG Retracker..")
+            mplog.info("[f%d] Retracking LRM waveform using TCOG Retracker..", filenum)
 
             ref_bin_index = self.config["tcog_retracker"]["ref_bin_ind_lrm"]
 
