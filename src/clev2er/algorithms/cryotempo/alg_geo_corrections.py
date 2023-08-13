@@ -135,7 +135,7 @@ class Algorithm:
             return (False, "fes2014b_corrections.load_tide_20 missing from shared_dict")
 
         # Retrieve CATS2008a tide corrections for SIN mode files in southern hemi
-        if shared_dict["hemisphere"] == "south" and shared_dict["instr_mode"] == "SIN":
+        if shared_dict["cats_tide_required"]:
             try:
                 cats_tide = shared_dict["cats_tide"]
             except KeyError:

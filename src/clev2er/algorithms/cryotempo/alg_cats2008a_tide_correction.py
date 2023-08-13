@@ -35,6 +35,7 @@ class Algorithm:
     **Outputs to shared dictionary**:
 
     - `shared_dict["cats_tide"]` : np.ndarray
+    - `shared_dict["cats_tide_required"]` : bool, True if CATS tide has been calculated
     """
 
     def __init__(self, config) -> None:
@@ -141,6 +142,9 @@ class Algorithm:
         # Perform the algorithm processing, store results that need to passed
         # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
+
+        shared_dict["cats_tide_required"] = False
+
         if shared_dict["hemisphere"] == "north":
             mplog.info(
                 "[f%d] no CATS tide correction required for northern hemisphere",
@@ -149,6 +153,17 @@ class Algorithm:
             return (
                 True,  # we don't want to skip file
                 "no CATS tide correction required for northern hemisphere",
+            )
+
+        if shared_dict["instr_mode"] != "SIN":
+            mplog.debug(
+                "[f%d] no CATS tide correction required for %s mode",
+                filenum,
+                shared_dict["instr_mode"],
+            )
+            return (
+                True,  # we don't want to skip file
+                f'No CATS tide correction required for {shared_dict["instr_mode"]} mode',
             )
 
         if len(shared_dict["floating_ice_locations"]) == 0:
@@ -161,17 +176,6 @@ class Algorithm:
                     True,  # we don't want to skip file
                     "no CATS tide correction required as not over ocean or floating ice",
                 )
-
-        if shared_dict["instr_mode"] != "SIN":
-            mplog.debug(
-                "[f%d] no CATS tide correction required for %s mode",
-                filenum,
-                shared_dict["instr_mode"],
-            )
-            return (
-                True,  # we don't want to skip file
-                f'No CATS tide correction required for {shared_dict["instr_mode"]} mode',
-            )
 
         mplog.info("[f%d] Getting CATS2008a tide correction file...", filenum)
 
@@ -234,6 +238,7 @@ class Algorithm:
         np.nan_to_num(cats_tide, copy=False)
 
         shared_dict["cats_tide"] = cats_tide
+        shared_dict["cats_tide_required"] = True
 
         # Return success (True,'')
         return (True, "")
