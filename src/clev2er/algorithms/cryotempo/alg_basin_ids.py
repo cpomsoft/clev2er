@@ -4,6 +4,7 @@
 import logging
 from typing import Any, Dict, Tuple
 
+import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -246,8 +247,8 @@ class Algorithm:
                 else:
                     mask_values_rignot[i] = 0
 
-        shared_dict["basin_mask_values_rignot"] = mask_values_rignot
-        shared_dict["basin_mask_values_zwally"] = mask_values_zwally
+        shared_dict["basin_mask_values_rignot"] = mask_values_rignot.astype(np.uint)
+        shared_dict["basin_mask_values_zwally"] = mask_values_zwally.astype(np.uint)
 
         # Return success (True,'')
         return (True, "")
