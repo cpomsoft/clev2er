@@ -142,7 +142,7 @@ class Algorithm:
         # down the chain in the 'shared_dict' dict
         # -------------------------------------------------------------------
         if shared_dict["hemisphere"] == "north":
-            mplog.debug(
+            mplog.info(
                 "[f%d] no CATS tide correction required for northern hemisphere",
                 filenum,
             )
@@ -153,6 +153,10 @@ class Algorithm:
 
         if len(shared_dict["floating_ice_locations"]) == 0:
             if len(shared_dict["ocean_locations"]) == 0:
+                mplog.info(
+                    "[f%d] no CATS tide correction required as no floating or ocean measurements",
+                    filenum,
+                )
                 return (
                     True,  # we don't want to skip file
                     "no CATS tide correction required as not over ocean or floating ice",
