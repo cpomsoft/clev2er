@@ -151,21 +151,12 @@ class Algorithm:
                 "no CATS tide correction required for northern hemisphere",
             )
 
-        mplog.info(
-            "[f%d] floating_ice_locations %d",
-            filenum,
-            len(shared_dict["floating_ice_locations"]),
-        )
-        mplog.info(
-            "[f%d] grounded_ice_locations %d",
-            filenum,
-            len(shared_dict["grounded_ice_locations"]),
-        )
-        mplog.info(
-            "[f%d] ocean_locations %d",
-            filenum,
-            len(shared_dict["ocean_locations"]),
-        )
+        if len(shared_dict["floating_ice_locations"]) == 0:
+            if len(shared_dict["ocean_locations"]) == 0:
+                return (
+                    True,  # we don't want to skip file
+                    "no CATS tide correction required as not over ocean or floating ice",
+                )
 
         if shared_dict["instr_mode"] != "SIN":
             mplog.debug(
