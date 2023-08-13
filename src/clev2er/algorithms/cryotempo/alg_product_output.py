@@ -571,6 +571,7 @@ class Algorithm:
                 "Values 0 (outside mask), 1-19 (basin values for Greenland)"
             )
         nc_var.source = "IMBIE http://imbie.org/imbie-2016/drainage-basins/"
+        print(shared_dict["basin_mask_values_zwally"])
         nc_var[:] = shared_dict["basin_mask_values_zwally"]
 
         # basin_id2  :   Rignot basins : values 0 (outside mask), 1-19 Antarctica, 1-7 Greenland
