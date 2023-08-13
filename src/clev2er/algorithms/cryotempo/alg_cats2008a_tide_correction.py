@@ -156,6 +156,16 @@ class Algorithm:
             filenum,
             len(shared_dict["floating_ice_locations"]),
         )
+        mplog.info(
+            "[f%d] grounded_ice_locations %d",
+            filenum,
+            len(shared_dict["grounded_ice_locations"]),
+        )
+        mplog.info(
+            "[f%d] ocean_locations %d",
+            filenum,
+            len(shared_dict["ocean_locations"]),
+        )
 
         if shared_dict["instr_mode"] != "SIN":
             mplog.debug(
