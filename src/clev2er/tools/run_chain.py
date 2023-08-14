@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """ Main command line run control tool for CLEV2ER algorithm framework chains
 
     Setup requires:
