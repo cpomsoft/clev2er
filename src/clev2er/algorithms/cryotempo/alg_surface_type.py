@@ -221,7 +221,7 @@ class Algorithm:
         #   AIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice lake_vostok
         #   GIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice non-Greenland land
         surface_type_20_ku = surface_mask.grid_mask_values(
-            shared_dict["lats_nadir"], shared_dict["lons_nadir"]
+            shared_dict["lats_nadir"], shared_dict["lons_nadir"], unknown_value=0
         )
 
         mplog.debug(
