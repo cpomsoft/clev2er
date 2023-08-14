@@ -101,7 +101,9 @@ class Mask:
 
         elif mask_name == "antarctica_bedmachine_v2_grid_mask":
             # Antarctica surface type grid mask from BedMachine v2, 500m resolution
-            #    - 0='Ocean', 1='Ice-free land',2='Grounded ice',3='Floating ice',4='Lake Vostok'
+            #    - 0='Ocean', 1='Ice-free land',2='Grounded ice',3='Floating ice',
+            #      4='Lake Vostok'
+            # src=https://nsidc.org/data/nsidc-0756/versions/2
 
             self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
 
@@ -121,6 +123,7 @@ class Mask:
             self.num_y = 13333  # mask dimension in y direction
             self.dtype = np.uint8  # data type used for mask array.
             # values are 0..4, so using uint8 to reduce memory
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
 
             self.load_netcdf_mask(mask_file, flip=True)
 
@@ -165,6 +168,7 @@ class Mask:
             self.num_y = 18346  # mask dimension in y direction
             self.dtype = np.uint8  # data type used for mask array.
             # values are 0..4, so using uint8 to reduce memory
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
 
             self.load_netcdf_mask(mask_file, flip=True)
 
@@ -205,6 +209,7 @@ class Mask:
             self.num_x = 13333
             self.num_y = 13333
             self.dtype = np.uint8  # data type used for mask array.
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
             self.minxm = -3333000
             self.minym = -3333000
             self.binsize = 500  # meters
@@ -235,6 +240,7 @@ class Mask:
             self.num_x = 10218
             self.num_y = 18346
             self.dtype = np.uint8  # data type used for mask array.
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
             self.binsize = 150  # meters
             self.minxm = -652925
             self.minym = -632675 - (self.num_y * self.binsize)
@@ -264,6 +270,7 @@ class Mask:
             self.num_x = 2820
             self.num_y = 2420
             self.dtype = np.uint8
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
 
             self.load_netcdf_mask(
                 mask_file,
@@ -299,6 +306,7 @@ class Mask:
             self.num_x = 1000
             self.num_y = 1550
             self.dtype = np.uint8
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
 
             self.minxm = -1000000
             self.minym = -3500000
@@ -376,6 +384,7 @@ class Mask:
             self.num_x = 2820
             self.num_y = 2420
             self.dtype = np.uint8
+            self.bad_mask_value = 999  # value in unknown grid cells in mask
 
             self.minxm = -2820000  # meters
             self.minym = -2420000  # meters
@@ -431,6 +440,8 @@ class Mask:
             self.minym = -3500000  # meters
             self.binsize = 2000  # meters
             self.dtype = np.uint8
+            self.bad_mask_value = 0  # value in unknown grid cells in mask
+
             self.load_netcdf_mask(mask_file, flip=False, nc_mask_var="basinmask")
 
             self.mask_grid_possible_values = list(range(57))  # values in the mask_grid
@@ -701,7 +712,11 @@ class Mask:
         return inmask, x, y
 
     def grid_mask_values(
-        self, lats: np.ndarray, lons: np.ndarray, inputs_are_xy=False
+        self,
+        lats: np.ndarray,
+        lons: np.ndarray,
+        inputs_are_xy=False,
+        unknown_value: int = 0,
     ) -> np.ndarray:
         """Return the grid mask value at each input lats, lons interpolated grid location
 
@@ -709,7 +724,9 @@ class Mask:
             lats (np.ndarray): array of latitude (N) values in degrees
             lons (np.ndarray): array of longitude (E) values in degrees
             inputs_are_xy (bool): inputs are x,y values (m) instead of latitude, longitude values
-
+            unknown_value (int): value returned for locations outside mask, or where mask
+                                 grid includes an unclassified value (unknown_value will be
+                                 substituted)
         Returns:
             mask_values (np.ndarray): grid mask value at each input lats, lons interpolated
                                  grid location or np.NaN is outside area
@@ -737,7 +754,7 @@ class Mask:
         else:
             (x, y) = self.latlon_to_xy(lats, lons)  # pylint: disable=E0633
 
-        mask_values = np.full(lats.size, np.NaN)
+        mask_values = np.full(lats.size, unknown_value, dtype=np.uint8)
 
         for i in range(0, lats.size):
             # check that x,y is not Nan

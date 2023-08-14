@@ -208,7 +208,7 @@ class Algorithm:
         if shared_dict["hemisphere"] == "south":
             # 0..27 : ['unknown','1',..'27']
             mask_values_zwally = self.zwally_basin_mask_ant.grid_mask_values(
-                shared_dict["latitudes"], shared_dict["longitudes"]
+                shared_dict["latitudes"], shared_dict["longitudes"], unknown_value=0
             )
 
             # 0..18: ['Islands','West H-Hp','West F-G','East E-Ep','East D-Dp','East Cp-D',
@@ -217,7 +217,7 @@ class Algorithm:
             # 'West Ep-F']
             # 999 (unknown)
             mask_values_rignot = self.rignot_basin_mask_ant.grid_mask_values(
-                shared_dict["latitudes"], shared_dict["longitudes"]
+                shared_dict["latitudes"], shared_dict["longitudes"], unknown_value=999
             )
 
             # reset the number range so we have 0 (unclassified), 1 (islands)..19(West EP-F)
@@ -230,11 +230,11 @@ class Algorithm:
             # 0..19 : ['None', '1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '3.1', '3.2', '3.3', '4.1',
             # '4.2', '4.3', '5.0', '6.1', '6.2', '7.1', '7.2', '8.1', '8.2']
             mask_values_zwally = self.zwally_basin_mask_grn.grid_mask_values(
-                shared_dict["latitudes"], shared_dict["longitudes"]
+                shared_dict["latitudes"], shared_dict["longitudes"], unknown_value=0
             )
 
             mask_values_rignot = self.rignot_basin_mask_grn.grid_mask_values(
-                shared_dict["latitudes"], shared_dict["longitudes"]
+                shared_dict["latitudes"], shared_dict["longitudes"], unknown_value=0
             )  # 0..56 : (unclassified), 1-50 (ice caps), 51 (NW), 52(CW), 53(SW), 54(SE),
             #            55(NE), 56(NO)
             # reset the number range so we have 0 (unclassified),
