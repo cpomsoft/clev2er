@@ -863,6 +863,7 @@ def main() -> None:
         log_file_error=config["log_files"]["errors"],
         log_file_info=config["log_files"]["info"],
         log_file_debug=config["log_files"]["debug"],
+        log_name="run_chain",
         silent=args.quiet,
     )
 
