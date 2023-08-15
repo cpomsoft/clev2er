@@ -17,8 +17,14 @@ log_files:
 instrument:
   wavelength: 0.022084
   baseline: 1.1676
-  # The '+' in the exponential format below is ABSOLUTELY required, or the variable will be seen as a string
+  # The '+' in the exponential format below is ABSOLUTELY required, or will be seen as a str
   chirp_slope: 7.142857E+12
+  num_range_bins_lrm: 128
+  ref_bin_index_lrm: 64
+  range_bin_size_lrm: 0.468425715625  # c/(2*chirp_bandwidth), in meters
+  across_track_beam_width_lrm: 15000 # approx, meters
+  along_track_beam_width_lrm: 15000 # approx, meters
+  pulse_limited_footprint_size_lrm: 1600 # meters
 
 # Calibration parameters derived by experiment
 calibration:
@@ -95,6 +101,19 @@ sin_geolocation:
   # solution (as determined by delta from a DEM)
   unwrap: True
   unwrap_trigger_m: 0
+
+lrm_lepta_geolocation:
+  # for LEPTA searches, gradually expand range window from leading edge
+  antarctic_dem: rema_ant_200m
+  greenland_dem: arcticdem_100m_greenland
+  range_increment: 5
+  num_range_increments: 10
+  median_filter: False
+  filter_on_tracker_range_window: False
+  filter_on_leading_edge: True
+  use_bottom_half_of_leading_edge: False
+  include_slope_doppler_correction: True
+
 
 height_filters:
   # maximum difference to the reference dem elevation in m

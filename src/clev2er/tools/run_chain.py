@@ -522,7 +522,9 @@ def run_chain(
     # --------------------------------------------------------------------------------------------
     else:  # Normal sequential processing (when multi-processing is disabled)
         for fnum, l1b_file in enumerate(l1b_file_list):
-            log.info("Processing file %d of %d.........................", fnum, n_files)
+            log.info(
+                "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
+            )
             success, error_str = run_chain_on_single_file(
                 l1b_file, alg_object_list, config, log, None, None, fnum
             )
@@ -539,6 +541,12 @@ def run_chain(
                         l1b_file,
                     )
                     break
+
+                log.error(
+                    "Error processing L1b file %s, skipping file",
+                    l1b_file,
+                )
+                continue
 
     # -----------------------------------------------------------------------------
     # Run each algorithms .finalize() function in order

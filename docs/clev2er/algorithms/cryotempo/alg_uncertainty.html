@@ -261,10 +261,10 @@
 </span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">rval</span><span class="p">:</span>
 </span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>                <span class="k">return</span> <span class="p">(</span><span class="n">rval</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
 </span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>            <span class="s2">&quot;[f</span><span class="si">%d</span><span class="s2">] Processing algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="p">)</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
 </span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
@@ -480,10 +480,10 @@
 </span><span id="Algorithm-172"><a href="#Algorithm-172"><span class="linenos">172</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">rval</span><span class="p">:</span>
 </span><span id="Algorithm-173"><a href="#Algorithm-173"><span class="linenos">173</span></a>                <span class="k">return</span> <span class="p">(</span><span class="n">rval</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
 </span><span id="Algorithm-174"><a href="#Algorithm-174"><span class="linenos">174</span></a>
-</span><span id="Algorithm-175"><a href="#Algorithm-175"><span class="linenos">175</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="Algorithm-175"><a href="#Algorithm-175"><span class="linenos">175</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
 </span><span id="Algorithm-176"><a href="#Algorithm-176"><span class="linenos">176</span></a>            <span class="s2">&quot;[f</span><span class="si">%d</span><span class="s2">] Processing algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="Algorithm-177"><a href="#Algorithm-177"><span class="linenos">177</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="Algorithm-178"><a href="#Algorithm-178"><span class="linenos">178</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span>
+</span><span id="Algorithm-178"><a href="#Algorithm-178"><span class="linenos">178</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
 </span><span id="Algorithm-179"><a href="#Algorithm-179"><span class="linenos">179</span></a>        <span class="p">)</span>
 </span><span id="Algorithm-180"><a href="#Algorithm-180"><span class="linenos">180</span></a>
 </span><span id="Algorithm-181"><a href="#Algorithm-181"><span class="linenos">181</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
@@ -759,10 +759,10 @@ surface slope at each measurement</strong></p>
 </span><span id="Algorithm.process-172"><a href="#Algorithm.process-172"><span class="linenos">172</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">rval</span><span class="p">:</span>
 </span><span id="Algorithm.process-173"><a href="#Algorithm.process-173"><span class="linenos">173</span></a>                <span class="k">return</span> <span class="p">(</span><span class="n">rval</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
 </span><span id="Algorithm.process-174"><a href="#Algorithm.process-174"><span class="linenos">174</span></a>
-</span><span id="Algorithm.process-175"><a href="#Algorithm.process-175"><span class="linenos">175</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span id="Algorithm.process-175"><a href="#Algorithm.process-175"><span class="linenos">175</span></a>        <span class="n">mplog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
 </span><span id="Algorithm.process-176"><a href="#Algorithm.process-176"><span class="linenos">176</span></a>            <span class="s2">&quot;[f</span><span class="si">%d</span><span class="s2">] Processing algorithm </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="Algorithm.process-177"><a href="#Algorithm.process-177"><span class="linenos">177</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="Algorithm.process-178"><a href="#Algorithm.process-178"><span class="linenos">178</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span>
+</span><span id="Algorithm.process-178"><a href="#Algorithm.process-178"><span class="linenos">178</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
 </span><span id="Algorithm.process-179"><a href="#Algorithm.process-179"><span class="linenos">179</span></a>        <span class="p">)</span>
 </span><span id="Algorithm.process-180"><a href="#Algorithm.process-180"><span class="linenos">180</span></a>
 </span><span id="Algorithm.process-181"><a href="#Algorithm.process-181"><span class="linenos">181</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>

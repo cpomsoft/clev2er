@@ -190,10 +190,10 @@ class Algorithm:
         if self.config["chain"]["use_multi_processing"]:
             self.init(mplog, filenum)
 
-        mplog.debug(
+        mplog.info(
             "[f%d] Processing algorithm %s",
             filenum,
-            self.alg_name,
+            self.alg_name.rsplit(".", maxsplit=1)[-1],
         )
 
         # Test that input l1b is a Dataset type

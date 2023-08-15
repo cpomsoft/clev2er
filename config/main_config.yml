@@ -11,7 +11,7 @@ chain:
                            # May not work on all operating systems, and has additional
                            # risks if not freed (disconnected) correctly
   # default is to skip file if an algorithm returns failure and continue
-  stop_on_error: true
+  stop_on_error: false
 
 # Geophysical parameters
 geophysical:

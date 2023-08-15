@@ -72,10 +72,11 @@ class Algorithm:
         Returns:
             (bool,str) : success or failure, error string
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
+
+        mplog.info(
+            "[f%d] Processing algorithm %s",
             filenum,
-            self.alg_name,
+            self.alg_name.rsplit(".", maxsplit=1)[-1],
         )
 
         # -----------------------------------------------------------------
