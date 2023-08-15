@@ -1004,12 +1004,15 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "%s Chain completed with %d errors processing %d files of %d input files in %.2f seconds",
+        "%s Chain completed with %d errors processing %d files"
+        " of %d input files in %.2f seconds := (%.2f mins := %.2f hours)",
         args.name,
         number_errors,
         num_files_processed,
         len(l1b_file_list),
         elapsed_time,
+        elapsed_time / 60.0,
+        (elapsed_time / 60.0) / 60.0,
     )
 
     log.info("\n%sLog Files          %s", "-" * 20, "-" * 20)
