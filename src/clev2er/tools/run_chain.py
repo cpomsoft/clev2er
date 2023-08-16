@@ -448,7 +448,7 @@ def run_chain(
         # allowed == config["chain"]["max_processes_for_multiprocessing"]
 
         log.info(
-            "Using multi-processing with max %d cores",
+            "Using multi-processing with max %d processes",
             config["chain"]["max_processes_for_multiprocessing"],
         )
 
