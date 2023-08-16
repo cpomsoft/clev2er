@@ -1,7 +1,7 @@
 # Cryo-TEMPO Baseline settings
 project: cryotempo
 theme: landice
-baseline: B
+baseline: C
 version: 1
 l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B
 # base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
@@ -114,7 +114,6 @@ lrm_lepta_geolocation:
   use_bottom_half_of_leading_edge: False
   include_slope_doppler_correction: True
 
-
 height_filters:
   # maximum difference to the reference dem elevation in m
   max_diff_to_ref_dem: 50
@@ -122,7 +121,6 @@ height_filters:
   min_elevation_antarctica: -500
   max_elevation_greenland: 3900
   min_elevation_greenland: -500
-
 
 # Geophysical parameters
 geophysical:
@@ -167,6 +165,7 @@ slope_data:
   awi_grn_2013_1km_slopes:  ${CPDATA_DIR}/SATS/RA/DEMS/grn_awi_2013_dem/grn_awi_2013_dem_slope.nc
 
 leap_seconds: ${CPOM_SOFTWARE_DIR}/cpom/resources/leap_seconds/leap-seconds.list
+
 
   
   
