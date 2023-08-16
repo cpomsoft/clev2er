@@ -13,6 +13,8 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 from pyproj import CRS  # CRS definitions
 from pyproj import Transformer  # for transforming between projections
 
+# pylint: disable=R0801
+
 log = logging.getLogger(__name__)
 
 # list of all supported mask names
@@ -494,7 +496,9 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                print("child: attached to existing shared memory")
+                print(
+                    f"child: attached to existing shared memory for mask {self.mask_name}"
+                )
 
             except FileNotFoundError:  # Create shared memory with this mask name
                 # first, load the mask array from the netcdf file
@@ -522,7 +526,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                print("parent: created shared memory")
+                print(f"parent: created shared memory for mask {self.mask_name}")
 
         else:  # load normally without using shared memory
             # read netcdf file
@@ -553,7 +557,9 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                print("child: attached to existing shared memory")
+                print(
+                    f"child: attached to existing shared memory for mask {self.mask_name}"
+                )
 
             except FileNotFoundError:  # Create shared memory with this mask name
                 # first, load the mask array from the npz file
@@ -578,7 +584,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                print("parent: created shared memory")
+                print(f"parent: created shared memory for mask {self.mask_name}")
 
         else:  # load normally without using shared memory
             # read npz file
@@ -601,7 +607,7 @@ class Mask:
                             "closed shared memory for %s in child process",
                             self.mask_name,
                         )
-                        print("closing in child")
+                        print(f"closing in child for mask {self.mask_name}")
                     else:
                         self.shared_mem.close()
                         self.shared_mem.unlink()
