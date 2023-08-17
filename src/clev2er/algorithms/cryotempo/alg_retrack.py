@@ -42,6 +42,10 @@ class Algorithm:
     - shared_dict["range_cor_20_ku"] : (np.ndarray) corrected range (retracked and geo-corrected)
     - shared_dict["num_retracker_failures"] (int) : number of retracker failures
     - shared_dict["percent_retracker_failure"]  (float) : percentage of retracker failures
+    - shared_dict["geo_corrected_tracker_range"] : (np.ndarray) geocorrected tracker range
+    - shared_dict["retracker_correction"] : (np.ndarray) retracker correction
+    - shared_dict["leading_edge_start"] : (np.ndarray) positions of leading edge start
+    - shared_dict["leading_edge_stop"] : (np.ndarray) positions of leading edge stop
 
     """
 
@@ -146,8 +150,8 @@ class Algorithm:
             (
                 dr_bin,
                 dr_meters,
-                _,  # leading_edge_start
-                _,  # leading_edge_stop
+                leading_edge_start,
+                leading_edge_stop,
                 pwr_at_rtrk_point,
                 n_retrack_failed,
                 _,  # retracker_flags
@@ -197,8 +201,8 @@ class Algorithm:
             (
                 dr_bin,
                 dr_meters,
-                _,  # leading_edge_start
-                _,  # leading_edge_stop
+                leading_edge_start,
+                leading_edge_stop,
                 pwr_at_rtrk_point,
                 n_retrack_failed,
                 _,  # retracker_flags
@@ -264,10 +268,21 @@ class Algorithm:
 
         shared_dict["pwr_at_rtrk_point"] = pwr_at_rtrk_point
 
-        shared_dict["range_cor_20_ku"] = (
+        shared_dict["leading_edge_start"] = leading_edge_start
+        shared_dict["leading_edge_stop"] = leading_edge_stop
+
+        # Store geo-corrected tracker range (without retracker correction)
+        shared_dict["geo_corrected_tracker_range"] = (
             0.5 * self.config["geophysical"]["speed_light"] * window_del_20_ku
             + shared_dict["sum_cor_20_ku"]
-            + dr_meters
+        )
+
+        # Store fully corrected range
+        shared_dict["retracker_correction"] = dr_meters
+
+        # Store fully corrected range
+        shared_dict["range_cor_20_ku"] = (
+            shared_dict["geo_corrected_tracker_range"] + dr_meters
         )
 
         shared_dict["num_retracker_failures"] = n_retrack_failed
