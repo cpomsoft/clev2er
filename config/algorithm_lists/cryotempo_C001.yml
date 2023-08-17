@@ -19,7 +19,7 @@ algorithms:
   - alg_waveform_quality # waveform quality checks for LRM & SIN
   - alg_retrack          # calls LRM (TCOG) or SIN (MC) retrackers
   - alg_backscatter      # calculate backscatter
-  - alg_geolocate_lrm    # geolocate LRM measurements to POCA and calc height
+  - alg_geolocate_lepta  # use LEPTA method to geolocate LRM measurements to POCA and calc height
   - alg_geolocate_sin    # geolocate SIN measurements to POCA and calc height
   - alg_basin_ids        # find ice sheet basin ids for each track location
   - alg_ref_dem          # get reference DEM elevations for track
