@@ -138,18 +138,20 @@ You should also then ensure that poetry is in your path, such that the command
 returns the poetry version number. You may need to modify your 
 PATH variable in order to achieve this.
 
+### Install required python packages using Poetry
+
 Run the following command to install python dependencies for this package
 (for info, it uses settings in pyproject.toml to know what to install)
-
-### Install packages using Poetry
 
 ```
 cd $CLEV2ER_BASE_DIR
 poetry install
-poetry update
 ```
 
-Finally, to load the virtual env, type:  
+### Load the Virtual Environment
+
+Now you are all setup to go. Whenever you want to run any CLEV2ER chains you 
+must first load the virtual environment using the `poetry shell` command.
 
 ```
 cd $CLEV2ER_BASE_DIR
