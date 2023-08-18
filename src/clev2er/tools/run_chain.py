@@ -362,6 +362,8 @@ def run_chain(
     # duplicate list used to call initialization
     # of shared memory resources where used.
 
+    log.info("Dynamically importing algorithms from list...")
+
     for alg in algorithm_list:
         # --------------------------------------------------------------------
         # Dynamically import each Algorithm from the list
@@ -971,13 +973,13 @@ def main() -> None:
                 if len(files) > 0:
                     l1b_file_list.extend(files)
 
-            log.info("Total number of L1b file found:  %d", len(l1b_file_list))
-
     if args.max_files:
         if len(l1b_file_list) > args.max_files:
             l1b_file_list = l1b_file_list[: args.max_files]
 
     n_l1b_files = len(l1b_file_list)
+
+    log.info("Total number of L1b file found:  %d", n_l1b_files)
 
     # Check if we have any L1b files to process
     if n_l1b_files < 1:
