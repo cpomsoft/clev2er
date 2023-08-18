@@ -1,4 +1,4 @@
-""" clev2er.algorithms.cryotempo.alg_geolocate_lepta"""
+"""clev2er.algorithms.cryotempo.alg_geolocate_lepta"""
 
 import logging
 from typing import Any, Dict, Tuple
