@@ -60,7 +60,8 @@ The commit will fail if any of the tests fail for the following tools:
 
 Make sure you have *git* installed on your system.  
 
-Clone the git repository: 
+Clone the git repository in to a suitable directory on your system.
+This will create a directory called **clev2er/..** in your current directory.
 
 with https:  
 `git clone https://github.com/cpomsoft/clev2er.git`  
