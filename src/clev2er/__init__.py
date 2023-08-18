@@ -188,6 +188,11 @@ Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.yml and
 $CLEV2ER_BASE_DIR/config/chain_configs/testchain.yml
 
+To find all the command line options for *run_chain.py*, type:
+
+`python run_chain.py -h`
+
+For further info, please see `clev2er.tools`
 
 ## Chain Configuration
 
@@ -207,21 +212,6 @@ This contains settings for :
 The default chain specific configuration file is
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
-## Example of Running the Chain
-
-This example runs the processing chain *cryotempo* on every L1b file in
-/path/to/l1b_files. It uses all the default configuration files for that chain.
-
-```script
-cd $CLEV2ER_BASE_DIR/src/clev2er/tools
-python run_chain.py --name cryotempo -d /path/to/l1b_files
-```
-
-To find all the command line options for *run_chain.py*, type:
-
-`python run_chain.py -h`
-
-For further info, please see `clev2er.tools`
 
 ## Developer Notes
 
