@@ -365,6 +365,7 @@ def run_chain(
     log.info("Dynamically importing algorithms from list...")
 
     for alg in algorithm_list:
+        log.info("--loading %s", alg)
         # --------------------------------------------------------------------
         # Dynamically import each Algorithm from the list
         # --------------------------------------------------------------------
