@@ -163,13 +163,18 @@ poetry shell
 
 You should now be setup to run processing chains, etc.
 
-## Test Running a Simple Chain
+## Run a simple chain test example
 
 The following command will run a simple example test chain which dynamically loads
 2 template algorithms and run them on a set of CryoSat L1b files. The algorithms do
-not perform any processing.
+not perform any actual processing as they are just template examples.
 
 `run_chain.py -n testchain -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles`
+
+There should be no errors.
+
+Note that the algorithms that are dynamically run are located in 
+$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/testalg1.py, testalg2.py
 
 ## Chain Configuration
 
