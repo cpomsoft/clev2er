@@ -7,11 +7,12 @@ from typing import Tuple
 
 import numpy as np
 import pyproj
-from cpom.altimetry.level2.cs2.geolocate.lrm_slope import slope_doppler
 from cpom.dems.dems import Dem
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pyproj import Transformer
 from scipy.ndimage import median_filter
+
+from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
 
