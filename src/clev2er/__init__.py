@@ -176,7 +176,7 @@ There should be no errors.
 Note that the algorithms that are dynamically run are located in 
 $CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/testalg1.py, testalg2.py
 
-The list of algorithms (and their order) are defined in 
+The list of algorithms (and their order) for *testchain* are defined in 
 $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml
 
 Algorithm configuration settings are defined in
