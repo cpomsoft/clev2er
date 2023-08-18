@@ -362,7 +362,7 @@ def run_chain(
     # duplicate list used to call initialization
     # of shared memory resources where used.
 
-    log.info("Dynamically importing algorithms from list...")
+    log.info("Dynamically importing and initializing algorithms from list...")
 
     for alg in algorithm_list:
         log.info("--loading %s", alg)

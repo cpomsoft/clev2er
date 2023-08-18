@@ -82,7 +82,29 @@ the PYTHONPATH to point to the packages src directory. Here is an example:
 ```script
 export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
+export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
+# for multi-processing/shared mem support set ulimit
+ulimit -n unlimited
 ```
+
+## Python Requirement
+
+Requires python v3.10 to be installed before proceeding.
+This can installed using miniconda as follows:
+
+Select the 3.10 installer for your operating system from:
+
+https://docs.conda.io/en/latest/miniconda.html
+
+For example for Linux download the installer using:
+
+wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+chmod +x Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+./Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+
+Do you wish the installer to initialize Miniconda3
+by running conda init? [yes|no] yes
+
 
 ## Virtual Environment and Package Requirements
 
