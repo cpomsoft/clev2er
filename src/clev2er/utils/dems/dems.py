@@ -246,12 +246,6 @@ class Dem:
                 print(f"parent: created shared memory for {self.name}")
         else:
             self.zdem = imread(demfile)
-            log.info(
-                "%s zdem.shape %s",
-                self.name,
-                self.zdem.shape,
-            )
-            log.info("zdem.dtype %s", self.zdem.dtype)
 
         # Set void data to Nan
         if self.void_value:
