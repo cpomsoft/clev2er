@@ -90,17 +90,19 @@ ulimit -n unlimited
 ## Python Requirement
 
 Requires python v3.10 to be installed before proceeding.
-This can installed using miniconda as follows:
+A recommended method of installation is using  miniconda as follows:
 
-Select the 3.10 installer for your operating system from:
+Select the **python 3.10** installer for your operating system from:
 
 https://docs.conda.io/en/latest/miniconda.html
 
-For example for Linux download the installer using:
+For example, for Linux download the installer using:
 
+```script
 wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
 chmod +x Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
 ./Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
+```
 
 Do you wish the installer to initialize Miniconda3
 by running conda init? [yes|no] yes
