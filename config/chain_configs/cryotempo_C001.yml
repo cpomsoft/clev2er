@@ -1,4 +1,8 @@
 # Cryo-TEMPO Baseline settings
+# Change Log from previous baseline:
+#   - tcog_retracker: retrack_threshold_lrm: 0.1 
+#   - lrm_lepta_geolocation settings added 
+
 project: cryotempo
 theme: landice
 baseline: C
@@ -46,7 +50,7 @@ sin_waveform_quality_tests:
 # Retracker Thresholds
 # TCOG Retracker
 tcog_retracker:
-  retrack_threshold_lrm: 0.2
+  retrack_threshold_lrm: 0.1 # Note was 0.2 in Baseline-B
   retrack_threshold_sin: 0.5
   ref_bin_ind_lrm: 64
   ref_bin_ind_sin: 512
@@ -106,11 +110,11 @@ lrm_lepta_geolocation:
   # for LEPTA searches, gradually expand range window from leading edge
   antarctic_dem: rema_ant_200m
   greenland_dem: arcticdem_100m_greenland
+  filter_on_leading_edge: True
   range_increment: 5
   num_range_increments: 10
   median_filter: False
   filter_on_tracker_range_window: False
-  filter_on_leading_edge: True
   use_bottom_half_of_leading_edge: False
   include_slope_doppler_correction: True
 

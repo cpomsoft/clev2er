@@ -102,19 +102,6 @@ sin_geolocation:
   unwrap: True
   unwrap_trigger_m: 0
 
-lrm_lepta_geolocation:
-  # for LEPTA searches, gradually expand range window from leading edge
-  antarctic_dem: rema_ant_200m
-  greenland_dem: arcticdem_100m_greenland
-  range_increment: 5
-  num_range_increments: 10
-  median_filter: False
-  filter_on_tracker_range_window: False
-  filter_on_leading_edge: True
-  use_bottom_half_of_leading_edge: False
-  include_slope_doppler_correction: True
-
-
 height_filters:
   # maximum difference to the reference dem elevation in m
   max_diff_to_ref_dem: 50
