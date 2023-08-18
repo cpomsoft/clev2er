@@ -410,7 +410,7 @@ class Dem:
         return True
 
     def get_segment(
-        self, segment_bounds: list[tuple], grid_xy: bool = True, flatten: bool = False
+        self, segment_bounds: list, grid_xy: bool = True, flatten: bool = False
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """return a cropped segment of the DEM, flattened or as a grid
 
