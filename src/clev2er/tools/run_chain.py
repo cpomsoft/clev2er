@@ -977,6 +977,13 @@ def main() -> None:
         if len(l1b_file_list) > args.max_files:
             l1b_file_list = l1b_file_list[: args.max_files]
 
+    n_l1b_files = len(l1b_file_list)
+
+    # Check if we have any L1b files to process
+    if n_l1b_files < 1:
+        log.error("No L1b files selected..")
+        sys.exit(1)
+
     # --------------------------------------------------------------------
     # Run the chain on the file list
     # --------------------------------------------------------------------
