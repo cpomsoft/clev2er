@@ -38,6 +38,7 @@ graph LR;
   * Each algorithm has access to: l1b Dataset, shared working dict, config dict
 * logging (+ multi-processing logging support)
 * multi-processing (1 core per l1b file), configurable maximum number of cores.
+* shared memory (for example for large DEMs and Masks) when using multi-processing
 * algorithm timing (with MP support)
 * chain timing
 
