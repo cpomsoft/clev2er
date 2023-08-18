@@ -84,29 +84,38 @@ export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
 # for multi-processing/shared mem support set ulimit
-ulimit -n unlimited
+ulimit -n 8192
 ```
 
 ## Python Requirement
 
 Requires python v3.10 to be installed before proceeding.
-A recommended method of installation is using  miniconda as follows:
+A recommended minimal method of installation is using  miniconda as follows (other methods
+may also be used):
 
 Select the **python 3.10** installer for your operating system from:
 
 https://docs.conda.io/en/latest/miniconda.html
 
-For example, for Linux download the installer using:
+For example, for Linux, download the installer and install 
+a minimal python 3.10 using:
 
 ```script
 wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
 chmod +x Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
 ./Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
-```
 
 Do you wish the installer to initialize Miniconda3
 by running conda init? [yes|no] yes
+```
+You may need to start a new shell to refresh your environment before
+checking that python 3.10 is in your path.
 
+Check that python v3.10 is now available, by typing:
+
+```
+python -V
+```
 
 ## Virtual Environment and Package Requirements
 
