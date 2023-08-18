@@ -84,21 +84,22 @@ export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
 # for multi-processing/shared mem support set ulimit
+# to make sure you have enough file descriptors available
 ulimit -n 8192
 ```
 
 ## Python Requirement
 
 Requires python v3.10 to be installed before proceeding.
-A recommended minimal method of installation is using  miniconda as follows (other methods
-may also be used):
+A recommended minimal method of installation is using miniconda as follows 
+(other appropriate methods may also be used):
 
 Select the **python 3.10** installer for your operating system from:
 
 https://docs.conda.io/en/latest/miniconda.html
 
 For example, for Linux, download the installer and install 
-a minimal python 3.10 using:
+a minimal python 3.10 installation using:
 
 ```script
 wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Linux-x86_64.sh
@@ -121,8 +122,10 @@ python -V
 
 This project uses *poetry* to manage package dependencies and virtual envs.
 
-First, you need to install *poetry* on your system from
-https://python-poetry.org/docs/#installation.
+First, you need to install *poetry* on your system using instructions from
+https://python-poetry.org/docs/#installation. Normally this just requires running:
+
+`curl -sSL https://install.python-poetry.org | python3 -`
 
 You should also then ensure that poetry is in your path, such that the command
 
@@ -130,17 +133,6 @@ You should also then ensure that poetry is in your path, such that the command
 
 returns the poetry version number. You may need to modify your 
 PATH variable in order to achieve this.
-
-### Install Python v3.10
-
-Install a minimal python 3.10 environment. One way of doing this is to 
-use the `conda` tool.
-
-```
-conda create -n python310 python=3.10
-conda activate python310
-```
-
 
 Run the following command to install python dependencies for this package
 (for info, it uses settings in pyproject.toml to know what to install)
@@ -160,10 +152,8 @@ cd $CLEV2ER_BASE_DIR
 poetry shell
 ```
 
-Depending upon your local environment `poetry shell` may gives errors if it can't
-tell which python env to use. In this case
-you may need to tell poetry which python env to use, by running
-the following first (example uses python 3.10)
+Note that if you have the wrong version of python (not v3.10) in your path you will see
+errors. You can tell poetry which version of python to use in this case using:
 
 ```
 poetry env use $(which python3.10)
