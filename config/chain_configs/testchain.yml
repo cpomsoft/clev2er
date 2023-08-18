@@ -1,0 +1,5 @@
+# Default locations for log files
+log_files:
+  errors: /tmp/errors.log
+  info:   /tmp/info.log
+  debug:  /tmp/debug.log

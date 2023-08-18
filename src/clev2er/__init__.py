@@ -61,7 +61,7 @@ The commit will fail if any of the tests fail for the following tools:
 Make sure you have *git* installed on your system.  
 
 Clone the git repository in to a suitable directory on your system.
-This will create a directory called **clev2er/..** in your current directory.
+This will create a directory called **/clev2er** in your current directory.
 
 with https:  
 `git clone https://github.com/cpomsoft/clev2er.git`  
@@ -75,7 +75,7 @@ or with the GitHub CLI:
 ## Shell Environment Setup
 
 The following shell environment variables need to be set. In a bash shell this might be 
-done by adding export lines to your $HOME/.bash_profile file.  
+done by adding export lines to your $HOME/.bashrc file.  
 
 Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set
 the PYTHONPATH to point to the packages src directory. Here is an example:  
