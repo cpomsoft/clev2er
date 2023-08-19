@@ -1,5 +1,9 @@
+# Chain configuration file for : testchain
+
 # Default locations for log files
 log_files:
-  errors: /tmp/errors.log
+  append_year_month_to_logname: true  # if chain is run for specific month and year, use <logtype>_MMYYYY.log
+                                   # or <logtype>_YYYY.log (if only year specified) 
+  errors: /tmp/errors.log  # or errors_MMYYYY.log
   info:   /tmp/info.log
   debug:  /tmp/debug.log
