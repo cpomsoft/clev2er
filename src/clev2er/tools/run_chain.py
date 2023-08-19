@@ -925,12 +925,9 @@ def main() -> None:
         log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
         sys.exit(1)
 
-    log.info(
-        "Chain name: %s : baseline %s, version %03d",
-        args.name,
-        baseline,
-        args.version,
-    )
+    log.info("Chain name: %s ", args.name)
+    if baseline:
+        log.info("Baseline: %s%03d ", baseline, version)
 
     log.info("Using algorithm list: %s", algorithm_list_file)
 
