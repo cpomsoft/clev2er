@@ -664,7 +664,6 @@ def main() -> None:
             "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>"
             "_<Baseline><Version>.yml"
         ),
-        default=1,
         type=int,
     )
 
@@ -781,6 +780,9 @@ def main() -> None:
         sys.exit(
             f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
         )
+
+    # Modify chain run settings from the command line
+
     if args.multiprocessing:
         config["chain"]["use_multi_processing"] = True
     if args.sequentialprocessing:
@@ -800,43 +802,62 @@ def main() -> None:
     config["chain"]["chain_name"] = args.name
 
     # -------------------------------------------------------------------------
-    # Merge chain config YAML file
+    # Load and merge chain config YAML file
     #   - default is
     # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.yml
     # where Baseline is one character 'A', 'B',..
     #       Version is zero-padded integer : 001, 002,..
+    #
+    # or if no config file with _<Baseline><Version> exists then try
+    #
+    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>.yml
+    #
+    # Note the _<Baseline><Version>.yml version takes priority if it exists
+    # If multiple baseline and version config files exist then the one
+    # with the highest (Z before A) letter and number is chosen (unless baseline and version
+    # are specified on the command line)
     # -------------------------------------------------------------------------
 
     # Load config file related to the chain_name
 
-    if args.version < 1 or args.version > 100:
-        sys.exit("ERROR: --version <version>, must be an integer 1-100")
+    version = None
+    baseline = None
+    chain_config_file = ""
+
+    if args.version:
+        if args.version < 1 or args.version > 100:
+            sys.exit("ERROR: --version <version>, must be an integer 1-100")
+        version = args.version
+    else:
+        version = 1
 
     if args.baseline:
         if len(args.baseline) != 1:
             sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
+        baseline = args.baseline.upper()
+
+    if args.baseline:
         chain_config_file = (
             f"{base_dir}/config/chain_configs/"
-            f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+            f"{args.name}_{baseline}{version:03}.yml"
         )
-        baseline = args.baseline
-    else:
+    else:  # search for config files containing <name>_<baseline><version>.yml
         reverse_alphabet_list = list(string.ascii_uppercase[::-1])
         for _baseline in reverse_alphabet_list:
-            chain_config_file = (
+            _chain_config_file = (
                 f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                f"{args.version:03}.yml"
+                f"{version:03}.yml"
             )
-            if os.path.exists(chain_config_file):
+            if os.path.exists(_chain_config_file):
                 baseline = _baseline
+                chain_config_file = _chain_config_file
                 break
-
-    if not os.path.exists(chain_config_file):
-        # Try without baseline and version
+    # Try without baseline and version
+    if not chain_config_file:
         chain_config_file = f"{base_dir}/config/chain_configs/{args.name}.yml"
 
-        if not os.path.exists(chain_config_file):
-            sys.exit(f"ERROR: config file {chain_config_file} does not exist")
+    if not os.path.exists(chain_config_file):
+        sys.exit(f"ERROR: config file {chain_config_file} does not exist")
 
     try:
         chain_config = EnvYAML(
