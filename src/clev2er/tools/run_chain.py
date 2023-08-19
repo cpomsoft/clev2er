@@ -916,7 +916,7 @@ def main() -> None:
         if baseline and version:
             algorithm_list_file = (
                 f"{base_dir}/config/algorithm_lists/"
-                f"{args.name}_{baseline}{args.version:03}.yml"
+                f"{args.name}_{baseline}{version:03}.yml"
             )
         else:
             algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
