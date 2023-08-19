@@ -824,7 +824,7 @@ def main() -> None:
         reverse_alphabet_list = list(string.ascii_uppercase[::-1])
         for _baseline in reverse_alphabet_list:
             chain_config_file = (
-                f"{base_dir}/config/chain_configs/cryotempo_{_baseline}"
+                f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
                 f"{args.version:03}.yml"
             )
             if os.path.exists(chain_config_file):
@@ -869,7 +869,6 @@ def main() -> None:
     #     main config file
     # -------------------------------------------------------------------------
 
-    print(config["log_files"]["errors"])
     log = get_logger(
         default_log_level=logging.DEBUG if args.debug else logging.INFO,
         log_file_error=config["log_files"]["errors"],
