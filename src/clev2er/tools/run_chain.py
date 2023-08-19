@@ -913,11 +913,12 @@ def main() -> None:
         algorithm_list_file = args.alglist
     else:
         # Try to find an algorithm list for a specific baseline and version
-        algorithm_list_file = (
-            f"{base_dir}/config/algorithm_lists/"
-            f"{args.name}_{baseline}{args.version:03}.yml"
-        )
-        if not os.path.exists(algorithm_list_file):
+        if baseline and version:
+            algorithm_list_file = (
+                f"{base_dir}/config/algorithm_lists/"
+                f"{args.name}_{baseline}{args.version:03}.yml"
+            )
+        else:
             algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
 
     if not os.path.exists(algorithm_list_file):
