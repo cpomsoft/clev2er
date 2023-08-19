@@ -239,7 +239,7 @@ class Algorithm:
                 os.makedirs(product_dir)
             except OSError as exc:
                 mplog.error("[f%d] could not create %s : %s", filenum, product_dir, exc)
-                return (False, "could not create {product_dir} {exc}")
+                return (False, f"could not create {product_dir} {exc}")
 
         # ---------------------------------------------------------------------
         #  Form product filename
