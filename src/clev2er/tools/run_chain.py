@@ -832,7 +832,11 @@ def main() -> None:
                 break
 
     if not os.path.exists(chain_config_file):
-        sys.exit(f"ERROR: config file {chain_config_file} does not exist")
+        # Try without baseline and version
+        chain_config_file = f"{base_dir}/config/chain_configs/{args.name}.yml"
+
+        if not os.path.exists(chain_config_file):
+            sys.exit(f"ERROR: config file {chain_config_file} does not exist")
 
     try:
         chain_config = EnvYAML(
