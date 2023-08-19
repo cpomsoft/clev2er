@@ -869,6 +869,7 @@ def main() -> None:
     #     main config file
     # -------------------------------------------------------------------------
 
+    print(config["log_files"]["errors"])
     log = get_logger(
         default_log_level=logging.DEBUG if args.debug else logging.INFO,
         log_file_error=config["log_files"]["errors"],
