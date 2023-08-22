@@ -26,31 +26,29 @@ class Algorithm:
         - shared_dict['height_filt'] : (type), filtered height
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(
+        self, config: Dict[str, Any], process_number: int, alg_log: logging.Logger
+    ) -> None:
         """
-        Runs init() if not in multi-processing mode
         Args:
             config (dict): configuration dictionary
+            process_number (int): process number used for this algorithm (0..max_processes)
+                                  similar but not the same as the os pid (process id)
+                                  for sequential processing this would be 0 (default)
+            alg_log (logging.Logger) : log instance to use for logging within algorithm
 
         Returns:
             None
         """
         self.alg_name = __name__
         self.config = config
+        self.procnum = process_number
+        self.log = alg_log
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
+        _, _ = self.init()
 
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
+    def init(self) -> Tuple[bool, str]:
         """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
 
         Returns:
             (bool,str) : success or failure, error string
@@ -61,12 +59,10 @@ class Algorithm:
             OSError :
 
         Note: raise and Exception rather than just returning False
+        Logging: use self.log.info,error,debug(your_message)
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
+        self.log.debug("Initializing algorithm %s", self.alg_name)
+
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
         # -----------------------------------------------------------------
@@ -75,14 +71,13 @@ class Algorithm:
 
     @Timer(name=__name__, text="", logger=None)
     def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
+        self, l1b: Dataset, shared_dict: dict, filenum: int
     ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Algorithm main processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -90,33 +85,24 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        **IMPORTANT NOTE:**
 
-        `mplog.error("[f%d] your message",filenum)`
-
-        This is required to support logging during multi-processing
+        Logging within this function must use on of:
+            self.log.info(your_message)
+            self.log.debug(your_message)
+            self.log.error(your_message)
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
+        self.log.info(
+            "Processing algorithm %s for file %d",
             self.alg_name.rsplit(".", maxsplit=1)[-1],
+            filenum,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            self.log.error("l1b parameter is not a netCDF4 Dataset type")
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -125,15 +111,15 @@ class Algorithm:
         # -------------------------------------------------------------------
 
         if "height_20_ku" not in shared_dict:
-            mplog.error("[f%d] height_20_ku is not in shared_dict", filenum)
+            self.log.error("height_20_ku is not in shared_dict")
             return (False, "height_20_ku is not in shared_dict")
 
         if "dem_elevation_values" not in shared_dict:
-            mplog.error("[f%d] dem_elevation_values is not in shared_dict", filenum)
+            self.log.error("dem_elevation_values is not in shared_dict")
             return (False, "dem_elevation_values is not in shared_dict")
 
         if "height_filters" not in self.config:
-            mplog.error("[f%d] height_filters not in config", filenum)
+            self.log.error("height_filters not in config")
             return (False, "height_filters not in config")
 
         # Test if config contains required height filters
@@ -146,9 +132,7 @@ class Algorithm:
         ]
         for height_filter in height_filters:
             if height_filter not in self.config["height_filters"]:
-                mplog.error(
-                    "[f%d] height_filters.%s not in config", filenum, height_filter
-                )
+                self.log.error("height_filters.%s not in config", height_filter)
                 return (False, f"height_filters.{height_filter} not in config")
 
         shared_dict["height_filt"] = shared_dict["height_20_ku"].copy()
@@ -165,9 +149,8 @@ class Algorithm:
         )[0]
         if elevation_outliers.size > 0:
             shared_dict["height_filt"][elevation_outliers] = np.nan
-            mplog.info(
-                "[f%d] Number of elevation outliers > |50m| from DEM : %d",
-                filenum,
+            self.log.info(
+                "Number of elevation outliers > |50m| from DEM : %d",
                 elevation_outliers.size,
             )
 
@@ -188,9 +171,8 @@ class Algorithm:
         )[0]
         if elevation_outliers.size > 0:
             shared_dict["height_filt"][elevation_outliers] = np.nan
-            mplog.info(
-                "[f%d] Number of elevation values outside allowed range %.2f %.2f: %d",
-                filenum,
+            self.log.info(
+                "Number of elevation values outside allowed range %.2f %.2f: %d",
                 min_elevation,
                 max_elevation,
                 elevation_outliers.size,
@@ -207,7 +189,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/

@@ -119,88 +119,90 @@ def test_alg_uncertainty(l1b_file) -> None:
     # Initialise any other Algorithms required by test
 
     try:
-        identify_file = IdentifyFile(config=config)
+        identify_file = IdentifyFile(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize IdentifyFile algorithm {exc}"
 
     try:
-        surface_type = SurfaceType(config=config)
+        surface_type = SurfaceType(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize SurfaceType algorithm {exc}"
 
     try:
-        skip_mode = SkipMode(config=config)
+        skip_mode = SkipMode(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize SkipMode algorithm {exc}"
 
     try:
-        fes2014b = Fes2014b(config=config)
+        fes2014b = Fes2014b(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize Fes2014b algorithm {exc}"
 
     try:
-        cats2008a = Cats2008a(config=config)
+        cats2008a = Cats2008a(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize Cats2008a algorithm {exc}"
 
     try:
-        geo_corrections = GeoCorrections(config=config)
+        geo_corrections = GeoCorrections(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize GeoCorrections algorithm {exc}"
 
     try:
-        skip_area = SkipArea(config=config)
+        skip_area = SkipArea(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize SkipArea algorithm {exc}"
 
     try:
-        coastal_mask = CoastalMask(config=config)
+        coastal_mask = CoastalMask(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize CoastalMask algorithm {exc}"
 
     try:
-        waveform_quality = WaveformQuality(config=config)
+        waveform_quality = WaveformQuality(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize WaveformQuality algorithm {exc}"
 
     try:
-        retracker = Retracker(config=config)
+        retracker = Retracker(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
-        backscatter = Backscatter(config=config)
+        backscatter = Backscatter(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
-        geolocate_lrm = Geolocate_Lrm(config=config)
+        geolocate_lrm = Geolocate_Lrm(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
-        geolocate_sin = Geolocate_Sin(config=config)
+        geolocate_sin = Geolocate_Sin(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
-        filter_height = FilterHeight(config=config)
+        filter_height = FilterHeight(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize FilterHeight algorithm {exc}"
 
     try:
-        basin_ids = BasinIds(config=config)
+        basin_ids = BasinIds(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize BasinIds algorithm {exc}"
 
     try:
-        ref_dem = RefDem(config=config)
+        ref_dem = RefDem(config=config, process_number=0, alg_log=log)
     except KeyError as exc:
         assert False, f"Could not initialize RefDem algorithm {exc}"
 
     # Initialise the Algorithm being tested
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except (KeyError, FileNotFoundError) as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -226,55 +228,55 @@ def test_alg_uncertainty(l1b_file) -> None:
     # Run other alg process required by test to fill in
     # required shared_dict parameters
 
-    success, _ = identify_file.process(l1b, shared_dict, log, 0)
+    success, _ = identify_file.process(l1b, shared_dict, 0)
     assert success, "identify_file algorithm should not fail"
 
-    success, _ = skip_mode.process(l1b, shared_dict, log, 0)
+    success, _ = skip_mode.process(l1b, shared_dict, 0)
     assert success, "skip_mode algorithm should not fail"
 
-    success, _ = skip_area.process(l1b, shared_dict, log, 0)
+    success, _ = skip_area.process(l1b, shared_dict, 0)
     assert success, "skip_area algorithm should not fail"
 
-    success, _ = surface_type.process(l1b, shared_dict, log, 0)
+    success, _ = surface_type.process(l1b, shared_dict, 0)
     assert success, "surface_type algorithm should not fail"
 
-    success, _ = coastal_mask.process(l1b, shared_dict, log, 0)
+    success, _ = coastal_mask.process(l1b, shared_dict, 0)
     assert success, "coastal_mask algorithm should not fail"
 
-    success, _ = cats2008a.process(l1b, shared_dict, log, 0)
+    success, _ = cats2008a.process(l1b, shared_dict, 0)
     assert success, "cats2008a algorithm should not fail"
-    success, _ = fes2014b.process(l1b, shared_dict, log, 0)
+    success, _ = fes2014b.process(l1b, shared_dict, 0)
     assert success, "fes2014b algorithm should not fail"
 
-    success, _ = geo_corrections.process(l1b, shared_dict, log, 0)
+    success, _ = geo_corrections.process(l1b, shared_dict, 0)
     assert success, "geo_corrections algorithm should not fail"
 
-    success, _ = waveform_quality.process(l1b, shared_dict, log, 0)
+    success, _ = waveform_quality.process(l1b, shared_dict, 0)
     assert success, "waveform quality algorithm should not fail"
 
-    success, _ = retracker.process(l1b, shared_dict, log, 0)
+    success, _ = retracker.process(l1b, shared_dict, 0)
     assert success, "retracker algorithm should not fail"
 
-    success, _ = backscatter.process(l1b, shared_dict, log, 0)
+    success, _ = backscatter.process(l1b, shared_dict, 0)
     assert success, "backscatter algorithm should not fail"
 
-    success, _ = geolocate_lrm.process(l1b, shared_dict, log, 0)
+    success, _ = geolocate_lrm.process(l1b, shared_dict, 0)
     assert success, "geolocate_lrm algorithm should not fail"
 
-    success, _ = geolocate_sin.process(l1b, shared_dict, log, 0)
+    success, _ = geolocate_sin.process(l1b, shared_dict, 0)
     assert success, "geolocate_sin algorithm should not fail"
 
-    success, _ = basin_ids.process(l1b, shared_dict, log, 0)
+    success, _ = basin_ids.process(l1b, shared_dict, 0)
     assert success, "basin_ids algorithm should not fail"
 
-    success, _ = ref_dem.process(l1b, shared_dict, log, 0)
+    success, _ = ref_dem.process(l1b, shared_dict, 0)
     assert success, "ref_dem algorithm should not fail"
 
-    success, _ = filter_height.process(l1b, shared_dict, log, 0)
+    success, _ = filter_height.process(l1b, shared_dict, 0)
     assert success, "filter_height algorithm should not fail"
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
     assert success, "algorithm should not fail"
 
     # Test outputs from algorithm

@@ -39,7 +39,9 @@ def test_alg_skip_on_area_bounds() -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -60,7 +62,7 @@ def test_alg_skip_on_area_bounds() -> None:
     # Run  Algorithm.process()
     shared_dict: Dict[str, Any] = {}
     # This should fail, as algorithm expects shared_dict['instr_mode'] to be present
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert (
         success is False
@@ -69,7 +71,7 @@ def test_alg_skip_on_area_bounds() -> None:
     shared_dict["instr_mode"] = "LRM"
 
     # This should fail, as L1b file is located outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert success is False, "should fail as L1b file is outside cryosphere"
 
@@ -84,6 +86,6 @@ def test_alg_skip_on_area_bounds() -> None:
         assert False, f"{l1b_file} could not be read"
 
     # This should fail, as L1b file is located outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert success, f"should pass as L1b file {l1b_file} passes over Greenland"

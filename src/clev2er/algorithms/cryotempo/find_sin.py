@@ -97,7 +97,7 @@ class FileFinder:
             self.months = list(range(1, 13))
 
         for year in self.years:
-            log.info("Finding files for year: %d", year)
+            log.info("Finding SIN files for year: %d", year)
             for month in self.months:
                 log.info("Finding files for month: %d", month)
                 if flat_search:
@@ -115,6 +115,10 @@ class FileFinder:
                 nfiles = len(files)
                 if nfiles:
                     file_list.extend(files)
-                log.info("Number of files found for %.02d/%d: %d", month, year, nfiles)
-        log.info("Total number of %s files found: %d", self.l1b_type, len(file_list))
+                log.info(
+                    "Number of SIN files found for %.02d/%d: %d", month, year, nfiles
+                )
+        log.info(
+            "Total number of SIN %s files found: %d", self.l1b_type, len(file_list)
+        )
         return file_list

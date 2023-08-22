@@ -38,7 +38,9 @@ def test_alg_dilated_coastal_mask() -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -69,7 +71,7 @@ def test_alg_dilated_coastal_mask() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert success, "Should not fail"
     assert (
@@ -107,7 +109,7 @@ def test_alg_dilated_coastal_mask() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert success, "Should not fail"
     assert (

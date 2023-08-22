@@ -35,46 +35,47 @@ class Algorithm:
 
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(
+        self, config: Dict[str, Any], process_number: int, alg_log: logging.Logger
+    ) -> None:
         """
-        Runs init() if not in multi-processing mode
         Args:
             config (dict): configuration dictionary
+            process_number (int): process number used for this algorithm (0..max_processes)
+                                  similar but not the same as the os pid (process id)
+                                  for sequential processing this would be 0 (default)
+            alg_log (logging.Logger) : log instance to use for logging within algorithm
 
         Returns:
             None
         """
         self.alg_name = __name__
         self.config = config
+        self.procnum = process_number
+        self.log = alg_log
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
+        _, _ = self.init()
 
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
+    def init(self) -> Tuple[bool, str]:
         """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
 
         Returns:
             (bool,str) : success or failure, error string
+
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
+        Logging: use self.log.info,error,debug(your_message)
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
+        self.log.debug("Initializing algorithm %s", self.alg_name)
 
         # Check slope models file
         if not os.path.isfile(self.config["slope_models"]["model_file"]):
-            mplog.error(
-                "[f%d] slope model file: %s not found",
-                filenum,
+            self.log.error(
+                "slope model file: %s not found",
                 self.config["slope_models"]["model_file"],
             )
             return (
@@ -86,14 +87,13 @@ class Algorithm:
 
     @Timer(name=__name__, text="", logger=None)
     def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
+        self, l1b: Dataset, shared_dict: dict, filenum: int
     ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Algorithm main processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -101,33 +101,24 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        **IMPORTANT NOTE:**
 
-        `mplog.error("[f%d] your message",filenum)`
-
-        This is required to support logging during multi-processing
+        Logging within this function must use on of:
+            self.log.info(your_message)
+            self.log.debug(your_message)
+            self.log.error(your_message)
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
+        self.log.info(
+            "Processing algorithm %s for file %d",
             self.alg_name.rsplit(".", maxsplit=1)[-1],
+            filenum,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            self.log.error("l1b parameter is not a netCDF4 Dataset type")
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -140,10 +131,10 @@ class Algorithm:
         # --------------------------------------------------------------------
 
         if shared_dict["instr_mode"] != "LRM":
-            mplog.info("[f%d] algorithm skipped as not LRM file", filenum)
+            self.log.info("algorithm skipped as not LRM file")
             return (True, "algorithm skipped as not LRM file")
 
-        mplog.info("[f%d] Calling LRM geolocation", filenum)
+        self.log.info("[f%d] Calling LRM geolocation", filenum)
 
         height_20_ku, lat_poca_20_ku, lon_poca_20_ku = geolocate_lrm(
             l1b,
@@ -151,7 +142,7 @@ class Algorithm:
             shared_dict["cryotempo_surface_type"],
             shared_dict["range_cor_20_ku"],
         )
-        mplog.info("[f%d] LRM geolocation completed", filenum)
+        self.log.info("LRM geolocation completed")
 
         shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
         np.seterr(under="ignore")  # otherwise next line can fail
@@ -167,9 +158,8 @@ class Algorithm:
         longitudes = lon_poca_20_ku
 
         if poca_failed.size > 0:
-            mplog.info(
-                "[f%d] POCA replaced by nadir in %d of %d measurements ",
-                filenum,
+            self.log.info(
+                "POCA replaced by nadir in %d of %d measurements ",
                 poca_failed.size,
                 latitudes.size,
             )
@@ -190,7 +180,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/

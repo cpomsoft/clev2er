@@ -4,8 +4,9 @@
 # Processing chain operation settings
 chain:
   use_multi_processing: false # if false l1b files are processed sequentially
-  max_processes_for_multiprocessing: 7 # if MP enabled: process a maximum of N input files in parallel
+  max_processes_for_multiprocessing: 12 # if MP enabled: process a maximum of N input files in parallel
                                        # before processing the next N files
+  number_of_files_per_process: 1 # if MP enabled, each process is passed n files to process
   use_shared_memory: false # for multi-processing, optionally allocate SharedMemory buffers
                            # on Algorithm initialization for resources such as DEM
                            # arrays. This can greatly reduce overall memory usage for MP

@@ -77,7 +77,9 @@ def test_alg_filter_height(l1b_file) -> None:
 
     # Initialise the Algorithm being tested
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -117,7 +119,7 @@ def test_alg_filter_height(l1b_file) -> None:
     # required shared_dict parameters
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
     assert success, "algorithm should not fail"
 
     # Test outputs of algorithm

@@ -1,4 +1,4 @@
-""" clev2er.algorithms.templates.alg_template"""
+""" clev2er.algorithms.cryotempo.alg_template"""
 
 import logging
 from typing import Any, Dict, Tuple
@@ -23,35 +23,29 @@ class Algorithm:
         - shared_dict['param'] : (type), param description
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(
+        self, config: Dict[str, Any], process_number: int, alg_log: logging.Logger
+    ) -> None:
         """
-        Runs init() if not in multi-processing mode
         Args:
             config (dict): configuration dictionary
+            process_number (int): process number used for this algorithm (0..max_processes)
+                                  similar but not the same as the os pid (process id)
+                                  for sequential processing this would be 0 (default)
+            alg_log (logging.Logger) : log instance to use for logging within algorithm
 
         Returns:
             None
         """
         self.alg_name = __name__
         self.config = config
+        self.procnum = process_number
+        self.log = alg_log
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            # only continue with initialization if setting up shared memory
-            if not config["chain"]["use_shared_memory"]:
-                return
-            if "_init_shared_mem" not in config:
-                return
+        _, _ = self.init()
 
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
+    def init(self) -> Tuple[bool, str]:
         """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
 
         Returns:
             (bool,str) : success or failure, error string
@@ -62,41 +56,36 @@ class Algorithm:
             OSError :
 
         Note: raise and Exception rather than just returning False
+        Logging: use self.log.info,error,debug(your_message)
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
-        # -----------------------------------------------------------------
-        #  \/ Place Algorithm initialization steps here \/
-        # -----------------------------------------------------------------
+        self.log.debug("Initializing algorithm %s", self.alg_name)
 
         # Check for special case where we create a shared memory
         # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
         # run_chain.py and should not be included in the config files
+        # typical usage in init() function for Dem and Mask objects:
+        #    thismask=Mask(...,store_in_shared_memory=init_shared_mem)
+        #    thisdem=Dem(...,store_in_shared_memory=init_shared_mem)
         init_shared_mem = "_init_shared_mem" in self.config
 
-        # if  init_shared_mem, perform any specific shared memory initialization
-        # in Dem or Mask classes.
-        # ie thismask=Mask(...,store_in_shared_memory=init_shared_mem)
-        #    thisdem=Dem(...,store_in_shared_memory=init_shared_mem)
+        # -----------------------------------------------------------------
+        #  \/ Place Algorithm initialization steps here \/
+        # -----------------------------------------------------------------
 
-        if init_shared_mem:  # remove this in real algorithm
-            pass
+        if init_shared_mem:  # dummy statement to avoid lint warnings
+            pass  # remove in real algorithm
 
         return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
     def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
+        self, l1b: Dataset, shared_dict: dict, filenum: int
     ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Algorithm main processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -104,33 +93,27 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        **IMPORTANT NOTE:**
 
-        `mplog.error("[f%d] your message",filenum)`
-
-        This is required to support logging during multi-processing
+        Logging within this function must use on of:
+            self.log.info(your_message)
+            self.log.debug(your_message)
+            self.log.error(your_message)
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
+        self.log.info(
+            "Processing algorithm %s for file %d",
             self.alg_name.rsplit(".", maxsplit=1)[-1],
+            filenum,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            self.log.error(
+                "l1b parameter is not a netCDF4 Dataset type for file %d",
+                filenum,
+            )
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -151,7 +134,11 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.info(
+            "Finalize algorithm %s called at stage %d",
+            self.alg_name,
+            stage,
+        )
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/

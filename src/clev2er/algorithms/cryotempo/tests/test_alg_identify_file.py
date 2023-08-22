@@ -42,7 +42,9 @@ def test_alg_identify_file() -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -58,7 +60,7 @@ def test_alg_identify_file() -> None:
 
     # Run  Algorithm.process()
     shared_dict: Dict[str, Any] = {}
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict, 0)
 
     assert success, f"Algorithm.process failed due to {error_str}"
     assert "num_20hz_records" in shared_dict, "num_20hz_records not in shared_dict"

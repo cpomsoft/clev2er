@@ -37,7 +37,9 @@ def test_alg_fes2014b_tide_correction() -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -68,7 +70,7 @@ def test_alg_fes2014b_tide_correction() -> None:
         l1b["lon_20_ku"][:].data % 360.0
     )  # [-180,+180E] -> 0..360E
 
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
 
     assert success, "Should succeed as matching FES2014b file available"
     assert (

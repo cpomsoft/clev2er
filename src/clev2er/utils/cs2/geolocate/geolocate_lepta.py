@@ -72,7 +72,7 @@ def geolocate_lepta(
     leading_edge_stop: np.ndarray,
     waveforms_to_include: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """_summary_
+    """CS2 LRM Geolocation (slope correction) using the LEPTA/Roemer method
 
     Args:
         l1b (Dataset): NetCDF Dataset of L1b file

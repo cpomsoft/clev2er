@@ -28,8 +28,7 @@
 
          Run with multi-processing and shared memory enabled (also can set these in main config):
 
-        `python run_chain.py --name cryotempo -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles -sm -mp`
-        
+        `python run_chain.py --name cryotempo -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles -sm -mp`   
 """
 
 import argparse
@@ -44,9 +43,8 @@ import sys
 import time
 import types
 from logging.handlers import QueueHandler
-from math import ceil
-from multiprocessing import Process, Queue, current_process
-from typing import Any, List, Optional, Type
+from multiprocessing import Process, Queue
+from typing import Any, List, Optional, Tuple, Type
 
 import numpy as np
 from codetiming import Timer
@@ -57,11 +55,12 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.utils.logging_funcs import get_logger
 
-# too-many-locals, pylint: disable=R0914
-# too-many-branches, pylint: disable=R0912
-# too-many-statements, pylint: disable=R0915
-# too-many-arguments, pylint: disable=R0913
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
 # pylint: disable=too-many-lines
+# pylint: disable=too-many-nested-blocks
 
 
 def exception_hook(
@@ -80,8 +79,8 @@ def exception_hook(
 sys.excepthook = exception_hook
 
 
-def sort_file_by_number(filename: str) -> None:
-    """sort log file by N , where log lines contain the string [fN]
+def sort_file_by_process_number(filename: str) -> None:
+    """sort log file by N , where log lines contain the string [PN]
 
     Args:
         filename (str): log file path
@@ -89,19 +88,24 @@ def sort_file_by_number(filename: str) -> None:
     with open(filename, "r", encoding="utf-8") as file:
         lines = file.readlines()
 
-    # Extract the numbers following [f and remove [fn] from each line
-    # numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
     numbers = []
     for line in lines:
-        match = re.search(r"\[f(\d+)\]", line)
-        if match is not None:
+        match = re.search(r"\[P(\d+)\]", line)
+        if match is None:
+            number = 0
+        else:
             number = int(match.group(1))
-            numbers.append(number)
-    sorted_lines = [
-        re.sub(r"\[f\d+\]", "", line) for _, line in sorted(zip(numbers, lines))
-    ]
+        numbers.append(number)
 
-    # Write the sorted lines back to the file
+    unique_numbers = np.unique(np.array(numbers))
+
+    sorted_lines = []
+    for unique_number in unique_numbers:
+        indices = np.where(numbers == unique_number)[0]
+        if indices.size > 0:
+            selected_lines = np.array(lines)[indices]
+            for selected_line in selected_lines:
+                sorted_lines.append(selected_line)
     with open(filename, "w", encoding="utf-8") as file:
         file.writelines(sorted_lines)
 
@@ -169,112 +173,195 @@ def remove_strings_from_file(filename: str) -> None:
         file.writelines(modified_lines)
 
 
-def run_chain_on_single_file(
-    l1b_file: str,
-    alg_object_list: list[Any],
+def run_chain_on_files(
+    l1b_files: list[str],
+    alg_list: list[str],
     config: dict,
     log: logging.Logger,
     log_queue: Optional[Queue],
     rval_queue: Optional[Queue],
-    filenum: int,
-) -> tuple[bool, str]:
-    """Runs the algorithm chain on a single L1b file.
+    filenums: list[int],
+    process_number: int,
+) -> Tuple[int, int, int]:
+    """Runs the algorithm chain on a list of L1b file.
+
+       Dynamically imports algorithm modules from algorithm_list
+       loads an instance of each Algorithm (which runs Algorithm.__init__())
+       for each l1b file:
+            for each algorithm:
+                run Algorithm.process()
+       for each algorithm:
+           run Algorithm.finalize()
 
        This function is run in a separate process if multi-processing is enabled.
 
     Args:
-        l1b_file (str): path of L1b file to process
-        alg_object_list (list[Algorithm]): list of Algorithm objects
+        l1b_files (list[str]): list of paths of L1b files to process
+        alg_list (list[str]): list of Algorithm names
         log (logging.Logger): logging instance to use
         log_queue (Queue): Queue for multi-processing logging
         rval_queue (Queue) : Queue for multi-processing results
+        filenums (list[int]): indices relative to the complete list of L1b files
+                              of the files in l1b_files list
 
     Returns:
-        Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
+        Tuple[int,int,int] : number of files processed, number skipped but valid,
+        number of files with error
         for multi-processing return values are instead queued -> rval_queue for this process
     """
 
     # Setup logging either for multi-processing or standard (single process)
     if config["chain"]["use_multi_processing"]:
         # create a logger
-        logger = logging.getLogger("mp")
+        logger = logging.getLogger("multi_proc_log")
         # add a handler that uses the shared queue
         if log_queue is not None:
-            logger.addHandler(QueueHandler(log_queue))
+            handler = QueueHandler(log_queue)
+            handler.setFormatter(logging.Formatter(f"[P{process_number}] %(message)s"))
+            logger.addHandler(handler)
         # log all messages, debug and up
         logger.setLevel(logging.DEBUG)
-        # get the current process
-        process = current_process()
         # report initial message
-        logger.debug("[f%d] Child %s starting.", filenum, process.name)
         thislog = logger
     else:
         thislog = log
 
-    thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
+    # thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
 
-    thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
+    # thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
 
-    try:  # and open the NetCDF file
-        with Dataset(l1b_file) as nc:
-            # ------------------------------------------------------------------------
-            # Run each algorithms .process() function in order
-            # ------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------
+    # dynamically import Algorithm modules
+    # ------------------------------------------------------------------------------------------
 
-            working_dict = {}
-            working_dict["l1b_file_name"] = l1b_file
+    alg_object_list = []  # list of Algorithm objects
+    num_files_processed = 0
+    num_files_skipped = 0
+    num_errors = 0
 
-            for alg_obj in alg_object_list:
-                # Run the Algorithm's process() function. Note that for multi-processing
-                # the process() function also calls the init() function first
-                success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
-                if not success:
-                    if "SKIP_OK" not in error_str:
-                        thislog.error(
-                            "[f%d] Processing of L1b file %d : %s stopped because %s",
-                            filenum,
-                            filenum,
-                            l1b_file,
-                            error_str,
-                        )
-                    else:
+    # --------------------------------------------------------------------
+    #  Dynamically import each algorithm in algorithm list
+    # --------------------------------------------------------------------
+
+    thislog.info(
+        "Dynamically importing and initializing algorithms from list...",
+    )
+
+    try:
+        for alg_num, alg in enumerate(alg_list):
+            if alg_num == 0:
+                thislog.info("--loading %s", alg)
+            else:
+                thislog.info("--loading %s", alg)
+            # --------------------------------------------------------------------
+            # Dynamically import each Algorithm from the list
+            # --------------------------------------------------------------------
+
+            module = importlib.import_module(
+                f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
+            )
+
+            # --------------------------------------------------------------------
+            # Create an instance of each Algorithm,
+            #   - runs its __init__(config) function
+            # --------------------------------------------------------------------
+
+            # Load/Initialize algorithm
+
+            alg_obj = module.Algorithm(
+                config, process_number=process_number, alg_log=thislog
+            )
+
+            alg_object_list.append(alg_obj)
+
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        # If an error occurs during any algorithm initialization we must
+        # run Algorithm.finalize() on the others to close resources
+        num_errors += 1
+        thislog.error(
+            "[P%d] error occured during algorithm %s initialization %s",
+            process_number,
+            alg,
+            exc,
+        )
+        for alg_object in alg_object_list:
+            alg_object.finalize()
+        return (num_files_processed, num_files_skipped, num_errors)
+
+    # --------------------------------------------------------------------
+    # Process each L1b file in list
+    # --------------------------------------------------------------------
+
+    for index, l1b_file in enumerate(l1b_files):
+        try:  # processing each file
+            with Dataset(l1b_file) as nc:
+                # Setup a working dictionary for the algorithms to share parameters through
+
+                working_dict = {}
+                working_dict["l1b_file_name"] = l1b_file
+
+                # ------------------------------------------------------------------------
+                # Run each algorithms .process() function in order
+                # ------------------------------------------------------------------------
+                processing_issue = False
+
+                for alg_obj in alg_object_list:
+                    # Run the Algorithm's process() function. Note that for multi-processing
+                    # the process() function also calls the init() function first
+                    success, error_str = alg_obj.process(
+                        nc, working_dict, filenums[index]
+                    )
+                    if success:
+                        continue
+                    if "SKIP_OK" in error_str:
                         thislog.debug(
-                            "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
-                            filenum,
-                            filenum,
+                            "[P%df%d]  %s SKIPPED because %s",
+                            process_number,
+                            filenums[index],
                             l1b_file,
                             error_str,
                         )
-                    if config["chain"]["use_multi_processing"]:
-                        if rval_queue is not None:
-                            rval_queue.put((False, error_str, Timer.timers))
-                    # Free up resources by running the Algorithm.finalize() on each
-                    # algorithm instance
-                    for alg_obj in alg_object_list:
-                        alg_obj.finalize(stage=5)
-                    return (False, error_str)
+                        processing_issue = True
+                        num_files_skipped += 1
+                        break
 
-            # Free up resources by running the Algorithm.finalize() on each
-            # algorithm instance
-            for alg_obj in alg_object_list:
-                alg_obj.finalize(stage=6)
+                    thislog.error(
+                        "[P%d] Processing of L1b file %d : %s failed because %s",
+                        process_number,
+                        filenums[index],
+                        l1b_file,
+                        error_str,
+                    )
+                    processing_issue = True
+                    num_errors += 1
+                    break
+                if not processing_issue:
+                    num_files_processed += 1
 
-    except IOError:
-        error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
-        thislog.error(error_str)
-        if config["chain"]["use_multi_processing"]:
-            if rval_queue is not None:
-                rval_queue.put(
-                    (False, error_str, Timer.timers)
-                )  # pass the function return values
-                # back to the parent process
-                # via a queue
-        return (False, error_str)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            thislog.error(
+                "[P%d] Error processing file %d: %s : %s",
+                process_number,
+                filenums[index],
+                l1b_file,
+                exc,
+            )
+            num_errors += 1
+
+        if num_errors > 0:
+            if config["chain"]["stop_on_error"]:
+                break
+
+    # Free resources
+    for alg_obj in alg_object_list:
+        alg_obj.finalize(stage=6)
 
     if config["chain"]["use_multi_processing"]:
         if rval_queue is not None:
-            rval_queue.put((True, "", Timer.timers))
-    return (True, "")
+            rval_queue.put(
+                (num_files_processed, num_files_skipped, num_errors, Timer.timers)
+            )  # pass the function return values back to the parent process via a queue
+    return (num_files_processed, num_files_skipped, num_errors)
 
 
 def mp_logger_process(queue, config) -> None:
@@ -336,7 +423,7 @@ def run_chain(
     config: dict,
     algorithm_list: list[str],
     log: logging.Logger,
-) -> tuple[bool, int, int]:
+) -> tuple[bool, int, int, int]:
     """Run the algorithm chain in algorithm_list on each L1b file in l1b_file_list
        using the configuration settings in config
 
@@ -347,77 +434,57 @@ def run_chain(
         algorithm_list (list[str]): list of algorithm names
 
     Returns:
-        tuple(bool,int,int) : (chain success or failure, number_of_errors,
-                                  number of files processed)
+        tuple(bool,int,int,int) : (chain success or failure, number_of_errors,
+                                  number of files processed, number of files skipped)
     """
 
     n_files = len(l1b_file_list)
 
-    # -------------------------------------------------------------------------------------------
-    # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
-    #   - runs each algorithm object's __init__() function
-    # -------------------------------------------------------------------------------------------
-    alg_object_list = []
-    shared_mem_alg_object_list: List[Any] = []
-    # duplicate list used to call initialization
-    # of shared memory resources where used.
+    shared_mem_alg_object_list: List[
+        Any
+    ] = []  # duplicate list used to call init for shared mem
 
-    log.info("Dynamically importing and initializing algorithms from list...")
+    # ------------------------------------------------------------------------------
+    #  For the optional use of multi-processing shared memory in Algorithms we run a
+    #  separate set of Algorithm load/initialization to setup the shared memory
+    #  in the parent process. Child processes can then access the shared memory objects
+    #  when they initialze their Algorithms.
+    # ------------------------------------------------------------------------------
 
-    for alg in algorithm_list:
-        log.info("--loading %s", alg)
-        # --------------------------------------------------------------------
-        # Dynamically import each Algorithm from the list
-        # --------------------------------------------------------------------
+    if config["chain"]["use_multi_processing"] and config["chain"]["use_shared_memory"]:
+        log.info(
+            "Dynamically importing and initializing algorithms from list for shared memory..."
+        )
+
         try:
-            module = importlib.import_module(
-                f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
-            )
-        except ImportError as exc:
-            log.error("Could not import algorithm %s, %s", alg, exc)
-            return (False, 1, 0)
+            for alg in algorithm_list:
+                log.info("--loading %s for shared memory", alg)
+                # --------------------------------------------------------------------
+                # Dynamically import each Algorithm from the list
+                # --------------------------------------------------------------------
 
-        # --------------------------------------------------------------------
-        # Create an instance of each Algorithm,
-        #   - runs its __init__(config) function
-        # --------------------------------------------------------------------
-
-        # Load/Initialize algorithm
-        try:
-            alg_obj = module.Algorithm(config)
-        except (FileNotFoundError, IOError, KeyError) as exc:
-            log.error("Could not initialize algorithm %s, %s", alg, exc)
-            return (False, 1, 0)
-
-        alg_object_list.append(alg_obj)
-
-        # --------------------------------------------------------------------
-        # Create a second instance of each Algorithm for multi-processing
-        # shared memory buffer allocations,
-        #   - runs its __init__(config) function
-        # Note that the .process() function is never run for this instance
-        # We merge  {"_init_shared_mem": True} to the config so that the
-        # Algorithm knows to run any shared memory initialization
-        # --------------------------------------------------------------------
-
-        if (
-            config["chain"]["use_multi_processing"]
-            and config["chain"]["use_shared_memory"]
-        ):
-            # Load/Initialize algorithm
-            try:
-                alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True})
-            except (FileNotFoundError, IOError, KeyError) as exc:
-                log.error(
-                    "Could not initialize algorithm for shared_memory %s, %s", alg, exc
+                module = importlib.import_module(
+                    f"clev2er.algorithms.{config['chain']['chain_name']}.{alg}"
                 )
-                # If there is a failure we must clean up any shared memory already allocated
-                for alg_obj_shm in shared_mem_alg_object_list:
-                    alg_obj_shm.finalize(stage=4)
 
-                return (False, 1, 0)
+                # Load/Initialize algorithm
 
-            shared_mem_alg_object_list.append(alg_obj_shm)
+                alg_obj_shm = module.Algorithm(
+                    config | {"_init_shared_mem": True}, alg_log=log
+                )
+
+                shared_mem_alg_object_list.append(alg_obj_shm)
+
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            # If there is ANY error we need to unlink the shared memory already allocated
+
+            for alg_obj_shm in shared_mem_alg_object_list:
+                alg_obj_shm.finalize(stage=4)
+
+            log.error(
+                "Error when importing/initializing Algorithms for shared memory %s", exc
+            )
+            return (False, 1, 0, 0)
 
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list
@@ -427,147 +494,135 @@ def run_chain(
     # -------------------------------------------------------------------------------------------
     num_errors = 0
     num_files_processed = 0
+    num_files_skipped = 0
 
-    # --------------------------------------------------------------------------------------------
-    # Parallel Processing (optional)
-    # --------------------------------------------------------------------------------------------
-    if config["chain"]["use_multi_processing"]:  # pylint: disable=R1702
-        # With multi-processing we need to redirect logging to a stream
+    try:
+        # ---------------------------------------------------------------------------------------
+        # Parallel Processing (optional)
+        # ---------------------------------------------------------------------------------------
+        if config["chain"]["use_multi_processing"]:  # pylint: disable=R1702
+            # ------------------------------------------------------------------
+            # With multi-processing we need to redirect logging to a stream
+            # create a shared logging queue for multiple processes to use
+            # ------------------------------------------------------------------
 
-        # create a shared logging queue for multiple processes to use
-        log_queue: Queue = Queue()
+            log_queue: Queue = Queue()
 
-        # create a logger
-        new_logger = logging.getLogger("mp")
-        # add a handler that uses the shared queue
-        new_logger.addHandler(QueueHandler(log_queue))
-        # log all messages, debug and up
-        new_logger.setLevel(logging.DEBUG)
-        # start the logger process
-        logger_p = Process(target=mp_logger_process, args=(log_queue, config))
-        logger_p.start()
+            # create a logger
+            new_logger = logging.getLogger("mp")
+            # add a handler that uses the shared queue
+            new_logger.addHandler(QueueHandler(log_queue))
+            # log all messages, debug and up
+            new_logger.setLevel(logging.DEBUG)
+            # start the logger process
+            logger_p = Process(target=mp_logger_process, args=(log_queue, config))
+            logger_p.start()
 
-        # Divide up the input files in to chunks equal to maximum number of processes
-        # allowed == config["chain"]["max_processes_for_multiprocessing"]
+            # ------------------------------------------------------------------
+            # Decide how many processes to use
+            # ------------------------------------------------------------------
 
-        log.info(
-            "Using multi-processing with max %d processes",
-            config["chain"]["max_processes_for_multiprocessing"],
-        )
+            num_procs = config["chain"]["max_processes_for_multiprocessing"]
 
-        num_chunks = ceil(
-            n_files / config["chain"]["max_processes_for_multiprocessing"]
-        )
-        file_indices = list(range(n_files))
-        file_indices_chunks = np.array_split(file_indices, num_chunks)
+            file_indices = list(range(n_files))
 
-        for chunk_num, file_indices in enumerate(file_indices_chunks):
-            chunked_l1b_file_list = np.array(l1b_file_list)[file_indices]
-            log.debug(
-                f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}"
-            )
+            num_procs = min(num_procs, n_files)
 
-            num_procs = len(chunked_l1b_file_list)
+            log.info("Using multi-processing with %d processes", num_procs)
 
-            log.info(
-                "Running process set %d of %d (containing %d processes)",
-                chunk_num + 1,
-                num_chunks,
-                num_procs,
-            )
+            # ------------------------------------------------------------------------------
+            # Divide up the L1b file list to allocate an approx equal number to each process
+            # ------------------------------------------------------------------------------
 
-            # Create separate queue for each new process to handle function return values
+            file_list_chunks = np.array_split(l1b_file_list, num_procs)
+            file_indices_chunks = np.array_split(file_indices, num_procs)
+
+            # -------------------------------------------------------------------------------------
+            # Create separate multiprocessing Queue for each process to handle function return vals
+            # -------------------------------------------------------------------------------------
+
             rval_queues: List[Queue] = [Queue() for _ in range(num_procs)]
 
-            # configure child processes
+            # -------------------------------------------------------------------------------------
+            # Configure child processes to each run run_chain_on_files() with a list of L1b files
+            # -------------------------------------------------------------------------------------
+
+            log.info("Configuring processes...")
+
             processes = [
                 Process(
-                    target=run_chain_on_single_file,
+                    target=run_chain_on_files,
                     args=(
-                        chunked_l1b_file_list[i],
-                        alg_object_list,
+                        file_list_chunks[i],
+                        algorithm_list,
                         config,
-                        None,
+                        None,  # log instance won't work for MP
                         log_queue,
                         rval_queues[i],
-                        file_indices[i],
+                        file_indices_chunks[i],
+                        i,
                     ),
                 )
                 for i in range(num_procs)
             ]
+
+            log.info("Starting processes..")
+
             # start child processes
             for process in processes:
                 process.start()
 
+            log.info("Waiting for all processes to complete..")
             # wait for child processes to finish
             for i, process in enumerate(processes):
                 process.join()
                 # retrieve return values of each process function from queue
-                # rval=(bool, str, Timer.timers)
+                # rval=(num_files_processed, num_files_skipped, num_errors, Timer.timers)
                 while not rval_queues[i].empty():
                     rval = rval_queues[i].get()
-                    if not rval[0] and "SKIP_OK" not in rval[1]:
-                        num_errors += 1
-                    num_files_processed += 1
-                    # rval[2] returns the Timer.timers dict for algorithms process() function
+                    num_errors += rval[2]
+                    num_files_skipped += rval[1]
+                    num_files_processed += rval[0]
+                    # rval[3] returns the Timer.timers dict for algorithms process() function
                     # ie a dict containing timers['alg_name']= the number of seconds elapsed
-                    for key, value in rval[2].items():
+                    for key, value in rval[3].items():
                         if key in Timer.timers:
                             Timer.timers.add(key, value)
                         else:
                             Timer.timers.add(key, value)
 
-        # shutdown the queue correctly
-        log_queue.put(None)
+            # shutdown the queue correctly
+            log_queue.put(None)
 
-    # --------------------------------------------------------------------------------------------
-    # Sequential Processing
-    # --------------------------------------------------------------------------------------------
-    else:  # Normal sequential processing (when multi-processing is disabled)
-        for fnum, l1b_file in enumerate(l1b_file_list):
-            log.info(
-                "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
+        # -------------------------------------------------------------------------------------
+        # Sequential Processing
+        # -------------------------------------------------------------------------------------
+        else:  # Normal sequential processing (when multi-processing is disabled)
+            num_files_processed, num_files_skipped, num_errors = run_chain_on_files(
+                l1b_file_list,
+                algorithm_list,
+                config,
+                log,
+                None,  # log_queue for multi-processing
+                None,  # rval_queue for multi-processing
+                list(range(n_files)),
+                0,  # process number
             )
-            success, error_str = run_chain_on_single_file(
-                l1b_file, alg_object_list, config, log, None, None, fnum
-            )
-            num_files_processed += 1
-            if not success and "SKIP_OK" in error_str:
-                log.debug("Skipping file")
-                continue
-            if not success:
-                num_errors += 1
-
-                if config["chain"]["stop_on_error"]:
-                    log.error(
-                        "Chain stopped because of error processing L1b file %s",
-                        l1b_file,
-                    )
-                    break
-
-                log.error(
-                    "Error processing L1b file %s, skipping file",
-                    l1b_file,
-                )
-                continue
-
-    # -----------------------------------------------------------------------------
-    # Run each algorithms .finalize() function in order
-    # -----------------------------------------------------------------------------
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        log.error("An error occurred during processing: %s", exc)
+    finally:
+        # Must always unlink shared memory if used
+        for alg_obj_shm in shared_mem_alg_object_list:
+            alg_obj_shm.finalize(stage=2)
 
     log.debug("_" * 79)  # add a divider line in the log
 
-    for alg_obj_shm in shared_mem_alg_object_list:
-        alg_obj_shm.finalize(stage=2)
-
-    for alg_obj in alg_object_list:
-        alg_obj.finalize(stage=3)
-
     log.info(
-        "chain '%s' completed processing %d files with %d errors",
+        "chain '%s' completed processing %d files with %d errors and %d skipped",
         config["chain"]["chain_name"],
         num_files_processed,
         num_errors,
+        num_files_skipped,
     )
 
     # Elapsed time for each algorithm.
@@ -583,10 +638,10 @@ def run_chain(
         log.info("%s %.3f s", algname, cumulative_time)
 
     if num_errors > 0:
-        return (False, num_errors, num_files_processed)
+        return (False, num_errors, num_files_processed, num_files_skipped)
 
     # Completed successfully, so return True with no error msg
-    return (True, num_errors, num_files_processed)
+    return (True, num_errors, num_files_processed, num_files_skipped)
 
 
 def main() -> None:
@@ -759,6 +814,16 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--stop_on_error",
+        "-st",
+        help=(
+            "[Optional] stop chain on first error. Default is set in main config file"
+        ),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
         "--logstring",
         "-ls",
         help=(
@@ -795,6 +860,7 @@ def main() -> None:
 
     if args.multiprocessing:
         config["chain"]["use_multi_processing"] = True
+
     if args.sequentialprocessing:
         config["chain"]["use_multi_processing"] = False
     if args.sharedmem:
@@ -810,6 +876,9 @@ def main() -> None:
         config["chain"]["max_processes_for_multiprocessing"] = args.nprocs
 
     config["chain"]["chain_name"] = args.name
+
+    if args.stop_on_error:
+        config["chain"]["stop_on_error"] = True
 
     # -------------------------------------------------------------------------
     # Load and merge chain config YAML file
@@ -939,6 +1008,10 @@ def main() -> None:
                 ".log", f"_{args.month:02d}{args.year}.log"
             )
 
+    config["log_files"]["errors"] = log_file_error_name
+    config["log_files"]["info"] = log_file_info_name
+    config["log_files"]["debug"] = log_file_debug_name
+
     log = get_logger(
         default_log_level=logging.DEBUG if args.debug else logging.INFO,
         log_file_error=log_file_error_name,
@@ -954,9 +1027,12 @@ def main() -> None:
         log.info("debug log: %s", log_file_debug_name)
 
     # -------------------------------------------------------------------------------------------
-    # Read the list of default algorithms to use for land ice, or inland waters
-    #   - default alg list files are defined in the main config file
+    # Read the list of algorithms to use from chain list
     #   - alternatively use a user provided list if --alglist <file.yml> is set
+    #   - default algorithm lists are stored in
+    #     $CLEV2ER_BASE_DIR/config/algorithm_lists/<chain_name>_<BASELINE><VERSION>.yml
+    #     or
+    #     $CLEV2ER_BASE_DIR/config/algorithm_lists/<chain_name>.yml
     # -------------------------------------------------------------------------------------------
 
     if args.alglist:
@@ -1068,13 +1144,13 @@ def main() -> None:
         log.warning("**Chain configured to stop on first error**")
 
     if config["chain"]["use_multi_processing"]:
-        # change the default method of multi-processing for Linux from
-        # fork to spawn
+        # set the default method of multi-processing to spawn
+        # (linux's default is fork, which won't work)
         mp.set_start_method("spawn")
 
     start_time = time.time()
 
-    _, number_errors, num_files_processed = run_chain(
+    _, number_errors, num_files_processed, num_files_skipped = run_chain(
         l1b_file_list, config, algorithm_list, log
     )
 
@@ -1087,11 +1163,12 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "%s Chain completed with %d errors processing %d files"
+        "%s Chain completed with %d errors processing %d files with %d skipped"
         " of %d input files in %.2f seconds := (%.2f mins := %.2f hours)",
         args.name,
         number_errors,
         num_files_processed,
+        num_files_skipped,
         len(l1b_file_list),
         elapsed_time,
         elapsed_time / 60.0,
@@ -1107,20 +1184,20 @@ def main() -> None:
 
     if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
-        sort_file_by_number(config["log_files"]["errors"] + ".mp")
-        sort_file_by_number(config["log_files"]["info"] + ".mp")
-        sort_file_by_number(config["log_files"]["debug"] + ".mp")
+        sort_file_by_process_number(config["log_files"]["errors"] + ".mp")
+        sort_file_by_process_number(config["log_files"]["info"] + ".mp")
+        sort_file_by_process_number(config["log_files"]["debug"] + ".mp")
 
         # put .mp log contents into main log file
         insert_txtfile1_in_txtfile2_after_line_containing_string(
             config["log_files"]["info"] + ".mp",
             config["log_files"]["info"],
-            "Using multi-processing with max",
+            "Waiting for all processes to complete",
         )
         insert_txtfile1_in_txtfile2_after_line_containing_string(
             config["log_files"]["debug"] + ".mp",
             config["log_files"]["debug"],
-            "Using multi-processing with max",
+            "Waiting for all processes to complete",
         )
         append_file(
             config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]

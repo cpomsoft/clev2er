@@ -72,7 +72,9 @@ def test_alg_backscatter(l1b_file) -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(
+            config=config, process_number=0, alg_log=log
+        )  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -98,7 +100,7 @@ def test_alg_backscatter(l1b_file) -> None:
     shared_dict["range_cor_20_ku"] = np.full_like(l1b["lat_20_ku"][:].data, 70000.0)
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict, 0)
     assert success, "algorithm should not fail"
 
     assert "sig0_20_ku" in shared_dict, "sig0_20_ku not in shared_dict"

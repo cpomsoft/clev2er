@@ -2,6 +2,7 @@
 
 # These imports required by Algorithm template
 import logging
+from typing import Any, Dict, Tuple
 
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -30,46 +31,54 @@ class Algorithm:
 
     """
 
-    def __init__(self, config) -> None:
-        """initializes the Algorithm
-
+    def __init__(
+        self, config: Dict[str, Any], process_number: int, alg_log: logging.Logger
+    ) -> None:
+        """
         Args:
             config (dict): configuration dictionary
+            process_number (int): process number used for this algorithm (0..max_processes)
+                                  similar but not the same as the os pid (process id)
+                                  for sequential processing this would be 0 (default)
+            alg_log (logging.Logger) : log instance to use for logging within algorithm
 
-        Returns: None
+        Returns:
+            None
         """
         self.alg_name = __name__
         self.config = config
+        self.procnum = process_number
+        self.log = alg_log
 
-        log.debug(
-            "Initializing algorithm %s",
-            self.alg_name,
-        )
+        _, _ = self.init()
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
+    def init(self) -> Tuple[bool, str]:
+        """Algorithm initialization template
 
-        self.init()
+        Returns:
+            (bool,str) : success or failure, error string
 
-    def init(self) -> None:
-        """Algorithm initialization
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
 
-        Returns: None
+        Note: raise and Exception rather than just returning False
+        Logging: use self.log.info,error,debug(your_message)
         """
+        self.log.debug("Initializing algorithm %s", self.alg_name)
+
+        return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, shared_dict, mplog, filenum):
-        """Algorithm to set:
-
-        shared_dict["num_20hz_records"]
-        shared_dict["instr_mode"]
+    def process(
+        self, l1b: Dataset, shared_dict: dict, filenum: int
+    ) -> Tuple[bool, str]:
+        """Algorithm main processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog: multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -77,29 +86,24 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        > **IMPORTANT NOTE**: when logging within this function you must use the mplog logger
-        with a filenum as an argument as follows:
-            `mplog.error("[f%d] your message",filenum)`
-        This is required to support logging during multi-processing
+        **IMPORTANT NOTE:**
+
+        Logging within this function must use on of:
+            self.log.info(your_message)
+            self.log.debug(your_message)
+            self.log.error(your_message)
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            self.init()
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
+        self.log.info(
+            "Processing algorithm %s for file %d",
             self.alg_name.rsplit(".", maxsplit=1)[-1],
+            filenum,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            self.log.error("l1b parameter is not a netCDF4 Dataset type")
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -110,7 +114,7 @@ class Algorithm:
         try:
             number_20hz_records = l1b["lat_20_ku"].size
         except KeyError:
-            mplog.error("[f%d] lat_20_ku could not be read", filenum)
+            self.log.error("lat_20_ku could not be read")
             return (False, "lat_20_ku could not be read")
 
         shared_dict["num_20hz_records"] = number_20hz_records
@@ -131,7 +135,7 @@ class Algorithm:
             error_str = "Missing attribute .sir_op_mode in L1b file"
 
         if error_str:
-            mplog.error("[f%d] %s", filenum, error_str)
+            self.log.error("%s", error_str)
             return (False, error_str)
 
         return (True, "")
@@ -144,7 +148,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/

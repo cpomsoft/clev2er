@@ -71,31 +71,29 @@ class Algorithm:
         shared_dict['product_filename']: (str), path of L2 Cryo-Tempo product file created
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(
+        self, config: Dict[str, Any], process_number: int, alg_log: logging.Logger
+    ) -> None:
         """
-        Runs init() if not in multi-processing mode
         Args:
             config (dict): configuration dictionary
+            process_number (int): process number used for this algorithm (0..max_processes)
+                                  similar but not the same as the os pid (process id)
+                                  for sequential processing this would be 0 (default)
+            alg_log (logging.Logger) : log instance to use for logging within algorithm
 
         Returns:
             None
         """
         self.alg_name = __name__
         self.config = config
+        self.procnum = process_number
+        self.log = alg_log
 
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
+        _, _ = self.init()
 
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
+    def init(self) -> Tuple[bool, str]:
         """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
 
         Returns:
             (bool,str) : success or failure, error string
@@ -106,12 +104,10 @@ class Algorithm:
             OSError :
 
         Note: raise and Exception rather than just returning False
+        Logging: use self.log.info,error,debug(your_message)
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
+        self.log.debug("Initializing algorithm %s", self.alg_name)
+
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
         # -----------------------------------------------------------------
@@ -119,14 +115,12 @@ class Algorithm:
         # Get leap seconds list
 
         if "leap_seconds" not in self.config:
-            mplog.error("[f%d] leap_seconds not in config dict", filenum)
+            self.log.error("leap_seconds not in config dict")
             raise KeyError("leap_seconds not in config dict")
 
         self.leap_seconds_file = self.config["leap_seconds"]
         if not os.path.isfile(self.leap_seconds_file):
-            mplog.error(
-                "[f%d] leap_seconds file: %s not found", filenum, self.leap_seconds_file
-            )
+            self.log.error("leap_seconds file: %s not found", self.leap_seconds_file)
             raise FileNotFoundError(
                 f"leap_seconds file {self.leap_seconds_file} not found"
             )
@@ -135,14 +129,13 @@ class Algorithm:
 
     @Timer(name=__name__, text="", logger=None)
     def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
+        self, l1b: Dataset, shared_dict: dict, filenum: int
     ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Algorithm main processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
             filenum (int) : file number of list of L1b files
 
         Returns:
@@ -150,33 +143,24 @@ class Algorithm:
             ie
             (False,'error string'), or (True,'')
 
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        **IMPORTANT NOTE:**
 
-        `mplog.error("[f%d] your message",filenum)`
-
-        This is required to support logging during multi-processing
+        Logging within this function must use on of:
+            self.log.info(your_message)
+            self.log.debug(your_message)
+            self.log.error(your_message)
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
+        self.log.info(
+            "Processing algorithm %s for file %d",
             self.alg_name.rsplit(".", maxsplit=1)[-1],
+            filenum,
         )
 
         # Test that input l1b is a Dataset type
 
         if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
+            self.log.error("l1b parameter is not a netCDF4 Dataset type")
             return (False, "l1b parameter is not a netCDF4 Dataset type")
 
         # -------------------------------------------------------------------
@@ -213,7 +197,7 @@ class Algorithm:
         start_month = time_utc_dt[0].month
         start_year = time_utc_dt[0].year
 
-        log.info("start month %d %d", start_month, start_year)
+        self.log.info("start month %d %d", start_month, start_year)
 
         # ---------------------------------------------------------------------
         #  Form product directory path
@@ -228,7 +212,7 @@ class Algorithm:
             f"{self.config['version']:03d}/LAND_ICE/{zone_str}/{start_year}/{start_month:02d}"
         )
 
-        log.info("product dir: %s", product_dir)
+        self.log.info("product dir: %s", product_dir)
 
         # ---------------------------------------------------------------------
         #  Make product directory
@@ -238,7 +222,7 @@ class Algorithm:
             try:
                 os.makedirs(product_dir)
             except OSError as exc:
-                mplog.error("[f%d] could not create %s : %s", filenum, product_dir, exc)
+                self.log.error("could not create %s : %s", product_dir, exc)
                 return (False, f"could not create {product_dir} {exc}")
 
         # ---------------------------------------------------------------------
@@ -296,10 +280,8 @@ class Algorithm:
             f"{self.config['baseline'].upper()}{self.config['version']:03d}.nc"
         )
 
-        mplog.info(
-            "[f%d] product filename=%s", filenum, os.path.basename(product_filename)
-        )
-        mplog.info("[f%d] product path=%s", filenum, product_filename)
+        self.log.info("product filename=%s", os.path.basename(product_filename))
+        self.log.info("product path=%s", product_filename)
 
         # -------------------------------------------------------------------
         # Open NetCDF file for write
@@ -308,9 +290,8 @@ class Algorithm:
         try:
             dset = Dataset(product_filename, "w", format="NETCDF4")
         except OSError as exc:
-            mplog.error(
-                "[f%d] Can not open netcdf file for write %s %s",
-                filenum,
+            self.log.error(
+                "Can not open netcdf file for write %s %s",
                 product_filename,
                 exc,
             )
@@ -626,7 +607,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
