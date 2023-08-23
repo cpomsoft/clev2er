@@ -1,9 +1,9 @@
 """
 # CLEV2ER L2 Algorithm Framework
 
-**A Generic algorithm framework for L1b to L2 processing
+A Generic algorithm framework for L1b to L2 processing
 
-Processing chains already implemented in framework:
+##Processing chains already implemented in framework:
 
 -   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
 
