@@ -474,12 +474,14 @@ def run_chain(
                 # Load/Initialize algorithm
 
                 alg_obj_shm = module.Algorithm(
-                    config | {"_init_shared_mem": True}, alg_log=log
+                    config | {"_init_shared_mem": True},
+                    0,  # process number
+                    alg_log=log,
                 )
 
                 shared_mem_alg_object_list.append(alg_obj_shm)
 
-        except Exception as exc:  # pylint: disable=broad-exception-caught
+        except BaseException as exc:  # pylint: disable=broad-exception-caught
             # If there is ANY error we need to unlink the shared memory already allocated
 
             for alg_obj_shm in shared_mem_alg_object_list:
@@ -1179,46 +1181,47 @@ def main() -> None:
         log.info("log file (DEBUG): %s", config["log_files"]["debug"])
 
     if config["chain"]["use_multi_processing"]:
-        # sort .mp log files by filenum processed (as they will be jumbled)
-        sort_file_by_process_number(config["log_files"]["errors"] + ".mp")
-        sort_file_by_process_number(config["log_files"]["info"] + ".mp")
-        sort_file_by_process_number(config["log_files"]["debug"] + ".mp")
+        if os.path.isfile(config["log_files"]["info"] + ".mp"):
+            # sort .mp log files by filenum processed (as they will be jumbled)
+            sort_file_by_process_number(config["log_files"]["errors"] + ".mp")
+            sort_file_by_process_number(config["log_files"]["info"] + ".mp")
+            sort_file_by_process_number(config["log_files"]["debug"] + ".mp")
 
-        # put .mp log contents into main log file
-        insert_txtfile1_in_txtfile2_after_line_containing_string(
-            config["log_files"]["info"] + ".mp",
-            config["log_files"]["info"],
-            "Waiting for all processes to complete",
-        )
-        insert_txtfile1_in_txtfile2_after_line_containing_string(
-            config["log_files"]["debug"] + ".mp",
-            config["log_files"]["debug"],
-            "Waiting for all processes to complete",
-        )
-        append_file(
-            config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]
-        )
+            # put .mp log contents into main log file
+            insert_txtfile1_in_txtfile2_after_line_containing_string(
+                config["log_files"]["info"] + ".mp",
+                config["log_files"]["info"],
+                "Waiting for all processes to complete",
+            )
+            insert_txtfile1_in_txtfile2_after_line_containing_string(
+                config["log_files"]["debug"] + ".mp",
+                config["log_files"]["debug"],
+                "Waiting for all processes to complete",
+            )
+            append_file(
+                config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]
+            )
 
-        # remove all the .mp temporary log files
-        for file_path in [
-            config["log_files"]["errors"] + ".mp",
-            config["log_files"]["info"] + ".mp",
-            config["log_files"]["debug"] + ".mp",
-        ]:
-            try:
-                # Check if the file exists
-                if os.path.exists(file_path):
-                    # Delete the file
-                    os.remove(file_path)
-            except OSError as exc:
-                log.error(
-                    "Error occurred while deleting the file %s : %s", file_path, exc
-                )
-    else:
-        # remove the multi-processing marker string '[fN]' from log files
-        remove_strings_from_file(config["log_files"]["info"])
-        remove_strings_from_file(config["log_files"]["errors"])
-        remove_strings_from_file(config["log_files"]["debug"])
+            # remove all the .mp temporary log files
+            for file_path in [
+                config["log_files"]["errors"] + ".mp",
+                config["log_files"]["info"] + ".mp",
+                config["log_files"]["debug"] + ".mp",
+            ]:
+                try:
+                    # Check if the file exists
+                    if os.path.exists(file_path):
+                        # Delete the file
+                        os.remove(file_path)
+                except OSError as exc:
+                    log.error(
+                        "Error occurred while deleting the file %s : %s", file_path, exc
+                    )
+    # else:  # MAY REQUIRE REINSTATING if we decide to filter logs further
+    #     # remove the multi-processing marker string '[fN]' from log files
+    #     remove_strings_from_file(config["log_files"]["info"])
+    #     remove_strings_from_file(config["log_files"]["errors"])
+    #     remove_strings_from_file(config["log_files"]["debug"])
 
 
 if __name__ == "__main__":
