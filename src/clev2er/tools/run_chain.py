@@ -274,13 +274,16 @@ def run_chain_on_files(
 
             alg_object_list.append(alg_obj)
 
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    # Catching BaseException here so that KeyboardInterrupt and any other
+    # interrupts that are not caught by Exception are caught. This is because
+    # we have to be sure we call the Algorithm.finalize(), in case of shared memory
+    # resource leaks.
+    except BaseException as exc:  # pylint: disable=broad-exception-caught
         # If an error occurs during any algorithm initialization we must
         # run Algorithm.finalize() on the others to close resources
         num_errors += 1
         thislog.error(
-            "[P%d] error occured during algorithm %s initialization %s",
-            process_number,
+            "error occured during algorithm %s initialization %s",
             alg,
             exc,
         )
@@ -293,6 +296,9 @@ def run_chain_on_files(
     # --------------------------------------------------------------------
 
     for index, l1b_file in enumerate(l1b_files):
+        thislog.info(
+            "------------------Processing file %d------------------", filenums[index]
+        )
         try:  # processing each file
             with Dataset(l1b_file) as nc:
                 # Setup a working dictionary for the algorithms to share parameters through
@@ -315,8 +321,7 @@ def run_chain_on_files(
                         continue
                     if "SKIP_OK" in error_str:
                         thislog.debug(
-                            "[P%df%d]  %s SKIPPED because %s",
-                            process_number,
+                            "file %d %s SKIPPED because %s",
                             filenums[index],
                             l1b_file,
                             error_str,
@@ -326,8 +331,7 @@ def run_chain_on_files(
                         break
 
                     thislog.error(
-                        "[P%d] Processing of L1b file %d : %s failed because %s",
-                        process_number,
+                        "Processing of L1b file %d : %s failed because %s",
                         filenums[index],
                         l1b_file,
                         error_str,
@@ -338,10 +342,10 @@ def run_chain_on_files(
                 if not processing_issue:
                     num_files_processed += 1
 
-        except Exception as exc:  # pylint: disable=broad-exception-caught
+        # Catching ALL exceptions so that resources (shared mem) get freed
+        except BaseException as exc:  # pylint: disable=broad-exception-caught
             thislog.error(
-                "[P%d] Error processing file %d: %s : %s",
-                process_number,
+                "Error processing file %d: %s : %s",
                 filenums[index],
                 l1b_file,
                 exc,
@@ -616,14 +620,6 @@ def run_chain(
             alg_obj_shm.finalize(stage=2)
 
     log.debug("_" * 79)  # add a divider line in the log
-
-    log.info(
-        "chain '%s' completed processing %d files with %d errors and %d skipped",
-        config["chain"]["chain_name"],
-        num_files_processed,
-        num_errors,
-        num_files_skipped,
-    )
 
     # Elapsed time for each algorithm.
     # Note if multi-processing, process times are added for each algorithm
@@ -1163,13 +1159,13 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "%s Chain completed with %d errors processing %d files with %d skipped"
-        " of %d input files in %.2f seconds := (%.2f mins := %.2f hours)",
+        "%s chain completed with %d errors. %d input files, %d completed, %d skipped"
+        " in %.2f seconds := (%.2f mins := %.2f hours)",
         args.name,
         number_errors,
+        len(l1b_file_list),
         num_files_processed,
         num_files_skipped,
-        len(l1b_file_list),
         elapsed_time,
         elapsed_time / 60.0,
         (elapsed_time / 60.0) / 60.0,
