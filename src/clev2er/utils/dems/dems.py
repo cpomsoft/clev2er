@@ -46,6 +46,7 @@ class Dem:
         config: None | dict = None,
         dem_dir: str | None = None,
         store_in_shared_memory: bool = False,
+        thislog: logging.Logger | None = None,
     ):
         """class initialization function
 
@@ -55,16 +56,12 @@ class Dem:
             config (dict, optional): configuration dictionary, defaults to None
             dem_dir (str, optional): path of directory containing DEM. Defaults to None
             store_in_shared_memory (bool, optional): stores/accesses zdem array in SharedMemory
+            thislog (logging.Logger|None, optional): attach to a different log instance
         Raises:
             ValueError: when name not in global dem_list
         """
         self.name = name
         self.crs_wgs = CRS("epsg:4326")  # we are using WGS84 for all DEMs
-
-        if name not in dem_list:
-            log.error("DEM %s not in allowed list", name)
-            raise ValueError(f"DEM name {name} not in allowed list")
-
         self.config = config
         self.name = name
         self.dem_dir = dem_dir
@@ -85,6 +82,14 @@ class Dem:
         # the shared memory). Necessary for tracking who
         # unlinks (parent) or closes (child) the shared
         # memory at the end
+        if thislog is not None:
+            self.log = thislog  # optionally attach to a different log instance
+        else:
+            self.log = log
+
+        if name not in dem_list:
+            self.log.error("DEM %s not in allowed list", name)
+            raise ValueError(f"DEM name {name} not in allowed list")
 
         self.load()
 
@@ -168,8 +173,8 @@ class Dem:
         else:
             this_path = f"{this_dem_dir}/{filename}"
 
-        log.info("Loading dem name: %s", self.name)
-        log.info("Loading dem file: %s", this_path)
+        self.log.info("Loading dem name: %s", self.name)
+        self.log.info("Loading dem file: %s", this_path)
 
         if not os.path.isfile(this_path):
             raise OSError(f"{this_path} not found")
@@ -185,18 +190,16 @@ class Dem:
                 if self.shared_mem is not None:
                     if self.shared_mem_child:
                         self.shared_mem.close()
-                        log.info(
-                            "closed shared memory for %s in child process", self.name
-                        )
+                        self.log.info("closed shared memory for %s", self.name)
                     else:
                         self.shared_mem.close()
                         self.shared_mem.unlink()
-                        log.info(
-                            "closed shared memory for %s in parent process", self.name
-                        )
+                        self.log.info("unlinked shared memory for %s", self.name)
 
             except Exception as exc:  # pylint: disable=broad-exception-caught
-                log.error("Shared memory for %s could not be closed %s", self.name, exc)
+                self.log.error(
+                    "Shared memory for %s could not be closed %s", self.name, exc
+                )
 
     def load_geotiff(self, demfile: str):
         """Load a GeoTIFF file
@@ -224,7 +227,7 @@ class Dem:
                 )
                 self.shared_mem_child = True
 
-                log.info("child: attached to existing shared memory for %s ", self.name)
+                self.log.info("attached to existing shared memory for %s ", self.name)
 
             except FileNotFoundError:
                 zdem = imread(demfile)
@@ -242,7 +245,7 @@ class Dem:
                 # Copy the data from zdem to the shared_np_array
                 self.zdem[:] = zdem[:]
 
-                log.info("created shared memory for %s", self.name)
+                self.log.info("created shared memory for %s", self.name)
         else:
             self.zdem = imread(demfile)
 
@@ -393,7 +396,7 @@ class Dem:
         try:
             demfile = self.get_filename(default_dir, filename, filled_filename)
         except OSError as exc:
-            log.error("Could not form dem path for %s : %s", self.name, exc)
+            self.log.error("Could not form dem path for %s : %s", self.name, exc)
             return False
 
         self.load_geotiff(demfile)

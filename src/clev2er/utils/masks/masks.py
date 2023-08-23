@@ -38,9 +38,10 @@ mask_list = [
     # Greenland ice sheet grounded ice mask, from 2km grid, source: Rignot 2016. Can select basins
 ]
 
-# too-many-instance-attributes, pylint: disable=R0902
-# too-many-statements, pylint: disable=R0915
-# too-many-branches, pylint: disable=R0912
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-arguments
 
 
 class Mask:
@@ -52,6 +53,7 @@ class Mask:
         basin_numbers: Optional[list[int]] = None,
         mask_path: Optional[str] = None,
         store_in_shared_memory: bool = False,
+        thislog: logging.Logger | None = None,
     ) -> None:
         """class initialization
 
@@ -61,6 +63,7 @@ class Mask:
                                                  def=None
             mask_path (str, optional): override default path of mask data file
             store_in_shared_memory (bool, optional): stores/access mask array in SharedMemory
+            thislog (logging.Logger|None, optional): attach to a different log instance
         """
         self.mask_name = mask_name
         self.basin_numbers = basin_numbers
@@ -72,6 +75,11 @@ class Mask:
 
         self.crs_wgs = CRS("epsg:4326")  # assuming you're using WGS84 geographic
 
+        if thislog is not None:
+            self.log = thislog  # optionally attach to a different log instance
+        else:
+            self.log = log
+
         # ---------------------------------------------------------------------------
         # Define the limits,bounds or polygons of each mask
         # ---------------------------------------------------------------------------
@@ -79,7 +87,7 @@ class Mask:
         if mask_name not in mask_list:
             raise ValueError(f"{mask_name} not in supported mask_list")
 
-        log.info("Setting up %s..", mask_name)
+        self.log.info("Setting up %s..", mask_name)
 
         # -----------------------------------------------------------------------------
 
@@ -118,7 +126,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 13333  # mask dimension in x direction
@@ -163,7 +171,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 10218  # mask dimension in x direction
@@ -205,7 +213,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 13333
@@ -236,7 +244,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 10218
@@ -266,7 +274,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 2820
@@ -302,7 +310,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 1000
@@ -380,7 +388,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 2820
@@ -433,7 +441,7 @@ class Mask:
                 mask_file = mask_path
 
             if not isfile(mask_file):
-                log.error("mask file %s does not exist", mask_file)
+                self.log.error("mask file %s does not exist", mask_file)
                 raise FileNotFoundError("mask file does not exist")
 
             self.num_x = 1000
@@ -496,7 +504,7 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                log.info(
+                self.log.info(
                     "child: attached to existing shared memory for mask %s ",
                     self.mask_name,
                 )
@@ -527,7 +535,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                log.info("parent: created shared memory for mask %s", self.mask_name)
+                self.log.info("created shared memory for mask %s", self.mask_name)
 
         else:  # load normally without using shared memory
             # read netcdf file
@@ -558,7 +566,7 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                log.info(
+                self.log.info(
                     "child: attached to existing shared memory for mask %s ",
                     self.mask_name,
                 )
@@ -586,7 +594,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                log.info("parent: created shared memory for mask %s", self.mask_name)
+                self.log.info("created shared memory for mask %s", self.mask_name)
 
         else:  # load normally without using shared memory
             # read npz file
@@ -605,21 +613,21 @@ class Mask:
                 if self.shared_mem is not None:
                     if self.shared_mem_child:
                         self.shared_mem.close()
-                        log.info(
+                        self.log.info(
                             "closed shared memory for %s in child process",
                             self.mask_name,
                         )
-                        log.info("closing in child for mask %s", self.mask_name)
+                        self.log.info("closing in child for mask %s", self.mask_name)
                     else:
                         self.shared_mem.close()
                         self.shared_mem.unlink()
-                        log.info(
-                            "closed shared memory for %s in parent process",
+                        self.log.info(
+                            "unlinked shared memory for %s",
                             self.mask_name,
                         )
 
             except Exception as exc:  # pylint: disable=broad-exception-caught
-                log.error(
+                self.log.error(
                     "Shared memory for %s could not be closed %s", self.mask_name, exc
                 )
                 raise IOError(

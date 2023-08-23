@@ -614,7 +614,9 @@ def run_chain(
                 list(range(n_files)),
                 0,  # process number
             )
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    # Using BaseException to catch ALL exceptions so that shared memory is unlinked
+    # to avoid memory leaks
+    except BaseException as exc:  # pylint: disable=broad-exception-caught
         log.error("An error occurred during processing: %s", exc)
     finally:
         # Must always unlink shared memory if used

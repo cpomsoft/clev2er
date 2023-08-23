@@ -171,103 +171,107 @@
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="s2">&quot;rema_ant_1km&quot;</span><span class="p">,</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="p">)</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="c1"># Important Note :</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">        Args:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        Returns:</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">            ie</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">        Logging within this function must use on of:</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">            self.log.info(your_message)</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">            self.log.debug(your_message)</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">            self.log.error(your_message)</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="p">)</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="p">)</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="c1"># Important Note :</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">        Args:</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">        Returns:</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">            ie</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">        Logging within this function must use on of:</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">            self.log.info(your_message)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">            self.log.debug(your_message)</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">            self.log.error(your_message)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>            <span class="n">filenum</span><span class="p">,</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>        <span class="p">)</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
 </span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
 </span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>            <span class="p">)</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="p">)</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">        Args:</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">            finalize() function was called</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>            <span class="p">)</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>            <span class="p">)</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">        Args:</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
 </span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="c1"># unlinked, closed.</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -347,103 +351,107 @@
 </span><span id="Algorithm-82"><a href="#Algorithm-82"><span class="linenos"> 82</span></a>            <span class="s2">&quot;rema_ant_1km&quot;</span><span class="p">,</span>
 </span><span id="Algorithm-83"><a href="#Algorithm-83"><span class="linenos"> 83</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
 </span><span id="Algorithm-84"><a href="#Algorithm-84"><span class="linenos"> 84</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
-</span><span id="Algorithm-85"><a href="#Algorithm-85"><span class="linenos"> 85</span></a>        <span class="p">)</span>
-</span><span id="Algorithm-86"><a href="#Algorithm-86"><span class="linenos"> 86</span></a>
-</span><span id="Algorithm-87"><a href="#Algorithm-87"><span class="linenos"> 87</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
-</span><span id="Algorithm-88"><a href="#Algorithm-88"><span class="linenos"> 88</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span>
-</span><span id="Algorithm-89"><a href="#Algorithm-89"><span class="linenos"> 89</span></a>        <span class="p">)</span>
-</span><span id="Algorithm-90"><a href="#Algorithm-90"><span class="linenos"> 90</span></a>        <span class="c1"># Important Note :</span>
-</span><span id="Algorithm-91"><a href="#Algorithm-91"><span class="linenos"> 91</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
-</span><span id="Algorithm-92"><a href="#Algorithm-92"><span class="linenos"> 92</span></a>
-</span><span id="Algorithm-93"><a href="#Algorithm-93"><span class="linenos"> 93</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-94"><a href="#Algorithm-94"><span class="linenos"> 94</span></a>
-</span><span id="Algorithm-95"><a href="#Algorithm-95"><span class="linenos"> 95</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="Algorithm-96"><a href="#Algorithm-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
-</span><span id="Algorithm-97"><a href="#Algorithm-97"><span class="linenos"> 97</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="Algorithm-98"><a href="#Algorithm-98"><span class="linenos"> 98</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm-99"><a href="#Algorithm-99"><span class="linenos"> 99</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
-</span><span id="Algorithm-100"><a href="#Algorithm-100"><span class="linenos">100</span></a>
-</span><span id="Algorithm-101"><a href="#Algorithm-101"><span class="linenos">101</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm-102"><a href="#Algorithm-102"><span class="linenos">102</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="Algorithm-103"><a href="#Algorithm-103"><span class="linenos">103</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
-</span><span id="Algorithm-104"><a href="#Algorithm-104"><span class="linenos">104</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
-</span><span id="Algorithm-105"><a href="#Algorithm-105"><span class="linenos">105</span></a>
-</span><span id="Algorithm-106"><a href="#Algorithm-106"><span class="linenos">106</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm-107"><a href="#Algorithm-107"><span class="linenos">107</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="Algorithm-108"><a href="#Algorithm-108"><span class="linenos">108</span></a><span class="sd">            ie</span>
-</span><span id="Algorithm-109"><a href="#Algorithm-109"><span class="linenos">109</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="Algorithm-110"><a href="#Algorithm-110"><span class="linenos">110</span></a>
-</span><span id="Algorithm-111"><a href="#Algorithm-111"><span class="linenos">111</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
-</span><span id="Algorithm-112"><a href="#Algorithm-112"><span class="linenos">112</span></a>
-</span><span id="Algorithm-113"><a href="#Algorithm-113"><span class="linenos">113</span></a><span class="sd">        Logging within this function must use on of:</span>
-</span><span id="Algorithm-114"><a href="#Algorithm-114"><span class="linenos">114</span></a><span class="sd">            self.log.info(your_message)</span>
-</span><span id="Algorithm-115"><a href="#Algorithm-115"><span class="linenos">115</span></a><span class="sd">            self.log.debug(your_message)</span>
-</span><span id="Algorithm-116"><a href="#Algorithm-116"><span class="linenos">116</span></a><span class="sd">            self.log.error(your_message)</span>
-</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm-118"><a href="#Algorithm-118"><span class="linenos">118</span></a>
-</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-</span><span id="Algorithm-122"><a href="#Algorithm-122"><span class="linenos">122</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="Algorithm-123"><a href="#Algorithm-123"><span class="linenos">123</span></a>        <span class="p">)</span>
-</span><span id="Algorithm-124"><a href="#Algorithm-124"><span class="linenos">124</span></a>
-</span><span id="Algorithm-125"><a href="#Algorithm-125"><span class="linenos">125</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
-</span><span id="Algorithm-126"><a href="#Algorithm-126"><span class="linenos">126</span></a>
-</span><span id="Algorithm-127"><a href="#Algorithm-127"><span class="linenos">127</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-</span><span id="Algorithm-128"><a href="#Algorithm-128"><span class="linenos">128</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-129"><a href="#Algorithm-129"><span class="linenos">129</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-85"><a href="#Algorithm-85"><span class="linenos"> 85</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="Algorithm-86"><a href="#Algorithm-86"><span class="linenos"> 86</span></a>        <span class="p">)</span>
+</span><span id="Algorithm-87"><a href="#Algorithm-87"><span class="linenos"> 87</span></a>
+</span><span id="Algorithm-88"><a href="#Algorithm-88"><span class="linenos"> 88</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
+</span><span id="Algorithm-89"><a href="#Algorithm-89"><span class="linenos"> 89</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span>
+</span><span id="Algorithm-90"><a href="#Algorithm-90"><span class="linenos"> 90</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Algorithm-91"><a href="#Algorithm-91"><span class="linenos"> 91</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
+</span><span id="Algorithm-92"><a href="#Algorithm-92"><span class="linenos"> 92</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="Algorithm-93"><a href="#Algorithm-93"><span class="linenos"> 93</span></a>        <span class="p">)</span>
+</span><span id="Algorithm-94"><a href="#Algorithm-94"><span class="linenos"> 94</span></a>        <span class="c1"># Important Note :</span>
+</span><span id="Algorithm-95"><a href="#Algorithm-95"><span class="linenos"> 95</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
+</span><span id="Algorithm-96"><a href="#Algorithm-96"><span class="linenos"> 96</span></a>
+</span><span id="Algorithm-97"><a href="#Algorithm-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-98"><a href="#Algorithm-98"><span class="linenos"> 98</span></a>
+</span><span id="Algorithm-99"><a href="#Algorithm-99"><span class="linenos"> 99</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="Algorithm-100"><a href="#Algorithm-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
+</span><span id="Algorithm-101"><a href="#Algorithm-101"><span class="linenos">101</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="Algorithm-102"><a href="#Algorithm-102"><span class="linenos">102</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm-103"><a href="#Algorithm-103"><span class="linenos">103</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
+</span><span id="Algorithm-104"><a href="#Algorithm-104"><span class="linenos">104</span></a>
+</span><span id="Algorithm-105"><a href="#Algorithm-105"><span class="linenos">105</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm-106"><a href="#Algorithm-106"><span class="linenos">106</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="Algorithm-107"><a href="#Algorithm-107"><span class="linenos">107</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="Algorithm-108"><a href="#Algorithm-108"><span class="linenos">108</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
+</span><span id="Algorithm-109"><a href="#Algorithm-109"><span class="linenos">109</span></a>
+</span><span id="Algorithm-110"><a href="#Algorithm-110"><span class="linenos">110</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm-111"><a href="#Algorithm-111"><span class="linenos">111</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="Algorithm-112"><a href="#Algorithm-112"><span class="linenos">112</span></a><span class="sd">            ie</span>
+</span><span id="Algorithm-113"><a href="#Algorithm-113"><span class="linenos">113</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="Algorithm-114"><a href="#Algorithm-114"><span class="linenos">114</span></a>
+</span><span id="Algorithm-115"><a href="#Algorithm-115"><span class="linenos">115</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
+</span><span id="Algorithm-116"><a href="#Algorithm-116"><span class="linenos">116</span></a>
+</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a><span class="sd">        Logging within this function must use on of:</span>
+</span><span id="Algorithm-118"><a href="#Algorithm-118"><span class="linenos">118</span></a><span class="sd">            self.log.info(your_message)</span>
+</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a><span class="sd">            self.log.debug(your_message)</span>
+</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a><span class="sd">            self.log.error(your_message)</span>
+</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm-122"><a href="#Algorithm-122"><span class="linenos">122</span></a>
+</span><span id="Algorithm-123"><a href="#Algorithm-123"><span class="linenos">123</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="Algorithm-124"><a href="#Algorithm-124"><span class="linenos">124</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="Algorithm-125"><a href="#Algorithm-125"><span class="linenos">125</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span><span id="Algorithm-126"><a href="#Algorithm-126"><span class="linenos">126</span></a>            <span class="n">filenum</span><span class="p">,</span>
+</span><span id="Algorithm-127"><a href="#Algorithm-127"><span class="linenos">127</span></a>        <span class="p">)</span>
+</span><span id="Algorithm-128"><a href="#Algorithm-128"><span class="linenos">128</span></a>
+</span><span id="Algorithm-129"><a href="#Algorithm-129"><span class="linenos">129</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
 </span><span id="Algorithm-130"><a href="#Algorithm-130"><span class="linenos">130</span></a>
-</span><span id="Algorithm-131"><a href="#Algorithm-131"><span class="linenos">131</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm-132"><a href="#Algorithm-132"><span class="linenos">132</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
-</span><span id="Algorithm-133"><a href="#Algorithm-133"><span class="linenos">133</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
-</span><span id="Algorithm-134"><a href="#Algorithm-134"><span class="linenos">134</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm-135"><a href="#Algorithm-135"><span class="linenos">135</span></a>
-</span><span id="Algorithm-136"><a href="#Algorithm-136"><span class="linenos">136</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm-137"><a href="#Algorithm-137"><span class="linenos">137</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="Algorithm-131"><a href="#Algorithm-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+</span><span id="Algorithm-132"><a href="#Algorithm-132"><span class="linenos">132</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-133"><a href="#Algorithm-133"><span class="linenos">133</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-134"><a href="#Algorithm-134"><span class="linenos">134</span></a>
+</span><span id="Algorithm-135"><a href="#Algorithm-135"><span class="linenos">135</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm-136"><a href="#Algorithm-136"><span class="linenos">136</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
+</span><span id="Algorithm-137"><a href="#Algorithm-137"><span class="linenos">137</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
 </span><span id="Algorithm-138"><a href="#Algorithm-138"><span class="linenos">138</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
 </span><span id="Algorithm-139"><a href="#Algorithm-139"><span class="linenos">139</span></a>
-</span><span id="Algorithm-140"><a href="#Algorithm-140"><span class="linenos">140</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
-</span><span id="Algorithm-141"><a href="#Algorithm-141"><span class="linenos">141</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="Algorithm-142"><a href="#Algorithm-142"><span class="linenos">142</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm-143"><a href="#Algorithm-143"><span class="linenos">143</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm-144"><a href="#Algorithm-144"><span class="linenos">144</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="Algorithm-145"><a href="#Algorithm-145"><span class="linenos">145</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="Algorithm-146"><a href="#Algorithm-146"><span class="linenos">146</span></a>            <span class="p">)</span>
-</span><span id="Algorithm-147"><a href="#Algorithm-147"><span class="linenos">147</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Algorithm-148"><a href="#Algorithm-148"><span class="linenos">148</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="Algorithm-149"><a href="#Algorithm-149"><span class="linenos">149</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm-150"><a href="#Algorithm-150"><span class="linenos">150</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm-151"><a href="#Algorithm-151"><span class="linenos">151</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="Algorithm-152"><a href="#Algorithm-152"><span class="linenos">152</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="Algorithm-153"><a href="#Algorithm-153"><span class="linenos">153</span></a>            <span class="p">)</span>
-</span><span id="Algorithm-154"><a href="#Algorithm-154"><span class="linenos">154</span></a>
-</span><span id="Algorithm-155"><a href="#Algorithm-155"><span class="linenos">155</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
-</span><span id="Algorithm-156"><a href="#Algorithm-156"><span class="linenos">156</span></a>
-</span><span id="Algorithm-157"><a href="#Algorithm-157"><span class="linenos">157</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
-</span><span id="Algorithm-158"><a href="#Algorithm-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-159"><a href="#Algorithm-159"><span class="linenos">159</span></a>
-</span><span id="Algorithm-160"><a href="#Algorithm-160"><span class="linenos">160</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-</span><span id="Algorithm-161"><a href="#Algorithm-161"><span class="linenos">161</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
-</span><span id="Algorithm-162"><a href="#Algorithm-162"><span class="linenos">162</span></a>
-</span><span id="Algorithm-163"><a href="#Algorithm-163"><span class="linenos">163</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm-164"><a href="#Algorithm-164"><span class="linenos">164</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
-</span><span id="Algorithm-165"><a href="#Algorithm-165"><span class="linenos">165</span></a><span class="sd">            finalize() function was called</span>
-</span><span id="Algorithm-166"><a href="#Algorithm-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm-167"><a href="#Algorithm-167"><span class="linenos">167</span></a>
-</span><span id="Algorithm-168"><a href="#Algorithm-168"><span class="linenos">168</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
-</span><span id="Algorithm-169"><a href="#Algorithm-169"><span class="linenos">169</span></a>
-</span><span id="Algorithm-170"><a href="#Algorithm-170"><span class="linenos">170</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="Algorithm-171"><a href="#Algorithm-171"><span class="linenos">171</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="Algorithm-172"><a href="#Algorithm-172"><span class="linenos">172</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-140"><a href="#Algorithm-140"><span class="linenos">140</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm-141"><a href="#Algorithm-141"><span class="linenos">141</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="Algorithm-142"><a href="#Algorithm-142"><span class="linenos">142</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm-143"><a href="#Algorithm-143"><span class="linenos">143</span></a>
+</span><span id="Algorithm-144"><a href="#Algorithm-144"><span class="linenos">144</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
+</span><span id="Algorithm-145"><a href="#Algorithm-145"><span class="linenos">145</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="Algorithm-146"><a href="#Algorithm-146"><span class="linenos">146</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm-147"><a href="#Algorithm-147"><span class="linenos">147</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm-148"><a href="#Algorithm-148"><span class="linenos">148</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="Algorithm-149"><a href="#Algorithm-149"><span class="linenos">149</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Algorithm-150"><a href="#Algorithm-150"><span class="linenos">150</span></a>            <span class="p">)</span>
+</span><span id="Algorithm-151"><a href="#Algorithm-151"><span class="linenos">151</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Algorithm-152"><a href="#Algorithm-152"><span class="linenos">152</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="Algorithm-153"><a href="#Algorithm-153"><span class="linenos">153</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm-154"><a href="#Algorithm-154"><span class="linenos">154</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm-155"><a href="#Algorithm-155"><span class="linenos">155</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="Algorithm-156"><a href="#Algorithm-156"><span class="linenos">156</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Algorithm-157"><a href="#Algorithm-157"><span class="linenos">157</span></a>            <span class="p">)</span>
+</span><span id="Algorithm-158"><a href="#Algorithm-158"><span class="linenos">158</span></a>
+</span><span id="Algorithm-159"><a href="#Algorithm-159"><span class="linenos">159</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
+</span><span id="Algorithm-160"><a href="#Algorithm-160"><span class="linenos">160</span></a>
+</span><span id="Algorithm-161"><a href="#Algorithm-161"><span class="linenos">161</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
+</span><span id="Algorithm-162"><a href="#Algorithm-162"><span class="linenos">162</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-163"><a href="#Algorithm-163"><span class="linenos">163</span></a>
+</span><span id="Algorithm-164"><a href="#Algorithm-164"><span class="linenos">164</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="Algorithm-165"><a href="#Algorithm-165"><span class="linenos">165</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="Algorithm-166"><a href="#Algorithm-166"><span class="linenos">166</span></a>
+</span><span id="Algorithm-167"><a href="#Algorithm-167"><span class="linenos">167</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm-168"><a href="#Algorithm-168"><span class="linenos">168</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="Algorithm-169"><a href="#Algorithm-169"><span class="linenos">169</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="Algorithm-170"><a href="#Algorithm-170"><span class="linenos">170</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm-171"><a href="#Algorithm-171"><span class="linenos">171</span></a>
+</span><span id="Algorithm-172"><a href="#Algorithm-172"><span class="linenos">172</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
 </span><span id="Algorithm-173"><a href="#Algorithm-173"><span class="linenos">173</span></a>
-</span><span id="Algorithm-174"><a href="#Algorithm-174"><span class="linenos">174</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
-</span><span id="Algorithm-175"><a href="#Algorithm-175"><span class="linenos">175</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="Algorithm-176"><a href="#Algorithm-176"><span class="linenos">176</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm-177"><a href="#Algorithm-177"><span class="linenos">177</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm-178"><a href="#Algorithm-178"><span class="linenos">178</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm-179"><a href="#Algorithm-179"><span class="linenos">179</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm-180"><a href="#Algorithm-180"><span class="linenos">180</span></a>
-</span><span id="Algorithm-181"><a href="#Algorithm-181"><span class="linenos">181</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-174"><a href="#Algorithm-174"><span class="linenos">174</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-175"><a href="#Algorithm-175"><span class="linenos">175</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="Algorithm-176"><a href="#Algorithm-176"><span class="linenos">176</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-177"><a href="#Algorithm-177"><span class="linenos">177</span></a>
+</span><span id="Algorithm-178"><a href="#Algorithm-178"><span class="linenos">178</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
+</span><span id="Algorithm-179"><a href="#Algorithm-179"><span class="linenos">179</span></a>        <span class="c1"># unlinked, closed.</span>
+</span><span id="Algorithm-180"><a href="#Algorithm-180"><span class="linenos">180</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm-181"><a href="#Algorithm-181"><span class="linenos">181</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm-182"><a href="#Algorithm-182"><span class="linenos">182</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm-183"><a href="#Algorithm-183"><span class="linenos">183</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm-184"><a href="#Algorithm-184"><span class="linenos">184</span></a>
+</span><span id="Algorithm-185"><a href="#Algorithm-185"><span class="linenos">185</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -553,15 +561,19 @@ for sequential processing this would be 0 (default)</li>
 </span><span id="Algorithm.init-82"><a href="#Algorithm.init-82"><span class="linenos">82</span></a>            <span class="s2">&quot;rema_ant_1km&quot;</span><span class="p">,</span>
 </span><span id="Algorithm.init-83"><a href="#Algorithm.init-83"><span class="linenos">83</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
 </span><span id="Algorithm.init-84"><a href="#Algorithm.init-84"><span class="linenos">84</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
-</span><span id="Algorithm.init-85"><a href="#Algorithm.init-85"><span class="linenos">85</span></a>        <span class="p">)</span>
-</span><span id="Algorithm.init-86"><a href="#Algorithm.init-86"><span class="linenos">86</span></a>
-</span><span id="Algorithm.init-87"><a href="#Algorithm.init-87"><span class="linenos">87</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
-</span><span id="Algorithm.init-88"><a href="#Algorithm.init-88"><span class="linenos">88</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span>
-</span><span id="Algorithm.init-89"><a href="#Algorithm.init-89"><span class="linenos">89</span></a>        <span class="p">)</span>
-</span><span id="Algorithm.init-90"><a href="#Algorithm.init-90"><span class="linenos">90</span></a>        <span class="c1"># Important Note :</span>
-</span><span id="Algorithm.init-91"><a href="#Algorithm.init-91"><span class="linenos">91</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
-</span><span id="Algorithm.init-92"><a href="#Algorithm.init-92"><span class="linenos">92</span></a>
-</span><span id="Algorithm.init-93"><a href="#Algorithm.init-93"><span class="linenos">93</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.init-85"><a href="#Algorithm.init-85"><span class="linenos">85</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="Algorithm.init-86"><a href="#Algorithm.init-86"><span class="linenos">86</span></a>        <span class="p">)</span>
+</span><span id="Algorithm.init-87"><a href="#Algorithm.init-87"><span class="linenos">87</span></a>
+</span><span id="Algorithm.init-88"><a href="#Algorithm.init-88"><span class="linenos">88</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="o">=</span> <span class="n">Dem</span><span class="p">(</span>
+</span><span id="Algorithm.init-89"><a href="#Algorithm.init-89"><span class="linenos">89</span></a>            <span class="s2">&quot;arcticdem_1km&quot;</span><span class="p">,</span>
+</span><span id="Algorithm.init-90"><a href="#Algorithm.init-90"><span class="linenos">90</span></a>            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Algorithm.init-91"><a href="#Algorithm.init-91"><span class="linenos">91</span></a>            <span class="n">store_in_shared_memory</span><span class="o">=</span><span class="n">init_shared_mem</span><span class="p">,</span>
+</span><span id="Algorithm.init-92"><a href="#Algorithm.init-92"><span class="linenos">92</span></a>            <span class="n">thislog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+</span><span id="Algorithm.init-93"><a href="#Algorithm.init-93"><span class="linenos">93</span></a>        <span class="p">)</span>
+</span><span id="Algorithm.init-94"><a href="#Algorithm.init-94"><span class="linenos">94</span></a>        <span class="c1"># Important Note :</span>
+</span><span id="Algorithm.init-95"><a href="#Algorithm.init-95"><span class="linenos">95</span></a>        <span class="c1">#     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()</span>
+</span><span id="Algorithm.init-96"><a href="#Algorithm.init-96"><span class="linenos">96</span></a>
+</span><span id="Algorithm.init-97"><a href="#Algorithm.init-97"><span class="linenos">97</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -599,70 +611,70 @@ Logging: use self.log.info,error,debug(your_message)</p>
 
     </div>
     <a class="headerlink" href="#Algorithm.process"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.process-95"><a href="#Algorithm.process-95"><span class="linenos"> 95</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="Algorithm.process-96"><a href="#Algorithm.process-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
-</span><span id="Algorithm.process-97"><a href="#Algorithm.process-97"><span class="linenos"> 97</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="Algorithm.process-98"><a href="#Algorithm.process-98"><span class="linenos"> 98</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm.process-99"><a href="#Algorithm.process-99"><span class="linenos"> 99</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
-</span><span id="Algorithm.process-100"><a href="#Algorithm.process-100"><span class="linenos">100</span></a>
-</span><span id="Algorithm.process-101"><a href="#Algorithm.process-101"><span class="linenos">101</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm.process-102"><a href="#Algorithm.process-102"><span class="linenos">102</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="Algorithm.process-103"><a href="#Algorithm.process-103"><span class="linenos">103</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
-</span><span id="Algorithm.process-104"><a href="#Algorithm.process-104"><span class="linenos">104</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
-</span><span id="Algorithm.process-105"><a href="#Algorithm.process-105"><span class="linenos">105</span></a>
-</span><span id="Algorithm.process-106"><a href="#Algorithm.process-106"><span class="linenos">106</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm.process-107"><a href="#Algorithm.process-107"><span class="linenos">107</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="Algorithm.process-108"><a href="#Algorithm.process-108"><span class="linenos">108</span></a><span class="sd">            ie</span>
-</span><span id="Algorithm.process-109"><a href="#Algorithm.process-109"><span class="linenos">109</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="Algorithm.process-110"><a href="#Algorithm.process-110"><span class="linenos">110</span></a>
-</span><span id="Algorithm.process-111"><a href="#Algorithm.process-111"><span class="linenos">111</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
-</span><span id="Algorithm.process-112"><a href="#Algorithm.process-112"><span class="linenos">112</span></a>
-</span><span id="Algorithm.process-113"><a href="#Algorithm.process-113"><span class="linenos">113</span></a><span class="sd">        Logging within this function must use on of:</span>
-</span><span id="Algorithm.process-114"><a href="#Algorithm.process-114"><span class="linenos">114</span></a><span class="sd">            self.log.info(your_message)</span>
-</span><span id="Algorithm.process-115"><a href="#Algorithm.process-115"><span class="linenos">115</span></a><span class="sd">            self.log.debug(your_message)</span>
-</span><span id="Algorithm.process-116"><a href="#Algorithm.process-116"><span class="linenos">116</span></a><span class="sd">            self.log.error(your_message)</span>
-</span><span id="Algorithm.process-117"><a href="#Algorithm.process-117"><span class="linenos">117</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm.process-118"><a href="#Algorithm.process-118"><span class="linenos">118</span></a>
-</span><span id="Algorithm.process-119"><a href="#Algorithm.process-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-</span><span id="Algorithm.process-120"><a href="#Algorithm.process-120"><span class="linenos">120</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><span id="Algorithm.process-121"><a href="#Algorithm.process-121"><span class="linenos">121</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-</span><span id="Algorithm.process-122"><a href="#Algorithm.process-122"><span class="linenos">122</span></a>            <span class="n">filenum</span><span class="p">,</span>
-</span><span id="Algorithm.process-123"><a href="#Algorithm.process-123"><span class="linenos">123</span></a>        <span class="p">)</span>
-</span><span id="Algorithm.process-124"><a href="#Algorithm.process-124"><span class="linenos">124</span></a>
-</span><span id="Algorithm.process-125"><a href="#Algorithm.process-125"><span class="linenos">125</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
-</span><span id="Algorithm.process-126"><a href="#Algorithm.process-126"><span class="linenos">126</span></a>
-</span><span id="Algorithm.process-127"><a href="#Algorithm.process-127"><span class="linenos">127</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-</span><span id="Algorithm.process-128"><a href="#Algorithm.process-128"><span class="linenos">128</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
-</span><span id="Algorithm.process-129"><a href="#Algorithm.process-129"><span class="linenos">129</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.process-99"><a href="#Algorithm.process-99"><span class="linenos"> 99</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="Algorithm.process-100"><a href="#Algorithm.process-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>
+</span><span id="Algorithm.process-101"><a href="#Algorithm.process-101"><span class="linenos">101</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">filenum</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="Algorithm.process-102"><a href="#Algorithm.process-102"><span class="linenos">102</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm.process-103"><a href="#Algorithm.process-103"><span class="linenos">103</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm main processing function</span>
+</span><span id="Algorithm.process-104"><a href="#Algorithm.process-104"><span class="linenos">104</span></a>
+</span><span id="Algorithm.process-105"><a href="#Algorithm.process-105"><span class="linenos">105</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm.process-106"><a href="#Algorithm.process-106"><span class="linenos">106</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="Algorithm.process-107"><a href="#Algorithm.process-107"><span class="linenos">107</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="Algorithm.process-108"><a href="#Algorithm.process-108"><span class="linenos">108</span></a><span class="sd">            filenum (int) : file number of list of L1b files</span>
+</span><span id="Algorithm.process-109"><a href="#Algorithm.process-109"><span class="linenos">109</span></a>
+</span><span id="Algorithm.process-110"><a href="#Algorithm.process-110"><span class="linenos">110</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm.process-111"><a href="#Algorithm.process-111"><span class="linenos">111</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="Algorithm.process-112"><a href="#Algorithm.process-112"><span class="linenos">112</span></a><span class="sd">            ie</span>
+</span><span id="Algorithm.process-113"><a href="#Algorithm.process-113"><span class="linenos">113</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="Algorithm.process-114"><a href="#Algorithm.process-114"><span class="linenos">114</span></a>
+</span><span id="Algorithm.process-115"><a href="#Algorithm.process-115"><span class="linenos">115</span></a><span class="sd">        **IMPORTANT NOTE:**</span>
+</span><span id="Algorithm.process-116"><a href="#Algorithm.process-116"><span class="linenos">116</span></a>
+</span><span id="Algorithm.process-117"><a href="#Algorithm.process-117"><span class="linenos">117</span></a><span class="sd">        Logging within this function must use on of:</span>
+</span><span id="Algorithm.process-118"><a href="#Algorithm.process-118"><span class="linenos">118</span></a><span class="sd">            self.log.info(your_message)</span>
+</span><span id="Algorithm.process-119"><a href="#Algorithm.process-119"><span class="linenos">119</span></a><span class="sd">            self.log.debug(your_message)</span>
+</span><span id="Algorithm.process-120"><a href="#Algorithm.process-120"><span class="linenos">120</span></a><span class="sd">            self.log.error(your_message)</span>
+</span><span id="Algorithm.process-121"><a href="#Algorithm.process-121"><span class="linenos">121</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm.process-122"><a href="#Algorithm.process-122"><span class="linenos">122</span></a>
+</span><span id="Algorithm.process-123"><a href="#Algorithm.process-123"><span class="linenos">123</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="Algorithm.process-124"><a href="#Algorithm.process-124"><span class="linenos">124</span></a>            <span class="s2">&quot;Processing algorithm </span><span class="si">%s</span><span class="s2"> for file </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="Algorithm.process-125"><a href="#Algorithm.process-125"><span class="linenos">125</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+</span><span id="Algorithm.process-126"><a href="#Algorithm.process-126"><span class="linenos">126</span></a>            <span class="n">filenum</span><span class="p">,</span>
+</span><span id="Algorithm.process-127"><a href="#Algorithm.process-127"><span class="linenos">127</span></a>        <span class="p">)</span>
+</span><span id="Algorithm.process-128"><a href="#Algorithm.process-128"><span class="linenos">128</span></a>
+</span><span id="Algorithm.process-129"><a href="#Algorithm.process-129"><span class="linenos">129</span></a>        <span class="c1"># Test that input l1b is a Dataset type</span>
 </span><span id="Algorithm.process-130"><a href="#Algorithm.process-130"><span class="linenos">130</span></a>
-</span><span id="Algorithm.process-131"><a href="#Algorithm.process-131"><span class="linenos">131</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm.process-132"><a href="#Algorithm.process-132"><span class="linenos">132</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
-</span><span id="Algorithm.process-133"><a href="#Algorithm.process-133"><span class="linenos">133</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
-</span><span id="Algorithm.process-134"><a href="#Algorithm.process-134"><span class="linenos">134</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm.process-135"><a href="#Algorithm.process-135"><span class="linenos">135</span></a>
-</span><span id="Algorithm.process-136"><a href="#Algorithm.process-136"><span class="linenos">136</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm.process-137"><a href="#Algorithm.process-137"><span class="linenos">137</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="Algorithm.process-131"><a href="#Algorithm.process-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l1b</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+</span><span id="Algorithm.process-132"><a href="#Algorithm.process-132"><span class="linenos">132</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-133"><a href="#Algorithm.process-133"><span class="linenos">133</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;l1b parameter is not a netCDF4 Dataset type&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-134"><a href="#Algorithm.process-134"><span class="linenos">134</span></a>
+</span><span id="Algorithm.process-135"><a href="#Algorithm.process-135"><span class="linenos">135</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm.process-136"><a href="#Algorithm.process-136"><span class="linenos">136</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to passed</span>
+</span><span id="Algorithm.process-137"><a href="#Algorithm.process-137"><span class="linenos">137</span></a>        <span class="c1"># down the chain in the &#39;shared_dict&#39; dict</span>
 </span><span id="Algorithm.process-138"><a href="#Algorithm.process-138"><span class="linenos">138</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
 </span><span id="Algorithm.process-139"><a href="#Algorithm.process-139"><span class="linenos">139</span></a>
-</span><span id="Algorithm.process-140"><a href="#Algorithm.process-140"><span class="linenos">140</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
-</span><span id="Algorithm.process-141"><a href="#Algorithm.process-141"><span class="linenos">141</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="Algorithm.process-142"><a href="#Algorithm.process-142"><span class="linenos">142</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm.process-143"><a href="#Algorithm.process-143"><span class="linenos">143</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm.process-144"><a href="#Algorithm.process-144"><span class="linenos">144</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="Algorithm.process-145"><a href="#Algorithm.process-145"><span class="linenos">145</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="Algorithm.process-146"><a href="#Algorithm.process-146"><span class="linenos">146</span></a>            <span class="p">)</span>
-</span><span id="Algorithm.process-147"><a href="#Algorithm.process-147"><span class="linenos">147</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Algorithm.process-148"><a href="#Algorithm.process-148"><span class="linenos">148</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
-</span><span id="Algorithm.process-149"><a href="#Algorithm.process-149"><span class="linenos">149</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm.process-150"><a href="#Algorithm.process-150"><span class="linenos">150</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
-</span><span id="Algorithm.process-151"><a href="#Algorithm.process-151"><span class="linenos">151</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-</span><span id="Algorithm.process-152"><a href="#Algorithm.process-152"><span class="linenos">152</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="Algorithm.process-153"><a href="#Algorithm.process-153"><span class="linenos">153</span></a>            <span class="p">)</span>
-</span><span id="Algorithm.process-154"><a href="#Algorithm.process-154"><span class="linenos">154</span></a>
-</span><span id="Algorithm.process-155"><a href="#Algorithm.process-155"><span class="linenos">155</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
-</span><span id="Algorithm.process-156"><a href="#Algorithm.process-156"><span class="linenos">156</span></a>
-</span><span id="Algorithm.process-157"><a href="#Algorithm.process-157"><span class="linenos">157</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
-</span><span id="Algorithm.process-158"><a href="#Algorithm.process-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-140"><a href="#Algorithm.process-140"><span class="linenos">140</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm.process-141"><a href="#Algorithm.process-141"><span class="linenos">141</span></a>        <span class="c1"># Find Dem values for each location in m</span>
+</span><span id="Algorithm.process-142"><a href="#Algorithm.process-142"><span class="linenos">142</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm.process-143"><a href="#Algorithm.process-143"><span class="linenos">143</span></a>
+</span><span id="Algorithm.process-144"><a href="#Algorithm.process-144"><span class="linenos">144</span></a>        <span class="k">if</span> <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;hemisphere&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span>
+</span><span id="Algorithm.process-145"><a href="#Algorithm.process-145"><span class="linenos">145</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="Algorithm.process-146"><a href="#Algorithm.process-146"><span class="linenos">146</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm.process-147"><a href="#Algorithm.process-147"><span class="linenos">147</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm.process-148"><a href="#Algorithm.process-148"><span class="linenos">148</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="Algorithm.process-149"><a href="#Algorithm.process-149"><span class="linenos">149</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Algorithm.process-150"><a href="#Algorithm.process-150"><span class="linenos">150</span></a>            <span class="p">)</span>
+</span><span id="Algorithm.process-151"><a href="#Algorithm.process-151"><span class="linenos">151</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Algorithm.process-152"><a href="#Algorithm.process-152"><span class="linenos">152</span></a>            <span class="n">dem_elevation_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">interp_dem</span><span class="p">(</span>
+</span><span id="Algorithm.process-153"><a href="#Algorithm.process-153"><span class="linenos">153</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;latitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm.process-154"><a href="#Algorithm.process-154"><span class="linenos">154</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;longitudes&quot;</span><span class="p">],</span>
+</span><span id="Algorithm.process-155"><a href="#Algorithm.process-155"><span class="linenos">155</span></a>                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="Algorithm.process-156"><a href="#Algorithm.process-156"><span class="linenos">156</span></a>                <span class="n">xy_is_latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Algorithm.process-157"><a href="#Algorithm.process-157"><span class="linenos">157</span></a>            <span class="p">)</span>
+</span><span id="Algorithm.process-158"><a href="#Algorithm.process-158"><span class="linenos">158</span></a>
+</span><span id="Algorithm.process-159"><a href="#Algorithm.process-159"><span class="linenos">159</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;dem_elevation_values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dem_elevation_values</span>
+</span><span id="Algorithm.process-160"><a href="#Algorithm.process-160"><span class="linenos">160</span></a>
+</span><span id="Algorithm.process-161"><a href="#Algorithm.process-161"><span class="linenos">161</span></a>        <span class="c1"># Return success (True,&#39;&#39;)</span>
+</span><span id="Algorithm.process-162"><a href="#Algorithm.process-162"><span class="linenos">162</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -708,28 +720,28 @@ Logging: use self.log.info,error,debug(your_message)</p>
 
     </div>
     <a class="headerlink" href="#Algorithm.finalize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.finalize-160"><a href="#Algorithm.finalize-160"><span class="linenos">160</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-</span><span id="Algorithm.finalize-161"><a href="#Algorithm.finalize-161"><span class="linenos">161</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
-</span><span id="Algorithm.finalize-162"><a href="#Algorithm.finalize-162"><span class="linenos">162</span></a>
-</span><span id="Algorithm.finalize-163"><a href="#Algorithm.finalize-163"><span class="linenos">163</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm.finalize-164"><a href="#Algorithm.finalize-164"><span class="linenos">164</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
-</span><span id="Algorithm.finalize-165"><a href="#Algorithm.finalize-165"><span class="linenos">165</span></a><span class="sd">            finalize() function was called</span>
-</span><span id="Algorithm.finalize-166"><a href="#Algorithm.finalize-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm.finalize-167"><a href="#Algorithm.finalize-167"><span class="linenos">167</span></a>
-</span><span id="Algorithm.finalize-168"><a href="#Algorithm.finalize-168"><span class="linenos">168</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
-</span><span id="Algorithm.finalize-169"><a href="#Algorithm.finalize-169"><span class="linenos">169</span></a>
-</span><span id="Algorithm.finalize-170"><a href="#Algorithm.finalize-170"><span class="linenos">170</span></a>        <span class="c1"># --------------------------------------------------------</span>
-</span><span id="Algorithm.finalize-171"><a href="#Algorithm.finalize-171"><span class="linenos">171</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
-</span><span id="Algorithm.finalize-172"><a href="#Algorithm.finalize-172"><span class="linenos">172</span></a>        <span class="c1"># --------------------------------------------------------</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.finalize-164"><a href="#Algorithm.finalize-164"><span class="linenos">164</span></a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="Algorithm.finalize-165"><a href="#Algorithm.finalize-165"><span class="linenos">165</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform final clean up actions for algorithm</span>
+</span><span id="Algorithm.finalize-166"><a href="#Algorithm.finalize-166"><span class="linenos">166</span></a>
+</span><span id="Algorithm.finalize-167"><a href="#Algorithm.finalize-167"><span class="linenos">167</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm.finalize-168"><a href="#Algorithm.finalize-168"><span class="linenos">168</span></a><span class="sd">            stage (int, optional): Can be set to track at what stage the</span>
+</span><span id="Algorithm.finalize-169"><a href="#Algorithm.finalize-169"><span class="linenos">169</span></a><span class="sd">            finalize() function was called</span>
+</span><span id="Algorithm.finalize-170"><a href="#Algorithm.finalize-170"><span class="linenos">170</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm.finalize-171"><a href="#Algorithm.finalize-171"><span class="linenos">171</span></a>
+</span><span id="Algorithm.finalize-172"><a href="#Algorithm.finalize-172"><span class="linenos">172</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finalize algorithm </span><span class="si">%s</span><span class="s2"> called at stage </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">,</span> <span class="n">stage</span><span class="p">)</span>
 </span><span id="Algorithm.finalize-173"><a href="#Algorithm.finalize-173"><span class="linenos">173</span></a>
-</span><span id="Algorithm.finalize-174"><a href="#Algorithm.finalize-174"><span class="linenos">174</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
-</span><span id="Algorithm.finalize-175"><a href="#Algorithm.finalize-175"><span class="linenos">175</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="Algorithm.finalize-176"><a href="#Algorithm.finalize-176"><span class="linenos">176</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm.finalize-177"><a href="#Algorithm.finalize-177"><span class="linenos">177</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm.finalize-178"><a href="#Algorithm.finalize-178"><span class="linenos">178</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm.finalize-179"><a href="#Algorithm.finalize-179"><span class="linenos">179</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm.finalize-180"><a href="#Algorithm.finalize-180"><span class="linenos">180</span></a>
-</span><span id="Algorithm.finalize-181"><a href="#Algorithm.finalize-181"><span class="linenos">181</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-174"><a href="#Algorithm.finalize-174"><span class="linenos">174</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-175"><a href="#Algorithm.finalize-175"><span class="linenos">175</span></a>        <span class="c1"># \/ Add algorithm finalization here \/</span>
+</span><span id="Algorithm.finalize-176"><a href="#Algorithm.finalize-176"><span class="linenos">176</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-177"><a href="#Algorithm.finalize-177"><span class="linenos">177</span></a>
+</span><span id="Algorithm.finalize-178"><a href="#Algorithm.finalize-178"><span class="linenos">178</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
+</span><span id="Algorithm.finalize-179"><a href="#Algorithm.finalize-179"><span class="linenos">179</span></a>        <span class="c1"># unlinked, closed.</span>
+</span><span id="Algorithm.finalize-180"><a href="#Algorithm.finalize-180"><span class="linenos">180</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm.finalize-181"><a href="#Algorithm.finalize-181"><span class="linenos">181</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm.finalize-182"><a href="#Algorithm.finalize-182"><span class="linenos">182</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm.finalize-183"><a href="#Algorithm.finalize-183"><span class="linenos">183</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm.finalize-184"><a href="#Algorithm.finalize-184"><span class="linenos">184</span></a>
+</span><span id="Algorithm.finalize-185"><a href="#Algorithm.finalize-185"><span class="linenos">185</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 

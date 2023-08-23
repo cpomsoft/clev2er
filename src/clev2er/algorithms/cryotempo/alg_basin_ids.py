@@ -107,6 +107,7 @@ class Algorithm:
             "antarctic_grounded_and_floating_2km_grid_mask",
             mask_path=mask_paths["antarctic_grounded_and_floating_2km_grid_mask"],
             store_in_shared_memory=init_shared_mem,
+            thislog=self.log,
         )  # source: Zwally 2012, ['unknown','1',..'27']
 
         # Load: greenland_icesheet_2km_grid_mask
@@ -117,6 +118,7 @@ class Algorithm:
             "greenland_icesheet_2km_grid_mask",
             mask_path=mask_paths["greenland_icesheet_2km_grid_mask"],
             store_in_shared_memory=init_shared_mem,
+            thislog=self.log,
         )
 
         # Load: antarctic_icesheet_2km_grid_mask_rignot2016
@@ -129,6 +131,7 @@ class Algorithm:
             "antarctic_icesheet_2km_grid_mask_rignot2016",
             mask_path=mask_paths["antarctic_icesheet_2km_grid_mask_rignot2016"],
             store_in_shared_memory=init_shared_mem,
+            thislog=self.log,
         )
 
         # Load: greenland_icesheet_2km_grid_mask_rignot2016
@@ -138,6 +141,7 @@ class Algorithm:
             "greenland_icesheet_2km_grid_mask_rignot2016",
             mask_path=mask_paths["greenland_icesheet_2km_grid_mask_rignot2016"],
             store_in_shared_memory=init_shared_mem,
+            thislog=self.log,
         )
 
         # Important Note :
