@@ -39,9 +39,9 @@ graph LR;
   * Algorithm.finalize() is called after all files have been processed.
   * Each algorithm has access to: l1b Dataset, shared working dict, config dict
 * logging (+ multi-processing logging support)
-* optional multi-processing (1 process per l1b file), configurable maximum number of processes used.
-* shared memory (for example for large DEMs and Masks) when using multi-processing. This
-is an optional experimental feature that must be used with great care as it can result in
+* optional multi-processing, configurable maximum number of processes used.
+* optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. 
+This is an optional experimental feature that must be used with great care as it can result in
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.
 * algorithm timing (with MP support)
 * chain timing

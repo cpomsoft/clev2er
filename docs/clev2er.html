@@ -119,9 +119,9 @@ clev2er    </h1>
 <li>Each algorithm has access to: l1b Dataset, shared working dict, config dict</li>
 </ul></li>
 <li>logging (+ multi-processing logging support)</li>
-<li>optional multi-processing (1 process per l1b file), configurable maximum number of processes used.</li>
-<li>shared memory (for example for large DEMs and Masks) when using multi-processing. This
-is an optional experimental feature that must be used with great care as it can result in
+<li>optional multi-processing, configurable maximum number of processes used.</li>
+<li>optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. 
+This is an optional experimental feature that must be used with great care as it can result in
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.</li>
 <li>algorithm timing (with MP support)</li>
 <li>chain timing</li>
@@ -372,9 +372,9 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">  * Algorithm.finalize() is called after all files have been processed.</span>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">  * Each algorithm has access to: l1b Dataset, shared working dict, config dict</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">* logging (+ multi-processing logging support)</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">* optional multi-processing (1 process per l1b file), configurable maximum number of processes used.</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">* shared memory (for example for large DEMs and Masks) when using multi-processing. This</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">is an optional experimental feature that must be used with great care as it can result in</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">* optional multi-processing, configurable maximum number of processes used.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">* optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. </span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">This is an optional experimental feature that must be used with great care as it can result in</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">* algorithm timing (with MP support)</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">* chain timing</span>
