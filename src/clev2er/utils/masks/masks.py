@@ -496,8 +496,9 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                print(
-                    f"child: attached to existing shared memory for mask {self.mask_name}"
+                log.info(
+                    "child: attached to existing shared memory for mask %s ",
+                    self.mask_name,
                 )
 
             except FileNotFoundError:  # Create shared memory with this mask name
@@ -526,7 +527,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                print(f"parent: created shared memory for mask {self.mask_name}")
+                log.info("parent: created shared memory for mask %s", self.mask_name)
 
         else:  # load normally without using shared memory
             # read netcdf file
@@ -557,8 +558,9 @@ class Mask:
                 )
                 self.shared_mem_child = True
 
-                print(
-                    f"child: attached to existing shared memory for mask {self.mask_name}"
+                log.info(
+                    "child: attached to existing shared memory for mask %s ",
+                    self.mask_name,
                 )
 
             except FileNotFoundError:  # Create shared memory with this mask name
@@ -584,7 +586,7 @@ class Mask:
                 # Copy the data from mask_grid to the shared_np_array
                 self.mask_grid[:] = mask_grid[:]
 
-                print(f"parent: created shared memory for mask {self.mask_name}")
+                log.info("parent: created shared memory for mask %s", self.mask_name)
 
         else:  # load normally without using shared memory
             # read npz file
@@ -607,7 +609,7 @@ class Mask:
                             "closed shared memory for %s in child process",
                             self.mask_name,
                         )
-                        print(f"closing in child for mask {self.mask_name}")
+                        log.info("closing in child for mask %s", self.mask_name)
                     else:
                         self.shared_mem.close()
                         self.shared_mem.unlink()

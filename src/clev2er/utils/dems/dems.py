@@ -188,7 +188,6 @@ class Dem:
                         log.info(
                             "closed shared memory for %s in child process", self.name
                         )
-                        print(f"closing shm in child for {self.name}")
                     else:
                         self.shared_mem.close()
                         self.shared_mem.unlink()
@@ -225,7 +224,7 @@ class Dem:
                 )
                 self.shared_mem_child = True
 
-                print(f"child: attached to existing shared memory for {self.name}")
+                log.info("child: attached to existing shared memory for %s ", self.name)
 
             except FileNotFoundError:
                 zdem = imread(demfile)
@@ -243,7 +242,7 @@ class Dem:
                 # Copy the data from zdem to the shared_np_array
                 self.zdem[:] = zdem[:]
 
-                print(f"parent: created shared memory for {self.name}")
+                log.info("created shared memory for %s", self.name)
         else:
             self.zdem = imread(demfile)
 
