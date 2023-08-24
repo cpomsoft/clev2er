@@ -1061,6 +1061,8 @@ def main() -> None:
     n_l1b_files = len(l1b_file_list)
 
     log.info("Total number of L1b file found:  %d", n_l1b_files)
+    if args.find_opts:
+        log.info("L1b finder options are: %s", args.find_opts)
 
     # Check if we have any L1b files to process
     if n_l1b_files < 1:
