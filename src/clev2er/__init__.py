@@ -1,10 +1,12 @@
 """
-# CLEV2ER Algorithm Framework
+# CLEV2ER L2 Algorithm Framework
 
-**Pre-design** of an Algorithm framework for 
+A Generic algorithm framework for L1b to L2 processing
+
+##Processing chains already implemented in framework:
+
 -   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
--   CLEV2ER Land Ice and Inland Waters
--   Any other L1b->L2 chain
+
 
 The diagram below shows a simplified representation of the framework and its components.
 
@@ -37,9 +39,9 @@ graph LR;
   * Algorithm.finalize() is called after all files have been processed.
   * Each algorithm has access to: l1b Dataset, shared working dict, config dict
 * logging (+ multi-processing logging support)
-* optional multi-processing (1 process per l1b file), configurable maximum number of processes used.
-* shared memory (for example for large DEMs and Masks) when using multi-processing. This
-is an optional experimental feature that must be used with great care as it can result in
+* optional multi-processing, configurable maximum number of processes used.
+* optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. 
+This is an optional experimental feature that must be used with great care as it can result in
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.
 * algorithm timing (with MP support)
 * chain timing
