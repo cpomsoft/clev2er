@@ -3,6 +3,7 @@
 import glob
 import logging
 import os
+from typing import List
 
 # pylint: disable=R0801
 
@@ -39,6 +40,19 @@ class FileFinder:
         self.base_path = "/raid6/cpdata/SATS/RA/CRY/L1B"
         self.l1b_type = "SIN"
         self.baselines = "DE"
+        self.sin_only = False
+        self.lrm_only = False
+
+    def set_option(self, option_str: str):
+        """set options
+
+        Args:
+            option_str (str): an option str w
+        """
+        if option_str == "sin_only":
+            self.sin_only = True
+        if option_str == "lrm_only":
+            self.lrm_only = True
 
     def add_month(self, month: int) -> None:
         """Add to list of month numbers to load
@@ -88,7 +102,10 @@ class FileFinder:
             (str): list of files
 
         """
-        file_list = []
+        file_list: List[str] = []
+
+        if self.lrm_only:
+            return file_list
 
         if len(self.years) < 1:
             raise ValueError("Empty year list in find_files(). Use .add_year() first")

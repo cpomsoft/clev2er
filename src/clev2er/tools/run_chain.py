@@ -681,6 +681,15 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--find_opts",
+        "-fo",
+        help=(
+            "[Optional] options to pass to l1b finder, Comma separated list. example -fo sin_only "
+        ),
+        type=str,
+    )
+
+    parser.add_argument(
         "--month",
         "-m",
         help=("[Optional] month number (1,12) to use to select L1b files"),
@@ -970,6 +979,10 @@ def main() -> None:
                     finder.add_year(args.year)
 
                 finder.set_base_path(config["l1b_base_dir"])
+                if args.find_opts:
+                    options_list = args.find_opts.split(",")
+                    for option_str in options_list:
+                        finder.set_option(option_str)
                 files = finder.find_files()
                 if len(files) > 0:
                     l1b_file_list.extend(files)
