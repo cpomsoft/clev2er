@@ -3,6 +3,7 @@
 import logging
 import os
 import subprocess
+import time
 from datetime import datetime, timedelta  # date and time functions
 from typing import Any, Dict, Tuple
 
@@ -238,8 +239,12 @@ class Algorithm:
             try:
                 os.makedirs(product_dir)
             except OSError as exc:
-                mplog.error("[f%d] could not create %s : %s", filenum, product_dir, exc)
-                return (False, "could not create {product_dir} {exc}")
+                time.sleep(2)
+                if not os.path.isdir(product_dir):
+                    mplog.error(
+                        "[f%d] could not create %s : %s", filenum, product_dir, exc
+                    )
+                    return (False, f"could not create {product_dir} {exc}")
 
         # ---------------------------------------------------------------------
         #  Form product filename
