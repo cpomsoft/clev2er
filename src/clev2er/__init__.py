@@ -217,7 +217,7 @@ The default chain specific configuration file is
 
 ## Developer Notes
 
-### Automatic documentation
+### Automatic Documentation
 
 This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)
 
