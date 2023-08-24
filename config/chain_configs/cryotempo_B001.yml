@@ -9,9 +9,11 @@ product_base_dir: /raid6/cryo-tempo/product_baselines
 
 # Default locations for log files
 log_files:
-  errors: /raid6/cryo-tempo/land_ice/logs/errors.log
-  info:   /raid6/cryo-tempo/land_ice/logs/info.log
-  debug:  /raid6/cryo-tempo/land_ice/logs/debug.log
+  append_year_month_to_logname: true  # if chain is run for specific month and year, use <logtype>_MMYYYY.log
+                                   # or <logtype>_YYYY.log (if only year specified) 
+  errors: ${CT_LOG_DIR}/errors.log  # or errors_MMYYYY.log
+  info:   ${CT_LOG_DIR}/info.log
+  debug:  ${CT_LOG_DIR}/debug.log
 
 # CS2 instrument parameters
 instrument:

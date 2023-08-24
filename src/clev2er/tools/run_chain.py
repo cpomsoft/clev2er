@@ -768,6 +768,26 @@ def main() -> None:
         const=1,
     )
 
+    parser.add_argument(
+        "--stop_on_error",
+        "-st",
+        help=(
+            "[Optional] stop chain on first error. Default is set in main config file"
+        ),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
+        "--logstring",
+        "-ls",
+        help=(
+            "[Optional] append this string to log file names for this run, as "
+            "<logfilename>_<this_string>.log"
+        ),
+        type=str,
+    )
+
     # read arguments from the command line
     args = parser.parse_args()
 
@@ -807,6 +827,9 @@ def main() -> None:
         config["chain"]["max_processes_for_multiprocessing"] = args.nprocs
 
     config["chain"]["chain_name"] = args.name
+
+    if args.stop_on_error:
+        config["chain"]["stop_on_error"] = True
 
     # -------------------------------------------------------------------------
     # Merge chain config YAML file
@@ -878,14 +901,58 @@ def main() -> None:
     #     main config file
     # -------------------------------------------------------------------------
 
+    log_file_error_name = config["log_files"]["errors"]
+    log_file_info_name = config["log_files"]["info"]
+    log_file_debug_name = config["log_files"]["debug"]
+
+    if args.logstring:
+        log_file_error_name = log_file_error_name.replace(
+            ".log", f"_{args.logstring}.log"
+        )
+        log_file_info_name = log_file_info_name.replace(
+            ".log", f"_{args.logstring}.log"
+        )
+        log_file_debug_name = log_file_debug_name.replace(
+            ".log", f"_{args.logstring}.log"
+        )
+
+    if config["log_files"]["append_year_month_to_logname"]:
+        if args.year and not args.month:
+            log_file_error_name = log_file_error_name.replace(
+                ".log", f"_{args.year}.log"
+            )
+            log_file_info_name = log_file_info_name.replace(".log", f"_{args.year}.log")
+            log_file_debug_name = log_file_debug_name.replace(
+                ".log", f"_{args.year}.log"
+            )
+        if args.year and args.month:
+            log_file_error_name = log_file_error_name.replace(
+                ".log", f"_{args.month:02d}{args.year}.log"
+            )
+            log_file_info_name = log_file_info_name.replace(
+                ".log", f"_{args.month:02d}{args.year}.log"
+            )
+            log_file_debug_name = log_file_debug_name.replace(
+                ".log", f"_{args.month:02d}{args.year}.log"
+            )
+
+    config["log_files"]["errors"] = log_file_error_name
+    config["log_files"]["info"] = log_file_info_name
+    config["log_files"]["debug"] = log_file_debug_name
+
     log = get_logger(
         default_log_level=logging.DEBUG if args.debug else logging.INFO,
-        log_file_error=config["log_files"]["errors"],
-        log_file_info=config["log_files"]["info"],
-        log_file_debug=config["log_files"]["debug"],
+        log_file_error=log_file_error_name,
+        log_file_info=log_file_info_name,
+        log_file_debug=log_file_debug_name,
         log_name="run_chain",
         silent=args.quiet,
     )
+
+    log.info("error log: %s", log_file_error_name)
+    log.info("info log: %s", log_file_info_name)
+    if args.debug:
+        log.info("debug log: %s", log_file_debug_name)
 
     # -------------------------------------------------------------------------------------------
     # Read the list of default algorithms to use for land ice, or inland waters
