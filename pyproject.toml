@@ -49,3 +49,6 @@ markers = [
     "lrm",
     "sin",
 ]
+
+[tool.mypy]
+python_version="3.10"

@@ -905,6 +905,7 @@ def main() -> None:
     log_file_info_name = config["log_files"]["info"]
     log_file_debug_name = config["log_files"]["debug"]
 
+    # Add a string before .log if args.logstring is set
     if args.logstring:
         log_file_error_name = log_file_error_name.replace(
             ".log", f"_{args.logstring}.log"
@@ -916,6 +917,8 @@ def main() -> None:
             ".log", f"_{args.logstring}.log"
         )
 
+    # Add _YYYY or _MMYYYY before .log if config["log_files"]["append_year_month_to_logname"]
+    # is set
     if config["log_files"]["append_year_month_to_logname"]:
         if args.year and not args.month:
             log_file_error_name = log_file_error_name.replace(
@@ -1040,7 +1043,7 @@ def main() -> None:
                     )
                     sys.exit(1)
 
-                finder = module.FileFinder()
+                finder = module.FileFinder(thislog=log)
                 if args.month and args.year:
                     finder.add_month(args.month)
                     finder.add_year(args.year)

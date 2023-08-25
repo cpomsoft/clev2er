@@ -9,6 +9,7 @@ from typing import List
 log = logging.getLogger(__name__)
 
 # pylint: disable=R0801
+# pylint: disable=too-many-instance-attributes
 
 
 class FileFinder:
@@ -32,15 +33,19 @@ class FileFinder:
     Raises: FileNotFoundError : if base_path is not a valid directory
     """
 
-    def __init__(self):
+    def __init__(self, thislog: logging.Logger | None = None):
         """class initialization function"""
-        self.months = []
-        self.years = []
+        self.months: List[int] = []
+        self.years: List[int] = []
         self.base_path = "/raid6/cpdata/SATS/RA/CRY/L1B"
         self.l1b_type = "LRM"
         self.baselines = "DE"
         self.sin_only = False
         self.lrm_only = False
+        if thislog is not None:
+            self.log = thislog
+        else:
+            self.log = log
 
     def set_option(self, option_str: str):
         """set options
@@ -113,9 +118,9 @@ class FileFinder:
             self.months = list(range(1, 13))
 
         for year in self.years:
-            log.info("Finding files for year: %d", year)
+            self.log.info("Finding files for year: %d", year)
             for month in self.months:
-                log.info("Finding files for month: %d", month)
+                self.log.info("Finding files for month: %d", month)
                 if flat_search:
                     search_str = (
                         f"{self.base_path}"
@@ -126,11 +131,15 @@ class FileFinder:
                         f"{self.base_path}/{self.l1b_type}/{year:4d}/{month:02d}"
                         f"/CS_*SIR_{self.l1b_type}_1B_{year:4d}{month:02d}*[{self.baselines}]???.nc"
                     )
-                log.info("search string=%s", search_str)
+                self.log.info("search string=%s", search_str)
                 files = glob.glob(search_str)
                 nfiles = len(files)
                 if nfiles:
                     file_list.extend(files)
-                log.info("Number of files found for %.02d/%d: %d", month, year, nfiles)
-        log.info("Total number of %s files found: %d", self.l1b_type, len(file_list))
+                self.log.info(
+                    "Number of files found for %.02d/%d: %d", month, year, nfiles
+                )
+        self.log.info(
+            "Total number of %s files found: %d", self.l1b_type, len(file_list)
+        )
         return file_list
