@@ -104,6 +104,7 @@ class Algorithm:
             "greenland_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
         # Antarctic dilated coastal mask (ie includes Antarctica (grounded+floating)
         # + 10km out to ocean
@@ -124,6 +125,7 @@ class Algorithm:
             "antarctica_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
 
         # Important Note :

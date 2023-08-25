@@ -82,10 +82,14 @@ class Algorithm:
             "rema_ant_1km",
             config=self.config,
             store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
 
         self.dem_grn = Dem(
-            "arcticdem_1km", config=self.config, store_in_shared_memory=init_shared_mem
+            "arcticdem_1km",
+            config=self.config,
+            store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
         # Important Note :
         #     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()

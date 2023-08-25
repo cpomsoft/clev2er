@@ -133,6 +133,7 @@ class Algorithm:
             "antarctica_bedmachine_v2_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
         # Greenland surface type mask from BedMachine v3
         try:
@@ -151,6 +152,7 @@ class Algorithm:
             "greenland_bedmachine_v3_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
+            thislog=mplog,
         )
 
         # Important Note :
