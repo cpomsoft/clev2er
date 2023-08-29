@@ -67,7 +67,7 @@ def test_run_chain(mp_enabled):
     except KeyError:
         assert False, "KeyError for key algorithms"
 
-    success, num_errors, num_files_processed = run_chain(
+    success, num_errors, num_files_processed, num_skipped = run_chain(
         l1b_file_list=l1b_file_list,
         config=config,
         algorithm_list=algorithm_list,
@@ -77,3 +77,4 @@ def test_run_chain(mp_enabled):
     assert success, "run_chain return failure status"
     assert num_errors == 0
     assert num_files_processed == len(l1b_file_list)
+    assert num_skipped == 0
