@@ -686,6 +686,17 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--cs2testdir",
+        "-ct",
+        help=(
+            "[Optional] for quick CS2 tests, use CS2 L1b directory: "
+            "$CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles"
+        ),
+        action="store_const",
+        const=1,
+    )
+
+    parser.add_argument(
         "--find_opts",
         "-fo",
         help=(
@@ -888,12 +899,19 @@ def main() -> None:
     # Check we have enough input command line args
     # -------------------------------------------------------------------------
 
-    if not args.file and not args.dir and not (args.year and args.month):
+    if (
+        not args.cs2testdir
+        and not args.file
+        and not args.dir
+        and not (args.year and args.month)
+    ):
         sys.exit(
             f"usage error: No inputs specified for the {args.name} chain. Must have either "
-            "\n--file <single L1b file as input>,"
-            "\n--dir <input all L1b files in this directory>, or "
-            "\n--year <YYYY> and --month <M> : search for files for specified year and month."
+            "\n--cs2testdir (-ct),"
+            "\n--file (-f) <single L1b file as input>,"
+            "\n--dir (-d) <input all L1b files in this directory>, or "
+            "\n--year (-y) <YYYY> and --month (-m) <M> : search for files for "
+            "specified year and month."
             "\nThe options --year, --month are used as inputs to l1b_file_selectors modules "
             f"\nspecified in the {args.name} chain algorithms list and l1b_base_dir "
             f"\nfrom the {args.name } config file."
@@ -1022,7 +1040,11 @@ def main() -> None:
     #   - multiple files : args.dir
     # -------------------------------------------------------------------------------------------
 
-    if args.file:
+    if args.cs2testdir:
+        l1b_file_list = glob.glob(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/testdata/cs2/l1bfiles/*"
+        )
+    elif args.file:
         l1b_file_list = [args.file]
     elif args.dir:
         l1b_file_list = glob.glob(args.dir + "/*.nc")
