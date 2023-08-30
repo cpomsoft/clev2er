@@ -229,7 +229,7 @@ class Algorithm(BaseAlgorithm):
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
 
-        try:  # try is required as algorithm may not have been initialized
+        if self.initialized:
             if self.zwally_basin_mask_ant is not None:
                 self.zwally_basin_mask_ant.clean_up()
             if self.zwally_basin_mask_grn is not None:
@@ -239,7 +239,5 @@ class Algorithm(BaseAlgorithm):
                 self.rignot_basin_mask_ant.clean_up()
             if self.rignot_basin_mask_grn is not None:
                 self.rignot_basin_mask_grn.clean_up()
-        except AttributeError as exc:
-            self.log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
 
         # --------------------------------------------------------

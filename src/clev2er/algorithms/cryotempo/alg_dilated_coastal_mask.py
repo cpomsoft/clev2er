@@ -188,12 +188,10 @@ class Algorithm(BaseAlgorithm):
         # --------------------------------------------------------
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
-        try:  # try is required as algorithm may not have been initialized
+        if self.initialized:
             if self.greenland_dilated_mask is not None:
                 self.greenland_dilated_mask.clean_up()
             if self.antarctic_dilated_mask is not None:
                 self.antarctic_dilated_mask.clean_up()
-        except AttributeError as exc:
-            self.log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
 
         # --------------------------------------------------------

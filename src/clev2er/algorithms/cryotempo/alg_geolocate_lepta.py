@@ -184,9 +184,10 @@ class Algorithm(BaseAlgorithm):
 
         # Must run Dem.clean_up() for each Dem instance so that any shared memory is
         # unlinked, closed.
-        if self.dem_ant is not None:
-            self.dem_ant.clean_up()
-        if self.dem_grn is not None:
-            self.dem_grn.clean_up()
+        if self.initialized:
+            if self.dem_ant is not None:
+                self.dem_ant.clean_up()
+            if self.dem_grn is not None:
+                self.dem_grn.clean_up()
 
         # --------------------------------------------------------

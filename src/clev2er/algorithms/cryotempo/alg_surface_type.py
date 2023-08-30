@@ -292,12 +292,15 @@ class Algorithm(BaseAlgorithm):
 
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
-        try:  # try is required as algorithm may not have been initialized
-            if self.greenland_surface_mask is not None:
-                self.greenland_surface_mask.clean_up()
-            if self.antarctic_surface_mask is not None:
-                self.antarctic_surface_mask.clean_up()
-        except AttributeError as exc:
-            self.log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
+        if self.initialized:
+            try:  # try is required as algorithm may not have been initialized
+                if self.greenland_surface_mask is not None:
+                    self.greenland_surface_mask.clean_up()
+                if self.antarctic_surface_mask is not None:
+                    self.antarctic_surface_mask.clean_up()
+            except AttributeError as exc:
+                self.log.debug(
+                    "mask object %s : %s stage %d", exc, self.alg_name, stage
+                )
 
         # --------------------------------------------------------
