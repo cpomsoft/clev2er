@@ -40,6 +40,7 @@ class BaseAlgorithm:
         else:
             self.log = log
         self.filenum = 0
+        self.initialized = False
 
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
@@ -51,6 +52,7 @@ class BaseAlgorithm:
                 return
 
         _, _ = self.init()
+        self.initialized = True
 
     def init(self) -> Tuple[bool, str]:
         """Algorithm initialization template
@@ -88,7 +90,12 @@ class BaseAlgorithm:
 
     @Timer(name=__name__, text="", logger=None)
     def process_setup(self, l1b: Dataset) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """common pre-processor which tests the L1b Dataset is valid
+           and also runs BaseAlgorithm.init() if in multi-processing mode
+           This should be run as a first step inside Algorithm.process()
+
+            `success, error_str = self.process_setup(l1b)`
+
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
@@ -97,23 +104,17 @@ class BaseAlgorithm:
             Tuple : (success (bool), failure_reason (str))
             ie
             (False,'error string'), or (True,'')
-
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :
-
-        `self.log.error("your message")`
-
-        This is required to support logging during multi-processing
         """
 
         # When using multi-processing it is faster to initialize the algorithm
         # within each Algorithm.process(), rather than once in the main process's
         # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
+        # This avoids having to pickle the initialized data arrays (which is very slow)
         if self.config["chain"]["use_multi_processing"]:
             rval, error_str = self.init()
             if not rval:
                 return (rval, error_str)
+            self.initialized = True
 
         self.log.info(
             "Processing algorithm: %s",

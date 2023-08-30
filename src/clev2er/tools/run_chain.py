@@ -516,6 +516,8 @@ def run_chain(
                     rval = rval_queues[i].get()
                     if not rval[0] and "SKIP_OK" not in rval[1]:
                         num_errors += 1
+                    if "SKIP_OK" in rval[1]:
+                        num_skipped += 1
                     num_files_processed += 1
                     # rval[2] returns the Timer.timers dict for algorithms process() function
                     # ie a dict containing timers['alg_name']= the number of seconds elapsed
@@ -570,7 +572,7 @@ def run_chain(
     for alg_obj_shm in shared_mem_alg_object_list:
         alg_obj_shm.finalize(stage=2)
 
-    for alg_obj in enumerate(alg_object_list):
+    for alg_obj in alg_object_list:
         alg_obj.finalize(stage=3)
 
     # Elapsed time for each algorithm.

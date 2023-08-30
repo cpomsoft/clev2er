@@ -3,6 +3,7 @@
 """
 import logging
 import os
+import string
 
 import numpy as np
 from envyaml import (  # for parsing YAML files which include environment variables
@@ -13,6 +14,7 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 from clev2er.algorithms.cryotempo.alg_dilated_coastal_mask import Algorithm
 
 # Similar lines in 2 files, pylint: disable=R0801
+# pylint: disable=too-many-statements
 
 log = logging.getLogger(__name__)
 
@@ -33,12 +35,37 @@ def test_alg_dilated_coastal_mask() -> None:
             False
         ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
 
+    # Load cryotempo chain config file by finding latest baseline
+    # ie baseline B before A
+    reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+    baseline = None
+    for _baseline in reverse_alphabet_list:
+        config_file = f"{base_dir}/config/chain_configs/cryotempo_{_baseline}001.yml"
+        if os.path.exists(config_file):
+            baseline = _baseline
+            break
+    assert baseline, "No cryotempo baseline config file found"
+
+    log.info("Using config file %s ", config_file)
+
+    try:
+        chain_config = EnvYAML(
+            config_file
+        )  # read the YML and parse environment variables
+    except ValueError as exc:
+        assert (
+            False
+        ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
+
+    # merge the two config files (with precedence to the chain_config)
+    config = config.export() | chain_config.export()  # the export() converts to a dict
+
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -69,7 +96,7 @@ def test_alg_dilated_coastal_mask() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
 
     assert success, "Should not fail"
     assert (
@@ -107,7 +134,7 @@ def test_alg_dilated_coastal_mask() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
 
     assert success, "Should not fail"
     assert (

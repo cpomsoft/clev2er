@@ -35,7 +35,7 @@ def test_alg_skip_on_area_bounds() -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -66,7 +66,7 @@ def test_alg_skip_on_area_bounds() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict)
 
     assert (
         success is False
@@ -93,6 +93,6 @@ def test_alg_skip_on_area_bounds() -> None:
     )  # [-180,+180E] -> 0..360E
 
     # This should succeed,
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict)
 
     assert success, "Algorithm.process should succeed"

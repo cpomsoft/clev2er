@@ -1,74 +1,44 @@
 """ clev2er.algorithms.cryotempo.alg_dilated_coastal_mask """
 
 # These imports required by Algorithm template
-import logging
 from typing import Tuple
 
 import numpy as np
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
 
+from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from clev2er.utils.masks.masks import Mask  # CPOM Cryosphere area masks
 
 # -------------------------------------------------
 
-
 # Similar lines in 2 files, pylint: disable=R0801
-
-log = logging.getLogger(__name__)
-
-
 # Too many return statements, pylint: disable=R0911
 
 
-class Algorithm:
+class Algorithm(BaseAlgorithm):
     """Algorithm to
     Form a mask array of points to include from a 10km dilated Ant or Grn coastal mask.
     Dilated coastal masks come from the Mask class :
     Mask('antarctica_iceandland_dilated_10km_grid_mask')
     Mask('greenland_iceandland_dilated_10km_grid_mask')
 
+    CLEV2ER Algorithm: inherits from BaseAlgorithm
+
+    BaseAlgorithm __init__(config,thislog)
+        Args:
+            config: Dict[str, Any]: chain configuration dictionary
+            thislog: logging.Logger | None: initial logger instance to use or
+                                            None (use root logger)
     # Contributions to shared_dict:
         shared_dict["dilated_surface_mask"] : (ndarray) of bool, True is inside dilated mask
-
     """
 
-    def __init__(self, config) -> None:
-        """initializes the Algorithm
-
-        Args:
-            config (dict): configuration dictionary
-
-        Returns: None
-        """
-        self.alg_name = __name__
-        self.config = config
-
-        log.debug(
-            "Initializing algorithm %s",
-            self.alg_name,
-        )
-
-        # --------------------------------------------------------
-        # \/ Add algorithm initialization here \/
-        # --------------------------------------------------------
-
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            # only continue with initialization if setting up shared memory
-            if not config["chain"]["use_shared_memory"]:
-                return
-            if "_init_shared_mem" not in config:
-                return
-        # Run the algorithm initialization function when doing sequential processing
-        # or setting up shared memory resources
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog, filenum) -> Tuple[bool, str]:
+    def init(self) -> Tuple[bool, str]:
         """Algorithm initialization
 
-         Loads Bedmachine surface type Masks
+        Add steps in this function that are run once at the beginning of the chain
+        (for example loading a DEM or Mask)
 
         Returns:
             (bool,str) : success or failure, error string
@@ -80,7 +50,10 @@ class Algorithm:
 
         Note: raise and Exception rather than just returning False
         """
+        self.alg_name = __name__
+        self.log.info("Algorithm %s initializing", self.alg_name)
 
+        # Add initialization steps here
         # Check for special case where we create a shared memory
         # version of the DEM's arrays. Note this _init_shared_mem config setting is set by
         # run_chain.py and should not be included in the config files
@@ -92,10 +65,9 @@ class Algorithm:
                 "greenland_iceandland_dilated_10km_grid_mask"
             ]
         except KeyError as exc:
-            mplog.error(
-                "[f%d] surface_type_masks:greenland_iceandland_dilated_10km_grid_mask "
+            self.log.error(
+                "surface_type_masks:greenland_iceandland_dilated_10km_grid_mask "
                 "not in config file, KeyError: %s",
-                filenum,
                 exc,
             )
             raise KeyError(exc) from None
@@ -104,7 +76,7 @@ class Algorithm:
             "greenland_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
-            thislog=mplog,
+            thislog=self.log,
         )
         # Antarctic dilated coastal mask (ie includes Antarctica (grounded+floating)
         # + 10km out to ocean
@@ -113,10 +85,9 @@ class Algorithm:
                 "antarctica_iceandland_dilated_10km_grid_mask"
             ]
         except KeyError as exc:
-            mplog.error(
-                "[f%d] surface_type_masks:antarctica_iceandland_dilated_10km_grid_mask "
+            self.log.error(
+                "surface_type_masks:antarctica_iceandland_dilated_10km_grid_mask "
                 "not in config file: %s",
-                filenum,
                 exc,
             )
             raise KeyError(exc) from None
@@ -125,7 +96,7 @@ class Algorithm:
             "antarctica_iceandland_dilated_10km_grid_mask",
             mask_path=mask_file,
             store_in_shared_memory=init_shared_mem,
-            thislog=mplog,
+            thislog=self.log,
         )
 
         # Important Note :
@@ -134,8 +105,8 @@ class Algorithm:
         return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
-    def process(self, l1b, shared_dict, mplog, filenum):
-        """CLEV2ER Algorithm
+    def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
+        """Main algorithm processing function
 
         Interpolate surface type data from Bedmachine for nadir locations of L1b
         Transpose surface type values from Bedmachine grid to CryoTEMPO values:
@@ -144,38 +115,23 @@ class Algorithm:
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog: multi-processing safe logger to use
-            filenum (int) : file number of list of L1b files
 
         Returns:
             Tuple : (success (bool), failure_reason (str))
             ie
             (False,'error string'), or (True,'')
 
-        IMPORTANT NOTE: when logging within this function you must use the mplog logger
-        with a filenum as an argument as follows:
-        mplog.debug,info,error("[f%d] your message",filenum)
-        This is required to support logging during multi-processing
+        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
+        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :
+
+        `self.log.error("your message")`
+
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            self.init(mplog, filenum)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
-            self.alg_name.rsplit(".", maxsplit=1)[-1],
-        )
-
-        # Test that input l1b is a Dataset type
-
-        if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
-            return (False, "l1b parameter is not a netCDF4 Dataset type")
+        # This is required to support logging during multi-processing
+        success, error_str = self.process_setup(l1b)
+        if not success:
+            return (False, error_str)
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to passed
@@ -183,7 +139,7 @@ class Algorithm:
         # -------------------------------------------------------------------
 
         if "hemisphere" not in shared_dict:
-            mplog.error("[f%d] hemisphere not set in shared_dict", filenum)
+            self.log.error("hemisphere not set in shared_dict")
             return (False, "hemisphere not set in shared_dict")
 
         # Select the appropriate mask, depending on hemisphere
@@ -198,9 +154,8 @@ class Algorithm:
 
         n_in_dilated_surface_mask = np.count_nonzero(required_surface_mask)
         if n_in_dilated_surface_mask == 0:
-            mplog.info(
-                "[f%d] skipping as no locations inside dilated mask",
-                filenum,
+            self.log.info(
+                "skipping as no locations inside dilated mask",
             )
             return (False, "SKIP_OK, no locations inside dilated mask")
 
@@ -208,9 +163,8 @@ class Algorithm:
 
         percent_inside = n_in_dilated_surface_mask * 100.0 / num_records
 
-        mplog.info(
-            "[f%d] %% inside dilated mask  = %.2f%%",
-            filenum,
+        self.log.info(
+            "%% inside dilated mask  = %.2f%%",
             percent_inside,
         )
 
@@ -227,7 +181,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
@@ -240,6 +194,6 @@ class Algorithm:
             if self.antarctic_dilated_mask is not None:
                 self.antarctic_dilated_mask.clean_up()
         except AttributeError as exc:
-            log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
+            self.log.debug("mask object %s : %s stage %d", exc, self.alg_name, stage)
 
         # --------------------------------------------------------

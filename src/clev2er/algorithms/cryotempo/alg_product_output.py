@@ -5,12 +5,13 @@ import os
 import subprocess
 import time
 from datetime import datetime, timedelta  # date and time functions
-from typing import Any, Dict, Tuple
+from typing import Tuple
 
 import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
 
+from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from clev2er.utils.orbits.find_orbit_directions import find_orbit_directions
 from clev2er.utils.time.grain import Grain
 
@@ -21,8 +22,6 @@ from clev2er.utils.time.grain import Grain
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
-
-log = logging.getLogger(__name__)
 
 
 def cnes_cycle_to_subcycle(cycle_number: int, rel_orbit_number: int) -> tuple[int, int]:
@@ -44,9 +43,12 @@ def cnes_cycle_to_subcycle(cycle_number: int, rel_orbit_number: int) -> tuple[in
     return sub_cy, sub_tr
 
 
-def get_current_commit_hash() -> str:
+def get_current_commit_hash(log: logging.Logger) -> str:
     """retrieve the current git commit version
        or None if not available
+
+    Args:
+        log (logging.Logger) : current log instance to use
 
     Returns:
         str: git commit hash, or '' if failed
@@ -64,39 +66,28 @@ def get_current_commit_hash() -> str:
         return ""
 
 
-class Algorithm:
-    """**Algorithm to do...**.
+class Algorithm(BaseAlgorithm):
+    """Algorithm to write L2 CryoTEMPO output files
+
+    CLEV2ER Algorithm: inherits from BaseAlgorithm
+
+    BaseAlgorithm __init__(config,thislog)
+        Args:
+            config: Dict[str, Any]: chain configuration dictionary
+            thislog: logging.Logger | None: initial logger instance to use or
+                                            None (use root logger)
 
     **Contribution to shared dictionary**
 
-        shared_dict['product_filename']: (str), path of L2 Cryo-Tempo product file created
+    shared_dict['product_filename']: (str), path of L2 Cryo-Tempo product file created
+
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        """
-        Runs init() if not in multi-processing mode
-        Args:
-            config (dict): configuration dictionary
+    def init(self) -> Tuple[bool, str]:
+        """Algorithm initialization
 
-        Returns:
-            None
-        """
-        self.alg_name = __name__
-        self.config = config
-
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            return
-
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
-        """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
+        Add steps in this function that are run once at the beginning of the chain
+        (for example loading a DEM or Mask)
 
         Returns:
             (bool,str) : success or failure, error string
@@ -108,11 +99,9 @@ class Algorithm:
 
         Note: raise and Exception rather than just returning False
         """
-        mplog.debug(
-            "[f%d] Initializing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
+        self.alg_name = __name__
+        self.log.info("Algorithm %s initializing", self.alg_name)
+
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
         # -----------------------------------------------------------------
@@ -120,14 +109,12 @@ class Algorithm:
         # Get leap seconds list
 
         if "leap_seconds" not in self.config:
-            mplog.error("[f%d] leap_seconds not in config dict", filenum)
+            self.log.error("leap_seconds not in config dict")
             raise KeyError("leap_seconds not in config dict")
 
         self.leap_seconds_file = self.config["leap_seconds"]
         if not os.path.isfile(self.leap_seconds_file):
-            mplog.error(
-                "[f%d] leap_seconds file: %s not found", filenum, self.leap_seconds_file
-            )
+            self.log.error("leap_seconds file: %s not found", self.leap_seconds_file)
             raise FileNotFoundError(
                 f"leap_seconds file {self.leap_seconds_file} not found"
             )
@@ -135,16 +122,12 @@ class Algorithm:
         return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
-    def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
-    ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+    def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
+        """Main algorithm processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
-            filenum (int) : file number of list of L1b files
 
         Returns:
             Tuple : (success (bool), failure_reason (str))
@@ -152,33 +135,16 @@ class Algorithm:
             (False,'error string'), or (True,'')
 
         **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :
 
-        `mplog.error("[f%d] your message",filenum)`
+        `self.log.error("your message")`
 
-        This is required to support logging during multi-processing
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
-            self.alg_name.rsplit(".", maxsplit=1)[-1],
-        )
-
-        # Test that input l1b is a Dataset type
-
-        if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
-            return (False, "l1b parameter is not a netCDF4 Dataset type")
+        # This is required to support logging during multi-processing
+        success, error_str = self.process_setup(l1b)
+        if not success:
+            return (False, error_str)
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to be passed
@@ -214,7 +180,7 @@ class Algorithm:
         start_month = time_utc_dt[0].month
         start_year = time_utc_dt[0].year
 
-        log.info("start month %d %d", start_month, start_year)
+        self.log.info("start month %d %d", start_month, start_year)
 
         # ---------------------------------------------------------------------
         #  Form product directory path
@@ -229,7 +195,7 @@ class Algorithm:
             f"{self.config['version']:03d}/LAND_ICE/{zone_str}/{start_year}/{start_month:02d}"
         )
 
-        log.info("product dir: %s", product_dir)
+        self.log.info("product dir: %s", product_dir)
 
         # ---------------------------------------------------------------------
         #  Make product directory
@@ -241,9 +207,7 @@ class Algorithm:
             except OSError as exc:
                 time.sleep(2)
                 if not os.path.isdir(product_dir):
-                    mplog.error(
-                        "[f%d] could not create %s : %s", filenum, product_dir, exc
-                    )
+                    self.log.error("could not create %s : %s", product_dir, exc)
                     return (False, f"could not create {product_dir} {exc}")
 
         # ---------------------------------------------------------------------
@@ -301,10 +265,8 @@ class Algorithm:
             f"{self.config['baseline'].upper()}{self.config['version']:03d}.nc"
         )
 
-        mplog.info(
-            "[f%d] product filename=%s", filenum, os.path.basename(product_filename)
-        )
-        mplog.info("[f%d] product path=%s", filenum, product_filename)
+        self.log.info("product filename=%s", os.path.basename(product_filename))
+        self.log.info("product path=%s", product_filename)
 
         # -------------------------------------------------------------------
         # Open NetCDF file for write
@@ -313,9 +275,8 @@ class Algorithm:
         try:
             dset = Dataset(product_filename, "w", format="NETCDF4")
         except OSError as exc:
-            mplog.error(
-                "[f%d] Can not open netcdf file for write %s %s",
-                filenum,
+            self.log.error(
+                "Can not open netcdf file for write %s %s",
                 product_filename,
                 exc,
             )
@@ -385,7 +346,7 @@ class Algorithm:
 
         # Record the GIT version of this software
 
-        dset.sw_version = get_current_commit_hash()
+        dset.sw_version = get_current_commit_hash(self.log)
 
         # Add CNES sub-cycle. Need to check what to do after orbit change in Jul 2020
         cnes_subcycle, cnes_track = cnes_cycle_to_subcycle(
@@ -623,18 +584,5 @@ class Algorithm:
         # Return success (True,'')
         return (True, "")
 
-    def finalize(self, stage: int = 0):
-        """Perform final clean up actions for algorithm
 
-        Args:
-            stage (int, optional): Can be set to track at what stage the
-            finalize() function was called
-        """
-
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
-
-        # --------------------------------------------------------
-        # \/ Add algorithm finalization here \/
-        # --------------------------------------------------------
-
-        # --------------------------------------------------------
+# No finalize() required for this algorithm

@@ -45,7 +45,7 @@ class Algorithm(BaseAlgorithm):
 
     @Timer(name=__name__, text="", logger=None)
     def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Main algorithm processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
@@ -61,9 +61,12 @@ class Algorithm(BaseAlgorithm):
 
         `self.log.error("your message")`
 
-        This is required to support logging during multi-processing
         """
+
+        # This is required to support logging during multi-processing
         success, error_str = self.process_setup(l1b)
+        if not success:
+            return (False, error_str)
 
         # -------------------------------------------------------------------
         # Perform the algorithm processing, store results that need to be passed

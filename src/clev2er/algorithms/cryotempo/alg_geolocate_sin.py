@@ -1,13 +1,13 @@
 """ clev2er.algorithms.cryotempo.alg_geolocate_sin"""
 
 # These imports required by Algorithm template
-import logging
-from typing import Any, Dict, Tuple
+from typing import Tuple
 
 import numpy as np
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
 
+from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from clev2er.utils.cs2.geolocate.geolocate_sin import geolocate_sin
 from clev2er.utils.dems.dems import Dem
 
@@ -17,13 +17,19 @@ from clev2er.utils.dems.dems import Dem
 # Similar lines in 2 files, pylint: disable=R0801
 # Too many return statements, pylint: disable=R0911
 
-log = logging.getLogger(__name__)
 
-
-class Algorithm:
+class Algorithm(BaseAlgorithm):
     """**Algorithm to geolocate measurements to the POCA (point of closest approach) for SIN**
 
     Also to calculate height_20_ku
+
+    CLEV2ER Algorithm: inherits from BaseAlgorithm
+
+    BaseAlgorithm __init__(config,thislog)
+        Args:
+            config: Dict[str, Any]: chain configuration dictionary
+            thislog: logging.Logger | None: initial logger instance to use or
+                                            None (use root logger)
 
     ** Contribution to Shared Dictionary **
 
@@ -35,49 +41,24 @@ class Algorithm:
 
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        """
-        Runs init() if not in multi-processing mode
-        Args:
-            config (dict): configuration dictionary
+    def init(self) -> Tuple[bool, str]:
+        """Algorithm initialization
 
-        Returns:
-            None
-        """
-        self.alg_name = __name__
-        self.config = config
-
-        self.dem_ant: Any = None
-        self.dem_grn: Any = None
-
-        # For multi-processing we do the init() in the Algorithm.process() function
-        # This avoids pickling the init() data which is very slow
-        if config["chain"]["use_multi_processing"]:
-            # only continue with initialization if setting up shared memory
-            if not config["chain"]["use_shared_memory"]:
-                return
-            if "_init_shared_mem" not in config:
-                return
-        # Run the algorithm initialization function when doing sequential processing
-        # or setting up shared memory resources
-        _, _ = self.init(log, 0)
-
-    def init(self, mplog: logging.Logger, filenum: int) -> Tuple[bool, str]:
-        """Algorithm initialization template
-
-        Args:
-            mplog (logging.Logger): log instance to use
-            filenum (int): file number being processed
+        Add steps in this function that are run once at the beginning of the chain
+        (for example loading a DEM or Mask)
 
         Returns:
             (bool,str) : success or failure, error string
-        """
 
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
-            self.alg_name.rsplit(".", maxsplit=1)[-1],
-        )
+        Raises:
+            KeyError : keys not in config
+            FileNotFoundError :
+            OSError :
+
+        Note: raise and Exception rather than just returning False
+        """
+        self.alg_name = __name__
+        self.log.info("Algorithm %s initializing", self.alg_name)
 
         # -----------------------------------------------------------------
         #  \/ Place Algorithm initialization steps here \/
@@ -95,14 +76,14 @@ class Algorithm:
             "rema_ant_1km",
             config=self.config,
             store_in_shared_memory=init_shared_mem,
-            thislog=mplog,
+            thislog=self.log,
         )
 
         self.dem_grn = Dem(
             "arcticdem_1km",
             config=self.config,
             store_in_shared_memory=init_shared_mem,
-            thislog=mplog,
+            thislog=self.log,
         )
         # Important Note :
         #     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()
@@ -110,16 +91,12 @@ class Algorithm:
         return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
-    def process(
-        self, l1b: Dataset, shared_dict: dict, mplog: logging.Logger, filenum: int
-    ) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+    def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
+        """Main algorithm processing function
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
             shared_dict (dict): shared_dict data passed between algorithms
-            mplog (logging.Logger): multi-processing safe logger to use
-            filenum (int) : file number of list of L1b files
 
         Returns:
             Tuple : (success (bool), failure_reason (str))
@@ -127,37 +104,20 @@ class Algorithm:
             (False,'error string'), or (True,'')
 
         **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the mplog logger with a filenum as an argument:
+        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :
 
-        `mplog.error("[f%d] your message",filenum)`
+        `self.log.error("your message")`
 
-        This is required to support logging during multi-processing
         """
 
-        # When using multi-processing it is faster to initialize the algorithm
-        # within each Algorithm.process(), rather than once in the main process's
-        # Algorithm.__init__().
-        # This avoids having to pickle the initialized data arrays (which is extremely slow)
-        if self.config["chain"]["use_multi_processing"]:
-            rval, error_str = self.init(mplog, filenum)
-            if not rval:
-                return (rval, error_str)
-
-        mplog.info(
-            "[f%d] Processing algorithm %s",
-            filenum,
-            self.alg_name,
-        )
-
-        # Test that input l1b is a Dataset type
-
-        if not isinstance(l1b, Dataset):
-            mplog.error("[f%d] l1b parameter is not a netCDF4 Dataset type", filenum)
-            return (False, "l1b parameter is not a netCDF4 Dataset type")
+        # This is required to support logging during multi-processing
+        success, error_str = self.process_setup(l1b)
+        if not success:
+            return (False, error_str)
 
         # -------------------------------------------------------------------
-        # Perform the algorithm processing, store results that need to passed
-        # down the chain in the 'shared_dict' dict
+        # Perform the algorithm processing, store results that need to be passed
+        # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
 
         # --------------------------------------------------------------------
@@ -165,10 +125,10 @@ class Algorithm:
         # --------------------------------------------------------------------
 
         if shared_dict["instr_mode"] != "SIN":
-            mplog.info("[f%d] algorithm skipped as not SIN file", filenum)
+            self.log.info("algorithm skipped as not SIN file")
             return (True, "algorithm skipped as not SIN file")
 
-        mplog.info("[f%d] Calling SIN geolocation", filenum)
+        self.log.info("Calling SIN geolocation")
         height_20_ku, lat_poca_20_ku, lon_poca_20_ku = geolocate_sin(
             l1b,
             self.config,
@@ -177,7 +137,7 @@ class Algorithm:
             shared_dict["range_cor_20_ku"],
             shared_dict["ind_wfm_retrack_20_ku"],
         )
-        mplog.info("[f%d] SIN geolocation completed", filenum)
+        self.log.info("SIN geolocation completed")
 
         shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
         np.seterr(under="ignore")  # otherwise next line can fail
@@ -193,9 +153,8 @@ class Algorithm:
         longitudes = lon_poca_20_ku
 
         if poca_failed.size > 0:
-            mplog.info(
-                "[f%d] POCA replaced by nadir in %d of %d measurements ",
-                filenum,
+            self.log.info(
+                "POCA replaced by nadir in %d of %d measurements ",
                 poca_failed.size,
                 latitudes.size,
             )
@@ -216,7 +175,7 @@ class Algorithm:
             finalize() function was called
         """
 
-        log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
+        self.log.debug("Finalize algorithm %s called at stage %d", self.alg_name, stage)
 
         # --------------------------------------------------------
         # \/ Add algorithm finalization here \/
@@ -224,9 +183,10 @@ class Algorithm:
 
         # Must run Dem.clean_up() for each Dem instance so that any shared memory is
         # unlinked, closed.
-        if self.dem_ant is not None:
-            self.dem_ant.clean_up()
-        if self.dem_grn is not None:
-            self.dem_grn.clean_up()
+        if self.initialized:
+            if self.dem_ant is not None:
+                self.dem_ant.clean_up()
+            if self.dem_grn is not None:
+                self.dem_grn.clean_up()
 
         # --------------------------------------------------------
