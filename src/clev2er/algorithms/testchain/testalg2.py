@@ -1,4 +1,4 @@
-""" clev2er.algorithms.testchain.testalg1"""
+""" clev2er.algorithms.testchain.testalg2"""
 
 from typing import Tuple
 
@@ -82,11 +82,3 @@ class Algorithm(BaseAlgorithm):
             stage,
             self.filenum,
         )
-        # super().finalize(stage)
-
-        # --------------------------------------------------------------------
-        # \/ Add algorithm finalization here \/
-        # --------------------------------------------------------------------
-
-        # Important : free any shared memory resources or others (if used) here
-        # ---------------------------------------------------------------------

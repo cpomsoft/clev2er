@@ -89,7 +89,7 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 
 <p>To find all the command line options for <em>run_chain.py</em>, type:  </p>
 
-<p><code>python run_chain.py -h</code></p>
+<p><code>run_chain.py --help</code></p>
 
 <table>
 <thead>
@@ -160,6 +160,46 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
   <td>-sp</td>
   <td>[Optional] use sequential processing, overrides main config file setting</td>
 </tr>
+<tr>
+  <td>--nprocs</td>
+  <td>-np</td>
+  <td>[Optional,int] maximum number of cores to split multi-processing on. Overrides setting in main config</td>
+</tr>
+<tr>
+  <td>--sharedmem</td>
+  <td>-sm</td>
+  <td>[Optional] use shared memory when multi-processing is enabled. Experimental feature</td>
+</tr>
+<tr>
+  <td>--stop_on_error</td>
+  <td>-st</td>
+  <td>[Optional] stop chain on first error. Default is set in main config file</td>
+</tr>
+<tr>
+  <td>--logstring</td>
+  <td>-ls</td>
+  <td>[Optional, str] append this string to log file names for this run, as <logfilename>_<this_string>.log</td>
+</tr>
+<tr>
+  <td>--year</td>
+  <td>-y</td>
+  <td>[Optional, int] year number (YYYY) to use to select L1b files. The year number is used by the chain's finder</td>
+</tr>
+<tr>
+  <td>--month</td>
+  <td>-m</td>
+  <td>[Optional, int] month number (1,12) to use to select L1b files. The month number is used by the chain's finder algorithms if they support month selections</td>
+</tr>
+<tr>
+  <td>--find_opts</td>
+  <td>-fo</td>
+  <td>[Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms.</td>
+</tr>
+<tr>
+  <td>--cs2testdir</td>
+  <td>-ct</td>
+  <td>[Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -191,7 +231,7 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">To find all the command line options for *run_chain.py*, type:  </span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">`python run_chain.py -h`</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">`run_chain.py --help`</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">| Argument      | Short Arg | Description |</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">| ----------- | ----------- |----------- |</span>
@@ -207,8 +247,16 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">| --debug     | -de | [Optional] log.DEBUG messages are output to log file, and stdout  |</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">| --multiprocessing | -mp | [Optional] use multi-processing, overrides main config file setting  |</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">| --sequentialprocessing | -sp | [Optional] use sequential processing, overrides main config file setting  |</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">| --nprocs | -np | [Optional,int] maximum number of cores to split multi-processing on. Overrides setting in main config |</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">| --sharedmem | -sm | [Optional] use shared memory when multi-processing is enabled. Experimental feature |</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">| --stop_on_error | -st | [Optional] stop chain on first error. Default is set in main config file |</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">| --logstring | -ls | [Optional, str] append this string to log file names for this run, as &lt;logfilename&gt;_&lt;this_string&gt;.log |</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">| --year | -y | [Optional, int] year number (YYYY) to use to select L1b files. The year number is used by the chain&#39;s finder |</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">| --month | -m | [Optional, int] month number (1,12) to use to select L1b files. The month number is used by the chain&#39;s finder algorithms if they support month selections |</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">| --find_opts | -fo | [Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms. |</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">| --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
