@@ -62,6 +62,7 @@ from clev2er.utils.logging_funcs import get_logger
 # too-many-statements, pylint: disable=R0915
 # too-many-arguments, pylint: disable=R0913
 # pylint: disable=too-many-lines
+# pylint: disable=R0801
 
 
 def exception_hook(
@@ -90,20 +91,21 @@ def sort_file_by_number(filename: str) -> None:
         lines = file.readlines()
 
     # Extract the numbers following [f and remove [fn] from each line
-    # numbers = [int(re.search(r"\[f(\d+)\]", line).group(1)) for line in lines]
     numbers = []
     for line in lines:
         match = re.search(r"\[f(\d+)\]", line)
         if match is not None:
             number = int(match.group(1))
             numbers.append(number)
-    sorted_lines = [
-        re.sub(r"\[f\d+\]", "", line) for _, line in sorted(zip(numbers, lines))
-    ]
+    unique_numbers = np.unique(numbers)
 
     # Write the sorted lines back to the file
     with open(filename, "w", encoding="utf-8") as file:
-        file.writelines(sorted_lines)
+        for unique_number in unique_numbers:
+            indexes = np.where(numbers == unique_number)[0]
+            if len(indexes) > 0:
+                for index in indexes:
+                    file.writelines(re.sub(r"\[f\d+\]", "", lines[index]))
 
 
 def insert_txtfile1_in_txtfile2_after_line_containing_string(
@@ -200,7 +202,9 @@ def run_chain_on_single_file(
         logger = logging.getLogger("mp")
         # add a handler that uses the shared queue
         if log_queue is not None:
-            logger.addHandler(QueueHandler(log_queue))
+            handler = QueueHandler(log_queue)
+            handler.setFormatter(logging.Formatter(f"[f{filenum}] %(message)s"))
+            logger.addHandler(handler)
         # log all messages, debug and up
         logger.setLevel(logging.DEBUG)
         # get the current process
@@ -211,9 +215,9 @@ def run_chain_on_single_file(
     else:
         thislog = log
 
-    thislog.debug("[f%d]_%s", filenum, "_" * 79)  # add a divider line in the log
+    thislog.info("_%s", "_" * 79)  # add a divider line in the log
 
-    thislog.info("[f%d] Processing file %d: %s", filenum, filenum, l1b_file)
+    thislog.info("Processing file %d: %s", filenum, l1b_file)
 
     try:  # and open the NetCDF file
         with Dataset(l1b_file) as nc:
@@ -225,42 +229,44 @@ def run_chain_on_single_file(
             working_dict["l1b_file_name"] = l1b_file
 
             for alg_obj in alg_object_list:
+                alg_obj.set_filenum(filenum)
+                alg_obj.set_log(thislog)
                 # Run the Algorithm's process() function. Note that for multi-processing
                 # the process() function also calls the init() function first
-                success, error_str = alg_obj.process(nc, working_dict, thislog, filenum)
+                success, error_str = alg_obj.process(nc, working_dict)
                 if not success:
-                    if "SKIP_OK" not in error_str:
-                        thislog.error(
-                            "[f%d] Processing of L1b file %d : %s stopped because %s",
-                            filenum,
+                    if "SKIP_OK" in error_str:
+                        thislog.debug(
+                            "Processing of L1b file %d : %s SKIPPED because %s",
                             filenum,
                             l1b_file,
                             error_str,
                         )
                     else:
-                        thislog.debug(
-                            "[f%d] Processing of L1b file %d : %s SKIPPED because %s",
-                            filenum,
+                        thislog.error(
+                            "Processing of L1b file %d : %s stopped because %s",
                             filenum,
                             l1b_file,
                             error_str,
                         )
+
                     if config["chain"]["use_multi_processing"]:
                         if rval_queue is not None:
                             rval_queue.put((False, error_str, Timer.timers))
-                    # Free up resources by running the Algorithm.finalize() on each
-                    # algorithm instance
-                    for alg_obj in alg_object_list:
-                        alg_obj.finalize(stage=5)
+                        # Free up resources by running the Algorithm.finalize() on each
+                        # algorithm instance
+                        for alg_obj in alg_object_list:
+                            alg_obj.finalize(stage=5)
                     return (False, error_str)
 
-            # Free up resources by running the Algorithm.finalize() on each
-            # algorithm instance
-            for alg_obj in alg_object_list:
-                alg_obj.finalize(stage=6)
+            if config["chain"]["use_multi_processing"]:
+                # Free up resources by running the Algorithm.finalize() on each
+                # algorithm instance
+                for alg_obj in alg_object_list:
+                    alg_obj.finalize(stage=6)
 
     except IOError:
-        error_str = f"[f{filenum}] Could not read netCDF file {l1b_file}"
+        error_str = f"Could not read netCDF file {l1b_file}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
             if rval_queue is not None:
@@ -336,7 +342,7 @@ def run_chain(
     config: dict,
     algorithm_list: list[str],
     log: logging.Logger,
-) -> tuple[bool, int, int]:
+) -> tuple[bool, int, int, int]:
     """Run the algorithm chain in algorithm_list on each L1b file in l1b_file_list
        using the configuration settings in config
 
@@ -347,8 +353,9 @@ def run_chain(
         algorithm_list (list[str]): list of algorithm names
 
     Returns:
-        tuple(bool,int,int) : (chain success or failure, number_of_errors,
-                                  number of files processed)
+        tuple(bool,int,int, int) : (chain success or failure, number_of_errors,
+                                  number of files processed, number of files skipped
+                                  (for valid reasons))
     """
 
     n_files = len(l1b_file_list)
@@ -375,7 +382,7 @@ def run_chain(
             )
         except ImportError as exc:
             log.error("Could not import algorithm %s, %s", alg, exc)
-            return (False, 1, 0)
+            return (False, 1, 0, 0)
 
         # --------------------------------------------------------------------
         # Create an instance of each Algorithm,
@@ -384,10 +391,10 @@ def run_chain(
 
         # Load/Initialize algorithm
         try:
-            alg_obj = module.Algorithm(config)
+            alg_obj = module.Algorithm(config, log)
         except (FileNotFoundError, IOError, KeyError) as exc:
             log.error("Could not initialize algorithm %s, %s", alg, exc)
-            return (False, 1, 0)
+            return (False, 1, 0, 0)
 
         alg_object_list.append(alg_obj)
 
@@ -406,7 +413,7 @@ def run_chain(
         ):
             # Load/Initialize algorithm
             try:
-                alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True})
+                alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True}, log)
             except (FileNotFoundError, IOError, KeyError) as exc:
                 log.error(
                     "Could not initialize algorithm for shared_memory %s, %s", alg, exc
@@ -415,7 +422,7 @@ def run_chain(
                 for alg_obj_shm in shared_mem_alg_object_list:
                     alg_obj_shm.finalize(stage=4)
 
-                return (False, 1, 0)
+                return (False, 1, 0, 0)
 
             shared_mem_alg_object_list.append(alg_obj_shm)
 
@@ -427,6 +434,7 @@ def run_chain(
     # -------------------------------------------------------------------------------------------
     num_errors = 0
     num_files_processed = 0
+    num_skipped = 0
 
     # --------------------------------------------------------------------------------------------
     # Parallel Processing (optional)
@@ -508,6 +516,8 @@ def run_chain(
                     rval = rval_queues[i].get()
                     if not rval[0] and "SKIP_OK" not in rval[1]:
                         num_errors += 1
+                    if "SKIP_OK" in rval[1]:
+                        num_skipped += 1
                     num_files_processed += 1
                     # rval[2] returns the Timer.timers dict for algorithms process() function
                     # ie a dict containing timers['alg_name']= the number of seconds elapsed
@@ -520,6 +530,7 @@ def run_chain(
         # shutdown the queue correctly
         log_queue.put(None)
 
+        log.info("MP processing completed with outputs logged:")
     # --------------------------------------------------------------------------------------------
     # Sequential Processing
     # --------------------------------------------------------------------------------------------
@@ -534,6 +545,7 @@ def run_chain(
             num_files_processed += 1
             if not success and "SKIP_OK" in error_str:
                 log.debug("Skipping file")
+                num_skipped += 1
                 continue
             if not success:
                 num_errors += 1
@@ -563,13 +575,6 @@ def run_chain(
     for alg_obj in alg_object_list:
         alg_obj.finalize(stage=3)
 
-    log.info(
-        "chain '%s' completed processing %d files with %d errors",
-        config["chain"]["chain_name"],
-        num_files_processed,
-        num_errors,
-    )
-
     # Elapsed time for each algorithm.
     # Note if multi-processing, process times are added for each algorithm
     # (so total time processing will be less)
@@ -583,10 +588,10 @@ def run_chain(
         log.info("%s %.3f s", algname, cumulative_time)
 
     if num_errors > 0:
-        return (False, num_errors, num_files_processed)
+        return (False, num_errors, num_files_processed, num_skipped)
 
     # Completed successfully, so return True with no error msg
-    return (True, num_errors, num_files_processed)
+    return (True, num_errors, num_files_processed, num_skipped)
 
 
 def main() -> None:
@@ -1086,7 +1091,7 @@ def main() -> None:
 
     start_time = time.time()
 
-    _, number_errors, num_files_processed = run_chain(
+    _, number_errors, num_files_processed, num_skipped = run_chain(
         l1b_file_list, config, algorithm_list, log
     )
 
@@ -1099,15 +1104,19 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "%s Chain completed with %d errors processing %d files"
-        " of %d input files in %.2f seconds := (%.2f mins := %.2f hours)",
+        "%s Chain completed in %.2f seconds := (%.2f mins := %.2f hours)",
         args.name,
-        number_errors,
-        num_files_processed,
-        len(l1b_file_list),
         elapsed_time,
         elapsed_time / 60.0,
         (elapsed_time / 60.0) / 60.0,
+    )
+    log.info(
+        "%s Chain processed %d files of %d. %d files skipped, %d errors",
+        args.name,
+        num_files_processed,
+        len(l1b_file_list),
+        num_skipped,
+        number_errors,
     )
 
     log.info("\n%sLog Files          %s", "-" * 20, "-" * 20)
@@ -1127,12 +1136,12 @@ def main() -> None:
         insert_txtfile1_in_txtfile2_after_line_containing_string(
             config["log_files"]["info"] + ".mp",
             config["log_files"]["info"],
-            "Using multi-processing with max",
+            "MP processing completed with outputs logged:",
         )
         insert_txtfile1_in_txtfile2_after_line_containing_string(
             config["log_files"]["debug"] + ".mp",
             config["log_files"]["debug"],
-            "Using multi-processing with max",
+            "MP processing completed with outputs logged:",
         )
         append_file(
             config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]

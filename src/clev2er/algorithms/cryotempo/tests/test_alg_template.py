@@ -76,7 +76,7 @@ def test_alg_template(l1b_file) -> None:
 
     # Initialise the Algorithm being tested
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -103,7 +103,7 @@ def test_alg_template(l1b_file) -> None:
     # required shared_dict parameters
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
     assert success, "algorithm should not fail"
 
     # Test outputs of algorithm

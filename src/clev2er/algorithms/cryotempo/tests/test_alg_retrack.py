@@ -76,7 +76,7 @@ def test_alg_retrack(l1b_file) -> None:
 
     # Initialise the Algorithm
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -113,7 +113,7 @@ def test_alg_retrack(l1b_file) -> None:
     config["mc_retracker"]["show_plots"] = False
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
     assert success, "algorithm should not fail"
 
     assert "range_cor_20_ku" in shared_dict, "range_cor_20_ku not in shared_dict"

@@ -25,8 +25,9 @@ def test_alg_skip_on_mode() -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
 
+    config: dict = {}
     # Initialise the Algorithm
-    thisalg = Algorithm(config=None)  # no config used for this alg
+    thisalg = Algorithm(config, log)  # no config used for this alg
 
     # -------------------------------------------------------------------------
     # Test with LRM file. Should return (True,'') and insert "LRM" in
@@ -42,7 +43,7 @@ def test_alg_skip_on_mode() -> None:
     # Run  Algorithm.process()
     shared_dict = {}
     shared_dict["instr_mode"] = "LRM"
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict)
 
     assert success, f"Algorithm.process failed due to {error_str}"
 
@@ -61,7 +62,7 @@ def test_alg_skip_on_mode() -> None:
     shared_dict = {}
     shared_dict["instr_mode"] = "SIN"
 
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict)
 
     assert success, f"Algorithm.process failed due to {error_str}"
 
@@ -79,6 +80,6 @@ def test_alg_skip_on_mode() -> None:
     shared_dict = {}
     shared_dict["instr_mode"] = "SAR"
 
-    success, error_str = thisalg.process(l1b, shared_dict, log, 0)
+    success, error_str = thisalg.process(l1b, shared_dict)
     assert "SKIP_OK" in error_str, "SKIP_OK should be included in error_str"
     assert success is False, f"Algorithm.process should fail {error_str}"

@@ -126,57 +126,57 @@ def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
 
     # Initialise the Algorithms
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
     try:
-        identify_file = IdentifyFile(config=config)
+        identify_file = IdentifyFile(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize IdentifyFile algorithm {exc}"
 
     try:
-        surface_type = SurfaceType(config=config)
+        surface_type = SurfaceType(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize SurfaceType algorithm {exc}"
 
     try:
-        skip_mode = SkipMode(config=config)
+        skip_mode = SkipMode(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize SkipMode algorithm {exc}"
 
     try:
-        fes2014b = Fes2014b(config=config)
+        fes2014b = Fes2014b(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize Fes2014b algorithm {exc}"
 
     try:
-        cats2008a = Cats2008a(config=config)
+        cats2008a = Cats2008a(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize Cats2008a algorithm {exc}"
 
     try:
-        geo_corrections = GeoCorrections(config=config)
+        geo_corrections = GeoCorrections(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize GeoCorrections algorithm {exc}"
 
     try:
-        skip_area = SkipArea(config=config)
+        skip_area = SkipArea(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize SkipArea algorithm {exc}"
 
     try:
-        coastal_mask = CoastalMask(config=config)
+        coastal_mask = CoastalMask(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize CoastalMask algorithm {exc}"
 
     try:
-        waveform_quality = WaveformQuality(config=config)
+        waveform_quality = WaveformQuality(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize WaveformQuality algorithm {exc}"
 
     try:
-        retracker = Retracker(config=config)
+        retracker = Retracker(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -203,37 +203,37 @@ def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
 
     # Run previous CryoTEMPO algorithms.process() to generate required parameters
 
-    success, _ = identify_file.process(l1b, shared_dict, log, 0)
+    success, _ = identify_file.process(l1b, shared_dict)
     assert success, "identify_file algorithm should not fail"
 
-    success, _ = skip_mode.process(l1b, shared_dict, log, 0)
+    success, _ = skip_mode.process(l1b, shared_dict)
     assert success, "skip_mode algorithm should not fail"
 
-    success, _ = skip_area.process(l1b, shared_dict, log, 0)
+    success, _ = skip_area.process(l1b, shared_dict)
     assert success, "skip_area algorithm should not fail"
 
-    success, _ = surface_type.process(l1b, shared_dict, log, 0)
+    success, _ = surface_type.process(l1b, shared_dict)
     assert success, "surface_type algorithm should not fail"
 
-    success, _ = coastal_mask.process(l1b, shared_dict, log, 0)
+    success, _ = coastal_mask.process(l1b, shared_dict)
     assert success, "coastal_mask algorithm should not fail"
 
-    success, _ = cats2008a.process(l1b, shared_dict, log, 0)
+    success, _ = cats2008a.process(l1b, shared_dict)
     assert success, "cats2008a algorithm should not fail"
-    success, _ = fes2014b.process(l1b, shared_dict, log, 0)
+    success, _ = fes2014b.process(l1b, shared_dict)
     assert success, "fes2014b algorithm should not fail"
 
-    success, _ = geo_corrections.process(l1b, shared_dict, log, 0)
+    success, _ = geo_corrections.process(l1b, shared_dict)
     assert success, "geo_corrections algorithm should not fail"
 
-    success, _ = waveform_quality.process(l1b, shared_dict, log, 0)
+    success, _ = waveform_quality.process(l1b, shared_dict)
     assert success, "waveform quality algorithm should not fail"
 
-    success, _ = retracker.process(l1b, shared_dict, log, 0)
+    success, _ = retracker.process(l1b, shared_dict)
     assert success, "retracker algorithm should not fail"
 
     # Run this algorithm's  process() function
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
     if shared_dict["instr_mode"] == "SIN":
         assert success, "Should succeed with SIN file, but do nothing"
 

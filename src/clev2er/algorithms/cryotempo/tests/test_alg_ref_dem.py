@@ -77,13 +77,13 @@ def test_alg_ref_dem(l1b_file) -> None:
 
     # Initialise any other Algorithms required by test
     try:
-        skip_area = SkipArea(config=config)
+        skip_area = SkipArea(config, log)
     except KeyError as exc:
         assert False, f"Could not initialize SkipArea algorithm {exc}"
 
     # Initialise the Algorithm being tested
     try:
-        thisalg = Algorithm(config=config)  # no config used for this alg
+        thisalg = Algorithm(config, log)  # no config used for this alg
     except KeyError as exc:
         assert False, f"Could not initialize algorithm {exc}"
 
@@ -112,11 +112,11 @@ def test_alg_ref_dem(l1b_file) -> None:
 
     # Run other alg process required by test to fill in
     # required shared_dict parameters
-    success, _ = skip_area.process(l1b, shared_dict, log, 0)
+    success, _ = skip_area.process(l1b, shared_dict)
     assert success, "skip_area algorithm should not fail"
 
     # Run the alg process
-    success, _ = thisalg.process(l1b, shared_dict, log, 0)
+    success, _ = thisalg.process(l1b, shared_dict)
     assert success, "algorithm should not fail"
 
     assert (
