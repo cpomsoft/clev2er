@@ -87,7 +87,7 @@
 python run_chain.py --name cryotempo -d /path/to/l1b_files
 </code></pre>
 
-<p>To find all the command line options for <em>run_chain.py</em>, type:  </p>
+<p>To find all the current command line options for <em>run_chain.py</em>, type:  </p>
 
 <p><code>run_chain.py --help</code></p>
 
@@ -193,15 +193,14 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 <tr>
   <td>--find_opts</td>
   <td>-fo</td>
-  <td>[Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms.</td>
-</tr>
-<tr>
-  <td>--cs2testdir</td>
-  <td>-ct</td>
-  <td>[Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles</td>
+  <td>[Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms. Examples</td>
 </tr>
 </tbody>
 </table>
+
+<p>for cryotempo chain: -fo sin_only : only select SIN L1b files. -fo lrm_only : only select LRM
+                        L1b files. These are chain specific and may have different meanings for other chains|
+| --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |</p>
 </div>
 
                         <input id="mod-tools-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -229,7 +228,7 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">python run_chain.py --name cryotempo -d /path/to/l1b_files</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">```</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">To find all the command line options for *run_chain.py*, type:  </span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">To find all the current command line options for *run_chain.py*, type:  </span>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">`run_chain.py --help`</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
@@ -253,10 +252,12 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">| --logstring | -ls | [Optional, str] append this string to log file names for this run, as &lt;logfilename&gt;_&lt;this_string&gt;.log |</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">| --year | -y | [Optional, int] year number (YYYY) to use to select L1b files. The year number is used by the chain&#39;s finder |</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">| --month | -m | [Optional, int] month number (1,12) to use to select L1b files. The month number is used by the chain&#39;s finder algorithms if they support month selections |</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">| --find_opts | -fo | [Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms. |</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">| --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">| --find_opts | -fo | [Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms. Examples</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">                        for cryotempo chain: -fo sin_only : only select SIN L1b files. -fo lrm_only : only select LRM</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">                        L1b files. These are chain specific and may have different meanings for other chains|</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">| --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
