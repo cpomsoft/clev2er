@@ -689,7 +689,7 @@ def main() -> None:
         "--cs2testdir",
         "-ct",
         help=(
-            "[Optional] for quick CS2 tests, use CS2 L1b directory: "
+            "[Optional] for quick CS2 tests, uses default CS2 L1b directory: "
             "$CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles"
         ),
         action="store_const",
@@ -700,7 +700,11 @@ def main() -> None:
         "--find_opts",
         "-fo",
         help=(
-            "[Optional] options to pass to l1b finder, Comma separated list. example -fo sin_only "
+            "[Optional] Comma separated list of string options to pass to l1b finder algorithms. "
+            "Examples for cryotempo chain: "
+            "-fo sin_only  : only select SIN L1b files. "
+            "-fo lrm_only  : only select LRM L1b files. "
+            "These are chain specific and may have different meanings for other chains"
         ),
         type=str,
     )
@@ -708,13 +712,21 @@ def main() -> None:
     parser.add_argument(
         "--month",
         "-m",
-        help=("[Optional] month number (1,12) to use to select L1b files"),
+        help=(
+            "[Optional] month number (1,12) to use to select L1b files. "
+            "The month number is used by the chain's finder algorithms if "
+            "they support month selections"
+        ),
         type=int,
     )
     parser.add_argument(
         "--year",
         "-y",
-        help=("[Optional] year number (YYYY) to use to select L1b files"),
+        help=(
+            "[Optional] year number (YYYY) to use to select L1b files. "
+            "The year number is used by the chain's finder algorithms if "
+            "they support year selections"
+        ),
         type=int,
     )
 
