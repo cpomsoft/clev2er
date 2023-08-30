@@ -94,6 +94,23 @@ export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
 ulimit -n 8192
 ```
 
+### Environment Setup for Specific Chains
+
+Additional environment setup maybe required for specific chains.
+
+#### cryotempo (land ice)
+
+```script
+# Environment for CLEV2ER:cryotempo chain
+export CPDATA_DIR=/cpdata
+export CPOM_SOFTWARE_DIR=/cpnet/software/cpom_software
+export FES2014B_BASE_DIR=/cpnet/mssldba_raid6/cpdata/SATS/RA/CRY/L1B/FES2014
+export CATS2008A_BASE_DIR=/cpnet/mssldba_raid6/cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides
+export CS2_SLOPE_MODELS_DIR=/cpnet/mssldba_raid6/cpdata/RESOURCES/slope_models
+export CS2_UNCERTAINTY_BASE_DIR=/cpnet/mssldba_raid6/cryo-tempo/land_ice/uncertainty
+export CT_LOG_DIR=/tmp
+```
+
 ## Python Requirement
 
 Requires python v3.10 to be installed before proceeding.
