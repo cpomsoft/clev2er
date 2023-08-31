@@ -90,7 +90,7 @@ done by adding export lines to your $HOME/.bashrc file.
 An example environment setup is shown below:
 
 ```script
-export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
+export CLEV2ER_BASE_DIR=/Users/someuser/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
 # for multi-processing/shared mem support set ulimit
@@ -227,13 +227,13 @@ the chain's algorithms, via a merged python dictionary.
 The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
 
 This contains settings for :
-- default location of log files (INFO, DEBUG,ERROR)
+- default chain run control settings
 - default multi-processing settings (mp enabled/disabled, max number of cores)
 
 ### Chain Specific Configuration
 
 The default chain specific configuration file is
-`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
+`$CLEV2ER_BASE_DIR/config/chain_configs/**<chain_name>**_<BVVV>.yml`
 
 
 ## Developer Notes

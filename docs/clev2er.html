@@ -177,7 +177,7 @@ multi-processing.</li>
 
 <p>An example environment setup is shown below:</p>
 
-<pre><code>export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
+<pre><code>export CLEV2ER_BASE_DIR=/Users/someuser/software/clev2er
 export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src
 export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}
 # for multi-processing/shared mem support set ulimit
@@ -311,14 +311,14 @@ the chain's algorithms, via a merged python dictionary.</p>
 <p>This contains settings for :</p>
 
 <ul>
-<li>default location of log files (INFO, DEBUG,ERROR)</li>
+<li>default chain run control settings</li>
 <li>default multi-processing settings (mp enabled/disabled, max number of cores)</li>
 </ul>
 
 <h3 id="chain-specific-configuration">Chain Specific Configuration</h3>
 
 <p>The default chain specific configuration file is
-<code>$CLEV2ER_BASE_DIR/config/chain_configs/&lt;chain_name&gt;_&lt;BVVV&gt;.yml</code></p>
+<code>$CLEV2ER_BASE_DIR/config/chain_configs/**&lt;chain_name&gt;**_&lt;BVVV&gt;.yml</code></p>
 
 <h2 id="developer-notes">Developer Notes</h2>
 
@@ -446,7 +446,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">An example environment setup is shown below:</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">```script</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">export CLEV2ER_BASE_DIR=/Users/someuser/software/clev2er</span>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">export PYTHONPATH=$PYTHONPATH:$CLEV2ER_BASE_DIR/src</span>
 </span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">export PATH=${CLEV2ER_BASE_DIR}/src/clev2er/tools:${PATH}</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd"># for multi-processing/shared mem support set ulimit</span>
@@ -583,13 +583,13 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`</span>
 </span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a>
 </span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">This contains settings for :</span>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">- default location of log files (INFO, DEBUG,ERROR)</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">- default chain run control settings</span>
 </span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">- default multi-processing settings (mp enabled/disabled, max number of cores)</span>
 </span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>
 </span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="sd">### Chain Specific Configuration</span>
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>
 </span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">The default chain specific configuration file is</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/&lt;chain_name&gt;_&lt;BVVV&gt;.yml`</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/**&lt;chain_name&gt;**_&lt;BVVV&gt;.yml`</span>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="sd">## Developer Notes</span>
