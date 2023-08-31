@@ -240,9 +240,10 @@ The default chain specific configuration file is
 1. Decide on a chain name. For example **newchain**
 2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chain's algorithms.
 3. Create your algorithms by copying and renaming the algorithm class template 
-   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. You fill in
-   the appropriate sections of the init(), process() and finalize() functions for each algorithm.
-   (see section below for more details on using algorithm classes).
+   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. Each algorithm
+   should have a different file name of your choice. For example: alg_retrack.py, alg_geolocate.py. 
+   You need to fill in the appropriate sections of the init(), process() and finalize() functions 
+   for each algorithm (see section below for more details on using algorithm classes).
 4. Create a YML configuration file for the chain in 
    $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. The configuration file contains
    any settings or resource locations that are required by your algorithms.
