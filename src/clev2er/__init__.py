@@ -191,12 +191,13 @@ pre-commit run --all-files
 ```
 
 Now, whenever you make changes to your code, it is recommended to run the following
-in your current code directory.  This will check that your code passes all static code
-tests prior to running git commit.
+in your current code directory.  
 
 ```pre-commit run --all-files```
 
-
+This will check that your code passes all static code
+tests prior to running git commit. Note that these same tests are also run when
+you do a new commit, ie using `git commit -a -m "commit message"`
 
 
 ### Load the Virtual Environment
