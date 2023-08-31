@@ -81,8 +81,13 @@ or with the GitHub CLI:
 The following shell environment variables need to be set. In a bash shell this might be 
 done by adding export lines to your $HOME/.bashrc file.  
 
-Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  Then set
-the PYTHONPATH to point to the packages src directory. Here is an example:  
+    - Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  
+    - Add $CLEV2ER_BASE_DIR/src to *PYTHONPATH*.   
+    - Add ${CLEV2ER_BASE_DIR}/src/clev2er/tools to the *PATH*.   
+    - Set the shell's *ulimit -n* to allow enough file descriptors to be available for
+      multi-processing.
+
+An example environment setup is shown below:
 
 ```script
 export CLEV2ER_BASE_DIR=/Users/alanmuir/software/clev2er
