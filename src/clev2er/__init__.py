@@ -171,6 +171,34 @@ cd $CLEV2ER_BASE_DIR
 poetry install
 ```
 
+## Developer Requirements
+
+This section details additional installation requirements for developers who will develop/adapt 
+new chains or algorithms.
+
+### Install pre-commit hooks
+
+pre-commit hooks are static code analysis scripts which are run (and must be passed) before
+each git commit. For this project they include pylint, flake8, mypy, black, isort, pdocs.
+
+To install pre-commit hooks:
+
+```
+cd $CLEV2ER_BASE_DIR
+poetry shell
+pre-commit install
+pre-commit run --all-files
+```
+
+Now, whenever you make changes to your code, it is recommended to run the following
+in your current code directory.  This will check that your code passes all static code
+tests prior to running git commit.
+
+```pre-commit run --all-files```
+
+
+
+
 ### Load the Virtual Environment
 
 Now you are all setup to go. Whenever you want to run any CLEV2ER chains you 
@@ -295,6 +323,6 @@ The front page of the site (ie this page) is located in the doctring within
 `$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.
 
 The docstring within `__init__.py` of each package directory should provide
-markdown to describe the directories beneath it..
+markdown to describe the directories beneath it.
 
 """
