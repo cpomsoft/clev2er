@@ -249,7 +249,8 @@ The default chain specific configuration file is
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline 
    character A-Z, and 001 is the version number).
 6. To test your chain on a single L1b file, you can use 
-   `run_chain.py --name newchain -f /path/to/a/l1b_file`
+   `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many options for running chains 
+   (see `run_chain.py -h`).
 
 ## Developer Notes
 
