@@ -32,9 +32,10 @@ graph LR;
   * Algorithm.init() is called before any L1b file processing.
   * Algorithm.process() is called on every L1b file,
   * Algorithm.finalize() is called after all files have been processed.
-  * Each algorithm has access to: l1b Dataset, shared working dict, config dict
+  * Each algorithm has access to: L1b Dataset, shared working dict, config dict.
+  * The 'shared_dict' is used to pass algorithm outputs between algorithms in the chain.
 * logging (+ multi-processing logging support)
-* optional multi-processing, configurable maximum number of processes used.
+* optional multi-processing built in, configurable maximum number of processes used.
 * optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. 
 This is an optional experimental feature that must be used with great care as it can result in
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.
