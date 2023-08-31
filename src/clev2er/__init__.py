@@ -141,7 +141,8 @@ python -V
 
 ## Virtual Environment and Package Requirements
 
-This project uses *poetry* to manage package dependencies and virtual envs.
+This project uses *poetry* (a dependency manager, see: https://python-poetry.org/) to manage 
+package dependencies and virtual envs.
 
 First, you need to install *poetry* on your system using instructions from
 https://python-poetry.org/docs/#installation. Normally this just requires running:
