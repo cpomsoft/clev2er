@@ -115,7 +115,8 @@ python v3.10 must be installed or available before proceeding.
 A recommended minimal method of installation of python 3.10 is using miniconda as 
 follows (other appropriate methods may also be used):
 
-Select the **python 3.10** installer for your operating system from:
+For miniconda installation, select the **python 3.10** installer for your operating 
+system from:
 
 https://docs.conda.io/en/latest/miniconda.html
 
@@ -156,7 +157,7 @@ You should also then ensure that poetry is in your path, such that the command
 returns the poetry version number. You may need to modify your 
 PATH variable in order to achieve this.
 
-### Install required python packages using Poetry
+### Install Required Python packages using Poetry
 
 Run the following command to install python dependencies for this package
 (for info, it uses settings in pyproject.toml to know what to install)
