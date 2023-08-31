@@ -229,15 +229,14 @@ class Algorithm(BaseAlgorithm):
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
 
-        if self.initialized:
-            if self.zwally_basin_mask_ant is not None:
-                self.zwally_basin_mask_ant.clean_up()
-            if self.zwally_basin_mask_grn is not None:
-                self.zwally_basin_mask_grn.clean_up()
+        if self.zwally_basin_mask_ant is not None:
+            self.zwally_basin_mask_ant.clean_up()
+        if self.zwally_basin_mask_grn is not None:
+            self.zwally_basin_mask_grn.clean_up()
 
-            if self.rignot_basin_mask_ant is not None:
-                self.rignot_basin_mask_ant.clean_up()
-            if self.rignot_basin_mask_grn is not None:
-                self.rignot_basin_mask_grn.clean_up()
+        if self.rignot_basin_mask_ant is not None:
+            self.rignot_basin_mask_ant.clean_up()
+        if self.rignot_basin_mask_grn is not None:
+            self.rignot_basin_mask_grn.clean_up()
 
         # --------------------------------------------------------

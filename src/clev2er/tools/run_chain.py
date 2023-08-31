@@ -256,14 +256,16 @@ def run_chain_on_single_file(
                         # Free up resources by running the Algorithm.finalize() on each
                         # algorithm instance
                         for alg_obj in alg_object_list:
-                            alg_obj.finalize(stage=5)
+                            if alg_obj.initialized:
+                                alg_obj.finalize(stage=5)
                     return (False, error_str)
 
             if config["chain"]["use_multi_processing"]:
                 # Free up resources by running the Algorithm.finalize() on each
                 # algorithm instance
                 for alg_obj in alg_object_list:
-                    alg_obj.finalize(stage=6)
+                    if alg_obj.initialized:
+                        alg_obj.finalize(stage=6)
 
     except IOError:
         error_str = f"Could not read netCDF file {l1b_file}"
@@ -420,7 +422,8 @@ def run_chain(
                 )
                 # If there is a failure we must clean up any shared memory already allocated
                 for alg_obj_shm in shared_mem_alg_object_list:
-                    alg_obj_shm.finalize(stage=4)
+                    if alg_obj_shm.initialized:
+                        alg_obj_shm.finalize(stage=4)
 
                 return (False, 1, 0, 0)
 
@@ -570,10 +573,12 @@ def run_chain(
     log.debug("_" * 79)  # add a divider line in the log
 
     for alg_obj_shm in shared_mem_alg_object_list:
-        alg_obj_shm.finalize(stage=2)
+        if alg_obj_shm.initialized:
+            alg_obj_shm.finalize(stage=2)
 
     for alg_obj in alg_object_list:
-        alg_obj.finalize(stage=3)
+        if alg_obj.initialized:
+            alg_obj.finalize(stage=3)
 
     # Elapsed time for each algorithm.
     # Note if multi-processing, process times are added for each algorithm

@@ -235,13 +235,12 @@
 </span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
 </span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
 </span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -390,13 +389,12 @@
 </span><span id="Algorithm-149"><a href="#Algorithm-149"><span class="linenos">149</span></a>
 </span><span id="Algorithm-150"><a href="#Algorithm-150"><span class="linenos">150</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
 </span><span id="Algorithm-151"><a href="#Algorithm-151"><span class="linenos">151</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="Algorithm-152"><a href="#Algorithm-152"><span class="linenos">152</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
-</span><span id="Algorithm-153"><a href="#Algorithm-153"><span class="linenos">153</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm-154"><a href="#Algorithm-154"><span class="linenos">154</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm-155"><a href="#Algorithm-155"><span class="linenos">155</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm-156"><a href="#Algorithm-156"><span class="linenos">156</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm-157"><a href="#Algorithm-157"><span class="linenos">157</span></a>
-</span><span id="Algorithm-158"><a href="#Algorithm-158"><span class="linenos">158</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm-152"><a href="#Algorithm-152"><span class="linenos">152</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm-153"><a href="#Algorithm-153"><span class="linenos">153</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm-154"><a href="#Algorithm-154"><span class="linenos">154</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm-155"><a href="#Algorithm-155"><span class="linenos">155</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm-156"><a href="#Algorithm-156"><span class="linenos">156</span></a>
+</span><span id="Algorithm-157"><a href="#Algorithm-157"><span class="linenos">157</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 
@@ -620,13 +618,12 @@ the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.
 </span><span id="Algorithm.finalize-149"><a href="#Algorithm.finalize-149"><span class="linenos">149</span></a>
 </span><span id="Algorithm.finalize-150"><a href="#Algorithm.finalize-150"><span class="linenos">150</span></a>        <span class="c1"># Must run Dem.clean_up() for each Dem instance so that any shared memory is</span>
 </span><span id="Algorithm.finalize-151"><a href="#Algorithm.finalize-151"><span class="linenos">151</span></a>        <span class="c1"># unlinked, closed.</span>
-</span><span id="Algorithm.finalize-152"><a href="#Algorithm.finalize-152"><span class="linenos">152</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
-</span><span id="Algorithm.finalize-153"><a href="#Algorithm.finalize-153"><span class="linenos">153</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm.finalize-154"><a href="#Algorithm.finalize-154"><span class="linenos">154</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm.finalize-155"><a href="#Algorithm.finalize-155"><span class="linenos">155</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Algorithm.finalize-156"><a href="#Algorithm.finalize-156"><span class="linenos">156</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
-</span><span id="Algorithm.finalize-157"><a href="#Algorithm.finalize-157"><span class="linenos">157</span></a>
-</span><span id="Algorithm.finalize-158"><a href="#Algorithm.finalize-158"><span class="linenos">158</span></a>        <span class="c1"># --------------------------------------------------------</span>
+</span><span id="Algorithm.finalize-152"><a href="#Algorithm.finalize-152"><span class="linenos">152</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm.finalize-153"><a href="#Algorithm.finalize-153"><span class="linenos">153</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_ant</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm.finalize-154"><a href="#Algorithm.finalize-154"><span class="linenos">154</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Algorithm.finalize-155"><a href="#Algorithm.finalize-155"><span class="linenos">155</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">dem_grn</span><span class="o">.</span><span class="n">clean_up</span><span class="p">()</span>
+</span><span id="Algorithm.finalize-156"><a href="#Algorithm.finalize-156"><span class="linenos">156</span></a>
+</span><span id="Algorithm.finalize-157"><a href="#Algorithm.finalize-157"><span class="linenos">157</span></a>        <span class="c1"># --------------------------------------------------------</span>
 </span></pre></div>
 
 

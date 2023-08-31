@@ -188,10 +188,9 @@ class Algorithm(BaseAlgorithm):
         # --------------------------------------------------------
         # Must run Mask.clean_up() for each Mask instance so that any shared memory is
         # unlinked, closed.
-        if self.initialized:
-            if self.greenland_dilated_mask is not None:
-                self.greenland_dilated_mask.clean_up()
-            if self.antarctic_dilated_mask is not None:
-                self.antarctic_dilated_mask.clean_up()
+        if self.greenland_dilated_mask is not None:
+            self.greenland_dilated_mask.clean_up()
+        if self.antarctic_dilated_mask is not None:
+            self.antarctic_dilated_mask.clean_up()
 
         # --------------------------------------------------------

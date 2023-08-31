@@ -44,6 +44,8 @@ class BaseAlgorithm:
 
         # For multi-processing we do the init() in the Algorithm.process() function
         # This avoids pickling the init() data which is very slow
+        # If using shared memory, then the init() is done at this stage (but in
+        # separate Algorithm's that are not parallelized)
         if config["chain"]["use_multi_processing"]:
             # only continue with initialization if setting up shared memory
             if not config["chain"]["use_shared_memory"]:
