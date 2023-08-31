@@ -198,8 +198,8 @@ new chains or algorithms.
 pre-commit hooks are static code analysis scripts which are run (and must be passed) before
 each git commit. For this project they include pylint, flake8, mypy, black, isort, pdocs.
 
-To install pre-commit hooks do the following (the second line is not necessary if you have
-already loaded the virtual environment using `poetry shell`)
+To install pre-commit hooks, do the following: (note that the second line is not necessary if 
+you have already loaded the virtual environment using `poetry shell`)
 
 ```
 cd $CLEV2ER_BASE_DIR
@@ -223,6 +223,8 @@ you must correct the errors before proceeding, and then rerun the pre-commit and
 The following command will run a simple example test chain which dynamically loads
 2 template algorithms and run them on a set of CryoSat L1b files in a test data directory. 
 The algorithms do not perform any actual processing as they are just template examples.
+Make sure you have the virtual environment already loaded using `poetry shell` before
+running this command.
 
 `run_chain.py -n testchain -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles`
 
