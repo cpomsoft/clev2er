@@ -238,7 +238,17 @@ The default chain specific configuration file is
 ## Developing New Chains
 
 1. Decide on a chain name. For example **newchain**
-2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain** to store the chains algorithms.
+2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chains algorithms.
+3. Create your algorithms.
+4. If required create one or more finder class files. These allow fine control of L1b file 
+   selection.
+5. Create an algorithm list YML file in 
+   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. 
+   If you want to have different baselines and versions of your chain you can create 
+   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline 
+   character A-Z, and 001 is the version number).
+6. To run your chain on a single L1b file, you can use 
+   `run_chain.py --name newchain -f /path/to/a/l1b_file
 
 ## Developer Notes
 
