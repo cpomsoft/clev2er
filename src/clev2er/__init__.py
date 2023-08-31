@@ -244,11 +244,12 @@ The default chain specific configuration file is
    selection.
 5. Create an algorithm list YML file in 
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. 
-   If you want to have different baselines and versions of your chain you can create 
+   If you want to have multiple baselines and versions of your chain you can create one or 
+   more lists using the syntax: 
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline 
    character A-Z, and 001 is the version number).
 6. To run your chain on a single L1b file, you can use 
-   `run_chain.py --name newchain -f /path/to/a/l1b_file
+   `run_chain.py --name newchain -f /path/to/a/l1b_file`
 
 ## Developer Notes
 
