@@ -46,9 +46,13 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 
 -   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
 
-## Installation
+## Installation of the Framework
 
-Make sure you have *git* installed on your system.  
+Note that the framework installation has been tested on Linux and MacOS systems. Use on
+other operating systems is possible but may require additional install steps, and is not 
+directly supported.
+
+Make sure you have *git* installed on your target system.  
 
 Clone the git repository in to a suitable directory on your system.
 This will create a directory called **/clev2er** in your current directory.
@@ -64,8 +68,10 @@ or with the GitHub CLI:
 
 ## Shell Environment Setup
 
-The following shell environment variables need to be set. In a bash shell this might be 
-done by adding export lines to your $HOME/.bashrc file.  
+The following shell environment variables need to be set to support framework
+operations. 
+
+In a bash shell this might be done by adding export lines to your $HOME/.bashrc file.  
 
 - Set the *CLEV2ER_BASE_DIR* environment variable to the root of the clev2er package.  
 - Add $CLEV2ER_BASE_DIR/src to *PYTHONPATH*.   
