@@ -27,7 +27,8 @@ graph LR;
 * Command line chain controller tool : src/clev2er/tools/run_chain.py
 * input L1b file selection (single file, multiple files or dynamic algorithm selection)
 * dynamic algorithm loading from YML list(s)
-  * algorithms are classes of type Algorithm with .__init__(), .process(), .finalize()
+  * algorithms are classes of type Algorithm with configurable .init(), .process(), .finalize() 
+    functions.
   * Algorithm.init() is called before any L1b file processing.
   * Algorithm.process() is called on every L1b file,
   * Algorithm.finalize() is called after all files have been processed.
@@ -225,8 +226,8 @@ you must correct the errors before proceeding, and then rerun the pre-commit and
 ## Run a simple chain test example
 
 The following command will run a simple example test chain which dynamically loads
-2 template algorithms and run them on a set of CryoSat L1b files. The algorithms do
-not perform any actual processing as they are just template examples.
+2 template algorithms and run them on a set of CryoSat L1b files in a test data directory. 
+The algorithms do not perform any actual processing as they are just template examples.
 
 `run_chain.py -n testchain -d $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles`
 
@@ -271,8 +272,8 @@ The default chain specific configuration file is
 1. Decide on a chain name. For example **newchain**
 2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chain's algorithms.
 3. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/tests to store the new chain's 
-   algorithm unit tests (using tests formated for pytest). At least one algorithm test file will
-   need creating per algorithm.
+   algorithm unit tests (using tests formatted for pytest). At least one algorithm test file 
+   should be created per algorithm, which should contain suitable test functions.
 4. Create your algorithms by copying and renaming the algorithm class template 
    $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. Each algorithm
    should have a different file name of your choice. For example: alg_retrack.py, alg_geolocate.py. 
