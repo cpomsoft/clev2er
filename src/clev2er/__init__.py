@@ -79,7 +79,8 @@ In a bash shell this might be done by adding export lines to your $HOME/.bashrc 
 - Set the shell's *ulimit -n* to allow enough file descriptors to be available for
     multi-processing.
 
-An example environment setup is shown below:
+An example environment setup is shown below (the path in the first line should be
+adapted for your specific directory path):
 
 ```script
 export CLEV2ER_BASE_DIR=/Users/someuser/software/clev2er
@@ -92,7 +93,8 @@ ulimit -n 8192
 
 ### Environment Setup for Specific Chains
 
-Additional environment setup maybe required for specific chains.
+Additional environment setup maybe required for specific chains. This is not 
+necessary unless you intend to use these chains.
 
 #### cryotempo (land ice)
 
@@ -109,9 +111,9 @@ export CT_LOG_DIR=/tmp
 
 ## Python Requirement
 
-Requires python v3.10 to be installed before proceeding.
-A recommended minimal method of installation is using miniconda as follows 
-(other appropriate methods may also be used):
+python v3.10 must be installed or available before proceeding.
+A recommended minimal method of installation of python 3.10 is using miniconda as 
+follows (other appropriate methods may also be used):
 
 Select the **python 3.10** installer for your operating system from:
 
