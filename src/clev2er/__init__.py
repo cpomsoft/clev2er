@@ -3,13 +3,7 @@
 
 A Generic algorithm framework for L1b to L2 processing
 
-##Processing chains already implemented in framework:
-
--   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
-
-
 The diagram below shows a simplified representation of the framework and its components.
-
 
 ```mermaid
 graph LR;
@@ -45,6 +39,11 @@ This is an optional experimental feature that must be used with great care as it
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.
 * algorithm timing (with MP support)
 * chain timing
+
+##Processing chains already implemented in framework:
+
+-   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
+
 
 ## Packaging/Workflow
 
