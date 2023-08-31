@@ -219,8 +219,8 @@ in your current code directory.
 
 This will check that your code passes all static code
 tests prior to running git commit. Note that these same tests are also run when
-you do a new commit, ie using `git commit -a -m "commit message"`
-
+you do a new commit, ie using `git commit -a -m "commit message"`. If the tests fail
+you must correct the errors before proceeding, and then rerun the pre-commit and/or git commit.
 
 ## Run a simple chain test example
 
