@@ -238,17 +238,19 @@ The default chain specific configuration file is
 ## Developing New Chains
 
 1. Decide on a chain name. For example **newchain**
-2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chains algorithms.
+2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chain's algorithms.
 3. Create your algorithms by copying and renaming the algorithm class template 
-   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. 
+   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. You fill in
+   the appropriate sections of the init(), process() and finalize() functions for each algorithm.
    (see section below for more details on using algorithm classes).
 4. Create a YML configuration file for the chain in 
-   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. 
+   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. The configuration file contains
+   any settings or resource locations that are required by your algorithms.
    Note that you can also create a configuration file per baseline and version of your chain by 
-   appending _<BVVV>. So for baseline A, version 1, you would use:
+   appending `_<BVVV>`. So for baseline A, version 1, you would use:
    $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**_A001.yml
 5. If required create one or more finder class files. These allow fine control of L1b file 
-   selection (see section below for more details).
+   selection from the command line (see section below for more details).
 6. Create an algorithm list YML file in 
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. 
    If you want to have multiple baselines and versions of your chain you can create one or 
