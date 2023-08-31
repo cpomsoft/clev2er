@@ -233,8 +233,12 @@ This contains settings for :
 ### Chain Specific Configuration
 
 The default chain specific configuration file is
-`$CLEV2ER_BASE_DIR/config/chain_configs/**<chain_name>**_<BVVV>.yml`
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
+## Developing New Chains
+
+1. Decide on a chain name. For example **newchain**
+2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain** to store the chains algorithms.
 
 ## Developer Notes
 
