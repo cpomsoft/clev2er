@@ -171,34 +171,6 @@ cd $CLEV2ER_BASE_DIR
 poetry install
 ```
 
-## Developer Requirements
-
-This section details additional installation requirements for developers who will develop/adapt 
-new chains or algorithms.
-
-### Install pre-commit hooks
-
-pre-commit hooks are static code analysis scripts which are run (and must be passed) before
-each git commit. For this project they include pylint, flake8, mypy, black, isort, pdocs.
-
-To install pre-commit hooks:
-
-```
-cd $CLEV2ER_BASE_DIR
-poetry shell
-pre-commit install
-pre-commit run --all-files
-```
-
-Now, whenever you make changes to your code, it is recommended to run the following
-in your current code directory.  
-
-```pre-commit run --all-files```
-
-This will check that your code passes all static code
-tests prior to running git commit. Note that these same tests are also run when
-you do a new commit, ie using `git commit -a -m "commit message"`
-
 
 ### Load the Virtual Environment
 
@@ -219,6 +191,36 @@ poetry shell
 ```
 
 You should now be setup to run processing chains, etc.
+
+## Developer Requirements
+
+This section details additional installation requirements for developers who will develop/adapt 
+new chains or algorithms.
+
+### Install pre-commit hooks
+
+pre-commit hooks are static code analysis scripts which are run (and must be passed) before
+each git commit. For this project they include pylint, flake8, mypy, black, isort, pdocs.
+
+To install pre-commit hooks do the following (the second line is not necessary if you have
+already loaded the virtual environment using `poetry shell`)
+
+```
+cd $CLEV2ER_BASE_DIR
+poetry shell
+pre-commit install
+pre-commit run --all-files
+```
+
+Now, whenever you make changes to your code, it is recommended to run the following
+in your current code directory.  
+
+```pre-commit run --all-files```
+
+This will check that your code passes all static code
+tests prior to running git commit. Note that these same tests are also run when
+you do a new commit, ie using `git commit -a -m "commit message"`
+
 
 ## Run a simple chain test example
 
