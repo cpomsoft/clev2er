@@ -295,6 +295,6 @@ The front page of the site (ie this page) is located in the doctring within
 `$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.
 
 The docstring within `__init__.py` of each package directory should provide
-markdown to describe the directories beneath it.
+markdown to describe the directories beneath it..
 
 """
