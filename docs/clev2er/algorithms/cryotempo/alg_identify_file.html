@@ -119,89 +119,93 @@
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="sd">        Returns:</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">        Raises:</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">            KeyError : keys not in config</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">            FileNotFoundError :</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">            OSError :</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="c1"># Add initialization steps here</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>    <span class="c1"># Note: __init__() is in BaseAlgorithm. See required parameters above</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="c1"># init() below is called by __init__() at a time dependent on whether</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>    <span class="c1"># sequential or multi-processing mode is in operation</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">        Returns:</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">        Raises:</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">            KeyError : keys not in config</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">            FileNotFoundError :</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">            OSError :</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="c1"># Add initialization steps here</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">        Args:</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        Returns:</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">            ie</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        Args:</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">        Returns:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">            ie</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                <span class="p">)</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>                <span class="p">)</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="c1"># No finalize() required</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>    <span class="c1"># No finalize() required</span>
 </span></pre></div>
 
 
@@ -237,89 +241,93 @@
 </span><span id="Algorithm-36"><a href="#Algorithm-36"><span class="linenos"> 36</span></a>
 </span><span id="Algorithm-37"><a href="#Algorithm-37"><span class="linenos"> 37</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="Algorithm-38"><a href="#Algorithm-38"><span class="linenos"> 38</span></a>
-</span><span id="Algorithm-39"><a href="#Algorithm-39"><span class="linenos"> 39</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm-40"><a href="#Algorithm-40"><span class="linenos"> 40</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
-</span><span id="Algorithm-41"><a href="#Algorithm-41"><span class="linenos"> 41</span></a>
-</span><span id="Algorithm-42"><a href="#Algorithm-42"><span class="linenos"> 42</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
-</span><span id="Algorithm-43"><a href="#Algorithm-43"><span class="linenos"> 43</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
-</span><span id="Algorithm-44"><a href="#Algorithm-44"><span class="linenos"> 44</span></a>
-</span><span id="Algorithm-45"><a href="#Algorithm-45"><span class="linenos"> 45</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm-46"><a href="#Algorithm-46"><span class="linenos"> 46</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
-</span><span id="Algorithm-47"><a href="#Algorithm-47"><span class="linenos"> 47</span></a>
-</span><span id="Algorithm-48"><a href="#Algorithm-48"><span class="linenos"> 48</span></a><span class="sd">        Raises:</span>
-</span><span id="Algorithm-49"><a href="#Algorithm-49"><span class="linenos"> 49</span></a><span class="sd">            KeyError : keys not in config</span>
-</span><span id="Algorithm-50"><a href="#Algorithm-50"><span class="linenos"> 50</span></a><span class="sd">            FileNotFoundError :</span>
-</span><span id="Algorithm-51"><a href="#Algorithm-51"><span class="linenos"> 51</span></a><span class="sd">            OSError :</span>
-</span><span id="Algorithm-52"><a href="#Algorithm-52"><span class="linenos"> 52</span></a>
-</span><span id="Algorithm-53"><a href="#Algorithm-53"><span class="linenos"> 53</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
-</span><span id="Algorithm-54"><a href="#Algorithm-54"><span class="linenos"> 54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm-55"><a href="#Algorithm-55"><span class="linenos"> 55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
-</span><span id="Algorithm-56"><a href="#Algorithm-56"><span class="linenos"> 56</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="Algorithm-57"><a href="#Algorithm-57"><span class="linenos"> 57</span></a>
-</span><span id="Algorithm-58"><a href="#Algorithm-58"><span class="linenos"> 58</span></a>        <span class="c1"># Add initialization steps here</span>
-</span><span id="Algorithm-59"><a href="#Algorithm-59"><span class="linenos"> 59</span></a>
-</span><span id="Algorithm-60"><a href="#Algorithm-60"><span class="linenos"> 60</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-39"><a href="#Algorithm-39"><span class="linenos"> 39</span></a>    <span class="c1"># Note: __init__() is in BaseAlgorithm. See required parameters above</span>
+</span><span id="Algorithm-40"><a href="#Algorithm-40"><span class="linenos"> 40</span></a>    <span class="c1"># init() below is called by __init__() at a time dependent on whether</span>
+</span><span id="Algorithm-41"><a href="#Algorithm-41"><span class="linenos"> 41</span></a>    <span class="c1"># sequential or multi-processing mode is in operation</span>
+</span><span id="Algorithm-42"><a href="#Algorithm-42"><span class="linenos"> 42</span></a>
+</span><span id="Algorithm-43"><a href="#Algorithm-43"><span class="linenos"> 43</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm-44"><a href="#Algorithm-44"><span class="linenos"> 44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
+</span><span id="Algorithm-45"><a href="#Algorithm-45"><span class="linenos"> 45</span></a>
+</span><span id="Algorithm-46"><a href="#Algorithm-46"><span class="linenos"> 46</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
+</span><span id="Algorithm-47"><a href="#Algorithm-47"><span class="linenos"> 47</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
+</span><span id="Algorithm-48"><a href="#Algorithm-48"><span class="linenos"> 48</span></a>
+</span><span id="Algorithm-49"><a href="#Algorithm-49"><span class="linenos"> 49</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm-50"><a href="#Algorithm-50"><span class="linenos"> 50</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
+</span><span id="Algorithm-51"><a href="#Algorithm-51"><span class="linenos"> 51</span></a>
+</span><span id="Algorithm-52"><a href="#Algorithm-52"><span class="linenos"> 52</span></a><span class="sd">        Raises:</span>
+</span><span id="Algorithm-53"><a href="#Algorithm-53"><span class="linenos"> 53</span></a><span class="sd">            KeyError : keys not in config</span>
+</span><span id="Algorithm-54"><a href="#Algorithm-54"><span class="linenos"> 54</span></a><span class="sd">            FileNotFoundError :</span>
+</span><span id="Algorithm-55"><a href="#Algorithm-55"><span class="linenos"> 55</span></a><span class="sd">            OSError :</span>
+</span><span id="Algorithm-56"><a href="#Algorithm-56"><span class="linenos"> 56</span></a>
+</span><span id="Algorithm-57"><a href="#Algorithm-57"><span class="linenos"> 57</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
+</span><span id="Algorithm-58"><a href="#Algorithm-58"><span class="linenos"> 58</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm-59"><a href="#Algorithm-59"><span class="linenos"> 59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
+</span><span id="Algorithm-60"><a href="#Algorithm-60"><span class="linenos"> 60</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
 </span><span id="Algorithm-61"><a href="#Algorithm-61"><span class="linenos"> 61</span></a>
-</span><span id="Algorithm-62"><a href="#Algorithm-62"><span class="linenos"> 62</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="Algorithm-63"><a href="#Algorithm-63"><span class="linenos"> 63</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm-64"><a href="#Algorithm-64"><span class="linenos"> 64</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
+</span><span id="Algorithm-62"><a href="#Algorithm-62"><span class="linenos"> 62</span></a>        <span class="c1"># Add initialization steps here</span>
+</span><span id="Algorithm-63"><a href="#Algorithm-63"><span class="linenos"> 63</span></a>
+</span><span id="Algorithm-64"><a href="#Algorithm-64"><span class="linenos"> 64</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span><span id="Algorithm-65"><a href="#Algorithm-65"><span class="linenos"> 65</span></a>
-</span><span id="Algorithm-66"><a href="#Algorithm-66"><span class="linenos"> 66</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm-67"><a href="#Algorithm-67"><span class="linenos"> 67</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="Algorithm-68"><a href="#Algorithm-68"><span class="linenos"> 68</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="Algorithm-66"><a href="#Algorithm-66"><span class="linenos"> 66</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="Algorithm-67"><a href="#Algorithm-67"><span class="linenos"> 67</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm-68"><a href="#Algorithm-68"><span class="linenos"> 68</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
 </span><span id="Algorithm-69"><a href="#Algorithm-69"><span class="linenos"> 69</span></a>
-</span><span id="Algorithm-70"><a href="#Algorithm-70"><span class="linenos"> 70</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm-71"><a href="#Algorithm-71"><span class="linenos"> 71</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="Algorithm-72"><a href="#Algorithm-72"><span class="linenos"> 72</span></a><span class="sd">            ie</span>
-</span><span id="Algorithm-73"><a href="#Algorithm-73"><span class="linenos"> 73</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="Algorithm-74"><a href="#Algorithm-74"><span class="linenos"> 74</span></a>
-</span><span id="Algorithm-75"><a href="#Algorithm-75"><span class="linenos"> 75</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
-</span><span id="Algorithm-76"><a href="#Algorithm-76"><span class="linenos"> 76</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
-</span><span id="Algorithm-77"><a href="#Algorithm-77"><span class="linenos"> 77</span></a>
-</span><span id="Algorithm-78"><a href="#Algorithm-78"><span class="linenos"> 78</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
-</span><span id="Algorithm-79"><a href="#Algorithm-79"><span class="linenos"> 79</span></a>
-</span><span id="Algorithm-80"><a href="#Algorithm-80"><span class="linenos"> 80</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm-70"><a href="#Algorithm-70"><span class="linenos"> 70</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm-71"><a href="#Algorithm-71"><span class="linenos"> 71</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="Algorithm-72"><a href="#Algorithm-72"><span class="linenos"> 72</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="Algorithm-73"><a href="#Algorithm-73"><span class="linenos"> 73</span></a>
+</span><span id="Algorithm-74"><a href="#Algorithm-74"><span class="linenos"> 74</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm-75"><a href="#Algorithm-75"><span class="linenos"> 75</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="Algorithm-76"><a href="#Algorithm-76"><span class="linenos"> 76</span></a><span class="sd">            ie</span>
+</span><span id="Algorithm-77"><a href="#Algorithm-77"><span class="linenos"> 77</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="Algorithm-78"><a href="#Algorithm-78"><span class="linenos"> 78</span></a>
+</span><span id="Algorithm-79"><a href="#Algorithm-79"><span class="linenos"> 79</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
+</span><span id="Algorithm-80"><a href="#Algorithm-80"><span class="linenos"> 80</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
 </span><span id="Algorithm-81"><a href="#Algorithm-81"><span class="linenos"> 81</span></a>
-</span><span id="Algorithm-82"><a href="#Algorithm-82"><span class="linenos"> 82</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
-</span><span id="Algorithm-83"><a href="#Algorithm-83"><span class="linenos"> 83</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
-</span><span id="Algorithm-84"><a href="#Algorithm-84"><span class="linenos"> 84</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-</span><span id="Algorithm-85"><a href="#Algorithm-85"><span class="linenos"> 85</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="Algorithm-86"><a href="#Algorithm-86"><span class="linenos"> 86</span></a>
-</span><span id="Algorithm-87"><a href="#Algorithm-87"><span class="linenos"> 87</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm-88"><a href="#Algorithm-88"><span class="linenos"> 88</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
-</span><span id="Algorithm-89"><a href="#Algorithm-89"><span class="linenos"> 89</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
-</span><span id="Algorithm-90"><a href="#Algorithm-90"><span class="linenos"> 90</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm-91"><a href="#Algorithm-91"><span class="linenos"> 91</span></a>
-</span><span id="Algorithm-92"><a href="#Algorithm-92"><span class="linenos"> 92</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="Algorithm-93"><a href="#Algorithm-93"><span class="linenos"> 93</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
-</span><span id="Algorithm-94"><a href="#Algorithm-94"><span class="linenos"> 94</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="Algorithm-95"><a href="#Algorithm-95"><span class="linenos"> 95</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-96"><a href="#Algorithm-96"><span class="linenos"> 96</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-97"><a href="#Algorithm-97"><span class="linenos"> 97</span></a>
-</span><span id="Algorithm-98"><a href="#Algorithm-98"><span class="linenos"> 98</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
-</span><span id="Algorithm-99"><a href="#Algorithm-99"><span class="linenos"> 99</span></a>
-</span><span id="Algorithm-100"><a href="#Algorithm-100"><span class="linenos">100</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-</span><span id="Algorithm-101"><a href="#Algorithm-101"><span class="linenos">101</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="Algorithm-102"><a href="#Algorithm-102"><span class="linenos">102</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm-103"><a href="#Algorithm-103"><span class="linenos">103</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
-</span><span id="Algorithm-104"><a href="#Algorithm-104"><span class="linenos">104</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm-105"><a href="#Algorithm-105"><span class="linenos">105</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
-</span><span id="Algorithm-106"><a href="#Algorithm-106"><span class="linenos">106</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm-107"><a href="#Algorithm-107"><span class="linenos">107</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
-</span><span id="Algorithm-108"><a href="#Algorithm-108"><span class="linenos">108</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="Algorithm-109"><a href="#Algorithm-109"><span class="linenos">109</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="Algorithm-110"><a href="#Algorithm-110"><span class="linenos">110</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="Algorithm-111"><a href="#Algorithm-111"><span class="linenos">111</span></a>                <span class="p">)</span>
-</span><span id="Algorithm-112"><a href="#Algorithm-112"><span class="linenos">112</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-</span><span id="Algorithm-113"><a href="#Algorithm-113"><span class="linenos">113</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
-</span><span id="Algorithm-114"><a href="#Algorithm-114"><span class="linenos">114</span></a>
-</span><span id="Algorithm-115"><a href="#Algorithm-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
-</span><span id="Algorithm-116"><a href="#Algorithm-116"><span class="linenos">116</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm-82"><a href="#Algorithm-82"><span class="linenos"> 82</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
+</span><span id="Algorithm-83"><a href="#Algorithm-83"><span class="linenos"> 83</span></a>
+</span><span id="Algorithm-84"><a href="#Algorithm-84"><span class="linenos"> 84</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm-85"><a href="#Algorithm-85"><span class="linenos"> 85</span></a>
+</span><span id="Algorithm-86"><a href="#Algorithm-86"><span class="linenos"> 86</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
+</span><span id="Algorithm-87"><a href="#Algorithm-87"><span class="linenos"> 87</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
+</span><span id="Algorithm-88"><a href="#Algorithm-88"><span class="linenos"> 88</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+</span><span id="Algorithm-89"><a href="#Algorithm-89"><span class="linenos"> 89</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm-90"><a href="#Algorithm-90"><span class="linenos"> 90</span></a>
+</span><span id="Algorithm-91"><a href="#Algorithm-91"><span class="linenos"> 91</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm-92"><a href="#Algorithm-92"><span class="linenos"> 92</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
+</span><span id="Algorithm-93"><a href="#Algorithm-93"><span class="linenos"> 93</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
+</span><span id="Algorithm-94"><a href="#Algorithm-94"><span class="linenos"> 94</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm-95"><a href="#Algorithm-95"><span class="linenos"> 95</span></a>
+</span><span id="Algorithm-96"><a href="#Algorithm-96"><span class="linenos"> 96</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="Algorithm-97"><a href="#Algorithm-97"><span class="linenos"> 97</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+</span><span id="Algorithm-98"><a href="#Algorithm-98"><span class="linenos"> 98</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="Algorithm-99"><a href="#Algorithm-99"><span class="linenos"> 99</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-100"><a href="#Algorithm-100"><span class="linenos">100</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-101"><a href="#Algorithm-101"><span class="linenos">101</span></a>
+</span><span id="Algorithm-102"><a href="#Algorithm-102"><span class="linenos">102</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
+</span><span id="Algorithm-103"><a href="#Algorithm-103"><span class="linenos">103</span></a>
+</span><span id="Algorithm-104"><a href="#Algorithm-104"><span class="linenos">104</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span id="Algorithm-105"><a href="#Algorithm-105"><span class="linenos">105</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="Algorithm-106"><a href="#Algorithm-106"><span class="linenos">106</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm-107"><a href="#Algorithm-107"><span class="linenos">107</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
+</span><span id="Algorithm-108"><a href="#Algorithm-108"><span class="linenos">108</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm-109"><a href="#Algorithm-109"><span class="linenos">109</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
+</span><span id="Algorithm-110"><a href="#Algorithm-110"><span class="linenos">110</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm-111"><a href="#Algorithm-111"><span class="linenos">111</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
+</span><span id="Algorithm-112"><a href="#Algorithm-112"><span class="linenos">112</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="Algorithm-113"><a href="#Algorithm-113"><span class="linenos">113</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="Algorithm-114"><a href="#Algorithm-114"><span class="linenos">114</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="Algorithm-115"><a href="#Algorithm-115"><span class="linenos">115</span></a>                <span class="p">)</span>
+</span><span id="Algorithm-116"><a href="#Algorithm-116"><span class="linenos">116</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+</span><span id="Algorithm-117"><a href="#Algorithm-117"><span class="linenos">117</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
 </span><span id="Algorithm-118"><a href="#Algorithm-118"><span class="linenos">118</span></a>
-</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a>
-</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a>    <span class="c1"># No finalize() required</span>
+</span><span id="Algorithm-119"><a href="#Algorithm-119"><span class="linenos">119</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
+</span><span id="Algorithm-120"><a href="#Algorithm-120"><span class="linenos">120</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm-121"><a href="#Algorithm-121"><span class="linenos">121</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm-122"><a href="#Algorithm-122"><span class="linenos">122</span></a>
+</span><span id="Algorithm-123"><a href="#Algorithm-123"><span class="linenos">123</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm-124"><a href="#Algorithm-124"><span class="linenos">124</span></a>
+</span><span id="Algorithm-125"><a href="#Algorithm-125"><span class="linenos">125</span></a>    <span class="c1"># No finalize() required</span>
 </span></pre></div>
 
 
@@ -357,28 +365,28 @@
 
     </div>
     <a class="headerlink" href="#Algorithm.init"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.init-39"><a href="#Algorithm.init-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm.init-40"><a href="#Algorithm.init-40"><span class="linenos">40</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
-</span><span id="Algorithm.init-41"><a href="#Algorithm.init-41"><span class="linenos">41</span></a>
-</span><span id="Algorithm.init-42"><a href="#Algorithm.init-42"><span class="linenos">42</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
-</span><span id="Algorithm.init-43"><a href="#Algorithm.init-43"><span class="linenos">43</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
-</span><span id="Algorithm.init-44"><a href="#Algorithm.init-44"><span class="linenos">44</span></a>
-</span><span id="Algorithm.init-45"><a href="#Algorithm.init-45"><span class="linenos">45</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm.init-46"><a href="#Algorithm.init-46"><span class="linenos">46</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
-</span><span id="Algorithm.init-47"><a href="#Algorithm.init-47"><span class="linenos">47</span></a>
-</span><span id="Algorithm.init-48"><a href="#Algorithm.init-48"><span class="linenos">48</span></a><span class="sd">        Raises:</span>
-</span><span id="Algorithm.init-49"><a href="#Algorithm.init-49"><span class="linenos">49</span></a><span class="sd">            KeyError : keys not in config</span>
-</span><span id="Algorithm.init-50"><a href="#Algorithm.init-50"><span class="linenos">50</span></a><span class="sd">            FileNotFoundError :</span>
-</span><span id="Algorithm.init-51"><a href="#Algorithm.init-51"><span class="linenos">51</span></a><span class="sd">            OSError :</span>
-</span><span id="Algorithm.init-52"><a href="#Algorithm.init-52"><span class="linenos">52</span></a>
-</span><span id="Algorithm.init-53"><a href="#Algorithm.init-53"><span class="linenos">53</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
-</span><span id="Algorithm.init-54"><a href="#Algorithm.init-54"><span class="linenos">54</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Algorithm.init-55"><a href="#Algorithm.init-55"><span class="linenos">55</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
-</span><span id="Algorithm.init-56"><a href="#Algorithm.init-56"><span class="linenos">56</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
-</span><span id="Algorithm.init-57"><a href="#Algorithm.init-57"><span class="linenos">57</span></a>
-</span><span id="Algorithm.init-58"><a href="#Algorithm.init-58"><span class="linenos">58</span></a>        <span class="c1"># Add initialization steps here</span>
-</span><span id="Algorithm.init-59"><a href="#Algorithm.init-59"><span class="linenos">59</span></a>
-</span><span id="Algorithm.init-60"><a href="#Algorithm.init-60"><span class="linenos">60</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.init-43"><a href="#Algorithm.init-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm.init-44"><a href="#Algorithm.init-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm initialization</span>
+</span><span id="Algorithm.init-45"><a href="#Algorithm.init-45"><span class="linenos">45</span></a>
+</span><span id="Algorithm.init-46"><a href="#Algorithm.init-46"><span class="linenos">46</span></a><span class="sd">        Add steps in this function that are run once at the beginning of the chain</span>
+</span><span id="Algorithm.init-47"><a href="#Algorithm.init-47"><span class="linenos">47</span></a><span class="sd">        (for example loading a DEM or Mask)</span>
+</span><span id="Algorithm.init-48"><a href="#Algorithm.init-48"><span class="linenos">48</span></a>
+</span><span id="Algorithm.init-49"><a href="#Algorithm.init-49"><span class="linenos">49</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm.init-50"><a href="#Algorithm.init-50"><span class="linenos">50</span></a><span class="sd">            (bool,str) : success or failure, error string</span>
+</span><span id="Algorithm.init-51"><a href="#Algorithm.init-51"><span class="linenos">51</span></a>
+</span><span id="Algorithm.init-52"><a href="#Algorithm.init-52"><span class="linenos">52</span></a><span class="sd">        Raises:</span>
+</span><span id="Algorithm.init-53"><a href="#Algorithm.init-53"><span class="linenos">53</span></a><span class="sd">            KeyError : keys not in config</span>
+</span><span id="Algorithm.init-54"><a href="#Algorithm.init-54"><span class="linenos">54</span></a><span class="sd">            FileNotFoundError :</span>
+</span><span id="Algorithm.init-55"><a href="#Algorithm.init-55"><span class="linenos">55</span></a><span class="sd">            OSError :</span>
+</span><span id="Algorithm.init-56"><a href="#Algorithm.init-56"><span class="linenos">56</span></a>
+</span><span id="Algorithm.init-57"><a href="#Algorithm.init-57"><span class="linenos">57</span></a><span class="sd">        Note: raise and Exception rather than just returning False</span>
+</span><span id="Algorithm.init-58"><a href="#Algorithm.init-58"><span class="linenos">58</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm.init-59"><a href="#Algorithm.init-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span> <span class="o">=</span> <span class="vm">__name__</span>
+</span><span id="Algorithm.init-60"><a href="#Algorithm.init-60"><span class="linenos">60</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Algorithm </span><span class="si">%s</span><span class="s2"> initializing&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alg_name</span><span class="p">)</span>
+</span><span id="Algorithm.init-61"><a href="#Algorithm.init-61"><span class="linenos">61</span></a>
+</span><span id="Algorithm.init-62"><a href="#Algorithm.init-62"><span class="linenos">62</span></a>        <span class="c1"># Add initialization steps here</span>
+</span><span id="Algorithm.init-63"><a href="#Algorithm.init-63"><span class="linenos">63</span></a>
+</span><span id="Algorithm.init-64"><a href="#Algorithm.init-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -418,64 +426,64 @@
 
     </div>
     <a class="headerlink" href="#Algorithm.process"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.process-62"><a href="#Algorithm.process-62"><span class="linenos"> 62</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-</span><span id="Algorithm.process-63"><a href="#Algorithm.process-63"><span class="linenos"> 63</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="Algorithm.process-64"><a href="#Algorithm.process-64"><span class="linenos"> 64</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
-</span><span id="Algorithm.process-65"><a href="#Algorithm.process-65"><span class="linenos"> 65</span></a>
-</span><span id="Algorithm.process-66"><a href="#Algorithm.process-66"><span class="linenos"> 66</span></a><span class="sd">        Args:</span>
-</span><span id="Algorithm.process-67"><a href="#Algorithm.process-67"><span class="linenos"> 67</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
-</span><span id="Algorithm.process-68"><a href="#Algorithm.process-68"><span class="linenos"> 68</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Algorithm.process-66"><a href="#Algorithm.process-66"><span class="linenos"> 66</span></a>    <span class="nd">@Timer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="Algorithm.process-67"><a href="#Algorithm.process-67"><span class="linenos"> 67</span></a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1b</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">shared_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="Algorithm.process-68"><a href="#Algorithm.process-68"><span class="linenos"> 68</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Main algorithm processing function</span>
 </span><span id="Algorithm.process-69"><a href="#Algorithm.process-69"><span class="linenos"> 69</span></a>
-</span><span id="Algorithm.process-70"><a href="#Algorithm.process-70"><span class="linenos"> 70</span></a><span class="sd">        Returns:</span>
-</span><span id="Algorithm.process-71"><a href="#Algorithm.process-71"><span class="linenos"> 71</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
-</span><span id="Algorithm.process-72"><a href="#Algorithm.process-72"><span class="linenos"> 72</span></a><span class="sd">            ie</span>
-</span><span id="Algorithm.process-73"><a href="#Algorithm.process-73"><span class="linenos"> 73</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
-</span><span id="Algorithm.process-74"><a href="#Algorithm.process-74"><span class="linenos"> 74</span></a>
-</span><span id="Algorithm.process-75"><a href="#Algorithm.process-75"><span class="linenos"> 75</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
-</span><span id="Algorithm.process-76"><a href="#Algorithm.process-76"><span class="linenos"> 76</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
-</span><span id="Algorithm.process-77"><a href="#Algorithm.process-77"><span class="linenos"> 77</span></a>
-</span><span id="Algorithm.process-78"><a href="#Algorithm.process-78"><span class="linenos"> 78</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
-</span><span id="Algorithm.process-79"><a href="#Algorithm.process-79"><span class="linenos"> 79</span></a>
-</span><span id="Algorithm.process-80"><a href="#Algorithm.process-80"><span class="linenos"> 80</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm.process-70"><a href="#Algorithm.process-70"><span class="linenos"> 70</span></a><span class="sd">        Args:</span>
+</span><span id="Algorithm.process-71"><a href="#Algorithm.process-71"><span class="linenos"> 71</span></a><span class="sd">            l1b (Dataset): input l1b file dataset (constant)</span>
+</span><span id="Algorithm.process-72"><a href="#Algorithm.process-72"><span class="linenos"> 72</span></a><span class="sd">            shared_dict (dict): shared_dict data passed between algorithms</span>
+</span><span id="Algorithm.process-73"><a href="#Algorithm.process-73"><span class="linenos"> 73</span></a>
+</span><span id="Algorithm.process-74"><a href="#Algorithm.process-74"><span class="linenos"> 74</span></a><span class="sd">        Returns:</span>
+</span><span id="Algorithm.process-75"><a href="#Algorithm.process-75"><span class="linenos"> 75</span></a><span class="sd">            Tuple : (success (bool), failure_reason (str))</span>
+</span><span id="Algorithm.process-76"><a href="#Algorithm.process-76"><span class="linenos"> 76</span></a><span class="sd">            ie</span>
+</span><span id="Algorithm.process-77"><a href="#Algorithm.process-77"><span class="linenos"> 77</span></a><span class="sd">            (False,&#39;error string&#39;), or (True,&#39;&#39;)</span>
+</span><span id="Algorithm.process-78"><a href="#Algorithm.process-78"><span class="linenos"> 78</span></a>
+</span><span id="Algorithm.process-79"><a href="#Algorithm.process-79"><span class="linenos"> 79</span></a><span class="sd">        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use</span>
+</span><span id="Algorithm.process-80"><a href="#Algorithm.process-80"><span class="linenos"> 80</span></a><span class="sd">        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :</span>
 </span><span id="Algorithm.process-81"><a href="#Algorithm.process-81"><span class="linenos"> 81</span></a>
-</span><span id="Algorithm.process-82"><a href="#Algorithm.process-82"><span class="linenos"> 82</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
-</span><span id="Algorithm.process-83"><a href="#Algorithm.process-83"><span class="linenos"> 83</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
-</span><span id="Algorithm.process-84"><a href="#Algorithm.process-84"><span class="linenos"> 84</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-</span><span id="Algorithm.process-85"><a href="#Algorithm.process-85"><span class="linenos"> 85</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="Algorithm.process-86"><a href="#Algorithm.process-86"><span class="linenos"> 86</span></a>
-</span><span id="Algorithm.process-87"><a href="#Algorithm.process-87"><span class="linenos"> 87</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm.process-88"><a href="#Algorithm.process-88"><span class="linenos"> 88</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
-</span><span id="Algorithm.process-89"><a href="#Algorithm.process-89"><span class="linenos"> 89</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
-</span><span id="Algorithm.process-90"><a href="#Algorithm.process-90"><span class="linenos"> 90</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
-</span><span id="Algorithm.process-91"><a href="#Algorithm.process-91"><span class="linenos"> 91</span></a>
-</span><span id="Algorithm.process-92"><a href="#Algorithm.process-92"><span class="linenos"> 92</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="Algorithm.process-93"><a href="#Algorithm.process-93"><span class="linenos"> 93</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
-</span><span id="Algorithm.process-94"><a href="#Algorithm.process-94"><span class="linenos"> 94</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-</span><span id="Algorithm.process-95"><a href="#Algorithm.process-95"><span class="linenos"> 95</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="Algorithm.process-96"><a href="#Algorithm.process-96"><span class="linenos"> 96</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
-</span><span id="Algorithm.process-97"><a href="#Algorithm.process-97"><span class="linenos"> 97</span></a>
-</span><span id="Algorithm.process-98"><a href="#Algorithm.process-98"><span class="linenos"> 98</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
-</span><span id="Algorithm.process-99"><a href="#Algorithm.process-99"><span class="linenos"> 99</span></a>
-</span><span id="Algorithm.process-100"><a href="#Algorithm.process-100"><span class="linenos">100</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-</span><span id="Algorithm.process-101"><a href="#Algorithm.process-101"><span class="linenos">101</span></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="Algorithm.process-102"><a href="#Algorithm.process-102"><span class="linenos">102</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm.process-103"><a href="#Algorithm.process-103"><span class="linenos">103</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
-</span><span id="Algorithm.process-104"><a href="#Algorithm.process-104"><span class="linenos">104</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm.process-105"><a href="#Algorithm.process-105"><span class="linenos">105</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
-</span><span id="Algorithm.process-106"><a href="#Algorithm.process-106"><span class="linenos">106</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
-</span><span id="Algorithm.process-107"><a href="#Algorithm.process-107"><span class="linenos">107</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
-</span><span id="Algorithm.process-108"><a href="#Algorithm.process-108"><span class="linenos">108</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="Algorithm.process-109"><a href="#Algorithm.process-109"><span class="linenos">109</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="Algorithm.process-110"><a href="#Algorithm.process-110"><span class="linenos">110</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="Algorithm.process-111"><a href="#Algorithm.process-111"><span class="linenos">111</span></a>                <span class="p">)</span>
-</span><span id="Algorithm.process-112"><a href="#Algorithm.process-112"><span class="linenos">112</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-</span><span id="Algorithm.process-113"><a href="#Algorithm.process-113"><span class="linenos">113</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
-</span><span id="Algorithm.process-114"><a href="#Algorithm.process-114"><span class="linenos">114</span></a>
-</span><span id="Algorithm.process-115"><a href="#Algorithm.process-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
-</span><span id="Algorithm.process-116"><a href="#Algorithm.process-116"><span class="linenos">116</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
-</span><span id="Algorithm.process-117"><a href="#Algorithm.process-117"><span class="linenos">117</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm.process-82"><a href="#Algorithm.process-82"><span class="linenos"> 82</span></a><span class="sd">        `self.log.error(&quot;your message&quot;)`</span>
+</span><span id="Algorithm.process-83"><a href="#Algorithm.process-83"><span class="linenos"> 83</span></a>
+</span><span id="Algorithm.process-84"><a href="#Algorithm.process-84"><span class="linenos"> 84</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Algorithm.process-85"><a href="#Algorithm.process-85"><span class="linenos"> 85</span></a>
+</span><span id="Algorithm.process-86"><a href="#Algorithm.process-86"><span class="linenos"> 86</span></a>        <span class="c1"># This is required to support logging during multi-processing</span>
+</span><span id="Algorithm.process-87"><a href="#Algorithm.process-87"><span class="linenos"> 87</span></a>        <span class="n">success</span><span class="p">,</span> <span class="n">error_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_setup</span><span class="p">(</span><span class="n">l1b</span><span class="p">)</span>
+</span><span id="Algorithm.process-88"><a href="#Algorithm.process-88"><span class="linenos"> 88</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+</span><span id="Algorithm.process-89"><a href="#Algorithm.process-89"><span class="linenos"> 89</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm.process-90"><a href="#Algorithm.process-90"><span class="linenos"> 90</span></a>
+</span><span id="Algorithm.process-91"><a href="#Algorithm.process-91"><span class="linenos"> 91</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm.process-92"><a href="#Algorithm.process-92"><span class="linenos"> 92</span></a>        <span class="c1"># Perform the algorithm processing, store results that need to be passed</span>
+</span><span id="Algorithm.process-93"><a href="#Algorithm.process-93"><span class="linenos"> 93</span></a>        <span class="c1"># \/    down the chain in the &#39;shared_dict&#39; dict     \/</span>
+</span><span id="Algorithm.process-94"><a href="#Algorithm.process-94"><span class="linenos"> 94</span></a>        <span class="c1"># -------------------------------------------------------------------</span>
+</span><span id="Algorithm.process-95"><a href="#Algorithm.process-95"><span class="linenos"> 95</span></a>
+</span><span id="Algorithm.process-96"><a href="#Algorithm.process-96"><span class="linenos"> 96</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="Algorithm.process-97"><a href="#Algorithm.process-97"><span class="linenos"> 97</span></a>            <span class="n">number_20hz_records</span> <span class="o">=</span> <span class="n">l1b</span><span class="p">[</span><span class="s2">&quot;lat_20_ku&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+</span><span id="Algorithm.process-98"><a href="#Algorithm.process-98"><span class="linenos"> 98</span></a>        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span id="Algorithm.process-99"><a href="#Algorithm.process-99"><span class="linenos"> 99</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-100"><a href="#Algorithm.process-100"><span class="linenos">100</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lat_20_ku could not be read&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-101"><a href="#Algorithm.process-101"><span class="linenos">101</span></a>
+</span><span id="Algorithm.process-102"><a href="#Algorithm.process-102"><span class="linenos">102</span></a>        <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;num_20hz_records&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_20hz_records</span>
+</span><span id="Algorithm.process-103"><a href="#Algorithm.process-103"><span class="linenos">103</span></a>
+</span><span id="Algorithm.process-104"><a href="#Algorithm.process-104"><span class="linenos">104</span></a>        <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span id="Algorithm.process-105"><a href="#Algorithm.process-105"><span class="linenos">105</span></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="Algorithm.process-106"><a href="#Algorithm.process-106"><span class="linenos">106</span></a>            <span class="k">if</span> <span class="s2">&quot;LRM&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm.process-107"><a href="#Algorithm.process-107"><span class="linenos">107</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LRM&quot;</span>
+</span><span id="Algorithm.process-108"><a href="#Algorithm.process-108"><span class="linenos">108</span></a>            <span class="k">elif</span> <span class="s2">&quot;SARIN&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm.process-109"><a href="#Algorithm.process-109"><span class="linenos">109</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SIN&quot;</span>
+</span><span id="Algorithm.process-110"><a href="#Algorithm.process-110"><span class="linenos">110</span></a>            <span class="k">elif</span> <span class="s2">&quot;SAR&quot;</span> <span class="ow">in</span> <span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="p">:</span>
+</span><span id="Algorithm.process-111"><a href="#Algorithm.process-111"><span class="linenos">111</span></a>                <span class="n">shared_dict</span><span class="p">[</span><span class="s2">&quot;instr_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SAR&quot;</span>
+</span><span id="Algorithm.process-112"><a href="#Algorithm.process-112"><span class="linenos">112</span></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="Algorithm.process-113"><a href="#Algorithm.process-113"><span class="linenos">113</span></a>                <span class="n">error_str</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="Algorithm.process-114"><a href="#Algorithm.process-114"><span class="linenos">114</span></a>                    <span class="sa">f</span><span class="s2">&quot;Invalid mode attribute .sir_op_mode in L1b file </span><span class="si">{</span><span class="n">l1b</span><span class="o">.</span><span class="n">sir_op_mode</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="Algorithm.process-115"><a href="#Algorithm.process-115"><span class="linenos">115</span></a>                <span class="p">)</span>
+</span><span id="Algorithm.process-116"><a href="#Algorithm.process-116"><span class="linenos">116</span></a>        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+</span><span id="Algorithm.process-117"><a href="#Algorithm.process-117"><span class="linenos">117</span></a>            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Missing attribute .sir_op_mode in L1b file&quot;</span>
 </span><span id="Algorithm.process-118"><a href="#Algorithm.process-118"><span class="linenos">118</span></a>
-</span><span id="Algorithm.process-119"><a href="#Algorithm.process-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="Algorithm.process-119"><a href="#Algorithm.process-119"><span class="linenos">119</span></a>        <span class="k">if</span> <span class="n">error_str</span><span class="p">:</span>
+</span><span id="Algorithm.process-120"><a href="#Algorithm.process-120"><span class="linenos">120</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm.process-121"><a href="#Algorithm.process-121"><span class="linenos">121</span></a>            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">error_str</span><span class="p">)</span>
+</span><span id="Algorithm.process-122"><a href="#Algorithm.process-122"><span class="linenos">122</span></a>
+</span><span id="Algorithm.process-123"><a href="#Algorithm.process-123"><span class="linenos">123</span></a>        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 

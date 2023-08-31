@@ -43,6 +43,10 @@ class Algorithm(BaseAlgorithm):
     - `shared_dict["cats_tide_required"]` : bool, True if CATS tide has been calculated
     """
 
+    # Note: __init__() is in BaseAlgorithm. See required parameters above
+    # init() below is called by __init__() at a time dependent on whether
+    # sequential or multi-processing mode is in operation
+
     def init(self) -> Tuple[bool, str]:
         """Algorithm initialization
 

@@ -1,8 +1,7 @@
 """ clev2er.algorithms.cryotempo.alg_backscatter"""
 
 # These imports required by Algorithm template
-import logging
-from typing import Any, Dict, Tuple
+from typing import Tuple
 
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=E0611
@@ -39,9 +38,9 @@ class Algorithm(BaseAlgorithm):
 
     """
 
-    def __init__(self, config: Dict[str, Any], thislog: logging.Logger | None) -> None:
-        self.alg_name = __name__
-        super().__init__(config, thislog)
+    # Note: __init__() is in BaseAlgorithm. See required parameters above
+    # init() below is called by __init__() at a time dependent on whether
+    # sequential or multi-processing mode is in operation
 
     def init(self) -> Tuple[bool, str]:
         """Algorithm initialization
