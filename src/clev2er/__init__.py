@@ -1,7 +1,12 @@
 """
 # CLEV2ER L2 Algorithm Framework
 
-A Generic algorithm framework for L1b to L2 processing
+A generic algorithm framework, designed for (but not restricted to) Level-1b to Level-2 processing 
+of ESA radar altimetry mission data. Initial usage is expected for the ESA CryoSat-2 and CRISTAL 
+missions. The key features of the framework are dynamically loaded algorithm classes 
+(from YML lists of algorithms) and in-built support for multi-processing and a development
+workflow. There are many run-time options 
+in the chain controller command line tool.
 
 The diagram below shows a simplified representation of the framework and its components.
 
@@ -54,7 +59,7 @@ directly supported.
 
 Make sure you have *git* installed on your target system.  
 
-Clone the git repository in to a suitable directory on your system.
+Clone the git public repository in to a suitable directory on your system.
 This will create a directory called **/clev2er** in your current directory.
 
 with https:  
@@ -221,7 +226,7 @@ you must correct the errors before proceeding, and then rerun the pre-commit and
 ## Run a simple chain test example
 
 The following command will run a simple example test chain which dynamically loads
-2 template algorithms and run them on a set of CryoSat L1b files in a test data directory. 
+2 template algorithms and runs them on a set of CryoSat L1b files in a test data directory. 
 The algorithms do not perform any actual processing as they are just template examples.
 Make sure you have the virtual environment already loaded using `poetry shell` before
 running this command.
