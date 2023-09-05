@@ -1,12 +1,12 @@
 """
 # CLEV2ER L2 Algorithm Framework
 
-A generic algorithm framework, designed for (but not restricted to) Level-1b to Level-2 processing 
-of ESA radar altimetry mission data. Initial usage is expected for the ESA CryoSat-2 and CRISTAL 
-missions. The key features of the framework are dynamically loaded algorithm classes 
-(from YML lists of algorithms) and in-built support for multi-processing and a development
-workflow. There are many run-time options 
-in the chain controller command line tool.
+A generic python algorithm framework, designed for (but not restricted to) Level-1b to Level-2 
+processing of ESA radar altimetry mission data. Initial usage is expected for the ESA CryoSat-2 
+and CRISTAL missions. The key features of the framework are dynamically loaded algorithm classes 
+(from YML lists of algorithms) and in-built support for multi-processing and a consistent automated 
+development and testing workflow. There are many run-time options in the chain controller 
+command line tool.
 
 The diagram below shows a simplified representation of the framework and its components.
 
