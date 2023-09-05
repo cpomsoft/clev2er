@@ -103,6 +103,9 @@ necessary unless you intend to use these chains.
 
 #### cryotempo (land ice)
 
+The following is an example of additional environment variables required by the **cryotempo**
+chain. Values used are site specific.
+
 ```script
 # Environment for CLEV2ER:cryotempo chain
 export CPDATA_DIR=/cpdata
