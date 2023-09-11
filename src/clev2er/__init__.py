@@ -290,9 +290,10 @@ An example of a chain configuration file can be found at:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
 
-Note that you may use environment variables within the configuration file. ie
+**Note** that you may use environment variables within the configuration file. ie
 
 resources:
+
     mydata : ${MYDATA_DIR}/somedata.nc
 
 
