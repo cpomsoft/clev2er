@@ -274,10 +274,12 @@ be overridden by the relevant command line options.
 
 ### Chain Specific Configuration
 
+You can use a chain configuration file to add settings for your algorithms.
+
 The default chain specific configuration file is
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
-where B is the baseline character A..Z, and VVV is the zero padded version.
+where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.
 
 There are no specific rules for chain configuration file settings other than use of 
 the YAML format which will be read and converted to a python dictionary and also
@@ -290,7 +292,7 @@ An example of a chain configuration file can be found at:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
 
-**Note** that you may use environment variables within the configuration file. ie
+**Important Note** that you may use environment variables within the YAML configuration file. ie
 
 mydata : ${MYDATA_DIR}/somedata.nc
 

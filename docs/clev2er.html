@@ -373,10 +373,12 @@ be overridden by the relevant command line options.</p>
 
 <h3 id="chain-specific-configuration">Chain Specific Configuration</h3>
 
+<p>You can use a chain configuration file to add settings for your algorithms.</p>
+
 <p>The default chain specific configuration file is
 <code>$CLEV2ER_BASE_DIR/config/chain_configs/&lt;chain_name&gt;_&lt;BVVV&gt;.yml</code></p>
 
-<p>where B is the baseline character A..Z, and VVV is the zero padded version.</p>
+<p>where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.</p>
 
 <p>There are no specific rules for chain configuration file settings other than use of 
 the YAML format which will be read and converted to a python dictionary and also
@@ -389,7 +391,7 @@ An example of a chain configuration file can be found at:</p>
 
 <p><code>$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml</code></p>
 
-<p><strong>Note</strong> that you may use environment variables within the configuration file. ie</p>
+<p><strong>Important Note</strong> that you may use environment variables within the YAML configuration file. ie</p>
 
 <p>mydata : ${MYDATA_DIR}/somedata.nc</p>
 
@@ -738,90 +740,92 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-274"><a href="#L-274"><span class="linenos">274</span></a>
 </span><span id="L-275"><a href="#L-275"><span class="linenos">275</span></a><span class="sd">### Chain Specific Configuration</span>
 </span><span id="L-276"><a href="#L-276"><span class="linenos">276</span></a>
-</span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a><span class="sd">The default chain specific configuration file is</span>
-</span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/&lt;chain_name&gt;_&lt;BVVV&gt;.yml`</span>
-</span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a>
-</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="sd">where B is the baseline character A..Z, and VVV is the zero padded version.</span>
+</span><span id="L-277"><a href="#L-277"><span class="linenos">277</span></a><span class="sd">You can use a chain configuration file to add settings for your algorithms.</span>
+</span><span id="L-278"><a href="#L-278"><span class="linenos">278</span></a>
+</span><span id="L-279"><a href="#L-279"><span class="linenos">279</span></a><span class="sd">The default chain specific configuration file is</span>
+</span><span id="L-280"><a href="#L-280"><span class="linenos">280</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/&lt;chain_name&gt;_&lt;BVVV&gt;.yml`</span>
 </span><span id="L-281"><a href="#L-281"><span class="linenos">281</span></a>
-</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a><span class="sd">There are no specific rules for chain configuration file settings other than use of </span>
-</span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a><span class="sd">the YAML format which will be read and converted to a python dictionary and also</span>
-</span><span id="L-284"><a href="#L-284"><span class="linenos">284</span></a><span class="sd">merged with the main configuration dictionary. Settings in the chain configuration</span>
-</span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a><span class="sd">file will take precedence over the main configuration file (if they are identical), so</span>
-</span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a><span class="sd">you can override any main config settings in the named chain config if you want.</span>
-</span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a>
-</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a><span class="sd">The requirement for specific settings are set by the chain and it&#39;s algorithms.</span>
-</span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a><span class="sd">An example of a chain configuration file can be found at:</span>
-</span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>
-</span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`</span>
+</span><span id="L-282"><a href="#L-282"><span class="linenos">282</span></a><span class="sd">where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.</span>
+</span><span id="L-283"><a href="#L-283"><span class="linenos">283</span></a>
+</span><span id="L-284"><a href="#L-284"><span class="linenos">284</span></a><span class="sd">There are no specific rules for chain configuration file settings other than use of </span>
+</span><span id="L-285"><a href="#L-285"><span class="linenos">285</span></a><span class="sd">the YAML format which will be read and converted to a python dictionary and also</span>
+</span><span id="L-286"><a href="#L-286"><span class="linenos">286</span></a><span class="sd">merged with the main configuration dictionary. Settings in the chain configuration</span>
+</span><span id="L-287"><a href="#L-287"><span class="linenos">287</span></a><span class="sd">file will take precedence over the main configuration file (if they are identical), so</span>
+</span><span id="L-288"><a href="#L-288"><span class="linenos">288</span></a><span class="sd">you can override any main config settings in the named chain config if you want.</span>
+</span><span id="L-289"><a href="#L-289"><span class="linenos">289</span></a>
+</span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a><span class="sd">The requirement for specific settings are set by the chain and it&#39;s algorithms.</span>
+</span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a><span class="sd">An example of a chain configuration file can be found at:</span>
 </span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>
-</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a><span class="sd">**Note** that you may use environment variables within the configuration file. ie</span>
+</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a><span class="sd">`$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`</span>
 </span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a>
-</span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a><span class="sd">mydata : ${MYDATA_DIR}/somedata.nc</span>
+</span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a><span class="sd">**Important Note** that you may use environment variables within the YAML configuration file. ie</span>
 </span><span id="L-296"><a href="#L-296"><span class="linenos">296</span></a>
-</span><span id="L-297"><a href="#L-297"><span class="linenos">297</span></a>
-</span><span id="L-298"><a href="#L-298"><span class="linenos">298</span></a><span class="sd">## Developing New Chains</span>
+</span><span id="L-297"><a href="#L-297"><span class="linenos">297</span></a><span class="sd">mydata : ${MYDATA_DIR}/somedata.nc</span>
+</span><span id="L-298"><a href="#L-298"><span class="linenos">298</span></a>
 </span><span id="L-299"><a href="#L-299"><span class="linenos">299</span></a>
-</span><span id="L-300"><a href="#L-300"><span class="linenos">300</span></a><span class="sd">1. Decide on a chain name. For example **newchain**</span>
-</span><span id="L-301"><a href="#L-301"><span class="linenos">301</span></a><span class="sd">2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chain&#39;s algorithms.</span>
-</span><span id="L-302"><a href="#L-302"><span class="linenos">302</span></a><span class="sd">3. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/tests to store the new chain&#39;s </span>
-</span><span id="L-303"><a href="#L-303"><span class="linenos">303</span></a><span class="sd">   algorithm unit tests (using tests formatted for pytest). At least one algorithm test file </span>
-</span><span id="L-304"><a href="#L-304"><span class="linenos">304</span></a><span class="sd">   should be created per algorithm, which should contain suitable test functions.</span>
-</span><span id="L-305"><a href="#L-305"><span class="linenos">305</span></a><span class="sd">4. Create your algorithms by copying and renaming the algorithm class template </span>
-</span><span id="L-306"><a href="#L-306"><span class="linenos">306</span></a><span class="sd">   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. Each algorithm</span>
-</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a><span class="sd">   should have a different file name of your choice. For example: alg_retrack.py, alg_geolocate.py. </span>
-</span><span id="L-308"><a href="#L-308"><span class="linenos">308</span></a><span class="sd">   You need to fill in the appropriate sections of the init(), process() and finalize() functions </span>
-</span><span id="L-309"><a href="#L-309"><span class="linenos">309</span></a><span class="sd">   for each algorithm (see section below for more details on using algorithm classes).</span>
-</span><span id="L-310"><a href="#L-310"><span class="linenos">310</span></a><span class="sd">5. Each algorithm and their unit tests must pass the static code checks (pylint, mypy, etc) which </span>
-</span><span id="L-311"><a href="#L-311"><span class="linenos">311</span></a><span class="sd">   are automatically run as git pre-commit hooks. </span>
-</span><span id="L-312"><a href="#L-312"><span class="linenos">312</span></a><span class="sd">6. Create a YML configuration file for the chain in </span>
-</span><span id="L-313"><a href="#L-313"><span class="linenos">313</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. The configuration file contains</span>
-</span><span id="L-314"><a href="#L-314"><span class="linenos">314</span></a><span class="sd">   any settings or resource locations that are required by your algorithms, and may include </span>
-</span><span id="L-315"><a href="#L-315"><span class="linenos">315</span></a><span class="sd">   environment variables.</span>
-</span><span id="L-316"><a href="#L-316"><span class="linenos">316</span></a><span class="sd">   Note that you can also create a configuration file per baseline and version of your chain by </span>
-</span><span id="L-317"><a href="#L-317"><span class="linenos">317</span></a><span class="sd">   appending `_&lt;BVVV&gt;`. So for baseline A, version 1, you would use:</span>
-</span><span id="L-318"><a href="#L-318"><span class="linenos">318</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**_A001.yml</span>
-</span><span id="L-319"><a href="#L-319"><span class="linenos">319</span></a><span class="sd">7. If required create one or more finder class files. These allow fine control of L1b file </span>
-</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a><span class="sd">   selection from the command line (see section below for more details).</span>
-</span><span id="L-321"><a href="#L-321"><span class="linenos">321</span></a><span class="sd">8. Create an algorithm list YML file in </span>
-</span><span id="L-322"><a href="#L-322"><span class="linenos">322</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. </span>
-</span><span id="L-323"><a href="#L-323"><span class="linenos">323</span></a><span class="sd">   If you want to have multiple baselines and versions of your chain you can create one or </span>
-</span><span id="L-324"><a href="#L-324"><span class="linenos">324</span></a><span class="sd">   more algorithm lists using the syntax: </span>
-</span><span id="L-325"><a href="#L-325"><span class="linenos">325</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline </span>
-</span><span id="L-326"><a href="#L-326"><span class="linenos">326</span></a><span class="sd">   character A-Z, and 001 is the version number).</span>
-</span><span id="L-327"><a href="#L-327"><span class="linenos">327</span></a><span class="sd">9. To test your chain on a single L1b file, you can use </span>
-</span><span id="L-328"><a href="#L-328"><span class="linenos">328</span></a><span class="sd">   `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many options for running chains </span>
-</span><span id="L-329"><a href="#L-329"><span class="linenos">329</span></a><span class="sd">   (see `run_chain.py -h`).</span>
-</span><span id="L-330"><a href="#L-330"><span class="linenos">330</span></a>
-</span><span id="L-331"><a href="#L-331"><span class="linenos">331</span></a><span class="sd">## Developer Notes</span>
+</span><span id="L-300"><a href="#L-300"><span class="linenos">300</span></a><span class="sd">## Developing New Chains</span>
+</span><span id="L-301"><a href="#L-301"><span class="linenos">301</span></a>
+</span><span id="L-302"><a href="#L-302"><span class="linenos">302</span></a><span class="sd">1. Decide on a chain name. For example **newchain**</span>
+</span><span id="L-303"><a href="#L-303"><span class="linenos">303</span></a><span class="sd">2. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/ directory to store the new chain&#39;s algorithms.</span>
+</span><span id="L-304"><a href="#L-304"><span class="linenos">304</span></a><span class="sd">3. Create $CLEV2ER_BASE_DIR/algorithms/**newchain**/tests to store the new chain&#39;s </span>
+</span><span id="L-305"><a href="#L-305"><span class="linenos">305</span></a><span class="sd">   algorithm unit tests (using tests formatted for pytest). At least one algorithm test file </span>
+</span><span id="L-306"><a href="#L-306"><span class="linenos">306</span></a><span class="sd">   should be created per algorithm, which should contain suitable test functions.</span>
+</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a><span class="sd">4. Create your algorithms by copying and renaming the algorithm class template </span>
+</span><span id="L-308"><a href="#L-308"><span class="linenos">308</span></a><span class="sd">   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. Each algorithm</span>
+</span><span id="L-309"><a href="#L-309"><span class="linenos">309</span></a><span class="sd">   should have a different file name of your choice. For example: alg_retrack.py, alg_geolocate.py. </span>
+</span><span id="L-310"><a href="#L-310"><span class="linenos">310</span></a><span class="sd">   You need to fill in the appropriate sections of the init(), process() and finalize() functions </span>
+</span><span id="L-311"><a href="#L-311"><span class="linenos">311</span></a><span class="sd">   for each algorithm (see section below for more details on using algorithm classes).</span>
+</span><span id="L-312"><a href="#L-312"><span class="linenos">312</span></a><span class="sd">5. Each algorithm and their unit tests must pass the static code checks (pylint, mypy, etc) which </span>
+</span><span id="L-313"><a href="#L-313"><span class="linenos">313</span></a><span class="sd">   are automatically run as git pre-commit hooks. </span>
+</span><span id="L-314"><a href="#L-314"><span class="linenos">314</span></a><span class="sd">6. Create a YML configuration file for the chain in </span>
+</span><span id="L-315"><a href="#L-315"><span class="linenos">315</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. The configuration file contains</span>
+</span><span id="L-316"><a href="#L-316"><span class="linenos">316</span></a><span class="sd">   any settings or resource locations that are required by your algorithms, and may include </span>
+</span><span id="L-317"><a href="#L-317"><span class="linenos">317</span></a><span class="sd">   environment variables.</span>
+</span><span id="L-318"><a href="#L-318"><span class="linenos">318</span></a><span class="sd">   Note that you can also create a configuration file per baseline and version of your chain by </span>
+</span><span id="L-319"><a href="#L-319"><span class="linenos">319</span></a><span class="sd">   appending `_&lt;BVVV&gt;`. So for baseline A, version 1, you would use:</span>
+</span><span id="L-320"><a href="#L-320"><span class="linenos">320</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**_A001.yml</span>
+</span><span id="L-321"><a href="#L-321"><span class="linenos">321</span></a><span class="sd">7. If required create one or more finder class files. These allow fine control of L1b file </span>
+</span><span id="L-322"><a href="#L-322"><span class="linenos">322</span></a><span class="sd">   selection from the command line (see section below for more details).</span>
+</span><span id="L-323"><a href="#L-323"><span class="linenos">323</span></a><span class="sd">8. Create an algorithm list YML file in </span>
+</span><span id="L-324"><a href="#L-324"><span class="linenos">324</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. </span>
+</span><span id="L-325"><a href="#L-325"><span class="linenos">325</span></a><span class="sd">   If you want to have multiple baselines and versions of your chain you can create one or </span>
+</span><span id="L-326"><a href="#L-326"><span class="linenos">326</span></a><span class="sd">   more algorithm lists using the syntax: </span>
+</span><span id="L-327"><a href="#L-327"><span class="linenos">327</span></a><span class="sd">   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline </span>
+</span><span id="L-328"><a href="#L-328"><span class="linenos">328</span></a><span class="sd">   character A-Z, and 001 is the version number).</span>
+</span><span id="L-329"><a href="#L-329"><span class="linenos">329</span></a><span class="sd">9. To test your chain on a single L1b file, you can use </span>
+</span><span id="L-330"><a href="#L-330"><span class="linenos">330</span></a><span class="sd">   `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many options for running chains </span>
+</span><span id="L-331"><a href="#L-331"><span class="linenos">331</span></a><span class="sd">   (see `run_chain.py -h`).</span>
 </span><span id="L-332"><a href="#L-332"><span class="linenos">332</span></a>
-</span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a><span class="sd">### Automatic Documentation</span>
+</span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a><span class="sd">## Developer Notes</span>
 </span><span id="L-334"><a href="#L-334"><span class="linenos">334</span></a>
-</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
+</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="sd">### Automatic Documentation</span>
 </span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a>
-</span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a><span class="sd">Content is created from doctrings</span>
-</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
-</span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a><span class="sd">in the code,</span>
-</span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
-</span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a>
-</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
+</span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
+</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a>
+</span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a><span class="sd">Content is created from doctrings</span>
+</span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
+</span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a><span class="sd">in the code,</span>
+</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
 </span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a>
-</span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
-</span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a><span class="sd">(hook id: pdocs_build).</span>
-</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
-</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a>
-</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
-</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a><span class="sd">whenever a `git commit` is run.</span>
-</span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>
-</span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
-</span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a><span class="sd">docs directory and publishes it.</span>
-</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>
-</span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
-</span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
-</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>
-</span><span id="L-357"><a href="#L-357"><span class="linenos">357</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
-</span><span id="L-358"><a href="#L-358"><span class="linenos">358</span></a><span class="sd">markdown to describe the directories beneath it.</span>
-</span><span id="L-359"><a href="#L-359"><span class="linenos">359</span></a>
-</span><span id="L-360"><a href="#L-360"><span class="linenos">360</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
+</span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a>
+</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
+</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a><span class="sd">(hook id: pdocs_build).</span>
+</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
+</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a>
+</span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
+</span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a><span class="sd">whenever a `git commit` is run.</span>
+</span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a>
+</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
+</span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a><span class="sd">docs directory and publishes it.</span>
+</span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a>
+</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
+</span><span id="L-357"><a href="#L-357"><span class="linenos">357</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
+</span><span id="L-358"><a href="#L-358"><span class="linenos">358</span></a>
+</span><span id="L-359"><a href="#L-359"><span class="linenos">359</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
+</span><span id="L-360"><a href="#L-360"><span class="linenos">360</span></a><span class="sd">markdown to describe the directories beneath it.</span>
+</span><span id="L-361"><a href="#L-361"><span class="linenos">361</span></a>
+</span><span id="L-362"><a href="#L-362"><span class="linenos">362</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 
