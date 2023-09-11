@@ -267,10 +267,11 @@ This contains settings for :
 - default chain run control settings
 - default multi-processing settings (mp enabled/disabled, max number of cores)
 
-|use_multi_processing| true or false|if true multi-processing is used|
-|use_shared_memory| true or false|if true allow use of shared memory. Experimental feature|
-|stop_on_error|true or false|if true stop chain on first error found, otherwise log error and 
-skip L1b file|
+| Setting | Options | Description |
+| ------- | ------- | ----------- |
+| use_multi_processing | true or false | if true multi-processing is used |
+| use_shared_memory | true or false | if true allow use of shared memory. Experimental feature |
+| stop_on_error | true or false | stop chain on first error found, or log error and skip |
 
 ### Chain Specific Configuration
 
