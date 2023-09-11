@@ -167,7 +167,7 @@ PATH variable in order to achieve this.
 
 ### Install Required Python packages using Poetry
 
-Run the following command to install python dependencies for this package
+Run the following command to install python dependencies for this project
 (for info, it uses settings in pyproject.toml to know what to install)
 
 ```
@@ -266,6 +266,11 @@ The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.ym
 This contains settings for :
 - default chain run control settings
 - default multi-processing settings (mp enabled/disabled, max number of cores)
+
+|use_multi_processing| true or false|if true multi-processing is used|
+|use_shared_memory| true or false|if true allow use of shared memory. Experimental feature|
+|stop_on_error|true or false|if true stop chain on first error found, otherwise log error and 
+skip L1b file|
 
 ### Chain Specific Configuration
 
