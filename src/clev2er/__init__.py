@@ -292,9 +292,7 @@ An example of a chain configuration file can be found at:
 
 **Note** that you may use environment variables within the configuration file. ie
 
-resources:
-
-    mydata : ${MYDATA_DIR}/somedata.nc
+mydata : ${MYDATA_DIR}/somedata.nc
 
 
 ## Developing New Chains
