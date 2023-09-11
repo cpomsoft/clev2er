@@ -296,8 +296,12 @@ An example of a chain configuration file can be found at:
 
 **Important Note** that you may use environment variables within the YAML configuration file. ie
 
-mydata : ${MYDATA_DIR}/somedata.nc
+```
+resources:
+    mydata : ${MYDATA_DIR}/somedata.nc
+```
 
+Within an algorithm you would access this setting as config['resources']['mydata']
 
 ## Developing New Chains
 
