@@ -270,6 +270,7 @@ be overridden by the relevant command line options.
 | Setting | Options | Description |
 | ------- | ------- | ----------- |
 | use_multi_processing | true or false | if true multi-processing is used |
+| max_processes_for_multiprocessing | int | max number of processes to use for multi-processing |
 | use_shared_memory | true or false | if true allow use of shared memory. Experimental feature |
 | stop_on_error | true or false | stop chain on first error found, or log error and skip |
 
