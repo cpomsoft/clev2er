@@ -279,15 +279,21 @@ The default chain specific configuration file is
 
 where B is the baseline character A..Z, and VVV is the zero padded version.
 
-If no baseline and version are used, then you can use
-
-`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>.yml`
-
 There are no specific rules for chain configuration file settings other than use of 
-the YML format. The requirement for specific settings are set by the chain and it's algorithms.
+the YAML format which will be read and converted to a python dictionary and also
+merged with the main configuration dictionary. Settings in the chain configuration
+file will take precedence over the main configuration file (if they are identical), so
+you can override any main config settings in the named chain config if you want.
+
+The requirement for specific settings are set by the chain and it's algorithms.
 An example of a chain configuration file can be found at:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
+
+Note that you may use environment variables within the configuration file. ie
+
+resources:
+    mydata : ${MYDATA_DIR}/somedata.nc
 
 
 ## Developing New Chains

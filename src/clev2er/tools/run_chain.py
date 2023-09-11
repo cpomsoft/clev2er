@@ -917,7 +917,16 @@ def main() -> None:
         )
 
     # merge the two config files (with precedence to the chain_config)
-    config = config.export() | chain_config.export()  # the export() converts to a dict
+    config = config.export()
+    chain_config = chain_config.export()
+
+    if "chain" in chain_config:
+        for key in chain_config["chain"]:
+            if key in config["chain"]:
+                config["chain"][key] = chain_config["chain"][key]
+        chain_config.pop("chain", None)
+
+    config = config | chain_config  # the export() converts to a dict
 
     # -------------------------------------------------------------------------
     # Check we have enough input command line args
