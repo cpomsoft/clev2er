@@ -263,9 +263,8 @@ the chain's algorithms, via a merged python dictionary.
 
 The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
 
-This contains settings for :
-- default chain run control settings
-- default multi-processing settings (mp enabled/disabled, max number of cores)
+This contains general default settings for the chain controller. Each of these can
+be overridden by the relevant command line options.
 
 | Setting | Options | Description |
 | ------- | ------- | ----------- |
@@ -277,6 +276,19 @@ This contains settings for :
 
 The default chain specific configuration file is
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
+
+where B is the baseline character A..Z, and VVV is the zero padded version.
+
+If no baseline and version are used, then you can use
+
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>.yml`
+
+There are no specific rules for chain configuration file settings other than use of 
+the YML format. The requirement for specific settings are set by the chain and it's algorithms.
+An example of a chain configuration file can be found at:
+
+`$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
+
 
 ## Developing New Chains
 
