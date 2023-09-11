@@ -1,7 +1,8 @@
 """
 # CLEV2ER L2 Algorithm Framework
 
-A generic python algorithm framework (https://github.com/cpomsoft/clev2er), designed for (but not 
+A generic python algorithm framework, available from https://github.com/cpomsoft/clev2er.
+The framework is designed for (but not 
 restricted to) Level-1b to Level-2 processing of ESA radar altimetry mission data. Initial usage 
 is expected for the ESA CryoSat-2 and CRISTAL missions. The key features of the framework are 
 dynamically loaded algorithm classes (from YML lists of algorithms) and in-built support for 
