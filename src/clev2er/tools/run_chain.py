@@ -638,7 +638,9 @@ def main() -> None:
         "-a",
         help=(
             "[Optional] path of algorithm list YML file,"
-            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>.yml "
+            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>_<B><VVV>.yml "
+            "where <B> is the uppercase baseline character A..Z, and <VVV> is the zero padded "
+            "version number, ie 001"
         ),
     )
 
@@ -646,7 +648,7 @@ def main() -> None:
         "--conf",
         "-c",
         help=(
-            "[Optional] path of main YAML configuration file,"
+            "[Optional] path of main controller configuration file (YML format),"
             "default=$CLEV2ER_BASE_DIR/config/main_config.yml"
         ),
         default=f"{base_dir}/config/main_config.yml",
@@ -657,10 +659,11 @@ def main() -> None:
         "-b",
         help=(
             "[Optional] baseline of chain. Single uppercase char. ie A-Z "
-            "Used to specify the chain config file, along with --version, and --name, "
-            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/"
-            "<chain_name>_<Baseline><Version>.yml. If not specified will search for "
-            "highest baseline config file available (ie if config files for baseline A and B "
+            "Used to partly specify the chain config file and algorithm list to use, "
+            "along with version and chain name. These files are named <chain_name>_<B><VVVV>.yml, "
+            "where <B> is the baseline character. "
+            "If not specified on the command line, the controller will search for the highest "
+            "baseline config file available (ie if config files for baseline A and B "
             "exist, baseline B config file will be selected)"
         ),
         type=str,
@@ -670,9 +673,9 @@ def main() -> None:
         "-v",
         help=(
             "[Optional] version of chain. integer 1-100, (do not zero pad), default=1 . "
-            "Used to specify the chain config file, along with --baseline, and --name, "
-            "where config file = $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>"
-            "_<Baseline><Version>.yml"
+            "Used to partly specify the chain config file and algorithm list to use, "
+            "along with version and chain name. These files are named <chain_name>_<B><VVVV>.yml, "
+            "where <VVV> is the automatically zero padded version number. "
         ),
         default=1,
         type=int,
@@ -828,7 +831,7 @@ def main() -> None:
         sys.exit("ERROR: missing command line argument --name <chain_name>")
 
     # -------------------------------------------------------------------------
-    # Load Project's main YAML configuration file
+    # Load main controller configuration file
     #   - default is $CLEV2ER_BASE_DIR/config/main_config.yml
     #   - or set by --conf <filepath>.yml
     # -------------------------------------------------------------------------
@@ -887,14 +890,18 @@ def main() -> None:
         baseline = args.baseline
     else:
         reverse_alphabet_list = list(string.ascii_uppercase[::-1])
+        chain_config_file_found = False
         for _baseline in reverse_alphabet_list:
             chain_config_file = (
-                f"{base_dir}/config/chain_configs/cryotempo_{_baseline}"
+                f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
                 f"{args.version:03}.yml"
             )
             if os.path.exists(chain_config_file):
                 baseline = _baseline
+                chain_config_file_found = True
                 break
+        if not chain_config_file_found:
+            sys.exit(f"No chain config file found for chain: {args.name}")
 
     if not os.path.exists(chain_config_file):
         sys.exit(f"ERROR: config file {chain_config_file} does not exist")
@@ -940,6 +947,31 @@ def main() -> None:
     #   - default log files paths for error, info, and debug are defined in the
     #     main config file
     # -------------------------------------------------------------------------
+
+    # Test that log file settings are in the config dict
+
+    if "log_files" not in config:
+        sys.exit(
+            f"log_files section missing from chain configuration file {chain_config_file}"
+        )
+
+    if "errors" not in config["log_files"]:
+        sys.exit(
+            f"log_files:errors section missing from chain config file {chain_config_file}"
+        )
+    if "info" not in config["log_files"]:
+        sys.exit(
+            f"log_files:info section missing from chain config file {chain_config_file}"
+        )
+    if "debug" not in config["log_files"]:
+        sys.exit(
+            f"log_files:debug section missing from chain config file {chain_config_file}"
+        )
+    if "append_year_month_to_logname" not in config["log_files"]:
+        sys.exit(
+            "log_files:append_year_month_to_logname section missing from chain config file "
+            f"{chain_config_file}"
+        )
 
     log_file_error_name = config["log_files"]["errors"]
     log_file_info_name = config["log_files"]["info"]
@@ -1006,13 +1038,12 @@ def main() -> None:
     if args.alglist:
         algorithm_list_file = args.alglist
     else:
-        # Try to find an algorithm list for a specific baseline and version
+        # Use the algorithm list for the specific baseline and version
+        # used in the chain config file
         algorithm_list_file = (
             f"{base_dir}/config/algorithm_lists/"
             f"{args.name}_{baseline}{args.version:03}.yml"
         )
-        if not os.path.exists(algorithm_list_file):
-            algorithm_list_file = f"{base_dir}/config/algorithm_lists/{args.name}.yml"
 
     if not os.path.exists(algorithm_list_file):
         log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
