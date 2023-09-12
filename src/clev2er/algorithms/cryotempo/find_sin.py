@@ -40,7 +40,7 @@ class FileFinder:
         self.years: List[int] = []
         self.base_path = "/raid6/cpdata/SATS/RA/CRY/L1B"
         self.l1b_type = "SIN"
-        self.baselines = "DE"
+        self.baselines = "E"
         self.sin_only = False
         self.lrm_only = False
         if thislog is not None:
