@@ -362,7 +362,13 @@ algorithms:
 
 ### Main Algorithms
 
-### Finder Algorithms
+### Finder Classes
+
+The point of finder classes is to provide more complex and tailored L1b input file selection
+than would be possible with the standard run_chain.py command line options of :
+
+- (-f path) : choose single L1b file 
+- (-d dir) : choose all L1b files in a flat directory 
 
 ## Developer Notes
 
