@@ -936,7 +936,8 @@ def main() -> None:
         not args.cs2testdir
         and not args.file
         and not args.dir
-        and not (args.year and args.month)
+        and not args.year
+        and not args.month
     ):
         sys.exit(
             f"usage error: No inputs specified for the {args.name} chain. Must have either "
@@ -1131,6 +1132,10 @@ def main() -> None:
                 if args.month and args.year:
                     finder.add_month(args.month)
                     finder.add_year(args.year)
+                if args.year and args.month is None:
+                    finder.add_year(args.year)
+                    for month in range(1, 13):
+                        finder.add_month(month)
 
                 finder.set_base_path(config["l1b_base_dir"])
                 if args.find_opts:
