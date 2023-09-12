@@ -337,13 +337,29 @@ Within an algorithm you would access this setting as config['resources']['mydata
    (see `run_chain.py -h`).
 
 ## Algorithms
+
 This section discusses how to develop algorithms for your chain. There are two types
 of algorithms, both of which are dynamically loaded at chain run-time.
 
-    - Main algorithms : standard chain algorithm classes
-    - Finder algorithms : classes to manage input L1b file selection
-    
+- Main algorithms : standard chain algorithm classes
+- Finder algorithms : classes to manage input L1b file selection
+
+Algorithms are dynamically loaded in a chain when they are named in the chain's
+algorithm list YAML file: $CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**.yml. This
+has two sections (l1b_file_selectors, and algorithms) as shown in the example below:
+
+```
+l1b_file_selectors:
+  - find_lrm
+  - find_sin
+# List of algorithms to call in order
+algorithms:
+  - alg_identify_file # find and store basic l1b parameters
+  - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
+```
+
 ### Main Algorithms
+
 ### Finder Algorithms
 
 ## Developer Notes
