@@ -336,7 +336,7 @@ Within an algorithm you would access this setting as config['resources']['mydata
    `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many options for running chains 
    (see `run_chain.py -h`).
 
-## Algorithms
+## Algorithm and Finder Classes
 
 This section discusses how to develop algorithms for your chain. There are two types
 of algorithms, both of which are dynamically loaded at chain run-time.
