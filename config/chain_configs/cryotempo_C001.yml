@@ -4,11 +4,13 @@
 #   - lrm_lepta_geolocation settings added 
 
 project: cryotempo
-theme: landice
-baseline: C
-version: 1
-l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B
-# base dir which will contain /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
+theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
+baseline: C  # CryoTEMPO product baseline to produce: A..Z
+version: 1   # CryoTEMPO product version to produce: 1..100
+l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B # should contain LRM,SIN/<YYYY>/<MM>/
+l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
+# CryoTEMPO product base dir which will contain 
+# /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
 product_base_dir: /raid6/cryo-tempo/product_baselines
 
 

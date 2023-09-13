@@ -1,12 +1,12 @@
-""" test of find_lrm.py
+""" test of find_sin.py
 """
 from os import environ
 
-from clev2er.algorithms.cryotempo.find_lrm import FileFinder
+from clev2er.algorithms.cryotempo.find_sin import FileFinder
 
 
-def test_find_lrm():
-    """test the clev2er.algorithms.cryotempo.find_lrm.FileFinder class"""
+def test_find_sin():
+    """test the clev2er.algorithms.cryotempo.find_sin.FileFinder class"""
 
     assert "CPDATA_DIR" in environ, "Missing env variable CPDATA_DIR"
 

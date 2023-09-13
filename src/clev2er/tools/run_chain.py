@@ -57,10 +57,11 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.utils.logging_funcs import get_logger
 
-# too-many-locals, pylint: disable=R0914
-# too-many-branches, pylint: disable=R0912
-# too-many-statements, pylint: disable=R0915
-# too-many-arguments, pylint: disable=R0913
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-nested-blocks
 # pylint: disable=too-many-lines
 # pylint: disable=R0801
 
@@ -1128,23 +1129,22 @@ def main() -> None:
                     )
                     sys.exit(1)
 
-                finder = module.FileFinder(thislog=log)
-                if args.month and args.year:
-                    finder.add_month(args.month)
-                    finder.add_year(args.year)
-                if args.year and args.month is None:
-                    finder.add_year(args.year)
-                    for month in range(1, 13):
-                        finder.add_month(month)
+                try:
+                    finder = module.FileFinder(thislog=log, config=config)
+                    if args.month and args.year:
+                        finder.add_month(args.month)
+                        finder.add_year(args.year)
+                    if args.year and args.month is None:
+                        finder.add_year(args.year)
+                        for month in range(1, 13):
+                            finder.add_month(month)
 
-                finder.set_base_path(config["l1b_base_dir"])
-                if args.find_opts:
-                    options_list = args.find_opts.split(",")
-                    for option_str in options_list:
-                        finder.set_option(option_str)
-                files = finder.find_files()
-                if len(files) > 0:
-                    l1b_file_list.extend(files)
+                    files = finder.find_files()
+                    if len(files) > 0:
+                        l1b_file_list.extend(files)
+                except (KeyError, ValueError, FileNotFoundError) as exc:
+                    log.error("file finder error: %s", exc)
+                    sys.exit(1)
 
     if args.max_files:
         if len(l1b_file_list) > args.max_files:
