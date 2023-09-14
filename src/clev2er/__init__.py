@@ -268,9 +268,9 @@ following order of increasing precedence:
 The configurations are passed to
 the chain's algorithms and finder classes, via a merged python dictionary.
 
-### Main Configuration
+### Chain Control Configuration
 
-The default chain configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
+The default chain control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
 
 This contains general default settings for the chain controller. Each of these can
 be overridden by the relevant command line options.
@@ -282,7 +282,7 @@ be overridden by the relevant command line options.
 | use_shared_memory | true or false | if true allow use of shared memory. Experimental feature |
 | stop_on_error | true or false | stop chain on first error found, or log error and skip |
 
-### Chain Specific Configuration
+### Chain Specific Algorithm Configuration
 
 The default configuration for your chain's algorithms and finder classes should be placed in 
 the chain specific config file:
