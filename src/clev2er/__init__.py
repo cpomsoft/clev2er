@@ -257,8 +257,16 @@ For further info, please see `clev2er.tools`
 
 ## Chain Configuration
 
-A number of different YML format configuration files are passed to
-the chain's algorithms, via a merged python dictionary.
+Chains can be configured using YAML configuration files and optional command line options in the
+following order of increasing precedence:
+
+- main config file: $CLEV2ER_BASE_DIR/config/main_config.yml
+- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml
+- command line options
+- command line additional config options using the --conf_opts
+
+The configurations are passed to
+the chain's algorithms and finder classes, via a merged python dictionary.
 
 ### Main Configuration
 
@@ -276,23 +284,28 @@ be overridden by the relevant command line options.
 
 ### Chain Specific Configuration
 
-Chains can be configured using configuration files and optional command line options in the
-following order of increasing precedence:
-
-- main config file: $CLEV2ER_BASE_DIR/config/main_config.yml
-- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml
-- command line options
-- command line additional config options using the --conf_opts
-
-The default configuration for your chain's algorithms should be placed in the chain
-specific config file:
+The default configuration for your chain's algorithms and finder classes should be placed in 
+the chain specific config file:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
 where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.
 
 There are no specific rules for chain configuration file settings other than use of 
-the YAML format which will be read and converted to a python dictionary and also
+the YAML format. Typically this will be arranged by named sections as follows:
+
+```
+section1:
+    key1: value
+    key2: value
+
+section2:
+    key: value
+```
+
+For boolean values use the lowercase string true or false.
+
+The file will be read and converted to a python dictionary and also
 merged with the main configuration dictionary. Settings in the chain configuration
 file will take precedence over the main configuration file (if they are identical), so
 you can override any main config settings in the named chain config if you want.
