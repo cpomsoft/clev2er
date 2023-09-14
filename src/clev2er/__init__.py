@@ -276,9 +276,17 @@ be overridden by the relevant command line options.
 
 ### Chain Specific Configuration
 
-You can use a chain configuration file to add settings for your algorithms.
+Chains can be configured using configuration files and optional command line options in the
+following order of increasing precedence:
 
-The default chain specific configuration file is
+- main config file: $CLEV2ER_BASE_DIR/config/main_config.yml
+- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml
+- command line options
+- command line additional config options using the --conf_opts
+
+The default configuration for your chain's algorithms should be placed in the chain
+specific config file:
+
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
 
 where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.
@@ -302,6 +310,12 @@ resources:
 ```
 
 Within an algorithm you would access this setting as config['resources']['mydata']
+
+For testing purposes it is sometimes useful to modify configuration settings directly
+from the command line. This can be done using the command line option --conf_opts.
+An example of changing the value of the setting above would be:
+
+--conf_opts resources:mydata:${MYDATA_DIR}/somedata2.nc
 
 ## Developing New Chains
 

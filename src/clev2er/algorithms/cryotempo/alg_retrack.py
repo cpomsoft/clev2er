@@ -118,6 +118,10 @@ class Algorithm(BaseAlgorithm):
         n_waveforms_to_include = np.count_nonzero(waveforms_to_include)
 
         if shared_dict["instr_mode"] == "SIN":
+            self.log.debug(
+                "noise_threshold=%f", self.config["mc_retracker"]["noise_threshold"]
+            )
+
             coherence_waveform_20_ku = l1b.variables["coherence_waveform_20_ku"][:].data
             ref_bin_index = self.config["mc_retracker"]["ref_bin_ind_sin"]
 

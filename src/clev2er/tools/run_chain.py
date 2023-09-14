@@ -706,14 +706,19 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--find_opts",
-        "-fo",
+        "--conf_opts",
+        "-co",
         help=(
-            "[Optional] Comma separated list of string options to pass to l1b finder algorithms. "
-            "Examples for cryotempo chain: "
-            "-fo sin_only  : only select SIN L1b files. "
-            "-fo lrm_only  : only select LRM L1b files. "
-            "These are chain specific and may have different meanings for other chains"
+            "[Optional] Comma separated list of config options to add/modify the  "
+            "configuration dictionary passed to algorithms and finder classes. "
+            "Each option can include a value. The value is appended to the option key after a : "
+            "Use key:true, or key:false, or key:value. If no value is included with a single level "
+            "key, it indicates a boolean true. "
+            "For multi-level keys, use another colon, ie key1:key2:value. "
+            "Example: -co sin_only:true  or -co sin_only are both the same to only select SIN L1b "
+            "files. "
+            "These are chain specific and may have different meanings for other chains. "
+            "Note that these options override any identical key:values in chain configuration files"
         ),
         type=str,
     )
@@ -929,6 +934,35 @@ def main() -> None:
 
     config = config | chain_config  # the export() converts to a dict
 
+    # Process command line arg 'conf_opts' to modify config dict
+    # these a comma separated with : to separate levels
+    #
+    if args.conf_opts:
+        keyvals = args.conf_opts.split(",")
+        for keyval in keyvals:
+            if ":" not in keyval:  # single level, without value == True
+                config[keyval] = True
+            else:
+                mkeyvals = keyval.split(":")
+                val = mkeyvals[-1]
+                if val == "false":
+                    val = False
+                elif val == "true":
+                    val = True
+                elif val.isdigit():
+                    val = int(val)
+                else:
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        pass
+                if len(mkeyvals) == 2:
+                    config[mkeyvals[0]] = val
+                elif len(mkeyvals) == 3:
+                    if mkeyvals[0] not in config:
+                        config[mkeyvals[0]] = {}
+                    config[mkeyvals[0]][mkeyvals[1]] = val
+
     # -------------------------------------------------------------------------
     # Check we have enough input command line args
     # -------------------------------------------------------------------------
@@ -1130,7 +1164,7 @@ def main() -> None:
                     sys.exit(1)
 
                 try:
-                    finder = module.FileFinder(thislog=log, config=config)
+                    finder = module.FileFinder(log=log, config=config)
                     if args.month and args.year:
                         finder.add_month(args.month)
                         finder.add_year(args.year)
@@ -1153,8 +1187,8 @@ def main() -> None:
     n_l1b_files = len(l1b_file_list)
 
     log.info("Total number of L1b file found:  %d", n_l1b_files)
-    if args.find_opts:
-        log.info("L1b finder options are: %s", args.find_opts)
+    if args.conf_opts:
+        log.info("additional config options from command line are: %s", args.conf_opts)
 
     # Check if we have any L1b files to process
     if n_l1b_files < 1:
