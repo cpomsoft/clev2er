@@ -43,7 +43,7 @@ To find all the current command line options for *run_chain.py*, type:
 | --logstring | -ls | [Optional, str] append this string to log file names for this run, as <logfilename>_<this_string>.log |
 | --year | -y | [Optional, int] year number (YYYY) to use to select L1b files. The year number is used by the chain's finder |
 | --month | -m | [Optional, int] month number (1,12) to use to select L1b files. The month number is used by the chain's finder algorithms if they support month selections |
-| --find_opts | -fo | [Optional, str,str]  Comma separated list of string options to pass to l1b finder algorithms. Examples for cryotempo chain: -fo sin_only : only select SIN L1b files. -fo lrm_only : only select LRM L1b files. These are chain specific and may have different meanings for other chains|
+| --conf_opts | -co | [Optional, str,str,..]  Comma separated list of key:key:value pairs to pass to the chain. The number of keys is dependent on the configuration levels. If value is a boolean then use key:true or key:false. Single level keys without a value equate to true |
 | --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |
 
 """
