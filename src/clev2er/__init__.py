@@ -261,7 +261,7 @@ Chains can be configured using YAML configuration files and optional command lin
 following order of increasing precedence:
 
 - main config file: $CLEV2ER_BASE_DIR/config/main_config.yml
-- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml
+- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml
 - command line options
 - command line additional config options using the --conf_opts
 
