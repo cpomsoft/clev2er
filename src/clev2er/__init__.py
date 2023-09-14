@@ -397,6 +397,22 @@ than would be possible with the standard run_chain.py command line options of :
 - (-f path) : choose single L1b file 
 - (-d dir) : choose all L1b files in a flat directory 
 
+For example you may wish to select files using a specific search pattern, or from multiple
+directories.
+
+Finder classes are automatically initialized with :
+
+- config dictionary, so that any settings can be used for file selection
+- month (from command line --month, if used)
+- year (from command line --year, if used)
+
+Finder classes return a list of file paths through their .find_files() function.
+Code needs to be added to the .find_files() function to generate the file list.
+
+Any number of Finder classes can be specified in the algorithm list file.
+File lists are concatentated if more than one Finder class is used.
+
+
 ## Developer Notes
 
 ### Automatic Documentation
