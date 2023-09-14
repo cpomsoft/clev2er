@@ -496,9 +496,9 @@ algorithms:
 
 <h3 id="main-algorithms">Main Algorithms</h3>
 
-<h3 id="finder-classes">Finder Classes</h3>
+<h3 id="filefinder-classes">FileFinder Classes</h3>
 
-<p>The point of finder classes is to provide more complex and tailored L1b input file selection
+<p>The point of FileFinder classes is to provide more complex and tailored L1b input file selection
 than would be possible with the standard run_chain.py command line options of :</p>
 
 <ul>
@@ -509,7 +509,7 @@ than would be possible with the standard run_chain.py command line options of :<
 <p>For example you may wish to select files using a specific search pattern, or from multiple
 directories.</p>
 
-<p>Finder classes are automatically initialized with :</p>
+<p>FileFinder classes are automatically initialized with :</p>
 
 <ul>
 <li>config dictionary, so that any settings can be used for file selection</li>
@@ -517,14 +517,15 @@ directories.</p>
 <li>year (from command line --year, if used)</li>
 </ul>
 
-<p>Finder classes return a list of file paths through their .find_files() function.
+<p>FileFinder classes return a list of file paths through their .find_files() function.
 Code needs to be added to the .find_files() function to generate the file list.</p>
 
-<p>Any number of differently named Finder class modules can be specified in the algorithm list file, 
+<p>Any number of differently named FileFinder class modules can be specified in the algorithm list 
+file, 
 under the <strong>l1b_file_selectors:</strong> section. File lists are concatentated if more than one Finder 
 class is used.</p>
 
-<p>An example of a finder class module can be found in:</p>
+<p>An example of a FileFinder class module can be found in:</p>
 
 <p><code>clev2er.algorithms.cryotempo.find_lrm.py</code></p>
 
@@ -953,9 +954,9 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-389"><a href="#L-389"><span class="linenos">389</span></a>
 </span><span id="L-390"><a href="#L-390"><span class="linenos">390</span></a><span class="sd">### Main Algorithms</span>
 </span><span id="L-391"><a href="#L-391"><span class="linenos">391</span></a>
-</span><span id="L-392"><a href="#L-392"><span class="linenos">392</span></a><span class="sd">### Finder Classes</span>
+</span><span id="L-392"><a href="#L-392"><span class="linenos">392</span></a><span class="sd">### FileFinder Classes</span>
 </span><span id="L-393"><a href="#L-393"><span class="linenos">393</span></a>
-</span><span id="L-394"><a href="#L-394"><span class="linenos">394</span></a><span class="sd">The point of finder classes is to provide more complex and tailored L1b input file selection</span>
+</span><span id="L-394"><a href="#L-394"><span class="linenos">394</span></a><span class="sd">The point of FileFinder classes is to provide more complex and tailored L1b input file selection</span>
 </span><span id="L-395"><a href="#L-395"><span class="linenos">395</span></a><span class="sd">than would be possible with the standard run_chain.py command line options of :</span>
 </span><span id="L-396"><a href="#L-396"><span class="linenos">396</span></a>
 </span><span id="L-397"><a href="#L-397"><span class="linenos">397</span></a><span class="sd">- (-f path) : choose single L1b file </span>
@@ -964,53 +965,54 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-400"><a href="#L-400"><span class="linenos">400</span></a><span class="sd">For example you may wish to select files using a specific search pattern, or from multiple</span>
 </span><span id="L-401"><a href="#L-401"><span class="linenos">401</span></a><span class="sd">directories.</span>
 </span><span id="L-402"><a href="#L-402"><span class="linenos">402</span></a>
-</span><span id="L-403"><a href="#L-403"><span class="linenos">403</span></a><span class="sd">Finder classes are automatically initialized with :</span>
+</span><span id="L-403"><a href="#L-403"><span class="linenos">403</span></a><span class="sd">FileFinder classes are automatically initialized with :</span>
 </span><span id="L-404"><a href="#L-404"><span class="linenos">404</span></a>
 </span><span id="L-405"><a href="#L-405"><span class="linenos">405</span></a><span class="sd">- config dictionary, so that any settings can be used for file selection</span>
 </span><span id="L-406"><a href="#L-406"><span class="linenos">406</span></a><span class="sd">- month (from command line --month, if used)</span>
 </span><span id="L-407"><a href="#L-407"><span class="linenos">407</span></a><span class="sd">- year (from command line --year, if used)</span>
 </span><span id="L-408"><a href="#L-408"><span class="linenos">408</span></a>
-</span><span id="L-409"><a href="#L-409"><span class="linenos">409</span></a><span class="sd">Finder classes return a list of file paths through their .find_files() function.</span>
+</span><span id="L-409"><a href="#L-409"><span class="linenos">409</span></a><span class="sd">FileFinder classes return a list of file paths through their .find_files() function.</span>
 </span><span id="L-410"><a href="#L-410"><span class="linenos">410</span></a><span class="sd">Code needs to be added to the .find_files() function to generate the file list.</span>
 </span><span id="L-411"><a href="#L-411"><span class="linenos">411</span></a>
-</span><span id="L-412"><a href="#L-412"><span class="linenos">412</span></a><span class="sd">Any number of differently named Finder class modules can be specified in the algorithm list file, </span>
-</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a><span class="sd">under the **l1b_file_selectors:** section. File lists are concatentated if more than one Finder </span>
-</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a><span class="sd">class is used.</span>
-</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a>
-</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a><span class="sd">An example of a finder class module can be found in:</span>
-</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a>
-</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a><span class="sd">`clev2er.algorithms.cryotempo.find_lrm.py`</span>
-</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a>
-</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">## Developer Notes</span>
-</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a>
-</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a><span class="sd">### Automatic Documentation</span>
-</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a>
-</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
-</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a>
-</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a><span class="sd">Content is created from doctrings</span>
-</span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
-</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a><span class="sd">in the code,</span>
-</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
-</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a>
-</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
-</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>
-</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
-</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="sd">(hook id: pdocs_build).</span>
-</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
-</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a>
-</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
-</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="sd">whenever a `git commit` is run.</span>
-</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
-</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a><span class="sd">docs directory and publishes it.</span>
-</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>
-</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
-</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
-</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>
-</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
-</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a><span class="sd">markdown to describe the directories beneath it.</span>
-</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a>
-</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-412"><a href="#L-412"><span class="linenos">412</span></a><span class="sd">Any number of differently named FileFinder class modules can be specified in the algorithm list </span>
+</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a><span class="sd">file, </span>
+</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a><span class="sd">under the **l1b_file_selectors:** section. File lists are concatentated if more than one Finder </span>
+</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a><span class="sd">class is used.</span>
+</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a>
+</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a><span class="sd">An example of a FileFinder class module can be found in:</span>
+</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a>
+</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a><span class="sd">`clev2er.algorithms.cryotempo.find_lrm.py`</span>
+</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a>
+</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a><span class="sd">## Developer Notes</span>
+</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a>
+</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a><span class="sd">### Automatic Documentation</span>
+</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a>
+</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
+</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a>
+</span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a><span class="sd">Content is created from doctrings</span>
+</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
+</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a><span class="sd">in the code,</span>
+</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
+</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a>
+</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
+</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a>
+</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
+</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="sd">(hook id: pdocs_build).</span>
+</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
+</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a>
+</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
+</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">whenever a `git commit` is run.</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a>
+</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
+</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">docs directory and publishes it.</span>
+</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>
+</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
+</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
+</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>
+</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
+</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a><span class="sd">markdown to describe the directories beneath it.</span>
+</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>
+</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 

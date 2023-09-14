@@ -389,9 +389,9 @@ algorithms:
 
 ### Main Algorithms
 
-### Finder Classes
+### FileFinder Classes
 
-The point of finder classes is to provide more complex and tailored L1b input file selection
+The point of FileFinder classes is to provide more complex and tailored L1b input file selection
 than would be possible with the standard run_chain.py command line options of :
 
 - (-f path) : choose single L1b file 
@@ -400,20 +400,21 @@ than would be possible with the standard run_chain.py command line options of :
 For example you may wish to select files using a specific search pattern, or from multiple
 directories.
 
-Finder classes are automatically initialized with :
+FileFinder classes are automatically initialized with :
 
 - config dictionary, so that any settings can be used for file selection
 - month (from command line --month, if used)
 - year (from command line --year, if used)
 
-Finder classes return a list of file paths through their .find_files() function.
+FileFinder classes return a list of file paths through their .find_files() function.
 Code needs to be added to the .find_files() function to generate the file list.
 
-Any number of differently named Finder class modules can be specified in the algorithm list file, 
+Any number of differently named FileFinder class modules can be specified in the algorithm list 
+file, 
 under the **l1b_file_selectors:** section. File lists are concatentated if more than one Finder 
 class is used.
 
-An example of a finder class module can be found in:
+An example of a FileFinder class module can be found in:
 
 `clev2er.algorithms.cryotempo.find_lrm.py`
 
