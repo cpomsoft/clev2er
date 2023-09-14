@@ -193,7 +193,7 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 <tr>
   <td>--conf_opts</td>
   <td>-co</td>
-  <td>[Optional, str,str,..]  Comma separated list of key:key:value pairs to pass to the chain. The number of keys is dependent on the configuration levels. If value is a boolean then use key:true or key:false. Single level keys without a value equate to true</td>
+  <td>[Optional, str,str,..]  Comma separated list of key:key:value pairs to pass to the chain. The number of keys is dependent on the configuration levels. If value is a boolean then use key:true or key:false. Single level keys without a value equate to true. Example that changes two settings: -co chain:use_multi_processing:false,lrm_only</td>
 </tr>
 <tr>
   <td>--cs2testdir</td>
@@ -253,7 +253,7 @@ python run_chain.py --name cryotempo -d /path/to/l1b_files
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">| --logstring | -ls | [Optional, str] append this string to log file names for this run, as &lt;logfilename&gt;_&lt;this_string&gt;.log |</span>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">| --year | -y | [Optional, int] year number (YYYY) to use to select L1b files. The year number is used by the chain&#39;s finder |</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">| --month | -m | [Optional, int] month number (1,12) to use to select L1b files. The month number is used by the chain&#39;s finder algorithms if they support month selections |</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">| --conf_opts | -co | [Optional, str,str,..]  Comma separated list of key:key:value pairs to pass to the chain. The number of keys is dependent on the configuration levels. If value is a boolean then use key:true or key:false. Single level keys without a value equate to true |</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">| --conf_opts | -co | [Optional, str,str,..]  Comma separated list of key:key:value pairs to pass to the chain. The number of keys is dependent on the configuration levels. If value is a boolean then use key:true or key:false. Single level keys without a value equate to true. Example that changes two settings: -co chain:use_multi_processing:false,lrm_only |</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">| --cs2testdir | -ct | [Optional] for quick CS2 tests, uses default CS2 L1b directory: $CLEV2ER_BASE_DIR/testdata/cs2/l1bfiles |</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
 </span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">&quot;&quot;&quot;</span>
