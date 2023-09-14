@@ -409,9 +409,13 @@ Finder classes are automatically initialized with :
 Finder classes return a list of file paths through their .find_files() function.
 Code needs to be added to the .find_files() function to generate the file list.
 
-Any number of Finder classes can be specified in the algorithm list file.
-File lists are concatentated if more than one Finder class is used.
+Any number of differently named Finder class modules can be specified in the algorithm list file, 
+under the **l1b_file_selectors:** section. File lists are concatentated if more than one Finder 
+class is used.
 
+An example of a finder class module can be found in:
+
+`clev2er.algorithms.cryotempo.find_lrm.py`
 
 ## Developer Notes
 
