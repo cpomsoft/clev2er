@@ -1,7 +1,6 @@
 """ clev2er.algorithms.base.base_finder"""
 
 import logging
-import os
 
 module_log = logging.getLogger(__name__)
 
@@ -16,8 +15,6 @@ class BaseFinder:
         """class initialization function"""
         self.months: list[int] = []
         self.years: list[int] = []
-        self.base_path = ""
-        self.l1b_type = ""
         self.baselines = ""
         if not config:
             self.config: dict = {}
@@ -46,27 +43,6 @@ class BaseFinder:
         if year < 1960:
             raise ValueError("year must be > 1960")
         self.years.append(year)
-
-    def set_base_path(self, path: str) -> None:
-        """Set base path for search
-
-        Args:
-            path (str): path of base path for search
-        """
-        self.base_path = path
-
-        if not os.path.isdir(path):
-            raise FileNotFoundError(f"{path} is not a valid directory")
-
-    def set_baselines(self, baselines: str) -> None:
-        """Set the allowed L1b baselines
-
-        Args:
-            baselines (str): string containing one or more baseline chars. ie 'D' or 'DE'
-        """
-        if not baselines.isupper():
-            raise ValueError("baseline chars must be uppercase. ie D, or DE")
-        self.baselines = baselines
 
     def find_files(self, flat_search=False) -> list[str]:
         """Search for L1b file according to pattern
