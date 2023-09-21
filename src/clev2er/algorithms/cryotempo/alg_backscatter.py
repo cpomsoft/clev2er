@@ -67,7 +67,7 @@ class Algorithm(BaseAlgorithm):
 
     @Timer(name=__name__, text="", logger=None)
     def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
-        """CLEV2ER Algorithm
+        """Calculate backscatter
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)

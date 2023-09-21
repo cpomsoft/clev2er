@@ -84,7 +84,7 @@ mc_retracker:
 # Backscatter
 backscatter:
   sigma_bias_lrm: 3.45         
-  sigma_bias_sin: 13.23   
+  sigma_bias_sin: 7.23   
 
 # Geolocation
 sin_geolocation:
