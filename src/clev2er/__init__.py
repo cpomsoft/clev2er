@@ -246,7 +246,7 @@ The list of algorithms (and their order) for *testchain* are defined in
 $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml
 
 Algorithm configuration settings are defined in
-$CLEV2ER_BASE_DIR/config/main_config.yml and
+$CLEV2ER_BASE_DIR/config/main_config.xml and
 $CLEV2ER_BASE_DIR/config/chain_configs/testchain.yml
 
 To find all the command line options for *run_chain.py*, type:
@@ -257,11 +257,12 @@ For further info, please see `clev2er.tools`
 
 ## Chain Configuration
 
-Chains can be configured using YAML configuration files and optional command line options in the
-following order of increasing precedence:
+Chains can be configured using XML or YAML configuration files and optional command line 
+options in the following order of increasing precedence:
 
-- main config file: $CLEV2ER_BASE_DIR/config/main_config.yml
-- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml
+- main config file: $CLEV2ER_BASE_DIR/config/main_config.xml [Must be XML]
+- chain specific config file: $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml 
+  [Must be YML : will change to XML in future version as this is a CLEV2ER requirement]
 - command line options
 - command line additional config options using the --conf_opts
 
@@ -270,7 +271,9 @@ the chain's algorithms and finder classes, via a merged python dictionary.
 
 ### Chain Control Configuration
 
-The default chain control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.yml`
+The default chain control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.xml`
+
+**Note** that this is now an XML file and not a YML file.
 
 This contains general default settings for the chain controller. Each of these can
 be overridden by the relevant command line options.

@@ -27,7 +27,7 @@ To find all the current command line options for *run_chain.py*, type:
 | ----------- | ----------- |----------- |
 | --name      | -n | name (str) : chain name    |
 | --alglist   | -a | [Optional, str] path of algorithm list YML file. Default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/*chainname*.yml   |
-| --conf      | -c | [Optional, str] path of main YAML configuration file. Default is $CLEV2ER_BASE_DIR/config/main_config.yml   |
+| --conf      | -c | [Optional, str] path of main XML configuration file. Default is $CLEV2ER_BASE_DIR/config/main_config.xml   |
 | --baseline  | -b | [Optional, char] baseline of chain. Single uppercase char. Default=A. Used to specify the chain config file, where config file = $CLEV2ER_BASE_DIR/config/chain_configs/*chainname*_*BVVV*.yml  |
 | --version   | -v | [Optional, char] version of chain. integer 1-100. Default=1. Used to specify the chain config file, where config file = $CLEV2ER_BASE_DIR/config/chain_configs/*chainname*_*BVVV*.yml  |
 | --file      | -f | [Optional, str] path of input L1b file  |
