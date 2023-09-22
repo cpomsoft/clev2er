@@ -846,12 +846,12 @@ def main() -> None:
 
     config_file = args.conf
     if not os.path.exists(config_file):
-        sys.exit(f"ERROR: config file {config_file} does not exist")
+        sys.exit(f"ERROR: main config file {config_file} does not exist")
 
     # Check config file ends in .xml
 
     if config_file[-4:] != ".xml":
-        sys.exit(f"ERROR: config file {config_file} file name must end in .xml")
+        sys.exit(f"ERROR: main config file {config_file} file name must end in .xml")
 
     with open(config_file, "r", encoding="utf-8") as file:
         config_xml = file.read()
@@ -861,18 +861,27 @@ def main() -> None:
     try:
         config = dict(xmltodict.parse(config_xml))
     except Exception as exc:  # pylint: disable=broad-exception-caught
-        sys.exit(f"ERROR: config file {config_file} xml format error: {exc}")
+        sys.exit(f"ERROR: main config file {config_file} xml format error: {exc}")
 
     # Convert all str values to correct types: bool, int, float, str
     set_xml_dict_types(config)
 
+    # -------------------------------------------------------------------------
+    # Modify main config settings from command line args
+    # -------------------------------------------------------------------------
+
+    modified_args = []
+
     if args.multiprocessing:
         config["chain"]["use_multi_processing"] = True
+        modified_args.append("use_multi_processing=True")
     if args.sequentialprocessing:
         config["chain"]["use_multi_processing"] = False
+        modified_args.append("use_multi_processing=False")
     if args.sharedmem:
         if config["chain"]["use_multi_processing"]:
             config["chain"]["use_shared_memory"] = True
+            modified_args.append("use_shared_memory=True")
         else:
             sys.exit(
                 "ERROR: --sharedmem option must be used  with multi-processing enabled"
@@ -881,16 +890,18 @@ def main() -> None:
             )
     if args.nprocs:
         config["chain"]["max_processes_for_multiprocessing"] = args.nprocs
+        modified_args.append(f"max_processes_for_multiprocessing={args.nprocs}")
 
     config["chain"]["chain_name"] = args.name
 
     if args.stop_on_error:
         config["chain"]["stop_on_error"] = True
+        modified_args.append("stop_on_error=True")
 
     # -------------------------------------------------------------------------
-    # Merge chain config YAML file
+    # Merge chain config file (XML or YAML file)
     #   - default is
-    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.yml
+    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.[xml,yml]
     # where Baseline is one character 'A', 'B',..
     #       Version is zero-padded integer : 001, 002,..
     # -------------------------------------------------------------------------
@@ -905,47 +916,70 @@ def main() -> None:
             sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
         chain_config_file = (
             f"{base_dir}/config/chain_configs/"
-            f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+            f"{args.name}_{args.baseline.upper()}{args.version:03}.xml"
         )
+        if not os.path.isfile(chain_config_file):
+            chain_config_file = (
+                f"{base_dir}/config/chain_configs/"
+                f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+            )
         baseline = args.baseline
-    else:
+    else:  # find config file with highest baseline char (closest to Z)
         reverse_alphabet_list = list(string.ascii_uppercase[::-1])
         chain_config_file_found = False
         for _baseline in reverse_alphabet_list:
             chain_config_file = (
                 f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                f"{args.version:03}.yml"
+                f"{args.version:03}.xml"
             )
+            if not os.path.isfile(chain_config_file):
+                chain_config_file = (
+                    f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
+                    f"{args.version:03}.yml"
+                )
             if os.path.exists(chain_config_file):
                 baseline = _baseline
                 chain_config_file_found = True
                 break
         if not chain_config_file_found:
-            sys.exit(f"No chain config file found for chain: {args.name}")
+            sys.exit(f"No [xml or yml] chain config file found for chain: {args.name}")
 
     if not os.path.exists(chain_config_file):
-        sys.exit(f"ERROR: config file {chain_config_file} does not exist")
+        sys.exit(f"ERROR: config file {chain_config_file} [xml or yml] does not exist")
 
-    try:
-        chain_config = EnvYAML(
-            chain_config_file
-        )  # read the YML and parse environment variables
-    except ValueError as exc:
-        sys.exit(
-            f"ERROR: config file {chain_config_file} has invalid or "
-            f"unset environment variables : {exc}"
-        )
+    if chain_config_file[-4:] == ".yml":
+        try:
+            chain_config = EnvYAML(
+                chain_config_file
+            )  # read the YML and parse environment variables
+        except ValueError as exc:
+            sys.exit(
+                f"ERROR: config file {chain_config_file} has invalid or "
+                f"unset environment variables : {exc}"
+            )
+        chain_config = chain_config.export()  # convert to dict
+    else:
+        with open(chain_config_file, "r", encoding="utf-8") as file:
+            config_xml = file.read()
+
+        # Use xmltodict to parse and convert
+        # the XML document
+        try:
+            chain_config = dict(xmltodict.parse(config_xml))
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            sys.exit(f"ERROR: config file {chain_config_file} xml format error: {exc}")
+
+        # Convert all str values to correct types: bool, int, float, str
+        set_xml_dict_types(chain_config)
 
     # merge the two config files (with precedence to the chain_config)
-    chain_config = chain_config.export()
-
     if "chain" in chain_config:
         for key in chain_config["chain"]:
             if key in config["chain"]:
                 config["chain"][key] = chain_config["chain"][key]
         chain_config.pop("chain", None)
 
-    config = config | chain_config  # the export() converts to a dict
+    config = config | chain_config
 
     # Process command line arg 'conf_opts' to modify config dict
     # these a comma separated with : to separate levels
@@ -1298,6 +1332,13 @@ def main() -> None:
         remove_strings_from_file(config["log_files"]["info"])
         remove_strings_from_file(config["log_files"]["errors"])
         remove_strings_from_file(config["log_files"]["debug"])
+
+    log.info("\n%sConfig Files          %s", "-" * 20, "-" * 20)
+    log.info("Run config: %s", config_file)
+    log.info("Chain config: %s", chain_config_file)
+    if len(modified_args) == 0:
+        for mod_args in modified_args:
+            log.info("cmdline overide: %s", mod_args)
 
 
 if __name__ == "__main__":

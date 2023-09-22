@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<!--chain: testchain configuration-->
+<log_files>
+    <!-- append_year_month_to_logname : true or false : 
+            if true and chain is run for specific month and year, use <logtype>_MMYYYY.log
+            or <logtype>_YYYY.log (if only year specified)
+            year and month are set in the run_chain.py command line args
+    -->
+    <append_year_month_to_logname>true</append_year_month_to_logname>
+
+    <!-- debug : str : path of debug log file-->
+    <debug>/tmp/debug.log</debug>
+
+    <!-- info : str : path of info log file-->
+    <info>/tmp/info.log</info>
+
+    <!-- errors : str : path of errors log file-->
+    <errors>/tmp/errors.log</errors>
+</log_files>
+
