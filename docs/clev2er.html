@@ -439,11 +439,11 @@ section2:
 
 </code></pre>
 
-<p>These settings are available within algorithms as a python dictionary called 
+<p>These settings are available within Algorithm classes as a python dictionary called 
 <strong>config</strong> as in the following examples:</p>
 
-<pre><code>config['section1']['key1']
-config['some_key']
+<pre><code>self.config['section1']['key1']
+self.config['some_key']
 </code></pre>
 
 <p>The config file will also be
@@ -940,12 +940,12 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a>
 </span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="sd">```</span>
 </span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a>
-</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="sd">These settings are available within algorithms as a python dictionary called </span>
+</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="sd">These settings are available within Algorithm classes as a python dictionary called </span>
 </span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a><span class="sd">**config** as in the following examples:</span>
 </span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a>
 </span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a><span class="sd">```</span>
-</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="sd">config[&#39;section1&#39;][&#39;key1&#39;]</span>
-</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="sd">config[&#39;some_key&#39;]</span>
+</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="sd">self.config[&#39;section1&#39;][&#39;key1&#39;]</span>
+</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="sd">self.config[&#39;some_key&#39;]</span>
 </span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">```</span>
 </span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a>
 </span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">The config file will also be</span>

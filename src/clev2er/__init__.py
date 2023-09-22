@@ -335,12 +335,12 @@ Example of a 2 level config file in XML:
 
 ```
 
-These settings are available within algorithms as a python dictionary called 
+These settings are available within Algorithm classes as a python dictionary called 
 **config** as in the following examples:
 
 ```
-config['section1']['key1']
-config['some_key']
+self.config['section1']['key1']
+self.config['some_key']
 ```
 
 The config file will also be
