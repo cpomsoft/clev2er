@@ -335,6 +335,14 @@ Example of a 2 level config file in XML:
 
 ```
 
+These settings are available within algorithms as a python dictionary called 
+**config** as in the following examples:
+
+```
+config['section1']['key1']
+config['some_key']
+```
+
 The file will be read and converted to a python dictionary and also
 merged with the main configuration dictionary. Settings in the chain configuration
 file will take precedence over the main configuration file (if they are identical), so
