@@ -446,9 +446,9 @@ section2:
 config['some_key']
 </code></pre>
 
-<p>The file will be read and converted to a python dictionary and also
-merged with the main configuration dictionary. Settings in the chain configuration
-file will take precedence over the main configuration file (if they are identical), so
+<p>The config file will also be
+merged with the main run control dictionary. Settings in the chain configuration
+file will take precedence over the main run control dictionary (if they are identical), so
 you can override any main config settings in the named chain config if you want.</p>
 
 <p>The requirement for specific settings are set by the chain and it's algorithms.
@@ -948,9 +948,9 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="sd">config[&#39;some_key&#39;]</span>
 </span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">```</span>
 </span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a>
-</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">The file will be read and converted to a python dictionary and also</span>
-</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a><span class="sd">merged with the main configuration dictionary. Settings in the chain configuration</span>
-</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a><span class="sd">file will take precedence over the main configuration file (if they are identical), so</span>
+</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">The config file will also be</span>
+</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a><span class="sd">merged with the main run control dictionary. Settings in the chain configuration</span>
+</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a><span class="sd">file will take precedence over the main run control dictionary (if they are identical), so</span>
 </span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a><span class="sd">you can override any main config settings in the named chain config if you want.</span>
 </span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>
 </span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a><span class="sd">The requirement for specific settings are set by the chain and it&#39;s algorithms.</span>

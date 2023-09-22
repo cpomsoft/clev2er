@@ -343,9 +343,9 @@ config['section1']['key1']
 config['some_key']
 ```
 
-The file will be read and converted to a python dictionary and also
-merged with the main configuration dictionary. Settings in the chain configuration
-file will take precedence over the main configuration file (if they are identical), so
+The config file will also be
+merged with the main run control dictionary. Settings in the chain configuration
+file will take precedence over the main run control dictionary (if they are identical), so
 you can override any main config settings in the named chain config if you want.
 
 The requirement for specific settings are set by the chain and it's algorithms.
