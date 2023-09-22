@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!--run_chain.py controller configuration-->
+<chain>
+
+    <!-- use_multi_processing: true, or false: if false l1b files are processed sequentially-->
+    <use_multi_processing>false</use_multi_processing> 
+
+    <!-- max_processes_for_multiprocessing: int: if multi_processing enabled: process a maximum of 
+    N input files in parallel before processing the next N files-->
+    <max_processes_for_multiprocessing>7</max_processes_for_multiprocessing> 
+
+    <!-- use_shared_memory: true or false:  if true 
+    and multi-processing enabled, optionally allocate SharedMemory buffers
+    on Algorithm initialization for resources such as DEM
+    arrays. This can greatly reduce overall memory usage for MP
+    May not work on all operating systems, and has additional
+    risks if not unlinked/closed correctly from each process
+    -->
+    <use_shared_memory>false</use_shared_memory>
+
+    <!-- stop_on_error: true or false: 
+            if true: stop processing when an error is encountered
+            if false: skip file and log error on error and continue with next file
+    -->
+    <stop_on_error>false</stop_on_error>
+</chain>

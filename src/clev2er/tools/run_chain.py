@@ -49,6 +49,7 @@ from multiprocessing import Process, Queue, current_process
 from typing import Any, List, Optional, Type
 
 import numpy as np
+import xmltodict  # for parsing xml to python dict
 from codetiming import Timer
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
@@ -56,6 +57,7 @@ from envyaml import (  # for parsing YAML files which include environment variab
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.utils.logging_funcs import get_logger
+from clev2er.utils.xml.xml_funcs import set_xml_dict_types
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
@@ -649,10 +651,10 @@ def main() -> None:
         "--conf",
         "-c",
         help=(
-            "[Optional] path of main controller configuration file (YML format),"
-            "default=$CLEV2ER_BASE_DIR/config/main_config.yml"
+            "[Optional] path of main controller configuration file (XML format),"
+            "default=$CLEV2ER_BASE_DIR/config/main_config.xml"
         ),
-        default=f"{base_dir}/config/main_config.yml",
+        default=f"{base_dir}/config/main_config.xml",
     )
 
     parser.add_argument(
@@ -837,21 +839,33 @@ def main() -> None:
         sys.exit("ERROR: missing command line argument --name <chain_name>")
 
     # -------------------------------------------------------------------------
-    # Load main controller configuration file
-    #   - default is $CLEV2ER_BASE_DIR/config/main_config.yml
-    #   - or set by --conf <filepath>.yml
+    # Load main XML controller configuration file
+    #   - default is $CLEV2ER_BASE_DIR/config/main_config.xml
+    #   - or set by --conf <filepath>.xml
     # -------------------------------------------------------------------------
 
     config_file = args.conf
     if not os.path.exists(config_file):
         sys.exit(f"ERROR: config file {config_file} does not exist")
 
+    # Check config file ends in .xml
+
+    if config_file[-4:] != ".xml":
+        sys.exit(f"ERROR: config file {config_file} file name must end in .xml")
+
+    with open(config_file, "r", encoding="utf-8") as file:
+        config_xml = file.read()
+
+    # Use xmltodict to parse and convert
+    # the XML document
     try:
-        config = EnvYAML(config_file)  # read the YML and parse environment variables
-    except ValueError as exc:
-        sys.exit(
-            f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
-        )
+        config = dict(xmltodict.parse(config_xml))
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        sys.exit(f"ERROR: config file {config_file} xml format error: {exc}")
+
+    # Convert all str values to correct types: bool, int, float, str
+    set_xml_dict_types(config)
+
     if args.multiprocessing:
         config["chain"]["use_multi_processing"] = True
     if args.sequentialprocessing:
@@ -923,7 +937,6 @@ def main() -> None:
         )
 
     # merge the two config files (with precedence to the chain_config)
-    config = config.export()
     chain_config = chain_config.export()
 
     if "chain" in chain_config:
