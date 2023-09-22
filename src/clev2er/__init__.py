@@ -269,9 +269,9 @@ options in the following order of increasing precedence:
 The configurations are passed to
 the chain's algorithms and finder classes, via a merged python dictionary.
 
-### Chain Control Configuration
+### Run Control Configuration
 
-The default chain control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.xml`
+The default run control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.xml`
 
 **Note** that this is now an XML file and not a YML file.
 
@@ -290,23 +290,50 @@ be overridden by the relevant command line options.
 The default configuration for your chain's algorithms and finder classes should be placed in 
 the chain specific config file:
 
-`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml`
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>[.xml,.yml]`
 
 where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.
 
-There are no specific rules for chain configuration file settings other than use of 
-the YAML format. Typically this will be arranged by named sections as follows:
+Configuration files may be either XML(.xml) or YAML (.yml) format.
+
+#### Formatting Rules for Configuration Files
+
+YAML or XML files can contain settings for key value pairs of boolean, int, float or str.
+For boolean values you must use the string **true** or **false** (case insensitive). 
+YAML or XML files may have multiple levels (or sections).
+
+Example of a 2 level config file in YML:
 
 ```
+# some_key: str:  description
+some_key: a string
+
 section1:
-    key1: value
-    key2: value
+    key1: 1
+    key2: 1.5
 
 section2:
-    key: value
+    key: false
 ```
 
-For boolean values use the lowercase string true or false.
+Example of a 2 level config file in XML:
+
+```
+<?xml version="1.0"?>
+
+<!--some_key: str:  description-->
+<some_key>a string</some_key>
+
+<section1>
+   <key1>1</key1>
+   <key2>1.5</key2>
+</section1>
+
+<section2>
+   <key>false</key>
+</section2>
+
+```
 
 The file will be read and converted to a python dictionary and also
 merged with the main configuration dictionary. Settings in the chain configuration
@@ -318,7 +345,8 @@ An example of a chain configuration file can be found at:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
 
-**Important Note** that you may use environment variables within the YAML configuration file. ie
+**Important Note** that you may use environment variables within the XML or YAML configuration 
+files. ie
 
 ```
 resources:
