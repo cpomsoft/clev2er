@@ -361,10 +361,12 @@ resources:
     mydata : ${MYDATA_DIR}/somedata.nc
 ```
 
-Within an algorithm you would access this setting as config['resources']['mydata']
+Within an algorithm you would access this setting as self.config['resources']['mydata']
 
 For testing purposes it is sometimes useful to modify configuration settings directly
-from the command line. This can be done using the command line option --conf_opts.
+from the command line. This can be done using the command line option --conf_opts which
+can contain a comma separated list of section:key:value pairs.
+
 An example of changing the value of the setting above would be:
 
 --conf_opts resources:mydata:${MYDATA_DIR}/somedata2.nc

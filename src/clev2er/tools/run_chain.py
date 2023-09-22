@@ -641,7 +641,7 @@ def main() -> None:
         "-a",
         help=(
             "[Optional] path of algorithm list YML file,"
-            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>_<B><VVV>.yml "
+            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>_<B><VVV>.[yml,xml] "
             "where <B> is the uppercase baseline character A..Z, and <VVV> is the zero padded "
             "version number, ie 001"
         ),
@@ -654,7 +654,6 @@ def main() -> None:
             "[Optional] path of main controller configuration file (XML format),"
             "default=$CLEV2ER_BASE_DIR/config/main_config.xml"
         ),
-        default=f"{base_dir}/config/main_config.xml",
     )
 
     parser.add_argument(
@@ -680,7 +679,6 @@ def main() -> None:
             "along with version and chain name. These files are named <chain_name>_<B><VVVV>.yml, "
             "where <VVV> is the automatically zero padded version number. "
         ),
-        default=1,
         type=int,
     )
 
@@ -844,7 +842,11 @@ def main() -> None:
     #   - or set by --conf <filepath>.xml
     # -------------------------------------------------------------------------
 
-    config_file = args.conf
+    if args.conf:
+        config_file = args.conf
+    else:
+        config_file = f"{base_dir}/config/main_config.xml"
+
     if not os.path.exists(config_file):
         sys.exit(f"ERROR: main config file {config_file} does not exist")
 
@@ -872,6 +874,25 @@ def main() -> None:
 
     modified_args = []
 
+    if args.baseline:
+        modified_args.append(f"baseline={args.baseline}")
+    if args.version:
+        modified_args.append(f"version={args.version}")
+        version = args.version
+    else:
+        version = 1
+    if args.quiet:
+        modified_args.append("quiet=True")
+    if args.debug:
+        modified_args.append("debug=True")
+    if args.max_files:
+        modified_args.append(f"max_files={args.max_files}")
+    if args.alglist:
+        modified_args.append(f"alglist={args.alglist}")
+    if args.conf:
+        modified_args.append(f"conf={args.conf}")
+    if args.logstring:
+        modified_args.append(f"logstring={args.logstring}")
     if args.multiprocessing:
         config["chain"]["use_multi_processing"] = True
         modified_args.append("use_multi_processing=True")
@@ -908,7 +929,7 @@ def main() -> None:
 
     # Load config file related to the chain_name
 
-    if args.version < 1 or args.version > 100:
+    if version < 1 or version > 100:
         sys.exit("ERROR: --version <version>, must be an integer 1-100")
 
     if args.baseline:
@@ -916,12 +937,12 @@ def main() -> None:
             sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
         chain_config_file = (
             f"{base_dir}/config/chain_configs/"
-            f"{args.name}_{args.baseline.upper()}{args.version:03}.xml"
+            f"{args.name}_{args.baseline.upper()}{version:03}.xml"
         )
         if not os.path.isfile(chain_config_file):
             chain_config_file = (
                 f"{base_dir}/config/chain_configs/"
-                f"{args.name}_{args.baseline.upper()}{args.version:03}.yml"
+                f"{args.name}_{args.baseline.upper()}{version:03}.yml"
             )
         baseline = args.baseline
     else:  # find config file with highest baseline char (closest to Z)
@@ -930,12 +951,12 @@ def main() -> None:
         for _baseline in reverse_alphabet_list:
             chain_config_file = (
                 f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                f"{args.version:03}.xml"
+                f"{version:03}.xml"
             )
             if not os.path.isfile(chain_config_file):
                 chain_config_file = (
                     f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                    f"{args.version:03}.yml"
+                    f"{version:03}.yml"
                 )
             if os.path.exists(chain_config_file):
                 baseline = _baseline
@@ -989,6 +1010,7 @@ def main() -> None:
         for keyval in keyvals:
             if ":" not in keyval:  # single level, without value == True
                 config[keyval] = True
+                modified_args.append(f"{keyval}=True")
             else:
                 mkeyvals = keyval.split(":")
                 val = mkeyvals[-1]
@@ -1005,10 +1027,12 @@ def main() -> None:
                         pass
                 if len(mkeyvals) == 2:
                     config[mkeyvals[0]] = val
+                    modified_args.append(f"{mkeyvals[0]}={val}")
                 elif len(mkeyvals) == 3:
                     if mkeyvals[0] not in config:
                         config[mkeyvals[0]] = {}
                     config[mkeyvals[0]][mkeyvals[1]] = val
+                    modified_args.append(f"{mkeyvals[0]}:{mkeyvals[1]}={val}")
 
     # -------------------------------------------------------------------------
     # Check we have enough input command line args
@@ -1134,7 +1158,7 @@ def main() -> None:
         # used in the chain config file
         algorithm_list_file = (
             f"{base_dir}/config/algorithm_lists/"
-            f"{args.name}_{baseline}{args.version:03}.yml"
+            f"{args.name}_{baseline}{version:03}.yml"
         )
 
     if not os.path.exists(algorithm_list_file):
@@ -1145,7 +1169,7 @@ def main() -> None:
         "Chain name: %s : baseline %s, version %03d",
         args.name,
         baseline,
-        args.version,
+        version,
     )
 
     log.info("Using algorithm list: %s", algorithm_list_file)
@@ -1336,7 +1360,7 @@ def main() -> None:
     log.info("\n%sConfig Files          %s", "-" * 20, "-" * 20)
     log.info("Run config: %s", config_file)
     log.info("Chain config: %s", chain_config_file)
-    if len(modified_args) == 0:
+    if len(modified_args) > 0:
         for mod_args in modified_args:
             log.info("cmdline overide: %s", mod_args)
 
