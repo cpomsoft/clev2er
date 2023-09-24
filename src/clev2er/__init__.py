@@ -403,7 +403,7 @@ This section discusses how to develop algorithms for your chain. There are two t
 of algorithms, both of which are dynamically loaded at chain run-time.
 
 - Main algorithms : standard chain algorithm classes
-- Finder algorithms : classes to manage input L1b file selection
+- Finder algorithms : optional classes to manage input L1b file selection
 
 Algorithms are dynamically loaded in a chain when (and in the order ) they are named in the chain's
 algorithm list YAML file: $CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**.yml. This
@@ -422,6 +422,10 @@ algorithms:
 ```
 
 ### Main Algorithms
+
+Each algorithm is implemented in a separate module located in
+
+`$CLEV2ER_BASE_DIR/src/clev2er/algorithms/<chainname>/<alg_name>.py`
 
 ### FileFinder Classes
 
