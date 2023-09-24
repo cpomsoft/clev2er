@@ -22,7 +22,7 @@ from clev2er.utils.cs2.backscatter.backscatter import (
 
 
 class Algorithm(BaseAlgorithm):
-    """**Algorithm to Calculate Backscatter from CS2 L1b dataset**.
+    """**Algorithm to calculate Backscatter from CS2 L1b dataset**.
 
     BaseAlgorithm __init__(config,thislog)
         Args:
@@ -43,7 +43,7 @@ class Algorithm(BaseAlgorithm):
     # sequential or multi-processing mode is in operation
 
     def init(self) -> Tuple[bool, str]:
-        """Algorithm initialization
+        """Algorithm initialization function
 
         Add steps in this function that are run once at the beginning of the chain
         (for example loading a DEM or Mask)
@@ -51,39 +51,48 @@ class Algorithm(BaseAlgorithm):
         Returns:
             (bool,str) : success or failure, error string
 
-        Raises:
-            KeyError : keys not in config
-            FileNotFoundError :
-            OSError :
+        Test for KeyError or OSError exceptions and raise them if found
+        rather than just returning (False,"error description")
 
-        Note: raise and Exception rather than just returning False
+        Raises:
+            KeyError : for keys not found in self.config
+            OSError : for any file related errors
+
+        Note:
+        - retrieve required config data from self.config dict
+        - log using self.log.info(), or self.log.error() or self.log.debug()
+
         """
         self.alg_name = __name__
         self.log.info("Algorithm %s initializing", self.alg_name)
 
-        # Add initialization steps here
+        # --- Add your initialization steps below here ---
+
+        # --- End of initialization steps ---
 
         return (True, "")
 
     @Timer(name=__name__, text="", logger=None)
     def process(self, l1b: Dataset, shared_dict: dict) -> Tuple[bool, str]:
-        """Calculate backscatter
+        """Main algorithm processing function, called for every L1b file
 
         Args:
             l1b (Dataset): input l1b file dataset (constant)
-            shared_dict (dict): shared_dict data passed between algorithms
+            shared_dict (dict): shared_dict data passed between algorithms. Use this dict
+                                to pass algorithm results down the chain or read variables
+                                set by other algorithms.
 
         Returns:
             Tuple : (success (bool), failure_reason (str))
             ie
             (False,'error string'), or (True,'')
 
-        **IMPORTANT NOTE:** when logging within the Algorithm.process() function you must use
-        the self.log.info(),error(),debug() logger and NOT log.info(), log.error(), log.debug :
+        Note:
+        - retrieve required config data from self.config dict (read-only)
+        - retrieve data from other algorithms from shared_dict
+        - add results,variables from this algorithm to shared_dict
+        - log using self.log.info(), or self.log.error() or self.log.debug()
 
-        `self.log.error("your message")`
-
-        This is required to support logging during multi-processing
         """
 
         # Required to test L1b and support MP:

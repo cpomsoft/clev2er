@@ -1,6 +1,19 @@
 """ clev2er.algorithms.testchain.alg_template1.py
 
     Algorithm class module, used to implement a single chain algorithm
+
+    #Description of this Algorithm purpose
+    
+    This is an example Algorithm which should be used as a template
+    for other Algorithm modules.
+
+    #Main initialization (init() function) steps/resources required
+
+    #Main process() function steps
+
+    #Contribution to shared_dict
+
+    #Requires from shared_dict
 """
 
 from typing import Tuple
