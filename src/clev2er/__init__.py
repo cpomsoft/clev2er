@@ -439,7 +439,8 @@ Algorithm class modules have three main functions:
 - **init()** :  used for initializing/loading resources. Called once at the start of processing.
 - **process**(l1b:Dataset,shared_dict:dict) : called for every L1b file. The results of the 
   processing may be saved in the shared_dict, so that it can be accessed by algorithms called 
-  further down the chain.
+  further down the chain. The L1b data for the current file being processed is passed to this
+  function in a netcdf4 Dataset as argument l1b.
 - **finalize**() : called at the end of all processing to free resouces.
 
 All of the functions have access to the merged chain configuration dictionary **self.config**.
