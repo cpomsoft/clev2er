@@ -36,6 +36,8 @@ class Algorithm(BaseAlgorithm):
     - `shared_dict["hemisphere"]` : str
     - `shared_dict["instr_mode"]` : str
     - `shared_dict["num_20hz_records"]` : int
+    - `shared_dict["floating_ice_locations"]` : list[int]
+    - `shared_dict["ocean_locations"]` : list[int]
 
     **Outputs to shared dictionary**:
 
@@ -168,6 +170,10 @@ class Algorithm(BaseAlgorithm):
             )
             return (False, "Could not determine correct month from L1b file name")
 
+        # Search in <cats2008a_base_dir>/YYYY/MM/*<timestring>*.nc
+        # <cats2008a_base_dir> can be either set for
+        # L2I: /cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides
+        # L1B: /cpdata/SATS/RA/CRY/L1B/CATS2008/SIN
         cats_file = glob(
             f"{self.cats2008a_base_dir}/{year}/{month:02d}/*{time_string}*.nc"
         )
@@ -180,6 +186,7 @@ class Algorithm(BaseAlgorithm):
             return (False, "Missing CATS2008a tide correction file")
 
         # Open the CATS2008a file
+        self.log.info("CATS2008a tide file %s", cats_file[0])
         try:
             nc_cat = Dataset(cats_file[0])
             cats_tide = nc_cat.variables["cats_tide"][:].data

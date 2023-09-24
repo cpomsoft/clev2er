@@ -7,6 +7,7 @@ import string
 from typing import Any, Dict
 
 import pytest
+import xmltodict  # for parsing xml to python dict
 from envyaml import (  # for parsing YAML files which include environment variables
     EnvYAML,
 )
@@ -56,6 +57,7 @@ from clev2er.algorithms.cryotempo.alg_uncertainty import (
 from clev2er.algorithms.cryotempo.alg_waveform_quality import (
     Algorithm as WaveformQuality,
 )
+from clev2er.utils.xml.xml_funcs import set_xml_dict_types
 
 # Similar lines in 2 files, pylint: disable=R0801
 # pylint: disable=too-many-locals
@@ -80,15 +82,21 @@ def test_alg_product_output(l1b_file) -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
 
-    config_file = f"{base_dir}/config/main_config.yml"
+    config_file = f"{base_dir}/config/main_config.xml"
     assert os.path.exists(config_file), f"config file {config_file} does not exist"
 
+    with open(config_file, "r", encoding="utf-8") as file:
+        config_xml = file.read()
+
+    # Use xmltodict to parse and convert
+    # the XML document
     try:
-        config = EnvYAML(config_file)  # read the YML and parse environment variables
-    except ValueError as exc:
-        assert (
-            False
-        ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
+        config = dict(xmltodict.parse(config_xml))
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        assert False, f"ERROR: config file {config_file} xml format error : {exc}"
+
+    # Convert all str values to correct types: bool, int, float, str
+    set_xml_dict_types(config)
 
     # Load cryotempo chain config file by finding latest baseline
     # ie baseline B before A
@@ -113,7 +121,7 @@ def test_alg_product_output(l1b_file) -> None:
         ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
 
     # merge the two config files (with precedence to the chain_config)
-    config = config.export() | chain_config.export()  # the export() converts to a dict
+    config = config | chain_config.export()  # the export() converts to a dict
 
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False

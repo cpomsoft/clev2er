@@ -6,12 +6,11 @@ import logging
 import os
 from typing import Any, Dict
 
-from envyaml import (  # for parsing YAML files which include environment variables
-    EnvYAML,
-)
+import xmltodict  # for parsing xml to python dict
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.algorithms.cryotempo.alg_identify_file import Algorithm
+from clev2er.utils.xml.xml_funcs import set_xml_dict_types
 
 log = logging.getLogger(__name__)
 
@@ -27,15 +26,21 @@ def test_alg_identify_file() -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
 
-    config_file = f"{base_dir}/config/main_config.yml"
+    config_file = f"{base_dir}/config/main_config.xml"
     assert os.path.exists(config_file), f"config file {config_file} does not exist"
 
+    with open(config_file, "r", encoding="utf-8") as file:
+        config_xml = file.read()
+
+    # Use xmltodict to parse and convert
+    # the XML document
     try:
-        config = EnvYAML(config_file)  # read the YML and parse environment variables
-    except ValueError as exc:
-        assert (
-            False
-        ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
+        config = dict(xmltodict.parse(config_xml))
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        assert False, f"ERROR: config file {config_file} xml format error : {exc}"
+
+    # Convert all str values to correct types: bool, int, float, str
+    set_xml_dict_types(config)
 
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False
