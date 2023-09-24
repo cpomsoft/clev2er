@@ -439,8 +439,12 @@ Algorithm class modules have three main functions:
 - **init()** :  used for initialiazing/loading resources. Called once at the start of processing.
 - **process**(l1b,shared_dict) : called for every L1b file. The results of the processing may
   be saved in the shared_dict, so that it can be accessed by algorithms called further down
-  teh chain.
+  the chain.
 - **finalize**() : called at the end of all processing to free resouces.
+
+All of the functions have access to the merged chain configuration dictionary **self.config**.
+
+All logging must be done using **self.log**.info(), **self.log**.error(), **self.log**.debug().
 
 ### FileFinder Classes
 
