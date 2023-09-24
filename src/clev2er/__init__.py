@@ -427,6 +427,11 @@ Each algorithm is implemented in a separate module located in
 
 `$CLEV2ER_BASE_DIR/src/clev2er/algorithms/<chainname>/<alg_name>.py`
 
+Each algorithm module should contain an Algorithm class, as per the template
+in:
+
+`$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py`
+
 ### FileFinder Classes
 
 FileFinder class modules provide more complex and tailored L1b input file selection
