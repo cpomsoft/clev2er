@@ -1,6 +1,28 @@
 """ clev2er.algorithms.testchain.alg_template2.py
 
     Algorithm class module, used to implement a single chain algorithm
+
+    #Description of this Algorithm's purpose
+    
+    This is an example Algorithm which should be used as a template
+    for other Algorithm modules.
+
+    #Main initialization (init() function) steps/resources required
+
+    None
+
+    #Main process() function steps
+
+    Calculates 2 x the L1b ocean_tide_01 parameter as an example
+
+    #Contribution to shared_dict
+
+    shared_dict["twice_ocean_tide_01"] (np.array[int]) : example contains 2 x the L1b ocean_tide_01 
+                                                         parameter
+
+    #Requires from shared_dict
+
+    None
 """
 
 from typing import Tuple
@@ -92,7 +114,9 @@ class Algorithm(BaseAlgorithm):
         # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
 
-        shared_dict["test"] = True  # example, remove in real algorithm
+        # example line below to calculate 2 x ocean_tide_01 in shared_dict,
+        # remove/adapt the following line in real algorithm
+        shared_dict["twice_ocean_tide_01"] = l1b.variables["ocean_tide_01"][:].data * 2
 
         # -------------------------------------------------------------------
         # Returns (True,'') if success
