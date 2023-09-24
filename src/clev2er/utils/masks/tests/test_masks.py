@@ -90,9 +90,9 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
             [-38, 16, -58],  # lons
             [
                 2,
-                np.NaN,
+                99,
                 0,
-            ],  # expected surface type, grounded ice (2), out of mask (Nan), ocean(0)
+            ],  # expected surface type, grounded ice (2), out of mask (99), ocean(0)
         ),
     ],
 )
@@ -107,11 +107,13 @@ def test_mask_grid_mask_values(mask_name, lats, lons, expected_surface_type) -> 
     Returns:
         None
     """
-    thismask = Mask(mask_name, store_in_shared_memory=True)
+    thismask = Mask(mask_name, store_in_shared_memory=False)
 
-    mask_values = thismask.grid_mask_values(lats, lons)
+    mask_values = thismask.grid_mask_values(lats, lons, unknown_value=99)
 
     thismask.clean_up()  # free up shared memory
+
+    print(mask_values)
 
     assert len(mask_values) == len(
         lats

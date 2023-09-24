@@ -299,8 +299,11 @@ Configuration files may be either XML(.xml) or YAML (.yml) format.
 #### Formatting Rules for Configuration Files
 
 YAML or XML files can contain settings for key value pairs of boolean, int, float or str.
-For boolean values you must use the string **true** or **false** (case insensitive). 
-YAML or XML files may have multiple levels (or sections).
+
+- boolean values must be set to the string **true** or **false** (case insensitive)
+- environment variables are allowed within strings as $ENV_NAME or ${ENV_NAME} (and will be 
+  evaluated)
+- YAML or XML files may have multiple levels (or sections)
 
 Example of a 2 level config file in YML:
 
@@ -352,16 +355,6 @@ The requirement for specific settings are set by the chain and it's algorithms.
 An example of a chain configuration file can be found at:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
-
-**Important Note** that you may use environment variables within the XML or YAML configuration 
-files. ie
-
-```
-resources:
-    mydata : ${MYDATA_DIR}/somedata.nc
-```
-
-Within an algorithm you would access this setting as self.config['resources']['mydata']
 
 For testing purposes it is sometimes useful to modify configuration settings directly
 from the command line. This can be done using the command line option --conf_opts which
