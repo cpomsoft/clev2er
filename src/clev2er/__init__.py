@@ -432,6 +432,8 @@ template in:
 
 `$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py`
 
+Please copy this template for all algorithms.
+
 ### FileFinder Classes
 
 FileFinder class modules provide more complex and tailored L1b input file selection

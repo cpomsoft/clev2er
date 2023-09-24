@@ -1,4 +1,4 @@
 # List of algorithms to call in order
 algorithms:
-  - testalg1
-  - testalg2
+  - alg_template1
+  - alg_template2
