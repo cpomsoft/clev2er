@@ -434,6 +434,14 @@ template in:
 
 Please copy this template for all algorithms.
 
+Algorithm class modules have three main functions:
+
+- **init()** :  used for initialiazing/loading resources. Called once at the start of processing.
+- **process**(l1b,shared_dict) : called for every L1b file. The results of the processing may
+  be saved in the shared_dict, so that it can be accessed by algorithms called further down
+  teh chain.
+- **finalize**() : called at the end of all processing to free resouces.
+
 ### FileFinder Classes
 
 FileFinder class modules provide more complex and tailored L1b input file selection
