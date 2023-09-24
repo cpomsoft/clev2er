@@ -545,10 +545,10 @@ template in:</p>
 <p>Algorithm class modules have three main functions:</p>
 
 <ul>
-<li><strong>init()</strong> :  used for initialiazing/loading resources. Called once at the start of processing.</li>
-<li><strong>process</strong>(l1b,shared_dict) : called for every L1b file. The results of the processing may
-be saved in the shared_dict, so that it can be accessed by algorithms called further down
-the chain.</li>
+<li><strong>init()</strong> :  used for initializing/loading resources. Called once at the start of processing.</li>
+<li><strong>process</strong>(l1b:Dataset,shared_dict:dict) : called for every L1b file. The results of the 
+processing may be saved in the shared_dict, so that it can be accessed by algorithms called 
+further down the chain.</li>
 <li><strong>finalize</strong>() : called at the end of all processing to free resouces.</li>
 </ul>
 
@@ -1064,10 +1064,10 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a>
 </span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="sd">Algorithm class modules have three main functions:</span>
 </span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a>
-</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">- **init()** :  used for initialiazing/loading resources. Called once at the start of processing.</span>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">- **process**(l1b,shared_dict) : called for every L1b file. The results of the processing may</span>
-</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a><span class="sd">  be saved in the shared_dict, so that it can be accessed by algorithms called further down</span>
-</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">  the chain.</span>
+</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">- **init()** :  used for initializing/loading resources. Called once at the start of processing.</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">- **process**(l1b:Dataset,shared_dict:dict) : called for every L1b file. The results of the </span>
+</span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a><span class="sd">  processing may be saved in the shared_dict, so that it can be accessed by algorithms called </span>
+</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">  further down the chain.</span>
 </span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a><span class="sd">- **finalize**() : called at the end of all processing to free resouces.</span>
 </span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>
 </span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a><span class="sd">All of the functions have access to the merged chain configuration dictionary **self.config**.</span>
