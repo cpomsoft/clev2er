@@ -1,3 +1,13 @@
+# Algorithm list for chain: testchain
+
+# if you want to include optional L1b file selectors
+# uncomment the following 2+ lines and replace 'your_finder'
+# with your finder module name(s).
+#l1b_file_selectors:
+#  - your_finder
+#  - your_finder2
+#  - ...
+
 # List of algorithms to call in order
 algorithms:
   - alg_template1
