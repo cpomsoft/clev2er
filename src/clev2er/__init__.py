@@ -292,7 +292,8 @@ the chain specific config file:
 
 `$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>[.xml,.yml]`
 
-where B is the baseline (major version) character A..Z, and VVV is the zero padded minor version.
+where B is the baseline (major version) character A..Z, and VVV is the zero padded minor 
+version number.
 
 Configuration files may be either XML(.xml) or YAML (.yml) format.
 
@@ -304,8 +305,8 @@ YAML or XML files can contain settings for key value pairs of boolean, int, floa
 - environment variables are allowed within strings as $ENV_NAME or ${ENV_NAME} (and will be 
   evaluated)
 - YAML or XML files may have multiple levels (or sections)
-- XML files must have a top level root <configuration> </configuration> wrapping the levels.
-  This is removed from the python config dictionary.
+- XML files must have a top level root level named *configuration*  wrapping the lower levels.
+  This is removed from the python config dictionary before being passed to the algorithms.
 
 Example of a 2 level config file in YML:
 
@@ -316,6 +317,7 @@ some_key: a string
 section1:
     key1: 1
     key2: 1.5
+    some_data_location: $MYDATA/dem.nc
 
 section2:
     key: false
@@ -335,6 +337,7 @@ Example of a 2 level config file in XML:
 <section1>
    <key1>1</key1>
    <key2>1.5</key2>
+   <some_data_location>$MYDATA/dem.nc</some_data_location>
 </section1>
 
 <section2>
@@ -350,6 +353,7 @@ These settings are available within Algorithm classes as a python dictionary cal
 
 ```
 self.config['section1']['key1']
+self.config['section1']['some_data_location']
 self.config['some_key']
 ```
 

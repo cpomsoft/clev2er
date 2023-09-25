@@ -11,7 +11,7 @@ algorithms for its chain.
 
 ## Templates directory
 
-The `clev2er.algorithms.templates` directory contains a template algorithm to be copied for
+The `clev2er.algorithms.testchain` directory contains a template algorithms to be copied for
 new chain algorithms.
 
 """
