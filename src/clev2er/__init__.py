@@ -304,6 +304,8 @@ YAML or XML files can contain settings for key value pairs of boolean, int, floa
 - environment variables are allowed within strings as $ENV_NAME or ${ENV_NAME} (and will be 
   evaluated)
 - YAML or XML files may have multiple levels (or sections)
+- XML files must have a top level root <configuration> </configuration> wrapping the levels.
+  This is removed from the python config dictionary.
 
 Example of a 2 level config file in YML:
 
@@ -324,6 +326,9 @@ Example of a 2 level config file in XML:
 ```
 <?xml version="1.0"?>
 
+<!-- configuration xml level required, but removed in python dict -->
+<configuration>
+
 <!--some_key: str:  description-->
 <some_key>a string</some_key>
 
@@ -335,6 +340,8 @@ Example of a 2 level config file in XML:
 <section2>
    <key>false</key>
 </section2>
+
+</configuration>
 
 ```
 

@@ -3,14 +3,9 @@
 """
 import logging
 import os
-import string
 
 import numpy as np
 import pytest
-import xmltodict  # for parsing xml to python dict
-from envyaml import (  # for parsing YAML files which include environment variables
-    EnvYAML,
-)
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.algorithms.cryotempo.alg_cats2008a_tide_correction import (
@@ -40,7 +35,7 @@ from clev2er.algorithms.cryotempo.alg_surface_type import (
 from clev2er.algorithms.cryotempo.alg_waveform_quality import (
     Algorithm as WaveformQuality,
 )
-from clev2er.utils.xml.xml_funcs import set_xml_dict_types
+from clev2er.utils.config.load_config_settings import load_config_files
 
 # Similar lines in 2 files, pylint: disable=R0801
 # pylint: disable=too-many-locals
@@ -88,46 +83,8 @@ def test_alg_geolocate_sin(l1b_file, l2i_file) -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None
 
-    config_file = f"{base_dir}/config/main_config.xml"
-    assert os.path.exists(config_file), f"config file {config_file} does not exist"
-
-    with open(config_file, "r", encoding="utf-8") as file:
-        config_xml = file.read()
-
-    # Use xmltodict to parse and convert
-    # the XML document
-    try:
-        config = dict(xmltodict.parse(config_xml))
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        assert False, f"ERROR: config file {config_file} xml format error : {exc}"
-
-    # Convert all str values to correct types: bool, int, float, str
-    set_xml_dict_types(config)
-
-    # Load cryotempo chain config file by finding latest baseline
-    # ie baseline B before A
-    reverse_alphabet_list = list(string.ascii_uppercase[::-1])
-    baseline = None
-    for _baseline in reverse_alphabet_list:
-        config_file = f"{base_dir}/config/chain_configs/cryotempo_{_baseline}001.yml"
-        if os.path.exists(config_file):
-            baseline = _baseline
-            break
-    assert baseline, "No cryotempo baseline config file found"
-
-    log.info("Using config file %s", config_file)
-
-    try:
-        chain_config = EnvYAML(
-            config_file
-        )  # read the YML and parse environment variables
-    except ValueError as exc:
-        assert (
-            False
-        ), f"ERROR: config file {config_file} has invalid or unset environment variables : {exc}"
-
-    # merge the two config files (with precedence to the chain_config)
-    config = config | chain_config.export()  # the export() converts to a dict
+    # Load merged config file for chain
+    config = load_config_files("cryotempo")
 
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False

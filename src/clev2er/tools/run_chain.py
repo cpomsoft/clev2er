@@ -993,6 +993,8 @@ def main() -> None:
         # Convert all str values to correct types: bool, int, float, str
         set_xml_dict_types(chain_config)
 
+        chain_config = chain_config["configuration"]  # remove root xml level
+
     # merge the two config files (with precedence to the chain_config)
     if "chain" in chain_config:
         for key in chain_config["chain"]:
