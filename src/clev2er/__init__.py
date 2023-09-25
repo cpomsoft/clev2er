@@ -39,6 +39,7 @@ graph LR;
   * Algorithm.process() is called on every L1b file,
   * Algorithm.finalize() is called after all files have been processed.
   * Each algorithm has access to: L1b Dataset, shared working dict, config dict.
+  * Algorithm/chain configuration by XML or YAML configuration files.
   * The 'shared_dict' is used to pass algorithm outputs between algorithms in the chain.
 * logging with standard warning, info, debug, error levels (+ multi-processing logging support)
 * optional multi-processing built in, configurable maximum number of processes used.
@@ -205,7 +206,7 @@ new chains or algorithms.
 ### Install pre-commit hooks
 
 pre-commit hooks are static code analysis scripts which are run (and must be passed) before
-each git commit. For this project they include pylint, flake8, mypy, black, isort, pdocs.
+each git commit. For this project they include pylint, ruff, mypy, black, isort, pdocs.
 
 To install pre-commit hooks, do the following: (note that the second line is not necessary if 
 you have already loaded the virtual environment using `poetry shell`)
@@ -240,14 +241,14 @@ running this command.
 There should be no errors.
 
 Note that the algorithms that are dynamically run are located in 
-$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/testalg1.py, testalg2.py
+$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py, alg_template2.py
 
 The list of algorithms (and their order) for *testchain* are defined in 
 $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml
 
 Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.xml and
-$CLEV2ER_BASE_DIR/config/chain_configs/testchain.yml
+$CLEV2ER_BASE_DIR/config/chain_configs/testchain.xml
 
 To find all the command line options for *run_chain.py*, type:
 
@@ -262,18 +263,18 @@ options in the following order of increasing precedence:
 
 - main config file: $CLEV2ER_BASE_DIR/config/main_config.xml [Must be XML]
 - chain specific config file: 
-  $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml or .xml
+  $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml or .xml, where
+  BVVV is the baseline character (A..Z) and version number (001,..)
 - command line options
 - command line additional config options using the --conf_opts
 
 The configurations are passed to
-the chain's algorithms and finder classes, via a merged python dictionary.
+the chain's algorithms and finder classes, via a merged python dictionary, available
+to the Algorithm classes as self.config.
 
 ### Run Control Configuration
 
 The default run control configuration file is `$CLEV2ER_BASE_DIR/config/main_config.xml`
-
-**Note** that this is now an XML file and not a YML file.
 
 This contains general default settings for the chain controller. Each of these can
 be overridden by the relevant command line options.
@@ -290,7 +291,7 @@ be overridden by the relevant command line options.
 The default configuration for your chain's algorithms and finder classes should be placed in 
 the chain specific config file:
 
-`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>[.xml,.yml]`
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>[.xml,or .yml]`
 
 where B is the baseline (major version) character A..Z, and VVV is the zero padded minor 
 version number.
@@ -299,13 +300,14 @@ Configuration files may be either XML(.xml) or YAML (.yml) format.
 
 #### Formatting Rules for Configuration Files
 
-YAML or XML files can contain settings for key value pairs of boolean, int, float or str.
+YAML or XML files can contain multi-level settings for key value pairs of boolean, 
+int, float or str.
 
 - boolean values must be set to the string **true** or **false** (case insensitive)
 - environment variables are allowed within strings as $ENV_NAME or ${ENV_NAME} (and will be 
   evaluated)
 - YAML or XML files may have multiple levels (or sections)
-- XML files must have a top level root level named *configuration*  wrapping the lower levels.
+- XML files must have a top root level named *configuration*  wrapping the lower levels.
   This is removed from the python config dictionary before being passed to the algorithms.
 
 Example of a 2 level config file in YML:
@@ -349,7 +351,7 @@ Example of a 2 level config file in XML:
 ```
 
 These settings are available within Algorithm classes as a python dictionary called 
-**config** as in the following examples:
+**self.config** as in the following examples:
 
 ```
 self.config['section1']['key1']
