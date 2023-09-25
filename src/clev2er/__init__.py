@@ -383,30 +383,36 @@ An example of changing the value of the setting above would be:
    algorithm unit tests (using tests formatted for pytest). At least one algorithm test file 
    should be created per algorithm, which should contain suitable test functions.
 4. Create your algorithms by copying and renaming the algorithm class template 
-   $CLEV2ER_BASE_DIR/algorithms/testchain/testalg1.py in to your algorithm directory. Each algorithm
+   $CLEV2ER_BASE_DIR/algorithms/testchain/alg_template1.py in to your algorithm directory. Each
+   algorithm
    should have a different file name of your choice. For example: alg_retrack.py, alg_geolocate.py. 
    You need to fill in the appropriate sections of the init(), process() and finalize() functions 
    for each algorithm (see section below for more details on using algorithm classes).
-5. Each algorithm and their unit tests must pass the static code checks (pylint, mypy, etc) which 
+5. You must also create a test for each algorithm in 
+   $CLEV2ER_BASE_DIR/algorithms/**newchain**/tests.
+   You should copy/adapt the test template 
+   $CLEV2ER_BASE_DIR/algorithms/testchain/tests/test_alg_template1.py
+   for your new test.
+6. Each algorithm and their unit tests must pass the static code checks (pylint, mypy, etc) which 
    are automatically run as git pre-commit hooks. 
-6. Create a YML configuration file for the chain in 
+7. Create a YML configuration file for the chain in 
    $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**.yml. The configuration file contains
    any settings or resource locations that are required by your algorithms, and may include 
    environment variables.
    Note that you can also create a configuration file per baseline and version of your chain by 
    appending `_<BVVV>`. So for baseline A, version 1, you would use:
    $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**_A001.yml
-7. If required create one or more finder class files. These allow fine control of L1b file 
+8. If required create one or more finder class files. These allow fine control of L1b file 
    selection from the command line (see section below for more details).
-8. Create an algorithm list YML file in 
+9. Create an algorithm list YML file in 
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**.yml. 
    If you want to have multiple baselines and versions of your chain you can create one or 
    more algorithm lists using the syntax: 
    $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml (where A is the baseline 
    character A-Z, and 001 is the version number).
-9. To test your chain on a single L1b file, you can use 
-   `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many options for running chains 
-   (see `run_chain.py -h`).
+10. To test your chain on a single L1b file, you can use 
+   `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many other options for 
+    running chains (see `run_chain.py -h`).
 
 ## Algorithm and Finder Classes
 
