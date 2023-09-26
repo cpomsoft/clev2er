@@ -256,7 +256,7 @@ To find all the command line options for *run_chain.py*, type:
 
 For further info, please see `clev2er.tools`
 
-## Chain Configuration
+## Configuration
 
 Chains can be configured using XML or YAML configuration files and optional command line 
 options in the following order of increasing precedence:
@@ -286,7 +286,7 @@ be overridden by the relevant command line options.
 | use_shared_memory | true or false | if true allow use of shared memory. Experimental feature |
 | stop_on_error | true or false | stop chain on first error found, or log error and skip |
 
-### Algorithm Configuration
+### Chain Specific Configuration
 
 The default configuration for your chain's algorithms and finder classes should be placed in 
 the chain specific config file:
