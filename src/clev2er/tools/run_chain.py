@@ -1259,6 +1259,19 @@ def main() -> None:
 
     n_l1b_files = len(l1b_file_list)
 
+    # ----------------------------------------------------------------------------------------
+    # Check that the L1b file list contains at least 1 readable file
+    # ----------------------------------------------------------------------------------------
+
+    num_files_readable = 0
+    for l1b_file in l1b_file_list:
+        if os.path.isfile(l1b_file):
+            num_files_readable += 1
+            break
+    if num_files_readable == 0:
+        log.error("No input files in list exist")
+        sys.exit(1)
+
     log.info("Total number of L1b file found:  %d", n_l1b_files)
     if args.conf_opts:
         log.info("additional config options from command line are: %s", args.conf_opts)
