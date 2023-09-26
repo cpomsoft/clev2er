@@ -298,7 +298,7 @@ version number.
 
 Configuration files may be either XML(.xml) or YAML (.yml) format.
 
-#### Formatting Rules for Configuration Files
+#### Formatting Rules for Chain Configuration Files
 
 YAML or XML files can contain multi-level settings for key value pairs of boolean, 
 int, float or str.
@@ -363,6 +363,39 @@ The config file will also be
 merged with the main run control dictionary. Settings in the chain configuration
 file will take precedence over the main run control dictionary (if they are identical), so
 you can override any main config settings in the named chain config if you want.
+
+### Required Chain Configuration Settings
+
+The only required settings in the chain configuration files are those
+to set the log file locations. See the section on logging below for
+an explanation of the settings.
+
+Here is a minimal configuration file (XML format)
+
+```
+<?xml version="1.0"?>
+<!--chain: mychain configuration file-->
+
+<configuration> <!-- note this level is removed in python dict -->
+
+<log_files>
+    <append_year_month_to_logname>false</append_year_month_to_logname>
+
+    <!-- debug : str : path of the debug log file -->
+    <debug>/tmp/debug.log</debug>
+
+    <!-- info : str : path of the info log file -->
+    <info>/tmp/info.log</info>
+
+    <!-- errors : str : path of the errors log file -->
+    <errors>/tmp/errors.log</errors>
+</log_files>
+
+<!-- add more levels and settings below here -->
+
+</configuration>
+
+```
 
 The requirement for specific settings are set by the chain and it's algorithms.
 An example of a chain configuration file can be found at:
