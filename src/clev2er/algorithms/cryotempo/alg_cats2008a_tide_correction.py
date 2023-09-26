@@ -155,7 +155,7 @@ class Algorithm(BaseAlgorithm):
         # Find year and month from L1b file
         # -------------------------------------------------------------------
 
-        time_string = Path(shared_dict["l1b_file_name"]).name[19:-8]
+        time_string = Path(shared_dict["l1b_file_name"]).name[19:-3]
         year = int(time_string[:4])
         month = int(time_string[4:6])
 
@@ -181,7 +181,7 @@ class Algorithm(BaseAlgorithm):
             self.log.error(
                 "Missing CATS2008a file for timestring %s in %s",
                 time_string,
-                self.cats2008a_base_dir,
+                f"{self.cats2008a_base_dir}/{year}/{month:02d}",
             )
             return (False, "Missing CATS2008a tide correction file")
 
