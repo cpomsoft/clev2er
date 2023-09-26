@@ -377,7 +377,6 @@ def run_chain(
     log.info("Dynamically importing and initializing algorithms from list...")
 
     for alg in algorithm_list:
-        log.info("--loading %s", alg)
         # --------------------------------------------------------------------
         # Dynamically import each Algorithm from the list
         # --------------------------------------------------------------------
@@ -1269,7 +1268,9 @@ def main() -> None:
             num_files_readable += 1
             break
     if num_files_readable == 0:
-        log.error("No input files in list exist")
+        log.error(
+            "No input files in list exist, please check L1b input directories and files"
+        )
         sys.exit(1)
 
     log.info("Total number of L1b file found:  %d", n_l1b_files)
