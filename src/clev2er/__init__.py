@@ -516,13 +516,22 @@ of the log files are set in the chain configuration file in a section called
 ```
 # Default locations for log files
 log_files:
-  append_year_month_to_logname: true  # if chain is run for specific month and year, 
-                                      #use <logtype>_MMYYYY.log
-                                      # or <logtype>_YYYY.log (if only year used) 
-  errors: ${CT_LOG_DIR}/errors.log    # or errors_MMYYYY.log
+  append_year_month_to_logname: true         
+  errors: ${CT_LOG_DIR}/errors.log    
   info:   ${CT_LOG_DIR}/info.log
   debug:  ${CT_LOG_DIR}/debug.log
 ```
+
+The **append_year_month_to_logname** setting is used if the chain is
+run with the --year (and/or) --month command line args. Note that these
+command line options are passed to the optional finder classes to generate a
+list of L1b input files.
+
+If these are used and the append_year_month_to_logname setting is **true**, 
+then the year and month are appended to the log file names as follows:
+
+- <logname>_*MMYYYY*.log : if both month and year are specified
+- <logname>_*YYYY*.log : if only year is used
 
 ### Logging when using Multi-Processing
 
