@@ -563,8 +563,8 @@ list of L1b input files.
 If these are used and the append_year_month_to_logname setting is **true**, 
 then the year and month are appended to the log file names as follows:
 
-- <logname>_*MMYYYY*.log : if both month and year are specified
-- <logname>_*YYYY*.log : if only year is used
+- *logname*_*MMYYYY*.log : if both month and year are specified
+- *logname*_*YYYY*.log : if only year is used
 
 ### Logging when using Multi-Processing
 
