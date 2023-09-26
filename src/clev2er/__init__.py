@@ -536,7 +536,7 @@ then the year and month are appended to the log file names as follows:
 ### Logging when using Multi-Processing
 
 When multi-processing mode is selected then logged messages are automatically passed
-through a pipe to a temporary file (<normal log file>.mp). This will
+through a pipe to a temporary file (*logfilename*.mp). This will
 contain an unordered list of messages from all processes, which is difficult
 to read directly.
 
