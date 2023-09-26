@@ -155,9 +155,10 @@ class Algorithm(BaseAlgorithm):
         # Find year and month from L1b file
         # -------------------------------------------------------------------
 
+        # extract the time string and baseline/version: ie 20200101T073130_20200101T073254_E001
         time_string = Path(shared_dict["l1b_file_name"]).name[19:-3]
-        year = int(time_string[:4])
-        month = int(time_string[4:6])
+        year = int(time_string[:4])  # start year
+        month = int(time_string[4:6])  # start month
 
         if (month < 1) or (month > 12) or (year < 2010):
             self.log.error(

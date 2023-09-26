@@ -492,6 +492,33 @@ An example of a FileFinder class module can be found in:
 
 `clev2er.algorithms.cryotempo.find_lrm.py`
 
+## Logging
+
+Logging within the chain is performed using the python standard logging.Logger mechanism
+but with some minor adaption to support multi-processing.
+
+Within algorithm modules, logging should be performed using the in-class Logger
+instance accessed using **self.**log :
+
+- self.log.**info**('message') : to log informational messages
+- self.log.**error**('message') : to log error messages
+- self.log.**debug**('message') : to log messages for debugging
+
+Debugging messages are only produced/saved if the chain is run in debug mode (use
+run_chain.py **--debug** command line option)
+
+
+### Logging when using Multi-Processing
+
+When multi-processing mode is selected then logged messages are automatically passed
+through a pipe to a temporary file (<normal log file>.mp). This will
+contain an unordered list of messages from all processes, which is difficult
+to read directly.
+
+At the end of the chain run the multi-processing log outputs are automatically sorted
+so that messages relating to each L1b file processing are collected together
+in order. This is then merged in to the main log file. 
+
 ## Developer Notes
 
 ### Automatic Documentation
