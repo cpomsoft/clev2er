@@ -507,6 +507,22 @@ instance accessed using **self.**log :
 Debugging messages are only produced/saved if the chain is run in debug mode (use
 run_chain.py **--debug** command line option)
 
+### Log file Locations
+
+Info, error, and debug logs are stored in separate log files. The locations
+of the log files are set in the chain configuration file in a section called
+**log_files**. You can use environment variables in your log file paths.
+
+```
+# Default locations for log files
+log_files:
+  append_year_month_to_logname: true  # if chain is run for specific month and year, 
+                                      #use <logtype>_MMYYYY.log
+                                      # or <logtype>_YYYY.log (if only year used) 
+  errors: ${CT_LOG_DIR}/errors.log    # or errors_MMYYYY.log
+  info:   ${CT_LOG_DIR}/info.log
+  debug:  ${CT_LOG_DIR}/debug.log
+```
 
 ### Logging when using Multi-Processing
 
