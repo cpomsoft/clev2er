@@ -309,8 +309,10 @@ int, float or str.
 - YAML or XML files may have multiple levels (or sections)
 - XML files must have a top root level named *configuration*  wrapping the lower levels.
   This is removed from the python config dictionary before being passed to the algorithms.
+- chain configuration files must have a **log_files** section (see **required settings**
+  below for the format) to provide locations of the log files.
 
-Example of a 2 level config file in YML:
+Example of sections from a 2 level config file in YML:
 
 ```
 # some_key: str:  description
@@ -325,7 +327,7 @@ section2:
     key: false
 ```
 
-Example of a 2 level config file in XML:
+Example of sections from a 2 level config file in XML:
 
 ```
 <?xml version="1.0"?>
