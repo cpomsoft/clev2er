@@ -43,30 +43,37 @@ def get_logger(
     log.propagate = True
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
 
+    # log messages -> stdout
     if not silent:
-        # log messages -> stdout (include all depending on log.setLevel(), at end of function)
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(log_formatter)
-        stream_handler.setLevel(logging.DEBUG)
+        stream_handler.setLevel(default_log_level)
         log.addHandler(stream_handler)
 
-    # include all allowed log levels up to INFO (ie ERROR, WARNING, INFO, not DEBUG)
+    # Add a handler to send messages down to INFO level
+    # to the log file path : log_file_info
+    # will include messages to: INFO, WARNING, ERROR, and CRITICAL
     file_handler_info = logging.FileHandler(log_file_info, mode="w")
     file_handler_info.setFormatter(log_formatter)
     file_handler_info.setLevel(logging.INFO)
     log.addHandler(file_handler_info)
 
-    # only includes ERROR level messages
+    # Add a handler to send messages down to ERROR level
+    # to the log file path : log_file_error
+    # will include messages for levels: ERROR, and CRITICAL
     file_handler_error = logging.FileHandler(log_file_error, mode="w")
     file_handler_error.setFormatter(log_formatter)
     file_handler_error.setLevel(logging.ERROR)
     log.addHandler(file_handler_error)
 
-    # include all allowed log levels up to DEBUG
-    file_handler_debug = logging.FileHandler(log_file_debug, mode="w")
-    file_handler_debug.setFormatter(log_formatter)
-    file_handler_debug.setLevel(logging.DEBUG)
-    log.addHandler(file_handler_debug)
+    if default_log_level == logging.DEBUG:
+        # Add a handler to send messages down to DEBUG level
+        # to the log file path : log_file_error
+        # will include messages for levels: DEBUG, INFO, WARNING, ERROR, and CRITICAL
+        file_handler_debug = logging.FileHandler(log_file_debug, mode="w")
+        file_handler_debug.setFormatter(log_formatter)
+        file_handler_debug.setLevel(logging.DEBUG)
+        log.addHandler(file_handler_debug)
 
     # set the allowed log level
     #   - logging.DEBUG will allow all levels (DEBUG, INFO, WARNING, ERROR)

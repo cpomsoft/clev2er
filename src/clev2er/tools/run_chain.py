@@ -455,7 +455,7 @@ def run_chain(
         # add a handler that uses the shared queue
         new_logger.addHandler(QueueHandler(log_queue))
         # log all messages, debug and up
-        new_logger.setLevel(logging.DEBUG)
+        new_logger.setLevel(log.level)
         # start the logger process
         logger_p = Process(target=mp_logger_process, args=(log_queue, config))
         logger_p.start()
@@ -1333,9 +1333,11 @@ def main() -> None:
 
     if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
+        log.info("Sorting multi-processing log files...")
         sort_file_by_number(config["log_files"]["errors"] + ".mp")
         sort_file_by_number(config["log_files"]["info"] + ".mp")
-        sort_file_by_number(config["log_files"]["debug"] + ".mp")
+        if args.debug:
+            sort_file_by_number(config["log_files"]["debug"] + ".mp")
 
         # put .mp log contents into main log file
         insert_txtfile1_in_txtfile2_after_line_containing_string(
@@ -1343,11 +1345,12 @@ def main() -> None:
             config["log_files"]["info"],
             "MP processing completed with outputs logged:",
         )
-        insert_txtfile1_in_txtfile2_after_line_containing_string(
-            config["log_files"]["debug"] + ".mp",
-            config["log_files"]["debug"],
-            "MP processing completed with outputs logged:",
-        )
+        if args.debug:
+            insert_txtfile1_in_txtfile2_after_line_containing_string(
+                config["log_files"]["debug"] + ".mp",
+                config["log_files"]["debug"],
+                "MP processing completed with outputs logged:",
+            )
         append_file(
             config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]
         )
@@ -1371,7 +1374,8 @@ def main() -> None:
         # remove the multi-processing marker string '[fN]' from log files
         remove_strings_from_file(config["log_files"]["info"])
         remove_strings_from_file(config["log_files"]["errors"])
-        remove_strings_from_file(config["log_files"]["debug"])
+        if args.debug:
+            remove_strings_from_file(config["log_files"]["debug"])
 
     log.info("\n%sConfig Files          %s", "-" * 20, "-" * 20)
     log.info("Run config: %s", config_file)
