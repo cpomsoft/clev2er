@@ -84,31 +84,34 @@ def exception_hook(
 sys.excepthook = exception_hook
 
 
+def custom_key(line):
+    """search function to find N in line containing [fN]
+
+    Args:
+        line (str): string containing [fN], where N is an int which may be large
+
+    Returns:
+        N or 0 if not matched
+    """
+    match = re.search(r"\[f(\d+)\]", line)
+    if match:
+        return int(match.group(1))
+    return 0
+
+
 def sort_file_by_number(filename: str) -> None:
     """sort log file by N , where log lines contain the string [fN]
 
     Args:
         filename (str): log file path
     """
-    with open(filename, "r", encoding="utf-8") as file:
+    with open(filename, "r", encoding="utf8") as file:
         lines = file.readlines()
 
-    # Extract the numbers following [f and remove [fn] from each line
-    numbers = []
-    for line in lines:
-        match = re.search(r"\[f(\d+)\]", line)
-        if match is not None:
-            number = int(match.group(1))
-            numbers.append(number)
-    unique_numbers = np.unique(numbers)
+    sorted_lines = sorted(lines, key=custom_key)
 
-    # Write the sorted lines back to the file
-    with open(filename, "w", encoding="utf-8") as file:
-        for unique_number in unique_numbers:
-            indexes = np.where(numbers == unique_number)[0]
-            if len(indexes) > 0:
-                for index in indexes:
-                    file.writelines(re.sub(r"\[f\d+\]", "", lines[index]))
+    with open(filename, "w", encoding="utf8") as file:
+        file.writelines(sorted_lines)
 
 
 def insert_txtfile1_in_txtfile2_after_line_containing_string(
@@ -1333,12 +1336,15 @@ def main() -> None:
 
     if config["chain"]["use_multi_processing"]:
         # sort .mp log files by filenum processed (as they will be jumbled)
-        log.info("Sorting multi-processing log files...")
+        log.info("Sorting multi-processing error log file...")
         sort_file_by_number(config["log_files"]["errors"] + ".mp")
+        log.info("Sorting multi-processing info log file...")
         sort_file_by_number(config["log_files"]["info"] + ".mp")
         if args.debug:
+            log.info("Sorting multi-processing debug log file...")
             sort_file_by_number(config["log_files"]["debug"] + ".mp")
 
+        log.info("merging log files...")
         # put .mp log contents into main log file
         insert_txtfile1_in_txtfile2_after_line_containing_string(
             config["log_files"]["info"] + ".mp",
