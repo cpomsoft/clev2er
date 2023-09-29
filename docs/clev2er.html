@@ -610,17 +610,17 @@ function in a netcdf4 Dataset as argument l1b.</li>
 <p>It is important to note that Algorithm.<strong>process()</strong> return values affect how the
 chain operates. The .process() function returns (bool, str).</p>
 
-<p>Return options:</p>
+<p>Return options must be used as follows:</p>
 
 <ul>
-<li>(True,"") when the processing has completed without errors and continuation to the
+<li>(<strong>True</strong>,"") when the processing has completed without errors and continuation to the
 next algorithm in the chain (if available) is expected.</li>
-<li>(False,"<strong>SKIP_OK</strong> any reason message") when the processing has found a valid reason for the 
+<li>(<strong>False</strong>,"<strong>SKIP_OK</strong> any reason message") when the processing has found a valid reason for the 
 chain to skip any further processing of the L1b file. For example if it does not measure over the 
 target area. This will be logged as DEBUG message but is not an error. The chain will move to 
 processing the next L1b file.</li>
-<li>(False,"some error message") : In this case the error message will be logged to the error log and
-the file will be skipped. if config["chain"]["stop_on_error"] is False then the chain will 
+<li>(<strong>False</strong>,"some error message") : In this case the error message will be logged to the error log 
+and the file will be skipped. if config["chain"]["stop_on_error"] is False then the chain will 
 continue to the next L1b file. If config["chain"]["stop_on_error"] is True, then the chain will 
 stop.</li>
 </ul>
@@ -1252,16 +1252,16 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-500"><a href="#L-500"><span class="linenos">500</span></a><span class="sd">It is important to note that Algorithm.**process()** return values affect how the</span>
 </span><span id="L-501"><a href="#L-501"><span class="linenos">501</span></a><span class="sd">chain operates. The .process() function returns (bool, str).</span>
 </span><span id="L-502"><a href="#L-502"><span class="linenos">502</span></a>
-</span><span id="L-503"><a href="#L-503"><span class="linenos">503</span></a><span class="sd">Return options:</span>
+</span><span id="L-503"><a href="#L-503"><span class="linenos">503</span></a><span class="sd">Return options must be used as follows:</span>
 </span><span id="L-504"><a href="#L-504"><span class="linenos">504</span></a>
-</span><span id="L-505"><a href="#L-505"><span class="linenos">505</span></a><span class="sd">- (True,&quot;&quot;) when the processing has completed without errors and continuation to the</span>
+</span><span id="L-505"><a href="#L-505"><span class="linenos">505</span></a><span class="sd">- (**True**,&quot;&quot;) when the processing has completed without errors and continuation to the</span>
 </span><span id="L-506"><a href="#L-506"><span class="linenos">506</span></a><span class="sd">  next algorithm in the chain (if available) is expected.</span>
-</span><span id="L-507"><a href="#L-507"><span class="linenos">507</span></a><span class="sd">- (False,&quot;**SKIP_OK** any reason message&quot;) when the processing has found a valid reason for the </span>
+</span><span id="L-507"><a href="#L-507"><span class="linenos">507</span></a><span class="sd">- (**False**,&quot;**SKIP_OK** any reason message&quot;) when the processing has found a valid reason for the </span>
 </span><span id="L-508"><a href="#L-508"><span class="linenos">508</span></a><span class="sd">  chain to skip any further processing of the L1b file. For example if it does not measure over the </span>
 </span><span id="L-509"><a href="#L-509"><span class="linenos">509</span></a><span class="sd">  target area. This will be logged as DEBUG message but is not an error. The chain will move to </span>
 </span><span id="L-510"><a href="#L-510"><span class="linenos">510</span></a><span class="sd">  processing the next L1b file.</span>
-</span><span id="L-511"><a href="#L-511"><span class="linenos">511</span></a><span class="sd">- (False,&quot;some error message&quot;) : In this case the error message will be logged to the error log and</span>
-</span><span id="L-512"><a href="#L-512"><span class="linenos">512</span></a><span class="sd">  the file will be skipped. if config[&quot;chain&quot;][&quot;stop_on_error&quot;] is False then the chain will </span>
+</span><span id="L-511"><a href="#L-511"><span class="linenos">511</span></a><span class="sd">- (**False**,&quot;some error message&quot;) : In this case the error message will be logged to the error log </span>
+</span><span id="L-512"><a href="#L-512"><span class="linenos">512</span></a><span class="sd">  and the file will be skipped. if config[&quot;chain&quot;][&quot;stop_on_error&quot;] is False then the chain will </span>
 </span><span id="L-513"><a href="#L-513"><span class="linenos">513</span></a><span class="sd">  continue to the next L1b file. If config[&quot;chain&quot;][&quot;stop_on_error&quot;] is True, then the chain will </span>
 </span><span id="L-514"><a href="#L-514"><span class="linenos">514</span></a><span class="sd">  stop.</span>
 </span><span id="L-515"><a href="#L-515"><span class="linenos">515</span></a>
