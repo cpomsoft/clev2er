@@ -500,7 +500,7 @@ All logging must be done using **self.log**.info(), **self.log**.error(), **self
 It is important to note that Algorithm.**process()** return values affect how the
 chain operates. The .process() function returns (bool, str).
 
-Return options must be used as follows:
+Return values must be set as follows:
 
 - (**True**,"") when the processing has completed without errors and continuation to the
   next algorithm in the chain (if available) is expected.
@@ -509,9 +509,9 @@ Return options must be used as follows:
   target area. This will be logged as DEBUG message but is not an error. The chain will move to 
   processing the next L1b file.
 - (**False**,"some error message") : In this case the error message will be logged to the error log 
-  and the file will be skipped. if config["chain"]["stop_on_error"] is False then the chain will 
-  continue to the next L1b file. If config["chain"]["stop_on_error"] is True, then the chain will 
-  stop.
+  and the file will be skipped. If **config**["chain"]["**stop_on_error**"] is False then the 
+  chain will continue to the next L1b file. If **config**["chain"]["**stop_on_error**"] is True, 
+  then the chain will stop.
 
 ### FileFinder Classes
 
