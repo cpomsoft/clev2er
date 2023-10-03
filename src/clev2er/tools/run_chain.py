@@ -1073,16 +1073,18 @@ def main() -> None:
     # Read the list of algorithms to use for this chain
     # -------------------------------------------------------------------------------------------
 
+    log.info("chain config used: %s", chain_config_file)
+
     try:
         algorithm_list, finder_list, alg_list_file = load_algorithm_list(
             args.name,
             baseline=baseline,
+            version=version,
             alg_list_file=args.alglist,
+            log=log,
         )
     except (KeyError, OSError, ValueError) as exc:
-        log.error("Loading algorithm list file failed due to %s", exc)
-
-    log.info("Algorithm list file: %s,", alg_list_file)
+        log.error("Loading algorithm list file failed : %s", exc)
 
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files

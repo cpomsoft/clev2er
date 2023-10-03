@@ -24,7 +24,7 @@ from clev2er.utils.xml.xml_funcs import set_xml_dict_types
 # pylint: disable=too-many-locals
 
 
-log = logging.getLogger(__name__)
+module_log = logging.getLogger(__name__)
 
 
 # pylint: disable=too-many-branches
@@ -35,6 +35,7 @@ def load_algorithm_list(
     baseline: str = "",
     version: int = 0,
     alg_list_file="",
+    log: logging.Logger | None = None,
 ) -> Tuple[list, list, str]:
     """load algorithm and L1b finder list for specified chain
 
@@ -60,6 +61,7 @@ def load_algorithm_list(
 
         alg_list_file (str,optional): path of algorithm list file to use. default="" which means
                                       search for one in standard locations
+        log (logging.Logger, optional): log instance to use, default is None (use module loggger)
     Raises: KeyError,ValueError,OSError,NameError
 
     Returns:
@@ -67,6 +69,9 @@ def load_algorithm_list(
                               list of finder module names - may be empty list, filename of algorithm
                               list used
     """
+
+    if log is None:
+        log = module_log
 
     if not alg_list_file:
         base_dir = os.environ["CLEV2ER_BASE_DIR"]
@@ -129,8 +134,8 @@ def load_algorithm_list(
             if len(alg_list_file) < 1:
                 raise OSError(f"No algorithm list file found for chain {chain_name}")
 
-        # find highest of multiple versions
-        alg_list_file = alg_list_file[-1]
+            # find highest of multiple versions
+            alg_list_file = alg_list_file[-1]
 
     log.info("Algorithm list file used: %s", alg_list_file)
 
@@ -210,7 +215,8 @@ def load_algorithm_list(
 
     else:
         raise NameError(
-            f"Wrong file extension: {alg_list_file[-4:]} must be .yml or .xml"
+            f"Wrong file extension: {alg_list_file[-4:]} must be .yml or .xml in file "
+            f": {alg_list_file}"
         )
 
     return algorithm_list, finder_module_list, alg_list_file
@@ -251,6 +257,7 @@ def load_config_files(
         (dict,str,int,str,str) : config dict, baseline, version
     """
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
+    log = module_log
 
     # --------------------------------------------
     # Load main run control XML config file
