@@ -5,7 +5,7 @@ A generic python algorithm framework, available from https://github.com/cpomsoft
 The framework is designed for (but not 
 restricted to) Level-1b to Level-2 processing of ESA radar altimetry mission data. Initial usage 
 is expected for the ESA CryoSat-2 and CRISTAL missions. The key features of the framework are 
-dynamically loaded algorithm classes (from YML lists of algorithms) and in-built support for 
+dynamically loaded algorithm classes (from XML or YML lists of algorithms) and in-built support for 
 multi-processing and a consistent automated development and testing workflow. There are many 
 run-time options in the chain controller command line tool.
 
@@ -32,7 +32,7 @@ graph LR;
 
 * Command line chain controller tool : src/clev2er/tools/run_chain.py
 * input L1b file selection (single file, multiple files or dynamic algorithm selection)
-* dynamic algorithm loading from YML list(s)
+* dynamic algorithm loading from XML or YML list(s)
   * algorithms are classes of type Algorithm with configurable .init(), .process(), .finalize() 
     functions.
   * Algorithm.init() is called before any L1b file processing.
@@ -51,7 +51,7 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 
 ##Processing chains already implemented in framework:
 
--   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`
+-   CryoTEMPO Land Ice (baselines B and C) : view the algorithms: `clev2er.algorithms.cryotempo`
 
 ## Installation of the Framework
 
@@ -244,11 +244,11 @@ Note that the algorithms that are dynamically run are located in
 $CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py, alg_template2.py
 
 The list of algorithms (and their order) for *testchain* are defined in 
-$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml
+$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A002.xml
 
 Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.xml and
-$CLEV2ER_BASE_DIR/config/chain_configs/testchain.xml
+$CLEV2ER_BASE_DIR/config/chain_configs/testchain_A002.xml
 
 To find all the command line options for *run_chain.py*, type:
 

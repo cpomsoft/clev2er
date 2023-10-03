@@ -86,7 +86,7 @@ clev2er    </h1>
 The framework is designed for (but not 
 restricted to) Level-1b to Level-2 processing of ESA radar altimetry mission data. Initial usage 
 is expected for the ESA CryoSat-2 and CRISTAL missions. The key features of the framework are 
-dynamically loaded algorithm classes (from YML lists of algorithms) and in-built support for 
+dynamically loaded algorithm classes (from XML or YML lists of algorithms) and in-built support for 
 multi-processing and a consistent automated development and testing workflow. There are many 
 run-time options in the chain controller command line tool.</p>
 
@@ -113,7 +113,7 @@ run-time options in the chain controller command line tool.</p>
 <ul>
 <li>Command line chain controller tool : src/clev2er/tools/run_chain.py</li>
 <li>input L1b file selection (single file, multiple files or dynamic algorithm selection)</li>
-<li>dynamic algorithm loading from YML list(s)
+<li>dynamic algorithm loading from XML or YML list(s)
 <ul>
 <li>algorithms are classes of type Algorithm with configurable .init(), .process(), .finalize() 
 functions.</li>
@@ -136,7 +136,7 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 <h2 id="processing-chains-already-implemented-in-framework">Processing chains already implemented in framework:</h2>
 
 <ul>
-<li>CryoTEMPO Land Ice : view the algorithms: <code><a href="clev2er/algorithms/cryotempo.html">clev2er.algorithms.cryotempo</a></code></li>
+<li>CryoTEMPO Land Ice (baselines B and C) : view the algorithms: <code><a href="clev2er/algorithms/cryotempo.html">clev2er.algorithms.cryotempo</a></code></li>
 </ul>
 
 <h2 id="installation-of-the-framework">Installation of the Framework</h2>
@@ -324,11 +324,11 @@ running this command.</p>
 $CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py, alg_template2.py</p>
 
 <p>The list of algorithms (and their order) for <em>testchain</em> are defined in 
-$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml</p>
+$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A002.xml</p>
 
 <p>Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.xml and
-$CLEV2ER_BASE_DIR/config/chain_configs/testchain.xml</p>
+$CLEV2ER_BASE_DIR/config/chain_configs/testchain_A002.xml</p>
 
 <p>To find all the command line options for <em>run_chain.py</em>, type:</p>
 
@@ -757,7 +757,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">The framework is designed for (but not </span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">restricted to) Level-1b to Level-2 processing of ESA radar altimetry mission data. Initial usage </span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="sd">is expected for the ESA CryoSat-2 and CRISTAL missions. The key features of the framework are </span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">dynamically loaded algorithm classes (from YML lists of algorithms) and in-built support for </span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="sd">dynamically loaded algorithm classes (from XML or YML lists of algorithms) and in-built support for </span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">multi-processing and a consistent automated development and testing workflow. There are many </span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">run-time options in the chain controller command line tool.</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
@@ -784,7 +784,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a><span class="sd">* Command line chain controller tool : src/clev2er/tools/run_chain.py</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">* input L1b file selection (single file, multiple files or dynamic algorithm selection)</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">* dynamic algorithm loading from YML list(s)</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">* dynamic algorithm loading from XML or YML list(s)</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">  * algorithms are classes of type Algorithm with configurable .init(), .process(), .finalize() </span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">    functions.</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">  * Algorithm.init() is called before any L1b file processing.</span>
@@ -803,7 +803,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">##Processing chains already implemented in framework:</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">-   CryoTEMPO Land Ice : view the algorithms: `clev2er.algorithms.cryotempo`</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">-   CryoTEMPO Land Ice (baselines B and C) : view the algorithms: `clev2er.algorithms.cryotempo`</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
 </span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">## Installation of the Framework</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
@@ -996,11 +996,11 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="sd">$CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py, alg_template2.py</span>
 </span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a>
 </span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="sd">The list of algorithms (and their order) for *testchain* are defined in </span>
-</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain.yml</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="sd">$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A002.xml</span>
 </span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a>
 </span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a><span class="sd">Algorithm configuration settings are defined in</span>
 </span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a><span class="sd">$CLEV2ER_BASE_DIR/config/main_config.xml and</span>
-</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">$CLEV2ER_BASE_DIR/config/chain_configs/testchain.xml</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a><span class="sd">$CLEV2ER_BASE_DIR/config/chain_configs/testchain_A002.xml</span>
 </span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>
 </span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a><span class="sd">To find all the command line options for *run_chain.py*, type:</span>
 </span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>

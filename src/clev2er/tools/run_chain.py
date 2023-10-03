@@ -879,8 +879,7 @@ def main() -> None:
     if args.version > 0:
         modified_args.append(f"version={args.version}")
         version = args.version
-    else:
-        version = 1
+
     if args.quiet:
         modified_args.append("quiet=True")
     if args.debug:
@@ -1085,6 +1084,7 @@ def main() -> None:
         )
     except (KeyError, OSError, ValueError) as exc:
         log.error("Loading algorithm list file failed : %s", exc)
+        sys.exit(1)
 
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files

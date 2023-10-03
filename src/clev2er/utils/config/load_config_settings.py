@@ -95,6 +95,7 @@ def load_algorithm_list(
         # Find algorithm list filename for this chain
         # ---------------------------------------------
         if version > 0 and baseline:
+            log.info("baseline and version set: %s %d", baseline, version)
             # In this case we know exactly which name to use
             alg_list_file = (
                 f"{base_dir}/config/algorithm_lists/"
@@ -254,7 +255,7 @@ def load_config_files(
     Raises: KeyError, OSError, ValueError
 
     Returns:
-        (dict,str,int,str,str) : config dict, baseline, version
+        (dict,str,int,str,str) : config, baseline, version, main_config_file, chain_config_file
     """
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     log = module_log
@@ -323,6 +324,7 @@ def load_config_files(
                 if len(_config_file) > 0:
                     baseline = _baseline
                     chain_config_file = _config_file[-1]
+                    version = int(chain_config_file[-7:-4])
                     break
                 if version:
                     _config_file = glob.glob(
@@ -335,6 +337,7 @@ def load_config_files(
                 if len(_config_file) > 0:
                     baseline = _baseline
                     chain_config_file = _config_file[-1]
+                    version = int(chain_config_file[-7:-4])
                     break
     else:
         baseline = chain_config_file[-8]

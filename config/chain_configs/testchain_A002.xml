@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<!-- root xml level configuration required : this level removed in python dict-->
+<configuration>
+
+<!--chain: testchain configuration-->
+<log_files>
+    <!-- append_year_month_to_logname : true or false : 
+            if true and chain is run for a specific month and year, use <logtype>_MMYYYY.log
+            or <logtype>_YYYY.log (if only the year is specified)
+            year and month are set in the run_chain.py command line args
+    -->
+    <append_year_month_to_logname>true</append_year_month_to_logname>
+
+    <!-- debug : str : path of the debug log file -->
+    <debug>/tmp/debug.log</debug>
+
+    <!-- info : str : path of the info log file -->
+    <info>/tmp/info.log</info>
+
+    <!-- errors : str : path of the errors log file -->
+    <errors>/tmp/errors.log</errors>
+</log_files>
+
+<!-- We can override settings from main_config.xml if we wish -->
+<chain>
+    <stop_on_error>true</stop_on_error>
+</chain>
+
+</configuration>
