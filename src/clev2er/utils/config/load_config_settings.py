@@ -202,10 +202,10 @@ def load_algorithm_list(
 
         # Extract the algorithms list from the dictionary read from the YAML file
         try:
-            finder_module_list = yml["algorithms"]
+            finder_module_list = yml["l1b_file_selectors"]
         except KeyError as exc:
             raise KeyError(
-                f"ERROR: algorithm list file {alg_list_file} has missing key: algorithms",
+                f"ERROR: algorithm list file {alg_list_file} has missing key: {exc}",
             ) from exc
 
     else:

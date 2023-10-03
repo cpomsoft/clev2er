@@ -1104,6 +1104,8 @@ def main() -> None:
 
         l1b_file_selector_modules = finder_list
 
+        print(finder_list)
+
         if len(l1b_file_selector_modules) > 0:
             for file_selector_module in l1b_file_selector_modules:
                 # Import module
