@@ -1,5 +1,6 @@
 """pytest of utils.config.load_config_files()
 """
+import os
 
 from clev2er.utils.config.load_config_settings import load_config_files
 
@@ -10,7 +11,13 @@ def test_load_config_files():
     chain_name = "testchain"
 
     try:
-        config = load_config_files(chain_name)
+        (
+            config,
+            baseline,
+            version,
+            _,  # main_config_file
+            _,  # chain_config_file
+        ) = load_config_files(chain_name)
     except (KeyError, OSError, ValueError) as exc:
         assert False, f"Loading config file failed due to {exc}"
 
@@ -32,3 +39,62 @@ def test_load_config_files():
     assert config["log_files"]["info"] == "/tmp/info.log"
 
     assert config["chain"]["stop_on_error"]
+
+    try:
+        (
+            config,
+            baseline,
+            version,
+            _,  # main_config_file
+            _,  # chain_config_file
+        ) = load_config_files("cryotempo", baseline="C")
+    except (KeyError, OSError, ValueError) as exc:
+        assert False, f"Loading config file failed due to {exc}"
+
+    assert config["sin_geolocation"]["phase_method"] == 3
+
+    try:
+        (
+            config,
+            baseline,
+            version,
+            _,  # main_config_file
+            _,  # chain_config_file
+        ) = load_config_files("cryotempo")
+    except (KeyError, OSError, ValueError) as exc:
+        assert False, f"Loading config file failed due to {exc}"
+
+    assert config["sin_geolocation"]["phase_method"] == 3
+
+    try:
+        (
+            config,
+            baseline,
+            version,
+            _,  # main_config_file
+            _,  # chain_config_file
+        ) = load_config_files("cryotempo", baseline="C", version=1)
+    except (KeyError, OSError, ValueError) as exc:
+        assert False, f"Loading config file failed due to {exc}"
+
+    assert config["sin_geolocation"]["phase_method"] == 3
+
+    try:
+        (
+            config,
+            baseline,
+            version,
+            _,  # main_config_file
+            _,  # chain_config_file
+        ) = load_config_files(
+            "cryotempo",
+            chain_config_file=f"{os.environ['CLEV2ER_BASE_DIR']}/"
+            "config/chain_configs/cryotempo_C001.yml",
+        )
+    except (KeyError, OSError, ValueError) as exc:
+        assert False, f"Loading config file failed due to {exc}"
+
+    assert baseline == "C"
+    assert version == 1
+
+    assert config["sin_geolocation"]["phase_method"] == 3

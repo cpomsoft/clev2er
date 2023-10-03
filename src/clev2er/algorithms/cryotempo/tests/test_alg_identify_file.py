@@ -26,7 +26,7 @@ def test_alg_identify_file() -> None:
     assert base_dir is not None
 
     # Load merged config file for chain
-    config = load_config_files("cryotempo")
+    config, _, _, _, _ = load_config_files("cryotempo")
 
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False

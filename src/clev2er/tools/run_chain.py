@@ -39,7 +39,6 @@ import logging
 import multiprocessing as mp
 import os
 import re
-import string
 import sys
 import time
 import types
@@ -49,15 +48,14 @@ from multiprocessing import Process, Queue, current_process
 from typing import Any, List, Optional, Type
 
 import numpy as np
-import xmltodict  # for parsing xml to python dict
 from codetiming import Timer
-from envyaml import (  # for parsing YAML files which include environment variables
-    EnvYAML,
-)
 from netCDF4 import Dataset  # pylint: disable=E0611
 
+from clev2er.utils.config.load_config_settings import (
+    load_algorithm_list,
+    load_config_files,
+)
 from clev2er.utils.logging_funcs import get_logger
-from clev2er.utils.xml.xml_funcs import set_xml_dict_types
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
@@ -608,15 +606,6 @@ def main() -> None:
     """main function for tool"""
 
     # ----------------------------------------------------------------------
-    # Setup by getting essential package environment variables
-    # ----------------------------------------------------------------------
-
-    try:
-        base_dir = os.environ["CLEV2ER_BASE_DIR"]
-    except KeyError:
-        sys.exit("Error: environment variable CLEV2ER_BASE_DIR not set")
-
-    # ----------------------------------------------------------------------
     # Process Command Line Arguments for tool
     # ----------------------------------------------------------------------
 
@@ -643,19 +632,50 @@ def main() -> None:
         "-a",
         help=(
             "[Optional] path of algorithm list YML file,"
-            "default is ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>_<B><VVV>.[yml,xml] "
+            "default is an empty str which will result in a search for highest version list "
+            "files in ${CLEV2ER_BASE_DIR}/config/algorithm_lists/<chain_name>_<B><VVV>.[yml,xml] "
             "where <B> is the uppercase baseline character A..Z, and <VVV> is the zero padded "
             "version number, ie 001"
         ),
+        default="",
+    )
+
+    parser.add_argument(
+        "--mconf",
+        "-mc",
+        help=(
+            "[Optional] path of main controller configuration file (XML format),"
+            "default=$CLEV2ER_BASE_DIR/config/main_config.xml"
+        ),
+        default="",  # empty string results in use of $CLEV2ER_BASE_DIR/config/main_config.xml
     )
 
     parser.add_argument(
         "--conf",
         "-c",
         help=(
-            "[Optional] path of main controller configuration file (XML format),"
-            "default=$CLEV2ER_BASE_DIR/config/main_config.xml"
+            "[Optional] path of chain controller configuration file (XML format),"
+            "default=$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>.yml"
         ),
+        default="",  # empty string results in use of highest available chain <BVVV>
+    )
+
+    parser.add_argument(
+        "--conf_opts",
+        "-co",
+        help=(
+            "[Optional] Comma separated list of config options to add/modify the  "
+            "configuration dictionary passed to algorithms and finder classes. "
+            "Each option can include a value. The value is appended to the option key after a : "
+            "Use key:true, or key:false, or key:value. If no value is included with a single level "
+            "key, it indicates a boolean true. "
+            "For multi-level keys, use another colon, ie key1:key2:value. "
+            "Example: -co sin_only:true  or -co sin_only are both the same to only select SIN L1b "
+            "files. "
+            "These are chain specific and may have different meanings for other chains. "
+            "Note that these options override any identical key:values in chain configuration files"
+        ),
+        type=str,
     )
 
     parser.add_argument(
@@ -671,6 +691,7 @@ def main() -> None:
             "exist, baseline B config file will be selected)"
         ),
         type=str,
+        default="",  # when an empty str is used, the highest baseline found is used
     )
     parser.add_argument(
         "--version",
@@ -682,6 +703,7 @@ def main() -> None:
             "where <VVV> is the automatically zero padded version number. "
         ),
         type=int,
+        default=0,  # when 0 is used, the highest version number found for the baseline is used
     )
 
     parser.add_argument(
@@ -705,24 +727,6 @@ def main() -> None:
         ),
         action="store_const",
         const=1,
-    )
-
-    parser.add_argument(
-        "--conf_opts",
-        "-co",
-        help=(
-            "[Optional] Comma separated list of config options to add/modify the  "
-            "configuration dictionary passed to algorithms and finder classes. "
-            "Each option can include a value. The value is appended to the option key after a : "
-            "Use key:true, or key:false, or key:value. If no value is included with a single level "
-            "key, it indicates a boolean true. "
-            "For multi-level keys, use another colon, ie key1:key2:value. "
-            "Example: -co sin_only:true  or -co sin_only are both the same to only select SIN L1b "
-            "files. "
-            "These are chain specific and may have different meanings for other chains. "
-            "Note that these options override any identical key:values in chain configuration files"
-        ),
-        type=str,
     )
 
     parser.add_argument(
@@ -838,47 +842,41 @@ def main() -> None:
     if not args.name:
         sys.exit("ERROR: missing command line argument --name <chain_name>")
 
+    if args.baseline:
+        if len(args.baseline) != 1 or not args.baseline.isalpha():
+            sys.exit("ERROR: --baseline <BASELINE>, must be a single char A..Z")
+
+    if args.version:
+        if args.version > 100:
+            sys.exit("ERROR: --version <version>, must be an integer 1..100")
+
     # -------------------------------------------------------------------------
     # Load main XML controller configuration file
     #   - default is $CLEV2ER_BASE_DIR/config/main_config.xml
     #   - or set by --conf <filepath>.xml
     # -------------------------------------------------------------------------
 
-    if args.conf:
-        config_file = args.conf
-    else:
-        config_file = f"{base_dir}/config/main_config.xml"
-
-    if not os.path.exists(config_file):
-        sys.exit(f"ERROR: main config file {config_file} does not exist")
-
-    # Check config file ends in .xml
-
-    if config_file[-4:] != ".xml":
-        sys.exit(f"ERROR: main config file {config_file} file name must end in .xml")
-
-    with open(config_file, "r", encoding="utf-8") as file:
-        config_xml = file.read()
-
-    # Use xmltodict to parse and convert
-    # the XML document
     try:
-        config = dict(xmltodict.parse(config_xml))
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        sys.exit(f"ERROR: main config file {config_file} xml format error: {exc}")
-
-    # Convert all str values to correct types: bool, int, float, str
-    set_xml_dict_types(config)
+        config, baseline, version, config_file, chain_config_file = load_config_files(
+            args.name,
+            baseline=args.baseline,
+            version=args.version,
+            main_config_file=args.mconf,
+            chain_config_file=args.conf,
+        )
+    except (KeyError, OSError, ValueError) as exc:
+        sys.exit(f"Loading config file error: {exc}")
 
     # -------------------------------------------------------------------------
-    # Modify main config settings from command line args
+    # Modify  config settings from command line args and store modifications
+    # to report later
     # -------------------------------------------------------------------------
 
     modified_args = []
 
     if args.baseline:
         modified_args.append(f"baseline={args.baseline}")
-    if args.version:
+    if args.version > 0:
         modified_args.append(f"version={args.version}")
         version = args.version
     else:
@@ -920,91 +918,6 @@ def main() -> None:
     if args.stop_on_error:
         config["chain"]["stop_on_error"] = True
         modified_args.append("stop_on_error=True")
-
-    # -------------------------------------------------------------------------
-    # Merge chain config file (XML or YAML file)
-    #   - default is
-    # $CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<Baseline><Version>.[xml,yml]
-    # where Baseline is one character 'A', 'B',..
-    #       Version is zero-padded integer : 001, 002,..
-    # -------------------------------------------------------------------------
-
-    # Load config file related to the chain_name
-
-    if version < 1 or version > 100:
-        sys.exit("ERROR: --version <version>, must be an integer 1-100")
-
-    if args.baseline:
-        if len(args.baseline) != 1:
-            sys.exit("ERROR: --baseline <BASELINE>, must be a single char")
-        chain_config_file = (
-            f"{base_dir}/config/chain_configs/"
-            f"{args.name}_{args.baseline.upper()}{version:03}.xml"
-        )
-        if not os.path.isfile(chain_config_file):
-            chain_config_file = (
-                f"{base_dir}/config/chain_configs/"
-                f"{args.name}_{args.baseline.upper()}{version:03}.yml"
-            )
-        baseline = args.baseline
-    else:  # find config file with highest baseline char (closest to Z)
-        reverse_alphabet_list = list(string.ascii_uppercase[::-1])
-        chain_config_file_found = False
-        for _baseline in reverse_alphabet_list:
-            chain_config_file = (
-                f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                f"{version:03}.xml"
-            )
-            if not os.path.isfile(chain_config_file):
-                chain_config_file = (
-                    f"{base_dir}/config/chain_configs/{args.name}_{_baseline}"
-                    f"{version:03}.yml"
-                )
-            if os.path.exists(chain_config_file):
-                baseline = _baseline
-                chain_config_file_found = True
-                break
-        if not chain_config_file_found:
-            sys.exit(f"No [xml or yml] chain config file found for chain: {args.name}")
-
-    if not os.path.exists(chain_config_file):
-        sys.exit(f"ERROR: config file {chain_config_file} [xml or yml] does not exist")
-
-    if chain_config_file[-4:] == ".yml":
-        try:
-            chain_config = EnvYAML(
-                chain_config_file
-            )  # read the YML and parse environment variables
-        except ValueError as exc:
-            sys.exit(
-                f"ERROR: config file {chain_config_file} has invalid or "
-                f"unset environment variables : {exc}"
-            )
-        chain_config = chain_config.export()  # convert to dict
-    else:
-        with open(chain_config_file, "r", encoding="utf-8") as file:
-            config_xml = file.read()
-
-        # Use xmltodict to parse and convert
-        # the XML document
-        try:
-            chain_config = dict(xmltodict.parse(config_xml))
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            sys.exit(f"ERROR: config file {chain_config_file} xml format error: {exc}")
-
-        # Convert all str values to correct types: bool, int, float, str
-        set_xml_dict_types(chain_config)
-
-        chain_config = chain_config["configuration"]  # remove root xml level
-
-    # merge the two config files (with precedence to the chain_config)
-    if "chain" in chain_config:
-        for key in chain_config["chain"]:
-            if key in config["chain"]:
-                config["chain"][key] = chain_config["chain"][key]
-        chain_config.pop("chain", None)
-
-    config = config | chain_config
 
     # Process command line arg 'conf_opts' to modify config dict
     # these a comma separated with : to separate levels
@@ -1149,26 +1062,6 @@ def main() -> None:
     if args.debug:
         log.info("debug log: %s", log_file_debug_name)
 
-    # -------------------------------------------------------------------------------------------
-    # Read the list of default algorithms to use for land ice, or inland waters
-    #   - default alg list files are defined in the main config file
-    #   - alternatively use a user provided list if --alglist <file.yml> is set
-    # -------------------------------------------------------------------------------------------
-
-    if args.alglist:
-        algorithm_list_file = args.alglist
-    else:
-        # Use the algorithm list for the specific baseline and version
-        # used in the chain config file
-        algorithm_list_file = (
-            f"{base_dir}/config/algorithm_lists/"
-            f"{args.name}_{baseline}{version:03}.yml"
-        )
-
-    if not os.path.exists(algorithm_list_file):
-        log.error("ERROR: algorithm_lists file %s does not exist", algorithm_list_file)
-        sys.exit(1)
-
     log.info(
         "Chain name: %s : baseline %s, version %03d",
         args.name,
@@ -1176,31 +1069,18 @@ def main() -> None:
         version,
     )
 
-    log.info("Using algorithm list: %s", algorithm_list_file)
+    # -------------------------------------------------------------------------------------------
+    # Read the list of algorithms to use for this chain
+    # -------------------------------------------------------------------------------------------
 
-    # Load and parse the algorithm list
     try:
-        yml = EnvYAML(
-            algorithm_list_file
-        )  # read the YML and parse environment variables
-    except ValueError as exc:
-        log.error(
-            "ERROR: algorithm list file %s has invalid"
-            "or unset environment variables : %s",
-            algorithm_list_file,
-            exc,
+        algorithm_list, finder_list = load_algorithm_list(
+            args.name,
+            baseline=baseline,
+            alg_list_file=args.alglist,
         )
-        sys.exit(1)
-
-    # Extract the algorithms list from the dictionary read from the YAML file
-    try:
-        algorithm_list = yml["algorithms"]
-    except KeyError:
-        log.error(
-            "ERROR: algorithm list file %s has missing key: algorithms",
-            algorithm_list_file,
-        )
-        sys.exit(1)
+    except (KeyError, OSError, ValueError) as exc:
+        log.error("Loading config file failed due to %s", exc)
 
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files
@@ -1219,11 +1099,8 @@ def main() -> None:
     else:
         # Extract the optional file choosers
         l1b_file_list = []
-        try:
-            l1b_file_selector_modules = yml["l1b_file_selectors"]
-        except KeyError:
-            l1b_file_selector_modules = []
-            log.info("No file chooser modules found")
+
+        l1b_file_selector_modules = finder_list
 
         if len(l1b_file_selector_modules) > 0:
             for file_selector_module in l1b_file_selector_modules:

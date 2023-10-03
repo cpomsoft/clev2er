@@ -28,7 +28,7 @@ def test_alg_skip_on_mode() -> None:
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
 
     # Load merged config file for chain
-    config = load_config_files("cryotempo")
+    config, _, _, _, _ = load_config_files("cryotempo")
 
     # Set to Sequential Processing
     config["chain"]["use_multi_processing"] = False
