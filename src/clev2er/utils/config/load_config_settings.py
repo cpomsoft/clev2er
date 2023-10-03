@@ -35,7 +35,7 @@ def load_algorithm_list(
     baseline: str = "",
     version: int = 0,
     alg_list_file="",
-) -> Tuple[list, list]:
+) -> Tuple[list, list, str]:
     """load algorithm and L1b finder list for specified chain
 
     Lists of algorithms and finder modules are either stored in XML or YML formats
@@ -63,8 +63,9 @@ def load_algorithm_list(
     Raises: KeyError,ValueError,OSError,NameError
 
     Returns:
-        list[str], list[str]: list of algorithm names,
-                              list of finder module names - may be empty list
+        list[str], list[str], str: list of algorithm names,
+                              list of finder module names - may be empty list, filename of algorithm
+                              list used
     """
 
     if not alg_list_file:
@@ -212,7 +213,7 @@ def load_algorithm_list(
             f"Wrong file extension: {alg_list_file[-4:]} must be .yml or .xml"
         )
 
-    return algorithm_list, finder_module_list
+    return algorithm_list, finder_module_list, alg_list_file
 
 
 def load_config_files(

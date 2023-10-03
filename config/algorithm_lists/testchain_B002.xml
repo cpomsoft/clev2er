@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<algorithm_list>
+    <algorithms>
+        <!-- List of Algorithm modules in order
+            value: Enable : algorithm will be run
+            value: Disable : algorithm will be skipped
+        -->
+        <alg_template1>Enable</alg_template1>
+        <alg_template2>Enable</alg_template2>
+    </algorithms>
+
+    <l1b_file_selectors>
+        <!-- List of L1b file selector modules to call
+            value: Enable : module will be run
+            value: Disable : module will be skipped
+        -->
+        <!-- <module1_name>Enable</module1_name> -->
+        <!-- <module2_name>Enable</module2_name> -->
+
+    </l1b_file_selectors>
+</algorithm_list>
+

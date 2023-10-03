@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<algorithm_list>
+    <algorithms>
+        <!-- List of Algorithm modules in order
+            value: Enable : algorithm will be run
+            value: Disable : algorithm will be skipped
+        -->
+        <alg_identify_file> Enable</alg_identify_file>       <!--find and store basic l1b parameters-->
+        <alg_skip_on_mode>Enable</alg_skip_on_mode>          <!--finds the instrument mode of L1b, skip SAR files-->      
+        <alg_skip_on_area_bounds>Enable</alg_skip_on_area_bounds> <!--fast area check, skip files outside Ant and Grn-->
+        <alg_surface_type>Enable</alg_surface_type>          <!--get surface type from Bedmachine, skip file if no grounded or floating ice-->
+        <alg_dilated_coastal_mask>Enable</alg_dilated_coastal_mask> <!-- mask records > 10km from Ant/Grn coast, skip if no records in mask -->
+        <alg_fes2014b_tide_correction>Enable</alg_fes2014b_tide_correction>  <!-- get FES2014b tide corrections -->
+        <alg_cats2008a_tide_correction>Enable</alg_cats2008a_tide_correction> <!-- get CATS2008a tide corrections -->
+        <alg_geo_corrections>Enable</alg_geo_corrections>    <!--calculate sum of geo-corrections-->
+        <alg_waveform_quality>Enable</alg_waveform_quality>  <!--waveform quality checks for LRM & SIN-->      
+        <alg_retrack>Enable</alg_retrack>                    <!--calls LRM (TCOG) or SIN (MC) retrackers-->
+        <alg_backscatter>Enable</alg_backscatter>            <!--calculate backscatter-->
+        <alg_geolocate_lepta>Enable</alg_geolocate_lepta>    <!--use LEPTA method to geolocate LRM measurements to POCA and calc height-->
+        <alg_geolocate_sin>Enable</alg_geolocate_sin>        <!--geolocate SIN measurements to POCA and calc height-->
+        <alg_basin_ids>Enable</alg_basin_ids>                <!--find ice sheet basin ids for each track location-->
+        <alg_ref_dem>Enable</alg_ref_dem>                    <!--get reference DEM elevations for track -->
+        <alg_filter_height>Enable</alg_filter_height>        <!--apply filters to height-->
+        <alg_uncertainty>Enable</alg_uncertainty>            <!--calculate the uncertainty for each elev measurement-->
+        <alg_product_output>Enable</alg_product_output>      <!--create the final L2 product-->
+
+    </algorithms>
+
+    <l1b_file_selectors>
+        <!-- List of L1b file selector modules to call
+            value: Enable : module will be run
+            value: Disable : module will be skipped
+        -->
+        <find_lrm>Enable</find_lrm> <!-- find list of LRM L1b file for date range-->
+        <find_sin>Enable</find_sin> <!-- find list of SARin L1b file for date range-->
+
+    </l1b_file_selectors>
+</algorithm_list>
+

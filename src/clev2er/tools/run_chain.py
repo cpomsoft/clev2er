@@ -1074,13 +1074,15 @@ def main() -> None:
     # -------------------------------------------------------------------------------------------
 
     try:
-        algorithm_list, finder_list = load_algorithm_list(
+        algorithm_list, finder_list, alg_list_file = load_algorithm_list(
             args.name,
             baseline=baseline,
             alg_list_file=args.alglist,
         )
     except (KeyError, OSError, ValueError) as exc:
-        log.error("Loading config file failed due to %s", exc)
+        log.error("Loading algorithm list file failed due to %s", exc)
+
+    log.info("Algorithm list file: %s,", alg_list_file)
 
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files
@@ -1189,14 +1191,14 @@ def main() -> None:
     log.info("\n%sChain Run Summary          %s", "-" * 20, "-" * 20)
 
     log.info(
-        "%s Chain completed in %.2f seconds := (%.2f mins := %.2f hours)",
+        "%s chain completed in %.2f seconds := (%.2f mins := %.2f hours)",
         args.name,
         elapsed_time,
         elapsed_time / 60.0,
         (elapsed_time / 60.0) / 60.0,
     )
     log.info(
-        "%s Chain processed %d files of %d. %d files skipped, %d errors",
+        "%s chain processed %d L1b files of %d. %d files skipped, %d errors",
         args.name,
         num_files_processed,
         len(l1b_file_list),
@@ -1263,6 +1265,8 @@ def main() -> None:
     log.info("\n%sConfig Files          %s", "-" * 20, "-" * 20)
     log.info("Run config: %s", config_file)
     log.info("Chain config: %s", chain_config_file)
+    log.info("Algorithm list file: %s", alg_list_file)
+
     if len(modified_args) > 0:
         for mod_args in modified_args:
             log.info("cmdline overide: %s", mod_args)
