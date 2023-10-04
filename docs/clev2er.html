@@ -578,7 +578,7 @@ l1b_file_selectors:
 algorithms:
   - alg_identify_file # find and store basic l1b parameters
   - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
-  - alg_...
+  #- alg_...
 </code></pre>
 
 <p>XML version: </p>
@@ -744,6 +744,14 @@ so that messages relating to each L1b file processing are collected together
 in order. This is then merged in to the main log file. </p>
 
 <h2 id="developer-notes">Developer Notes</h2>
+
+<h3 id="code-checks-before-committing">Code checks before committing</h3>
+
+<p>It is recommended to run pre-commit before a <code>git commit</code>. This runs the static
+code analysis tests (isort, pylint, ruff, mypy,.. ) on your code and shows you any
+failures before you commit. The same tests are also run when you commit (and must pass).</p>
+
+<p><code>precommit run --all</code></p>
 
 <h3 id="automatic-documentation">Automatic Documentation</h3>
 
@@ -1249,7 +1257,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-470"><a href="#L-470"><span class="linenos">470</span></a><span class="sd">algorithms:</span>
 </span><span id="L-471"><a href="#L-471"><span class="linenos">471</span></a><span class="sd">  - alg_identify_file # find and store basic l1b parameters</span>
 </span><span id="L-472"><a href="#L-472"><span class="linenos">472</span></a><span class="sd">  - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files</span>
-</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a><span class="sd">  - alg_...</span>
+</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a><span class="sd">  #- alg_...</span>
 </span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a><span class="sd">```</span>
 </span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a>
 </span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a><span class="sd">XML version: </span>
@@ -1406,34 +1414,42 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-627"><a href="#L-627"><span class="linenos">627</span></a>
 </span><span id="L-628"><a href="#L-628"><span class="linenos">628</span></a><span class="sd">## Developer Notes</span>
 </span><span id="L-629"><a href="#L-629"><span class="linenos">629</span></a>
-</span><span id="L-630"><a href="#L-630"><span class="linenos">630</span></a><span class="sd">### Automatic Documentation</span>
+</span><span id="L-630"><a href="#L-630"><span class="linenos">630</span></a><span class="sd">### Code checks before committing</span>
 </span><span id="L-631"><a href="#L-631"><span class="linenos">631</span></a>
-</span><span id="L-632"><a href="#L-632"><span class="linenos">632</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
-</span><span id="L-633"><a href="#L-633"><span class="linenos">633</span></a>
-</span><span id="L-634"><a href="#L-634"><span class="linenos">634</span></a><span class="sd">Content is created from doctrings</span>
-</span><span id="L-635"><a href="#L-635"><span class="linenos">635</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
-</span><span id="L-636"><a href="#L-636"><span class="linenos">636</span></a><span class="sd">in the code,</span>
-</span><span id="L-637"><a href="#L-637"><span class="linenos">637</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
-</span><span id="L-638"><a href="#L-638"><span class="linenos">638</span></a>
-</span><span id="L-639"><a href="#L-639"><span class="linenos">639</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
-</span><span id="L-640"><a href="#L-640"><span class="linenos">640</span></a>
-</span><span id="L-641"><a href="#L-641"><span class="linenos">641</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
-</span><span id="L-642"><a href="#L-642"><span class="linenos">642</span></a><span class="sd">(hook id: pdocs_build).</span>
-</span><span id="L-643"><a href="#L-643"><span class="linenos">643</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
-</span><span id="L-644"><a href="#L-644"><span class="linenos">644</span></a>
-</span><span id="L-645"><a href="#L-645"><span class="linenos">645</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
-</span><span id="L-646"><a href="#L-646"><span class="linenos">646</span></a><span class="sd">whenever a `git commit` is run.</span>
-</span><span id="L-647"><a href="#L-647"><span class="linenos">647</span></a>
-</span><span id="L-648"><a href="#L-648"><span class="linenos">648</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
-</span><span id="L-649"><a href="#L-649"><span class="linenos">649</span></a><span class="sd">docs directory and publishes it.</span>
-</span><span id="L-650"><a href="#L-650"><span class="linenos">650</span></a>
-</span><span id="L-651"><a href="#L-651"><span class="linenos">651</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
-</span><span id="L-652"><a href="#L-652"><span class="linenos">652</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
-</span><span id="L-653"><a href="#L-653"><span class="linenos">653</span></a>
-</span><span id="L-654"><a href="#L-654"><span class="linenos">654</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
-</span><span id="L-655"><a href="#L-655"><span class="linenos">655</span></a><span class="sd">markdown to describe the directories beneath it.</span>
-</span><span id="L-656"><a href="#L-656"><span class="linenos">656</span></a>
-</span><span id="L-657"><a href="#L-657"><span class="linenos">657</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-632"><a href="#L-632"><span class="linenos">632</span></a><span class="sd">It is recommended to run pre-commit before a `git commit`. This runs the static</span>
+</span><span id="L-633"><a href="#L-633"><span class="linenos">633</span></a><span class="sd">code analysis tests (isort, pylint, ruff, mypy,.. ) on your code and shows you any</span>
+</span><span id="L-634"><a href="#L-634"><span class="linenos">634</span></a><span class="sd">failures before you commit. The same tests are also run when you commit (and must pass).</span>
+</span><span id="L-635"><a href="#L-635"><span class="linenos">635</span></a>
+</span><span id="L-636"><a href="#L-636"><span class="linenos">636</span></a><span class="sd">`precommit run --all`</span>
+</span><span id="L-637"><a href="#L-637"><span class="linenos">637</span></a>
+</span><span id="L-638"><a href="#L-638"><span class="linenos">638</span></a><span class="sd">### Automatic Documentation</span>
+</span><span id="L-639"><a href="#L-639"><span class="linenos">639</span></a>
+</span><span id="L-640"><a href="#L-640"><span class="linenos">640</span></a><span class="sd">This user manual is hosted on GitHub pages (https://cpomsoft.github.io/clev2er)</span>
+</span><span id="L-641"><a href="#L-641"><span class="linenos">641</span></a>
+</span><span id="L-642"><a href="#L-642"><span class="linenos">642</span></a><span class="sd">Content is created from doctrings</span>
+</span><span id="L-643"><a href="#L-643"><span class="linenos">643</span></a><span class="sd">(optionally containing Markdown: https://www.markdownguide.org/basic-syntax/#code )</span>
+</span><span id="L-644"><a href="#L-644"><span class="linenos">644</span></a><span class="sd">in the code,</span>
+</span><span id="L-645"><a href="#L-645"><span class="linenos">645</span></a><span class="sd">using the *pdoc* package : https://pdoc.dev</span>
+</span><span id="L-646"><a href="#L-646"><span class="linenos">646</span></a>
+</span><span id="L-647"><a href="#L-647"><span class="linenos">647</span></a><span class="sd">Diagrams are implemented using mermaid: https://mermaid.js.org</span>
+</span><span id="L-648"><a href="#L-648"><span class="linenos">648</span></a>
+</span><span id="L-649"><a href="#L-649"><span class="linenos">649</span></a><span class="sd">The site is locally built in `$CLEV2ER_BASE_DIR/docs`, using a pre-commit hook</span>
+</span><span id="L-650"><a href="#L-650"><span class="linenos">650</span></a><span class="sd">(hook id: pdocs_build).</span>
+</span><span id="L-651"><a href="#L-651"><span class="linenos">651</span></a><span class="sd">Hooks are configured in `$CLEV2ER_BASE_DIR/.pre-commit-config.yaml`</span>
+</span><span id="L-652"><a href="#L-652"><span class="linenos">652</span></a>
+</span><span id="L-653"><a href="#L-653"><span class="linenos">653</span></a><span class="sd">The hook calls the script `$CLEV2ER_BASE_DIR/pdocs_build.sh` to build the site</span>
+</span><span id="L-654"><a href="#L-654"><span class="linenos">654</span></a><span class="sd">whenever a `git commit` is run.</span>
+</span><span id="L-655"><a href="#L-655"><span class="linenos">655</span></a>
+</span><span id="L-656"><a href="#L-656"><span class="linenos">656</span></a><span class="sd">When a `git push` is run, GitHub automatically extracts the site from the</span>
+</span><span id="L-657"><a href="#L-657"><span class="linenos">657</span></a><span class="sd">docs directory and publishes it.</span>
+</span><span id="L-658"><a href="#L-658"><span class="linenos">658</span></a>
+</span><span id="L-659"><a href="#L-659"><span class="linenos">659</span></a><span class="sd">The front page of the site (ie this page) is located in the doctring within</span>
+</span><span id="L-660"><a href="#L-660"><span class="linenos">660</span></a><span class="sd">`$CLEV2ER_BASE_DIR/src/clev2er/__init__.py`.</span>
+</span><span id="L-661"><a href="#L-661"><span class="linenos">661</span></a>
+</span><span id="L-662"><a href="#L-662"><span class="linenos">662</span></a><span class="sd">The docstring within `__init__.py` of each package directory should provide</span>
+</span><span id="L-663"><a href="#L-663"><span class="linenos">663</span></a><span class="sd">markdown to describe the directories beneath it.</span>
+</span><span id="L-664"><a href="#L-664"><span class="linenos">664</span></a>
+</span><span id="L-665"><a href="#L-665"><span class="linenos">665</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 

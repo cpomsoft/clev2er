@@ -470,7 +470,7 @@ l1b_file_selectors:
 algorithms:
   - alg_identify_file # find and store basic l1b parameters
   - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
-  - alg_...
+  #- alg_...
 ```
 
 XML version: 
@@ -626,6 +626,14 @@ so that messages relating to each L1b file processing are collected together
 in order. This is then merged in to the main log file. 
 
 ## Developer Notes
+
+### Code checks before committing
+
+It is recommended to run pre-commit before a `git commit`. This runs the static
+code analysis tests (isort, pylint, ruff, mypy,.. ) on your code and shows you any
+failures before you commit. The same tests are also run when you commit (and must pass).
+
+`precommit run --all`
 
 ### Automatic Documentation
 
