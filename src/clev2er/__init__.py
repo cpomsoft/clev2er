@@ -484,22 +484,14 @@ values *Enable* or *Disable*.
 
 <algorithm_list>
     <algorithms>
-        <!-- List of Algorithm modules in order
-            value: Enable : algorithm will be run
-            value: Disable : algorithm will be skipped
-        -->
         <alg_identify_file>Enable</alg_identify_file>
         <alg_skip_on_mode>Enable</alg_skip_on_mode>
+        <!-- ... more algorithms -->
     </algorithms>
 
     <l1b_file_selectors>
-        <!-- List of L1b file selector modules to call
-            value: Enable : module will be run
-            value: Disable : module will be skipped
-        -->
-        <!-- <find_lrm>Enable</find_lrm> -->
-        <!-- <find_sin>Enable</find_sin> -->
-
+        <find_lrm>Enable</find_lrm> 
+        <find_sin>Enable</find_sin> 
     </l1b_file_selectors>
 </algorithm_list>
 
