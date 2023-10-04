@@ -40,7 +40,7 @@ graph LR;
   * Algorithm.finalize() is called after all files have been processed.
   * Each algorithm has access to: L1b Dataset, shared working dict, config dict.
   * Algorithm/chain configuration by XML or YAML configuration files.
-  * The 'shared_dict' is used to pass algorithm outputs between algorithms in the chain.
+  * A shared python dictionary is used to pass algorithm outputs between algorithms in the chain.
 * logging with standard warning, info, debug, error levels (+ multi-processing logging support)
 * optional multi-processing built in, configurable maximum number of processes used.
 * optional use of shared memory (for example for large DEMs and Masks) when using multi-processing. 
@@ -453,9 +453,13 @@ of algorithms, both of which are dynamically loaded at chain run-time.
 - Main algorithms : standard chain algorithm classes
 - Finder algorithms : optional classes to manage input L1b file selection
 
+### Algorithm Lists
+
 Algorithms are dynamically loaded in a chain when (and in the order ) they are named in the chain's
-algorithm list YAML file: $CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**.yml. This
-has two sections (l1b_file_selectors, and algorithms) as shown in the example below:
+algorithm list YAML or XML file: $CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**.yml,.xml. 
+This has two sections (l1b_file_selectors, and algorithms) as shown in the example below:
+
+YML version:
 
 ```
 # List of L1b selector classes to call in order
@@ -467,6 +471,38 @@ algorithms:
   - alg_identify_file # find and store basic l1b parameters
   - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
   - alg_...
+```
+
+XML version: 
+
+The xml version requires an additional toplevel `<algorithm_list>` that wraps the other sections.
+It also allows you to enable or disable individual algorithms within the list by setting the
+values *Enable* or *Disable*.
+
+```
+<?xml version="1.0"?>
+
+<algorithm_list>
+    <algorithms>
+        <!-- List of Algorithm modules in order
+            value: Enable : algorithm will be run
+            value: Disable : algorithm will be skipped
+        -->
+        <alg_identify_file>Enable</alg_identify_file>
+        <alg_skip_on_mode>Enable</alg_skip_on_mode>
+    </algorithms>
+
+    <l1b_file_selectors>
+        <!-- List of L1b file selector modules to call
+            value: Enable : module will be run
+            value: Disable : module will be skipped
+        -->
+        <!-- <find_lrm>Enable</find_lrm> -->
+        <!-- <find_sin>Enable</find_sin> -->
+
+    </l1b_file_selectors>
+</algorithm_list>
+
 ```
 
 ### Main Algorithms
