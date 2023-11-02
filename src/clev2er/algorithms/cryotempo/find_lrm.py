@@ -47,8 +47,6 @@ class FileFinder(BaseFinder):
         """
         file_list: List[str] = []
 
-        self.log.info("flat_search: %d", flat_search)
-
         if "lrm_only" in self.config:
             return file_list
 
