@@ -47,7 +47,7 @@ class FileFinder(BaseFinder):
         """
         file_list: List[str] = []
 
-        if "lrm_only" in self.config:
+        if "sin_only" in self.config:
             return file_list
 
         if "l1b_baselines" not in self.config:
