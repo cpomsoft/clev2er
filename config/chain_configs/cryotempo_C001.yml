@@ -122,6 +122,8 @@ lrm_lepta_geolocation:
   filter_on_tracker_range_window: False
   use_bottom_half_of_leading_edge: False
   include_slope_doppler_correction: True
+  include_dhdt_correction: True
+  dhdt_grn_name: grn_2010_2021
 
 height_filters:
   # maximum difference to the reference dem elevation in m
@@ -175,6 +177,7 @@ slope_data:
 
 leap_seconds: ${CPOM_SOFTWARE_DIR}/cpom/resources/leap_seconds/leap-seconds.list
 
-
+dhdt_data_dir: 
+  grn_2010_2021: ${CPDATA_DIR}/RESOURCES/dhdt_data
   
   

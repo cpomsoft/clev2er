@@ -11,11 +11,15 @@ from clev2er.algorithms.base.base_alg import BaseAlgorithm
 
 
 class Algorithm(BaseAlgorithm):
-    """**Algorithm to find the instrument mode in a CS2 L1b file**
+    """**Algorithm to skip if mode is not LRM or SIN**
 
-    if mode is LRM or SIN, shared_dict['instr_mode] is set to 'LRM' or 'SIN'
+    Tests shared_dict['instr_mode] which is one of  'LRM' or 'SIN' or 'SAR'
 
     if mode is SAR, return (False,"SKIP_OK...")
+
+    Also,
+    if config['lrm_only] is True and mode is not LRM, Skip
+    if config['sin_only] is True and mode is not SIN, Skip
 
     **Contribution to shared dictionary**
 
@@ -94,6 +98,21 @@ class Algorithm(BaseAlgorithm):
         except KeyError:
             self.log.error("instr_mode not in shared_dict")
             return (False, "instr_mode not in shared_dict")
+
+        if "lrm_only" in self.config:
+            if self.config["lrm_only"]:
+                if shared_dict["instr_mode"] != "LRM":
+                    self.log.info(
+                        "skipping as config:lrm_only specified and mode not LRM"
+                    )
+                    return (False, "SKIP_OK: config:lrm_only specified")
+        if "sin_only" in self.config:
+            if self.config["sin_only"]:
+                if shared_dict["instr_mode"] != "SIN":
+                    self.log.info(
+                        "skipping as config:sin_only specified and mode not SIN"
+                    )
+                    return (False, "SKIP_OK: config:sin_only specified")
 
         # --------------------------------------------------------
 

@@ -9,6 +9,7 @@ from netCDF4 import Dataset  # pylint:disable=E0611
 from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from clev2er.utils.cs2.geolocate.geolocate_lepta import geolocate_lepta
 from clev2er.utils.dems.dems import Dem
+from clev2er.utils.dhdt_data.dhdt import Dhdt
 
 # -------------------------------------------------
 
@@ -90,6 +91,18 @@ class Algorithm(BaseAlgorithm):
             store_in_shared_memory=init_shared_mem,
             thislog=self.log,
         )
+
+        if self.config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
+            self.log.info("LEPTA dhdt correction enabled")
+            self.dhdt_grn: Dhdt | None = Dhdt(
+                self.config["lrm_lepta_geolocation"]["dhdt_grn_name"],
+                config=self.config,
+            )
+            self.dhdt_ant = None  # Not implemented yet!
+        else:
+            self.dhdt_grn = None
+            self.dhdt_ant = None
+
         # Important Note :
         #     each Dem classes instance must run Dem.clean_up() in Algorithm.finalize()
 
@@ -127,12 +140,15 @@ class Algorithm(BaseAlgorithm):
 
         if shared_dict["hemisphere"] == "south":
             thisdem = self.dem_ant
+            thisdhdt = self.dhdt_ant
         else:
             thisdem = self.dem_grn
+            thisdhdt = self.dhdt_grn
 
         height_20_ku, lat_poca_20_ku, lon_poca_20_ku, _ = geolocate_lepta(
             l1b,
             thisdem,
+            thisdhdt,
             self.config,
             shared_dict["cryotempo_surface_type"],
             shared_dict["geo_corrected_tracker_range"],

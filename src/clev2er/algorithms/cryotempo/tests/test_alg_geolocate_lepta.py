@@ -68,6 +68,10 @@ def distance_between_latlon_points(latitudes1, longitudes1, latitudes2, longitud
     "l1b_file, l2i_file",
     [
         (
+            "CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc",  # LRM over GRN
+            "",
+        ),
+        (
             "CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc",  # SIN L1B within AIS
             "CS_OFFL_SIR_SINI2__20190504T122546_20190504T122726_D001.nc",  # SIN L2i within AIS
         ),

@@ -66,6 +66,7 @@ class Dem:
         self.name = name
         self.dem_dir = dem_dir
         self.filled = filled
+        self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
         self.xdem = np.array([])
         self.ydem = np.array([])
         self.zdem = np.array([])
@@ -279,6 +280,9 @@ class Dem:
                 "http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/"
                 "v3.0/1km/arcticdem_mosaic_1km_v3.0.tif"
             )
+            self.reference_year = (
+                2010  # YYYY, the year the DEM's elevations are referenced to
+            )
             self.src_url_filled = ""
             self.dem_version = "3.0"
             self.src_institute = "PGC"
@@ -375,6 +379,9 @@ class Dem:
             self.src_url = (
                 "https://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/v3.0/100m/"
                 "arcticdem_mosaic_100m_v3.0.tif"
+            )
+            self.reference_year = (
+                2010  # YYYY, the year the DEM's elevations are referenced to
             )
             self.src_url_filled = ""
             self.dem_version = "3.0"

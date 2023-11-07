@@ -87,7 +87,6 @@ class Dhdt:
                 self.ymax = int(nc.variables["y"].getncattr("max"))
                 self.ncols = self.dhdt.shape[1]
                 self.nrows = self.dhdt.shape[0]
-                print(self.dhdt.shape)
 
             self.xdem = np.linspace(self.xmin, self.xmax, self.ncols, endpoint=True)
             self.ydem = np.linspace(self.ymin, self.ymax, self.nrows, endpoint=True)

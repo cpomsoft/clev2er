@@ -11,6 +11,7 @@ from clev2er.utils.masks.masks import Mask  # CPOM Cryosphere area masks
 # Similar lines in 2 files, pylint: disable=R0801
 
 # Too many return statements, pylint: disable=R0911
+# pylint: disable=too-many-branches
 
 
 class Algorithm(BaseAlgorithm):
@@ -19,6 +20,9 @@ class Algorithm(BaseAlgorithm):
     Depending on the mode (LRM, SIN) we can reject files that are in
     certain lat or lon ranges, as we know they do not pass over
     Greenland or Antarctica
+
+    Also if config['grn_only'] is True and track is in southern
+    hemisphere Skip.
 
     CLEV2ER Algorithm: inherits from BaseAlgorithm
 
@@ -199,6 +203,11 @@ class Algorithm(BaseAlgorithm):
             self.log.info(
                 "Locations found within Greenland rectangular mask",
             )
+
+        if "grn_only" in self.config:
+            if self.config["grn_only"]:
+                if southern_hemisphere:
+                    return (False, "SKIP_OK, grn_only specificed ")
 
         # Return success (True,'')
         return (True, "")

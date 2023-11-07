@@ -3,6 +3,7 @@ Slope correction/geolocation function using an adpated  Roemer/LEPTA method
 """
 
 import logging
+from datetime import datetime, timedelta  # date and time functions
 from typing import Tuple
 
 import numpy as np
@@ -13,6 +14,7 @@ from scipy.ndimage import median_filter
 
 from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
 from clev2er.utils.dems.dems import Dem
+from clev2er.utils.dhdt_data.dhdt import Dhdt
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
 
@@ -61,9 +63,26 @@ def calculate_distances(
     return distances.tolist()  # Convert back to a regular Python list
 
 
+def datetime2year(date_dt):
+    """calculate decimal year from datetime
+
+    Args:
+        date_dt (datetime): datetime obj to process
+
+    Returns:
+        float: decimal year
+    """
+    year_part = date_dt - datetime(year=date_dt.year, month=1, day=1)
+    year_length = datetime(year=date_dt.year + 1, month=1, day=1) - datetime(
+        year=date_dt.year, month=1, day=1
+    )
+    return date_dt.year + year_part / year_length
+
+
 def geolocate_lepta(
     l1b: Dataset,
     thisdem: Dem,
+    thisdhdt: Dhdt | None,
     config: dict,
     surface_type_20_ku: np.ndarray,
     geo_corrected_tracker_range: np.ndarray,
@@ -124,6 +143,19 @@ def geolocate_lepta(
     slope_correction = np.full_like(nadir_x, dtype=float, fill_value=np.nan)
     slope_ok = np.full_like(nadir_x, dtype=bool, fill_value=True)
     height_20_ku = np.full_like(nadir_x, dtype=float, fill_value=np.nan)
+
+    if config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
+        time_20_ku = l1b["time_20_ku"][:].data
+
+        track_year_dt = datetime(2000, 1, 1, 0) + timedelta(seconds=time_20_ku[0])
+        track_year = datetime2year(track_year_dt)
+
+        if thisdem.reference_year == 0:
+            raise ValueError(
+                f"thisdem.reference_year has not been set for DEM {thisdem.name}"
+            )
+
+        year_difference = track_year - thisdem.reference_year
 
     # ------------------------------------------------------------------------------------
     #  Loop through each track record
@@ -205,6 +237,14 @@ def geolocate_lepta(
         xdem = xdem[valid_dem_heights]
         ydem = ydem[valid_dem_heights]
         zdem = zdem[valid_dem_heights]
+
+        # Correct DEM elevations for dh/dt changes
+
+        if config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
+            if thisdhdt is not None:
+                dhdt_vals = thisdhdt.interp_dhdt(xdem, ydem)
+                for dhdt_index, dhdt_val in enumerate(dhdt_vals):
+                    zdem[dhdt_index] = zdem[dhdt_index] + dhdt_val * year_difference
 
         # Compute distance between each remaining dem location and satellite
         dem_to_sat_dists = calculate_distances(
