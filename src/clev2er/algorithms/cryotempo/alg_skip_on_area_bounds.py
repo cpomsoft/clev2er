@@ -207,6 +207,9 @@ class Algorithm(BaseAlgorithm):
         if "grn_only" in self.config:
             if self.config["grn_only"]:
                 if southern_hemisphere:
+                    self.log.info(
+                        "config:grn_only specified so skipping as not over Greenland",
+                    )
                     return (False, "SKIP_OK, grn_only specificed ")
 
         # Return success (True,'')
