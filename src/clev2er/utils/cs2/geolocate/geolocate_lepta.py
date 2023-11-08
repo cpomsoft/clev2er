@@ -242,9 +242,8 @@ def geolocate_lepta(
 
         if config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
             if thisdhdt is not None:
-                dhdt_vals = thisdhdt.interp_dhdt(xdem, ydem)
-                for dhdt_index, dhdt_val in enumerate(dhdt_vals):
-                    zdem[dhdt_index] = zdem[dhdt_index] + dhdt_val * year_difference
+                # find dh/dt * year_difference at each DEM location
+                zdem += thisdhdt.interp_dhdt(xdem, ydem) * year_difference
 
         # Compute distance between each remaining dem location and satellite
         dem_to_sat_dists = calculate_distances(
