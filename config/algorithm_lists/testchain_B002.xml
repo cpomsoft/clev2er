@@ -5,8 +5,9 @@
         <!-- List of Algorithm modules in order
             value: Enable : algorithm will be run
             value: Disable : algorithm will be skipped
+            value: BreakpointAfter : breakpoint set after this algorithm
         -->
-        <alg_template1>Enable</alg_template1>
+        <alg_template1>BreakpointAfter</alg_template1>
         <alg_template2>Enable</alg_template2>
     </algorithms>
 

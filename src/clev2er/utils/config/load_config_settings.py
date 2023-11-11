@@ -36,7 +36,7 @@ def load_algorithm_list(
     version: int = 0,
     alg_list_file="",
     log: logging.Logger | None = None,
-) -> Tuple[list, list, str]:
+) -> Tuple[list, list, str, str]:
     """load algorithm and L1b finder list for specified chain
 
     Lists of algorithms and finder modules are either stored in XML or YML formats
@@ -65,9 +65,11 @@ def load_algorithm_list(
     Raises: KeyError,ValueError,OSError,NameError
 
     Returns:
-        list[str], list[str], str: list of algorithm names,
-                              list of finder module names - may be empty list, filename of algorithm
-                              list used
+        list[str], list[str], str,str:
+            list of algorithm names,
+            list of finder module names - may be empty list,
+            filename of algorithm list used
+            name of algorithm to set breakpoint after or '' if no breakpoint set
     """
 
     if log is None:
@@ -159,6 +161,7 @@ def load_algorithm_list(
 
     algorithm_list = []
     finder_module_list = []
+    breakpoint_algname = ""
 
     if alg_list_file[-4:] == ".xml":
         # Load XML file
@@ -187,6 +190,8 @@ def load_algorithm_list(
         for alg_module in algorithm_list:
             if algorithms_dict[alg_module] == "Disable":
                 algorithm_list.remove(alg_module)
+            if algorithms_dict[alg_module] == "BreakpointAfter":
+                breakpoint_algname = alg_module
 
     elif alg_list_file[-4:] == ".yml":
         # Load YML file
@@ -220,7 +225,7 @@ def load_algorithm_list(
             f": {alg_list_file}"
         )
 
-    return algorithm_list, finder_module_list, alg_list_file
+    return algorithm_list, finder_module_list, alg_list_file, breakpoint_algname
 
 
 def load_config_files(

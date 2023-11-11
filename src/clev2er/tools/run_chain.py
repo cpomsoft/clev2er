@@ -183,6 +183,7 @@ def run_chain_on_single_file(
     log_queue: Optional[Queue],
     rval_queue: Optional[Queue],
     filenum: int,
+    breakpoint_alg_name: str = "",
 ) -> tuple[bool, str]:
     """Runs the algorithm chain on a single L1b file.
 
@@ -194,6 +195,8 @@ def run_chain_on_single_file(
         log (logging.Logger): logging instance to use
         log_queue (Queue): Queue for multi-processing logging
         rval_queue (Queue) : Queue for multi-processing results
+        filenum (int) : file number being processed
+        breakpoint_alg_name (str) : if not '', name of algorithm to break after.
 
     Returns:
         Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
@@ -263,6 +266,8 @@ def run_chain_on_single_file(
                             if alg_obj.initialized:
                                 alg_obj.finalize(stage=5)
                     return (False, error_str)
+                if alg_obj.alg_name == breakpoint_alg_name:
+                    break
 
             if config["chain"]["use_multi_processing"]:
                 # Free up resources by running the Algorithm.finalize() on each
@@ -348,6 +353,7 @@ def run_chain(
     config: dict,
     algorithm_list: list[str],
     log: logging.Logger,
+    breakpoint_alg_name: str = "",
 ) -> tuple[bool, int, int, int]:
     """Run the algorithm chain in algorithm_list on each L1b file in l1b_file_list
        using the configuration settings in config
@@ -357,6 +363,9 @@ def run_chain(
         config (dict): configuration dictionary. This is the named chain config and the
                                                  main config merged
         algorithm_list (list[str]): list of algorithm names
+        log (logging.Logger): log instance to use
+        breakpoint_alg_name (str): name of algorithm to set break point after.
+                                   Default='' (no breakpoint set here)
 
     Returns:
         tuple(bool,int,int, int) : (chain success or failure, number_of_errors,
@@ -432,6 +441,9 @@ def run_chain(
 
             shared_mem_alg_object_list.append(alg_obj_shm)
 
+        # If a breakpoint after this alg is set we don't need to initialize any more algorithms
+        if alg == breakpoint_alg_name:
+            break
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list
     #    - a different method required for multi-processing or standard sequential processing
@@ -505,6 +517,7 @@ def run_chain(
                         log_queue,
                         rval_queues[i],
                         file_indices[i],
+                        breakpoint_alg_name,
                     ),
                 )
                 for i in range(num_procs)
@@ -546,7 +559,14 @@ def run_chain(
                 "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
             )
             success, error_str = run_chain_on_single_file(
-                l1b_file, alg_object_list, config, log, None, None, fnum
+                l1b_file,
+                alg_object_list,
+                config,
+                log,
+                None,
+                None,
+                fnum,
+                breakpoint_alg_name,
             )
             num_files_processed += 1
             if not success and "SKIP_OK" in error_str:
@@ -836,6 +856,15 @@ def main() -> None:
         type=str,
     )
 
+    parser.add_argument(
+        "--breakpoint_after",
+        "-bp",
+        help=(
+            "[Optional, str] algorithm_name : set a breakpoint after the named algorithm "
+        ),
+        type=str,
+    )
+
     # read arguments from the command line
     args = parser.parse_args()
 
@@ -879,7 +908,8 @@ def main() -> None:
     if args.version > 0:
         modified_args.append(f"version={args.version}")
         version = args.version
-
+    if args.breakpoint_after:
+        modified_args.append(f"breakpoint_after={args.breakpoint_after}")
     if args.quiet:
         modified_args.append("quiet=True")
     if args.debug:
@@ -1075,7 +1105,12 @@ def main() -> None:
     log.info("chain config used: %s", chain_config_file)
 
     try:
-        algorithm_list, finder_list, alg_list_file = load_algorithm_list(
+        (
+            algorithm_list,
+            finder_list,
+            alg_list_file,
+            breakpoint_alg_name,
+        ) = load_algorithm_list(
             args.name,
             baseline=baseline,
             version=version,
@@ -1085,6 +1120,12 @@ def main() -> None:
     except (KeyError, OSError, ValueError) as exc:
         log.error("Loading algorithm list file failed : %s", exc)
         sys.exit(1)
+
+    if args.breakpoint_after:
+        breakpoint_alg_name = args.breakpoint_after
+
+    if breakpoint_alg_name:
+        log.info("breakpoint set after algorithm %s", breakpoint_alg_name)
 
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files
@@ -1181,7 +1222,7 @@ def main() -> None:
     start_time = time.time()
 
     _, number_errors, num_files_processed, num_skipped = run_chain(
-        l1b_file_list, config, algorithm_list, log
+        l1b_file_list, config, algorithm_list, log, breakpoint_alg_name
     )
 
     elapsed_time = time.time() - start_time

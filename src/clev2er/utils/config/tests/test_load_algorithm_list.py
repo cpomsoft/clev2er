@@ -16,7 +16,12 @@ def test_load_algorithm_list():
     chain_name = "testchain"
 
     try:
-        alg_list, finder_list, _ = load_algorithm_list(chain_name)
+        (
+            alg_list,
+            finder_list,
+            _,  # filename of algorithm list
+            _,  # breakpoint name
+        ) = load_algorithm_list(chain_name)
     except (KeyError, OSError, ValueError) as exc:
         assert False, f"Loading config file failed due to {exc}"
 
@@ -36,7 +41,12 @@ def test_load_algorithm_list():
     chain_name = "cryotempo"
 
     try:
-        alg_list, finder_list, _ = load_algorithm_list(chain_name, baseline="C")
+        (
+            alg_list,
+            finder_list,
+            _,  # filename of algorithm list
+            _,  # breakpoint name
+        ) = load_algorithm_list(chain_name, baseline="C")
     except (KeyError, OSError, ValueError) as exc:
         assert False, f"Loading config file failed due to {exc}"
 
@@ -49,7 +59,12 @@ def test_load_algorithm_list():
     assert n_finders == 2, "Should be 2 finders returned from cryotempo"
 
     try:
-        alg_list, finder_list, _ = load_algorithm_list(
+        (
+            alg_list,
+            finder_list,
+            _,  # filename of algorithm list
+            _,  # breakpoint name
+        ) = load_algorithm_list(
             chain_name,
             baseline="C",
             alg_list_file=f"{os.environ['CLEV2ER_BASE_DIR']}"
