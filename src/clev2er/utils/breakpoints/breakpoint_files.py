@@ -3,12 +3,15 @@
 Functions to support writing of breakpoint files
 """
 
+import os
+
 import numpy as np
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
+# pylint: disable=too-many-locals
 
 
 def create_netcdf_file(file_path, data_dict):
@@ -40,11 +43,13 @@ def create_netcdf_file(file_path, data_dict):
                 f"{parent_key}_{key}" if parent_key else key
             )  # Include parent_key in the
             # variable name for nested levels
+            if isinstance(value, list):
+                value = np.array(value)
             if isinstance(value, dict):
                 # If the value is a dictionary, create a group for nested variables
                 subgroup = ncfile.createGroup(current_key)
                 create_variables(subgroup, "", value, dim_sizes, dim_names, dims)
-            elif isinstance(value, np.ndarray):
+            elif isinstance(value, np.ndarray) and len(value.shape) == 1:
                 if value.dtype == "bool":
                     # Convert boolean arrays to integers (0 for False, 1 for True)
                     value = value.astype(int)
@@ -61,52 +66,105 @@ def create_netcdf_file(file_path, data_dict):
                 var = ncfile.createVariable(
                     current_key, str(value.dtype), dimensions=(dim,)
                 )
+
                 var[:] = value
-            elif isinstance(value, list):
-                # Convert lists to NumPy arrays before creating variables
-                value = np.array(value)
+
+            elif isinstance(value, np.ndarray) and len(value.shape) == 2:
                 if value.dtype == "bool":
                     # Convert boolean arrays to integers (0 for False, 1 for True)
                     value = value.astype(int)
-                dim_size = len(value)
-                if dim_size not in dim_sizes:
-                    dim_sizes.append(dim_size)
-                    dim_names.append(f"dim{len(dim_sizes)}")
-                    dim = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size)
-                    dims.append(dim)
-                else:
-                    dim = dims[dim_sizes.index(dim_size)]
 
+                dim_size1 = value.shape[0]
+                dim_size2 = value.shape[1]
+
+                if dim_size1 not in dim_sizes:
+                    dim_sizes.append(dim_size1)
+                    dim_names.append(f"dim{len(dim_sizes)}")
+                    dim1 = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size1)
+                    dims.append(dim1)
+                else:
+                    dim1 = dims[dim_sizes.index(dim_size1)]
+
+                if dim_size2 not in dim_sizes:
+                    dim_sizes.append(dim_size2)
+                    dim_names.append(f"dim{len(dim_sizes)}")
+                    dim2 = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size2)
+                    dims.append(dim2)
+                else:
+                    dim2 = dims[dim_sizes.index(dim_size2)]
+
+                # Create a new dimension
                 var = ncfile.createVariable(
-                    current_key, str(value.dtype), dimensions=(dim,)
+                    current_key,
+                    str(value.dtype),
+                    dimensions=(
+                        dim1,
+                        dim2,
+                    ),
                 )
                 var[:] = value
+
+            elif isinstance(value, np.ndarray) and len(value.shape) == 3:
+                if value.dtype == "bool":
+                    # Convert boolean arrays to integers (0 for False, 1 for True)
+                    value = value.astype(int)
+
+                dim_size1 = value.shape[0]
+                dim_size2 = value.shape[1]
+                dim_size3 = value.shape[2]
+
+                if dim_size1 not in dim_sizes:
+                    dim_sizes.append(dim_size1)
+                    dim_names.append(f"dim{len(dim_sizes)}")
+                    dim1 = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size1)
+                    dims.append(dim1)
+                else:
+                    dim1 = dims[dim_sizes.index(dim_size1)]
+
+                if dim_size2 not in dim_sizes:
+                    dim_sizes.append(dim_size2)
+                    dim_names.append(f"dim{len(dim_sizes)}")
+                    dim2 = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size2)
+                    dims.append(dim2)
+                else:
+                    dim2 = dims[dim_sizes.index(dim_size2)]
+
+                if dim_size3 not in dim_sizes:
+                    dim_sizes.append(dim_size3)
+                    dim_names.append(f"dim{len(dim_sizes)}")
+                    dim3 = ncfile.createDimension(f"dim{len(dim_sizes)}", dim_size3)
+                    dims.append(dim3)
+                else:
+                    dim3 = dims[dim_sizes.index(dim_size3)]
+
+                # Create a new dimension
+                var = ncfile.createVariable(
+                    current_key, str(value.dtype), dimensions=(dim1, dim2, dim3)
+                )
+                var[:] = value
+
+            elif isinstance(value, np.ndarray) and len(value.shape) > 2:
+                ncfile.setncattr(
+                    current_key,
+                    (
+                        f"{current_key} : data type {type(value)} "
+                        f" of array dimensions {len(value.shape)} not supported"
+                    ),
+                )
             else:
                 # For other data types, create dimensions and variables as usual
                 if isinstance(value, bool):
-                    # For a single boolean value, create a scalar variable with a dimension of
-                    # size 1
-                    dim = ncfile.createDimension(current_key, 1)
-                    var = ncfile.createVariable(current_key, "i1", dimensions=(dim,))
-                    var[0] = int(value)
+                    ncfile.setncattr(current_key, np.array(value, "b"))
+
                 elif isinstance(value, (int, float, np.integer, np.floating)):
                     # For scalar numerical values, create a dimension and a variable
                     # if not already existing
 
-                    # Create a new dimension
-                    dim = ncfile.createDimension(current_key, 1)
-                    dtype = str(type(value).__name__)
-                    var = ncfile.createVariable(current_key, dtype, dimensions=(dim,))
-                    var[0] = value
+                    ncfile.setncattr(current_key, value)
 
                 elif isinstance(value, str):
-                    # For string values, create a dimension and a variable if not already existing
-
-                    # Create a new dimension
-                    dim = ncfile.createDimension(current_key, len(value))
-
-                    var = ncfile.createVariable(current_key, "S1", dimensions=(dim,))
-                    var[:] = np.array(list(value), dtype="S1")
+                    # For string values, store as an attribute
+                    ncfile.setncattr(current_key, value)
                 else:
                     raise ValueError(
                         f"Unsupported data type for variable '{current_key}': {type(value)}"
@@ -128,9 +186,18 @@ def write_breakpoint_file(config: dict, shared_dict: dict):
         shared_dict (dict): shared working dictionary
     """
 
-    # form breakpoint file name
+    # form breakpoint dir path
 
     if not config:  # temporary, as config fields not yet used to set path
-        filename = "/tmp/breakpoint.nc"
+        breakpoint_dir = "/tmp"
+    else:
+        if "breakpoint_files" in config:
+            breakpoint_dir = config["breakpoint_files"]["default_dir"]
+
+    if "l1b_file_name" in shared_dict:
+        filename = os.path.splitext(os.path.basename(shared_dict["l1b_file_name"]))[0]
+        filename = f"{breakpoint_dir}/{filename}_breakp.nc"
+    else:
+        filename = f"{breakpoint_dir}/breakpoint.nc"
 
     create_netcdf_file(filename, shared_dict)

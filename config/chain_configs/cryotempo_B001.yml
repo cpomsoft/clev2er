@@ -9,6 +9,10 @@ l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
 # /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
 product_base_dir: /raid6/cryo-tempo/product_baselines
 
+# Set breakpoint file directory
+breakpoint_files:
+  default_dir: /tmp
+  
 # Default locations for log files
 log_files:
   append_year_month_to_logname: true  # if chain is run for specific month and year, use <logtype>_MMYYYY.log

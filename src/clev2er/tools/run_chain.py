@@ -269,7 +269,9 @@ def run_chain_on_single_file(
                     return (False, error_str)
 
                 if alg_obj.alg_name.rsplit(".", maxsplit=1)[-1] == breakpoint_alg_name:
-                    log.debug("breakpoint reached at algorithm %s", alg_obj.alg_name)
+                    thislog.debug(
+                        "breakpoint reached at algorithm %s", alg_obj.alg_name
+                    )
                     write_breakpoint_file(config, shared_dict)
                     break
 
