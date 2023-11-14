@@ -51,6 +51,7 @@ import numpy as np
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint: disable=E0611
 
+from clev2er.utils.breakpoints.breakpoint_files import write_breakpoint_file
 from clev2er.utils.config.load_config_settings import (
     load_algorithm_list,
     load_config_files,
@@ -232,15 +233,15 @@ def run_chain_on_single_file(
             # Run each algorithms .process() function in order
             # ------------------------------------------------------------------------
 
-            working_dict = {}
-            working_dict["l1b_file_name"] = l1b_file
+            shared_dict = {"l1b_file_name": l1b_file}
 
             for alg_obj in alg_object_list:
                 alg_obj.set_filenum(filenum)
                 alg_obj.set_log(thislog)
                 # Run the Algorithm's process() function. Note that for multi-processing
                 # the process() function also calls the init() function first
-                success, error_str = alg_obj.process(nc, working_dict)
+
+                success, error_str = alg_obj.process(nc, shared_dict)
                 if not success:
                     if "SKIP_OK" in error_str:
                         thislog.debug(
@@ -266,7 +267,10 @@ def run_chain_on_single_file(
                             if alg_obj.initialized:
                                 alg_obj.finalize(stage=5)
                     return (False, error_str)
-                if alg_obj.alg_name == breakpoint_alg_name:
+
+                if alg_obj.alg_name.rsplit(".", maxsplit=1)[-1] == breakpoint_alg_name:
+                    log.debug("breakpoint reached at algorithm %s", alg_obj.alg_name)
+                    write_breakpoint_file(config, shared_dict)
                     break
 
             if config["chain"]["use_multi_processing"]:
@@ -443,6 +447,7 @@ def run_chain(
 
         # If a breakpoint after this alg is set we don't need to initialize any more algorithms
         if alg == breakpoint_alg_name:
+            log.debug("breakpoint reached in import for %s", alg)
             break
     # -------------------------------------------------------------------------------------------
     #  Run algorithm chain's Algorthim.process() on each L1b file in l1b_file_list

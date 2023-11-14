@@ -34,6 +34,7 @@ class BaseAlgorithm:
             None
         """
         self.alg_name = __name__
+
         self.config = config
         if thislog is not None:
             self.log = thislog
@@ -120,7 +121,7 @@ class BaseAlgorithm:
 
         self.log.info(
             "Processing algorithm: %s",
-            self.alg_name.rsplit(".", maxsplit=1)[-1],
+            self.alg_name,
         )
 
         # Test that input l1b is a Dataset type
