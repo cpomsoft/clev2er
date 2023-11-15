@@ -53,6 +53,16 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 
 -   CryoTEMPO Land Ice (baselines B and C) : view the algorithms: `clev2er.algorithms.cryotempo`
 
+## Change Log
+
+This section details changes to the framework (not individual chains):
+
+| Date | Change |
+| ------- | ------- |
+| 10-Nov-23 | breakpoint support added |
+| 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|
+
+
 ## Installation of the Framework
 
 Note that the framework installation has been tested on Linux and MacOS systems. Use on
@@ -248,7 +258,7 @@ $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A002.xml
 
 Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.xml and
-$CLEV2ER_BASE_DIR/config/chain_configs/testchain_A002.xml
+$CLEV2ER_BASE_DIR/config/chain_configs/testchain/testchain_A002.xml
 
 To find all the command line options for *run_chain.py*, type:
 
@@ -263,7 +273,7 @@ options in the following order of increasing precedence:
 
 - main config file: $CLEV2ER_BASE_DIR/config/main_config.xml [Must be XML]
 - chain specific config file: 
-  $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*_*BVVV*.yml or .xml, where
+  $CLEV2ER_BASE_DIR/config/chain_configs/*chain_name*/*chain_name*_*BVVV*.yml or .xml, where
   BVVV is the baseline character (A..Z) and version number (001,..)
 - command line options
 - command line additional config options using the --conf_opts
@@ -291,7 +301,7 @@ be overridden by the relevant command line options.
 The default configuration for your chain's algorithms and finder classes should be placed in 
 the chain specific config file:
 
-`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>_<BVVV>[.xml,or .yml]`
+`$CLEV2ER_BASE_DIR/config/chain_configs/<chain_name>/<chain_name>_<BVVV>[.xml,or .yml]`
 
 where B is the baseline (major version) character A..Z, and VVV is the zero padded minor 
 version number.
@@ -407,7 +417,7 @@ Here is a minimal configuration file (XML format)
 The requirement for specific settings are set by the chain and it's algorithms.
 An example of a chain configuration file can be found at:
 
-`$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo_C001.yml`
+`$CLEV2ER_BASE_DIR/config/chain_configs/cryotempo/cryotempo_C001.yml`
 
 For testing purposes it is sometimes useful to modify configuration settings directly
 from the command line. This can be done using the command line option --conf_opts which
@@ -438,9 +448,9 @@ An example of changing the value of the setting above would be:
 6. Each algorithm and their unit tests must pass the static code checks (pylint, mypy, etc) which 
    are automatically run as git pre-commit hooks. 
 7. Create a first XML or YML configuration file for the chain in 
-   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**_A001.yml. The configuration file contains
-   any settings or resource locations that are required by your algorithms, and may include 
-   environment variables.
+   $CLEV2ER_BASE_DIR/config/chain_configs/**newchain**/**newchain**_A001.yml. The configuration 
+   file contains any settings or resource locations that are required by your algorithms, and 
+   may include environment variables.
 8. If required create one or more finder class files. These allow fine control of L1b file 
    selection from the command line (see section below for more details).
 9. Create an algorithm list YML file in 

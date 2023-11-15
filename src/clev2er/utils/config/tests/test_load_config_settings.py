@@ -89,7 +89,7 @@ def test_load_config_files():
         ) = load_config_files(
             "cryotempo",
             chain_config_file=f"{os.environ['CLEV2ER_BASE_DIR']}/"
-            "config/chain_configs/cryotempo_C001.yml",
+            "config/chain_configs/cryotempo/cryotempo_C001.yml",
         )
     except (KeyError, OSError, ValueError) as exc:
         assert False, f"Loading config file failed due to {exc}"

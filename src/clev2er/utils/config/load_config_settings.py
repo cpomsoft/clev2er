@@ -244,7 +244,7 @@ def load_config_files(
 
     +
 
-    $CLEV2ER_BASE_DIR/config/chain_configs/{chain_name}_BVVV.yml
+    $CLEV2ER_BASE_DIR/config/chain_configs/{chain_name}/{chain_name}_BVVV.yml
     where B is a char A..Z representing the baseline
     VVV is a zero padded int (1..100).
     If not specified the highest BVVV is chosen where a config file exists
@@ -301,14 +301,15 @@ def load_config_files(
 
     if not chain_config_file:
         if baseline and version:
+            # Find YML or XML available
             chain_config_file = (
                 f"{base_dir}/config/chain_configs/"
-                f"{chain_name}_{baseline}{version:03d}.yml"
+                f"{chain_name}/{chain_name}_{baseline}{version:03d}.xml"
             )
             if not os.path.isfile(chain_config_file):
                 chain_config_file = (
                     f"{base_dir}/config/chain_configs/"
-                    f"{chain_name}_{baseline}{version:03d}.xml"
+                    f"{chain_name}/{chain_name}_{baseline}{version:03d}.yml"
                 )
 
         else:  # find one
@@ -320,11 +321,13 @@ def load_config_files(
             for _baseline in reverse_alphabet_list:
                 if version:
                     _config_file = glob.glob(
-                        f"{base_dir}/config/chain_configs/{chain_name}_{_baseline}{version:03d}.xml"
+                        f"{base_dir}/config/chain_configs/{chain_name}/"
+                        f"{chain_name}_{_baseline}{version:03d}.xml"
                     )
                 else:
                     _config_file = glob.glob(
-                        f"{base_dir}/config/chain_configs/{chain_name}_{_baseline}*.xml"
+                        f"{base_dir}/config/chain_configs/{chain_name}/"
+                        f"{chain_name}_{_baseline}*.xml"
                     )
                 if len(_config_file) > 0:
                     baseline = _baseline
@@ -333,11 +336,13 @@ def load_config_files(
                     break
                 if version:
                     _config_file = glob.glob(
-                        f"{base_dir}/config/chain_configs/{chain_name}_{_baseline}{version:03d}.yml"
+                        f"{base_dir}/config/chain_configs/{chain_name}/"
+                        f"{chain_name}_{_baseline}{version:03d}.yml"
                     )
                 else:
                     _config_file = glob.glob(
-                        f"{base_dir}/config/chain_configs/{chain_name}_{_baseline}*.yml"
+                        f"{base_dir}/config/chain_configs/{chain_name}/"
+                        f"{chain_name}_{_baseline}*.yml"
                     )
                 if len(_config_file) > 0:
                     baseline = _baseline
