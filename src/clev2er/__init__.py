@@ -62,7 +62,6 @@ This section details changes to the framework (not individual chains):
 | 10-Nov-23 | breakpoint support added |
 | 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|
 | 15-Nov-23 | algorithm_lists file directory structure changed to now add /*chainname*/|
-| ------- | ------- |
 
 ## Installation of the Framework
 
