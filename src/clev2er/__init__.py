@@ -635,18 +635,25 @@ in order. This is then merged in to the main log file.
 
 Breakpoints can be set after any Algorithm by:
   - setting the *BreakpointAfter* value in the chain's Algorithm list, or
-  - using the command line argument **--breakpoint_after** *algorithm_name*
+  - using the run_chain.py command line argument **--breakpoint_after** *algorithm_name*
 
 When a breakpoint is set:
   - the chain will stop after the specified algorithm has completed for each input file.
   - the contents of the chain's *shared_dict* will be saved as a NetCDF4 file in the 
-    ```<breakpoint_dir>``` specified in the *breakpoints:default_dir* section on the chain
+    ```<breakpoint_dir>``` as specified in the *breakpoints:default_dir* section in the chain
     configuration file.
   - the NetCDF4 file will be named as ```<breakpoint_dir>/<l1b_file_name>_bkp.nc```
   - if multiple L1b files are being processed through the chain, a breakpoint file
     will be created for each.
   - single values or strings in the *shared_dict* will be included as global or group
     NetCDF attributes. 
+  - if there are multiple levels in the *shared_dict* then a NetCDF group will be
+    created for each level.
+  - multi-dimensional arrays (or numpy arrays) are supported up to dimension 3.
+  - NetCDF dimension variables will not be named with physical meaning (ie time), 
+    as this information can not be generically derived. Instead dimensions will be 
+    named dim1, dim2, etc. 
+  - all variables with the same dimension will share a common NetCDF dimension (ie dim1, etc)
 
 ## Developer Notes
 

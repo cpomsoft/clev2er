@@ -196,7 +196,7 @@ def write_breakpoint_file(config: dict, shared_dict: dict):
 
     if "l1b_file_name" in shared_dict:
         filename = os.path.splitext(os.path.basename(shared_dict["l1b_file_name"]))[0]
-        filename = f"{breakpoint_dir}/{filename}_breakp.nc"
+        filename = f"{breakpoint_dir}/{filename}_bkp.nc"
     else:
         filename = f"{breakpoint_dir}/breakpoint.nc"
 
