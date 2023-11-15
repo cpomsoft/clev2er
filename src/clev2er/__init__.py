@@ -529,7 +529,7 @@ All of the functions have access to the merged chain configuration dictionary **
 
 All logging must be done using **self.log**.info(), **self.log**.error(), **self.log**.debug().
 
-####Algorithm.process() return values
+#### Algorithm.process() return values
 
 It is important to note that Algorithm.**process()** return values affect how the
 chain operates. The .process() function returns (bool, str).
@@ -636,6 +636,13 @@ in order. This is then merged in to the main log file.
 Breakpoints can be set after any Algorithm by:
   - setting the *BreakpointAfter* value in the chain's Algorithm list, or
   - using the command line argument **--breakpoint_after** *algorithm_name*
+
+When a breakpoint is set:
+  - the chain will stop after the specified algorithm has completed.
+  - the contents of the chain's *shared_dict* will be saved as a NetCDF4 file.
+  - the NetCDF4 file will be named as *breakpoint_dir*/*l1b_file_name*_**bkp**.nc
+  - if multiple L1b files are being processed through the chain, a breakpoint file
+    will be created for each. 
 
 ## Developer Notes
 
