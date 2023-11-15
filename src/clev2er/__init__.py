@@ -638,11 +638,15 @@ Breakpoints can be set after any Algorithm by:
   - using the command line argument **--breakpoint_after** *algorithm_name*
 
 When a breakpoint is set:
-  - the chain will stop after the specified algorithm has completed.
-  - the contents of the chain's *shared_dict* will be saved as a NetCDF4 file.
-  - the NetCDF4 file will be named as ```<breakpoint_dir>/<l1b_file_name>_**bkp**.nc```
+  - the chain will stop after the specified algorithm has completed for each input file.
+  - the contents of the chain's *shared_dict* will be saved as a NetCDF4 file in the 
+    ```<breakpoint_dir>``` specified in the *breakpoints:default_dir* section on the chain
+    configuration file.
+  - the NetCDF4 file will be named as ```<breakpoint_dir>/<l1b_file_name>_bkp.nc```
   - if multiple L1b files are being processed through the chain, a breakpoint file
-    will be created for each. 
+    will be created for each.
+  - single values or strings in the *shared_dict* will be included as global or group
+    NetCDF attributes. 
 
 ## Developer Notes
 
