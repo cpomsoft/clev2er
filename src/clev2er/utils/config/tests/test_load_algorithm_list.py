@@ -68,7 +68,7 @@ def test_load_algorithm_list():
             chain_name,
             baseline="C",
             alg_list_file=f"{os.environ['CLEV2ER_BASE_DIR']}"
-            "/config/algorithm_lists/cryotempo_C001.xml",
+            "/config/algorithm_lists/cryotempo/cryotempo_C001.xml",
         )
     except (KeyError, OSError, ValueError) as exc:
         assert False, f"Loading config file failed due to {exc}"
