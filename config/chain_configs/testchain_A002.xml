@@ -3,6 +3,11 @@
 <!-- root xml level configuration required : this level removed in python dict-->
 <configuration>
 
+<!--Setup default locations to store breakpoint files-->
+<breakpoint_files>
+    <default_dir>/tmp</default_dir>
+</breakpoint_files>
+
 <!--chain: testchain configuration-->
 <log_files>
     <!-- append_year_month_to_logname : true or false : 
