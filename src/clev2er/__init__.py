@@ -368,9 +368,8 @@ you can override any main config settings in the named chain config if you want.
 
 ### Required Chain Configuration Settings
 
-The only required settings in the chain configuration files are those
-to set the log file locations. See the section on logging below for
-an explanation of the settings.
+Each chain configuration file should contain sections to configure logging and breakpoints.
+See the section on logging below for an explanation of the settings.
 
 Here is a minimal configuration file (XML format)
 
@@ -379,6 +378,12 @@ Here is a minimal configuration file (XML format)
 <!--chain: mychain configuration file-->
 
 <configuration> <!-- note this level is removed in python dict -->
+
+<!--Setup default locations to store breakpoint files-->
+<breakpoint_files>
+    <!-- set the default directory where breakpoint files are stored --> 
+    <default_dir>/tmp</default_dir>
+</breakpoint_files>
 
 <log_files>
     <append_year_month_to_logname>false</append_year_month_to_logname>
@@ -477,7 +482,7 @@ XML version:
 
 The xml version requires an additional toplevel `<algorithm_list>` that wraps the other sections.
 It also allows you to enable or disable individual algorithms within the list by setting the
-values *Enable* or *Disable*.
+values *Enable* or *Disable*, and to set breakpoints by setting the value to *BreakpointAfter*.
 
 ```
 <?xml version="1.0"?>
@@ -487,6 +492,7 @@ values *Enable* or *Disable*.
         <alg_identify_file>Enable</alg_identify_file>
         <alg_skip_on_mode>Enable</alg_skip_on_mode>
         <!-- ... more algorithms -->
+        <alg_retrack>BreakpointAfter</alg_retrack>
     </algorithms>
 
     <l1b_file_selectors>
@@ -624,6 +630,12 @@ to read directly.
 At the end of the chain run the multi-processing log outputs are automatically sorted
 so that messages relating to each L1b file processing are collected together
 in order. This is then merged in to the main log file. 
+
+## Breakpoint Files
+
+Breakpoints can be set after any Algorithm by:
+  - setting the *BreakpointAfter* value in the chain's Algorithm list, or
+  - using the command line argument **--breakpoint_after** *algorithm_name*
 
 ## Developer Notes
 
