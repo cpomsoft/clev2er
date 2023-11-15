@@ -61,7 +61,8 @@ This section details changes to the framework (not individual chains):
 | ------- | ------- |
 | 10-Nov-23 | breakpoint support added |
 | 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|
-
+| 15-Nov-23 | algorithm_lists file directory structure changed to now add /*chainname*/|
+| ------- | ------- |
 
 ## Installation of the Framework
 
@@ -254,7 +255,7 @@ Note that the algorithms that are dynamically run are located in
 $CLEV2ER_BASE_DIR/src/clev2er/algorithms/testchain/alg_template1.py, alg_template2.py
 
 The list of algorithms (and their order) for *testchain* are defined in 
-$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A002.xml
+$CLEV2ER_BASE_DIR/config/algorithm_lists/testchain/testchain_A002.xml
 
 Algorithm configuration settings are defined in
 $CLEV2ER_BASE_DIR/config/main_config.xml and
@@ -454,8 +455,9 @@ An example of changing the value of the setting above would be:
 8. If required create one or more finder class files. These allow fine control of L1b file 
    selection from the command line (see section below for more details).
 9. Create an algorithm list YML file in 
-   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**_A001.yml. You can copy the template
-   in $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain_A001.yml
+   $CLEV2ER_BASE_DIR/config/algorithm_lists/**newchain**/**newchain**_A001.yml. 
+   You can copy the template
+   in $CLEV2ER_BASE_DIR/config/algorithm_lists/testchain/testchain_A001.yml
 10. To test your chain on a single L1b file, you can use 
    `run_chain.py --name newchain -f /path/to/a/l1b_file`. There are many other options for 
     running chains (see `run_chain.py -h`).
@@ -471,7 +473,8 @@ of algorithms, both of which are dynamically loaded at chain run-time.
 ### Algorithm Lists
 
 Algorithms are dynamically loaded in a chain when (and in the order ) they are named in the chain's
-algorithm list YAML or XML file: $CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**.yml,.xml. 
+algorithm list YAML or XML file: 
+$CLEV2ER_BASE_DIR/config/algorithm_lists/**chainname**/**chainname**.yml,.xml. 
 This has two sections (l1b_file_selectors, and algorithms) as shown in the example below:
 
 YML version:

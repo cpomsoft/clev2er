@@ -41,7 +41,7 @@ def load_algorithm_list(
 
     Lists of algorithms and finder modules are either stored in XML or YML formats
 
-    $CLEV2ER_BASE_DIR/config/algorithm_lists/chain_name_BVVV.[xml,.yml]
+    $CLEV2ER_BASE_DIR/config/algorithm_lists/chain_name/chain_name_BVVV.[xml,.yml]
 
     Search rules:
 
@@ -100,12 +100,12 @@ def load_algorithm_list(
             log.info("baseline and version set: %s %d", baseline, version)
             # In this case we know exactly which name to use
             alg_list_file = (
-                f"{base_dir}/config/algorithm_lists/"
+                f"{base_dir}/config/algorithm_lists/{chain_name}/"
                 f"{chain_name}_{baseline}{version:03d}.xml"
             )
             if not os.path.isfile(alg_list_file):
                 alg_list_file = (
-                    f"{base_dir}/config/algorithm_lists/"
+                    f"{base_dir}/config/algorithm_lists/{chain_name}/"
                     f"{chain_name}_{baseline}{version:03d}.yml"
                 )
 
@@ -119,7 +119,8 @@ def load_algorithm_list(
                 reverse_alphabet_list = list(string.ascii_uppercase[::-1])
             for _baseline in reverse_alphabet_list:
                 _alg_list_file = glob.glob(
-                    f"{base_dir}/config/algorithm_lists/{chain_name}_{_baseline}*.xml"
+                    f"{base_dir}/config/algorithm_lists/{chain_name}"
+                    f"/{chain_name}_{_baseline}*.xml"
                 )
                 if len(_alg_list_file) > 0:
                     baseline = _baseline
@@ -127,7 +128,8 @@ def load_algorithm_list(
                     break
 
                 _alg_list_file = glob.glob(
-                    f"{base_dir}/config/algorithm_lists/{chain_name}_{_baseline}*.yml"
+                    f"{base_dir}/config/algorithm_lists/{chain_name}"
+                    f"/{chain_name}_{_baseline}*.yml"
                 )
                 if len(_alg_list_file) > 0:
                     baseline = _baseline
