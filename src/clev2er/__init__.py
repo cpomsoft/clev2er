@@ -55,13 +55,13 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 
 ## Change Log
 
-This section details changes to the framework (not individual chains):
+This section details major changes to the framework (not individual chains):
 
 | Date | Change |
 | ------- | ------- |
-| 10-Nov-23 | breakpoint support added |
 | 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|
-| 15-Nov-23 | algorithm_lists file directory structure changed to now add /*chainname*/|
+| 15-Nov-23 | algorithm_lists file directory structure changed to now add directory /*chainname*/|
+| 10-Nov-23 | breakpoint support added |
 
 ## Installation of the Framework
 
