@@ -25,7 +25,7 @@ graph LR;
 ```
 ```mermaid
 graph LR;
-    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)
+    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)~~~Br(Breakpoints)
 ```
 
 ## Main Features
@@ -61,7 +61,7 @@ This section details major changes to the framework (not individual chains):
 | ------- | ------- |
 | 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|
 | 15-Nov-23 | algorithm_lists file directory structure changed to now add directory /*chainname*/|
-| 10-Nov-23 | breakpoint support added. See section on breakpoints below |
+| 10-Nov-23 | breakpoint support added. See section on breakpoints below. |
 
 ## Installation of the Framework
 

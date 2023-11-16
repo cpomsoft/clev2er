@@ -107,7 +107,7 @@ run-time options in the chain controller command line tool.</p>
 </div></pre>
 
 <pre class="mermaid-pre"><div class="mermaid">graph LR;
-    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)
+    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)~~~Br(Breakpoints)
 </div></pre>
 
 <h2 id="main-features">Main Features</h2>
@@ -163,7 +163,7 @@ memory leaks (requiring a server reboot to free) if shared memory is not correct
 </tr>
 <tr>
   <td>10-Nov-23</td>
-  <td>breakpoint support added. See section on breakpoints below</td>
+  <td>breakpoint support added. See section on breakpoints below.</td>
 </tr>
 </tbody>
 </table>
@@ -883,7 +883,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">```</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">```mermaid</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">graph LR;</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">    C(Config)~~~L(Logs)~~~R{{Run Controller}}~~~LI(Alg List)-.-Ch(Chain)~~~Br(Breakpoints)</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">```</span>
 </span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="sd">## Main Features</span>
@@ -919,7 +919,7 @@ markdown to describe the directories beneath it.</p>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">| ------- | ------- |</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">| 15-Nov-23 | config file directory structure changed to config/chain_configs/*chainname*/|</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">| 15-Nov-23 | algorithm_lists file directory structure changed to now add directory /*chainname*/|</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">| 10-Nov-23 | breakpoint support added. See section on breakpoints below |</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">| 10-Nov-23 | breakpoint support added. See section on breakpoints below. |</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
 </span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">## Installation of the Framework</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
