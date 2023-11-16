@@ -281,7 +281,7 @@ class Dem:
                 "v3.0/1km/arcticdem_mosaic_1km_v3.0.tif"
             )
             self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
+                2008  # YYYY, the year the DEM's elevations are referenced to
             )
             self.src_url_filled = ""
             self.dem_version = "3.0"
@@ -381,7 +381,7 @@ class Dem:
                 "arcticdem_mosaic_100m_v3.0.tif"
             )
             self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
+                2008  # YYYY, the year the DEM's elevations are referenced to
             )
             self.src_url_filled = ""
             self.dem_version = "3.0"
