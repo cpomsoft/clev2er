@@ -48,6 +48,7 @@ This is an optional experimental feature that must be used with great care as it
 memory leaks (requiring a server reboot to free) if shared memory is not correctly closed.
 * algorithm timing (with MP support)
 * chain timing
+* support for breakpoint files (saved as NetCDF4 files) 
 
 ##Processing chains already implemented in framework:
 
