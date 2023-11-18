@@ -76,12 +76,15 @@ class Algorithm(BaseAlgorithm):
         # run_chain.py and should not be included in the config files
         init_shared_mem = "_init_shared_mem" in self.config
 
-        self.dem_ant = Dem(
-            "rema_ant_1km",
-            config=self.config,
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.dem_ant = None
+        else:
+            self.dem_ant = Dem(
+                "rema_ant_1km",
+                config=self.config,
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
 
         self.dem_grn = Dem(
             "arcticdem_1km",

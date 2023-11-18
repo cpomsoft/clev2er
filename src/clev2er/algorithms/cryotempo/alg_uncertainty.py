@@ -128,7 +128,10 @@ class Algorithm(BaseAlgorithm):
         self.ut_number_of_bins_ant = ut_ant_data.get("number_of_bins")
 
         self.slope_grn = Slopes("awi_grn_2013_1km_slopes")
-        self.slope_ant = Slopes("cpom_ant_2018_1km_slopes")
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.slope_ant = None
+        else:
+            self.slope_ant = Slopes("cpom_ant_2018_1km_slopes")
 
         return (True, "")
 
@@ -166,12 +169,18 @@ class Algorithm(BaseAlgorithm):
         # shared_dict["latitudes"], shared_dict["longitudes"]
 
         if shared_dict["hemisphere"] == "south":
-            slopes = self.slope_ant.interp_slope_from_lat_lon(
-                shared_dict["latitudes"], shared_dict["longitudes"]
-            )
-            uncertainty = calc_uncertainty(
-                slopes, self.ut_table_ant, self.ut_min_slope_ant, self.ut_max_slope_ant
-            )
+            if self.slope_ant is not None:
+                slopes = self.slope_ant.interp_slope_from_lat_lon(
+                    shared_dict["latitudes"], shared_dict["longitudes"]
+                )
+                uncertainty = calc_uncertainty(
+                    slopes,
+                    self.ut_table_ant,
+                    self.ut_min_slope_ant,
+                    self.ut_max_slope_ant,
+                )
+            else:
+                uncertainty = None
         else:
             slopes = self.slope_grn.interp_slope_from_lat_lon(
                 shared_dict["latitudes"], shared_dict["longitudes"]

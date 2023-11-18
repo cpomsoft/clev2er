@@ -96,12 +96,16 @@ class Algorithm(BaseAlgorithm):
             )
             raise KeyError(exc) from None
 
-        self.antarctic_dilated_mask = Mask(
-            "antarctica_iceandland_dilated_10km_grid_mask",
-            mask_path=mask_file,
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+        # Don't initialize Antarctic mask if processing Greenland only
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.antarctic_dilated_mask = None
+        else:
+            self.antarctic_dilated_mask = Mask(
+                "antarctica_iceandland_dilated_10km_grid_mask",
+                mask_path=mask_file,
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
 
         # Important Note :
         #     each Mask classes instance must run Mask.clean_up() in Algorithm.finalize()
@@ -148,9 +152,12 @@ class Algorithm(BaseAlgorithm):
 
         # Select the appropriate mask, depending on hemisphere
         if shared_dict["hemisphere"] == "south":
-            required_surface_mask, _, _ = self.antarctic_dilated_mask.points_inside(
-                shared_dict["lats_nadir"], shared_dict["lons_nadir"]
-            )
+            if self.antarctic_dilated_mask is not None:
+                required_surface_mask, _, _ = self.antarctic_dilated_mask.points_inside(
+                    shared_dict["lats_nadir"], shared_dict["lons_nadir"]
+                )
+            else:
+                required_surface_mask = None
         else:
             required_surface_mask, _, _ = self.greenland_dilated_mask.points_inside(
                 shared_dict["lats_nadir"], shared_dict["lons_nadir"]

@@ -187,7 +187,7 @@ class Dhdt:
             self.dtype = np.float32
 
             self.load_geotiff(
-                filename, flip_y=False, median_filter_width=None, abs_filter=10.0
+                filename, flip_y=False, median_filter_width=3, abs_filter=10.0
             )
         elif self.name == "ais_is2_is1_smith":
             self.filename = (
@@ -203,7 +203,7 @@ class Dhdt:
             self.dtype = np.float32
 
             self.load_geotiff(
-                filename, flip_y=False, median_filter_width=None, abs_filter=10.0
+                filename, flip_y=False, median_filter_width=3, abs_filter=10.0
             )
 
         elif self.name == "grn_2010_2021":

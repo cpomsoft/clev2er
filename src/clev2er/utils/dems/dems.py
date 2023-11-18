@@ -317,6 +317,9 @@ class Dem:
             self.southern_hemisphere = True
             self.void_value = -9999
             self.dtype = np.float32
+            self.reference_year = (
+                2010  # YYYY, the year the DEM's elevations are referenced to
+            )
 
         # --------------------------------------------------------------------------------
         elif self.name == "rema_ant_1km_v2":
@@ -368,6 +371,9 @@ class Dem:
             self.southern_hemisphere = True
             self.void_value = -9999
             self.dtype = np.float32
+            self.reference_year = (
+                2010  # YYYY, the year the DEM's elevations are referenced to
+            )
 
         # --------------------------------------------------------------------------------
         elif self.name == "arcticdem_100m_greenland":

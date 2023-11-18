@@ -92,14 +92,17 @@ class Algorithm(BaseAlgorithm):
                 raise KeyError(f"surface_type_masks:{mask} not in config file") from exc
             mask_paths[mask] = mask_file
 
-        # Load : antarctic_grounded_and_floating_2km_grid_mask
-        #      : source: Zwally 2012, ['unknown','1',..'27']
-        self.zwally_basin_mask_ant = Mask(
-            "antarctic_grounded_and_floating_2km_grid_mask",
-            mask_path=mask_paths["antarctic_grounded_and_floating_2km_grid_mask"],
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )  # source: Zwally 2012, ['unknown','1',..'27']
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.zwally_basin_mask_ant = None
+        else:
+            # Load : antarctic_grounded_and_floating_2km_grid_mask
+            #      : source: Zwally 2012, ['unknown','1',..'27']
+            self.zwally_basin_mask_ant = Mask(
+                "antarctic_grounded_and_floating_2km_grid_mask",
+                mask_path=mask_paths["antarctic_grounded_and_floating_2km_grid_mask"],
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )  # source: Zwally 2012, ['unknown','1',..'27']
 
         # Load: greenland_icesheet_2km_grid_mask
         # source: Zwally 2012, ['None', '1.1', '1.2', '1.3', '1.4', '2.1', '2.2', '3.1', '3.2',
@@ -112,18 +115,22 @@ class Algorithm(BaseAlgorithm):
             thislog=self.log,
         )
 
-        # Load: antarctic_icesheet_2km_grid_mask_rignot2016
-        # source: Rignot 2016, values: 0-18 ['Islands','West H-Hp','West F-G',
-        # 'East E-Ep','East D-Dp',
-        # 'East Cp-D','East B-C','East A-Ap','East Jpp-K','West G-H','East Dp-E','East Ap-B',
-        # 'East C-Cp',
-        # 'East K-A','West J-Jpp','Peninsula Ipp-J','Peninsula I-Ipp','Peninsula Hp-I','West Ep-F']
-        self.rignot_basin_mask_ant = Mask(
-            "antarctic_icesheet_2km_grid_mask_rignot2016",
-            mask_path=mask_paths["antarctic_icesheet_2km_grid_mask_rignot2016"],
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.rignot_basin_mask_ant = None
+        else:
+            # Load: antarctic_icesheet_2km_grid_mask_rignot2016
+            # source: Rignot 2016, values: 0-18 ['Islands','West H-Hp','West F-G',
+            # 'East E-Ep','East D-Dp',
+            # 'East Cp-D','East B-C','East A-Ap','East Jpp-K','West G-H','East Dp-E','East Ap-B',
+            # 'East C-Cp',
+            # 'East K-A','West J-Jpp','Peninsula Ipp-J','Peninsula I-Ipp','Peninsula Hp-I',
+            # 'West Ep-F']
+            self.rignot_basin_mask_ant = Mask(
+                "antarctic_icesheet_2km_grid_mask_rignot2016",
+                mask_path=mask_paths["antarctic_icesheet_2km_grid_mask_rignot2016"],
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
 
         # Load: greenland_icesheet_2km_grid_mask_rignot2016
         # source: Rignot 2016, values: 0,1-56: 0 (unclassified), 1-50 (ice caps), 51 (NW), 52(CW),
@@ -170,10 +177,15 @@ class Algorithm(BaseAlgorithm):
         # -------------------------------------------------------------------
 
         if shared_dict["hemisphere"] == "south":
+            if self.zwally_basin_mask_ant is None:
+                raise ValueError("zwally_basin_mask_ant should not be None")
             # 0..27 : ['unknown','1',..'27']
             mask_values_zwally = self.zwally_basin_mask_ant.grid_mask_values(
                 shared_dict["latitudes"], shared_dict["longitudes"], unknown_value=0
             )
+
+            if self.rignot_basin_mask_ant is None:
+                raise ValueError("rignot_basin_mask_ant should not be None")
 
             # 0..18: ['Islands','West H-Hp','West F-G','East E-Ep','East D-Dp','East Cp-D',
             # 'East B-C','East A-Ap','East Jpp-K','West G-H','East Dp-E','East Ap-B','East C-Cp',

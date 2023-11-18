@@ -97,24 +97,27 @@ class Algorithm(BaseAlgorithm):
         # run_chain.py and should not be included in the config files
         init_shared_mem = "_init_shared_mem" in self.config
 
-        # Antarctic surface type mask from BedMachine v2
-        try:
-            mask_file = self.config["surface_type_masks"][
-                "antarctica_bedmachine_v2_grid_mask"
-            ]
-        except KeyError as exc:
-            self.log.error(
-                "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
-                exc,
-            )
-            raise KeyError(exc) from None
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.antarctic_surface_mask = None
+        else:
+            # Antarctic surface type mask from BedMachine v2
+            try:
+                mask_file = self.config["surface_type_masks"][
+                    "antarctica_bedmachine_v2_grid_mask"
+                ]
+            except KeyError as exc:
+                self.log.error(
+                    "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
+                    exc,
+                )
+                raise KeyError(exc) from None
 
-        self.antarctic_surface_mask = Mask(
-            "antarctica_bedmachine_v2_grid_mask",
-            mask_path=mask_file,
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+            self.antarctic_surface_mask = Mask(
+                "antarctica_bedmachine_v2_grid_mask",
+                mask_path=mask_file,
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
         # Greenland surface type mask from BedMachine v3
         try:
             mask_file = self.config["surface_type_masks"][
@@ -182,9 +185,12 @@ class Algorithm(BaseAlgorithm):
         # Get source surface types from mask
         #   AIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice lake_vostok
         #   GIS: 0,1,2,3,4 = ocean ice_free_land grounded_ice floating_ice non-Greenland land
-        surface_type_20_ku = surface_mask.grid_mask_values(
-            shared_dict["lats_nadir"], shared_dict["lons_nadir"], unknown_value=0
-        )
+        if surface_mask is not None:
+            surface_type_20_ku = surface_mask.grid_mask_values(
+                shared_dict["lats_nadir"], shared_dict["lons_nadir"], unknown_value=0
+            )
+        else:
+            surface_type_20_ku = np.array([])
 
         self.log.debug("surface_type_20_ku %s", str(surface_type_20_ku))
 

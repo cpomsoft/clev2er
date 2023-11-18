@@ -78,12 +78,15 @@ class Algorithm(BaseAlgorithm):
         init_shared_mem = "_init_shared_mem" in self.config
 
         # Load DEMs required by this algorithm
-        self.dem_ant = Dem(
-            self.config["lrm_lepta_geolocation"]["antarctic_dem"],
-            config=self.config,
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+        if "grn_only" in self.config and self.config["grn_only"]:
+            self.dem_ant = None
+        else:
+            self.dem_ant = Dem(
+                self.config["lrm_lepta_geolocation"]["antarctic_dem"],
+                config=self.config,
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
 
         self.dem_grn = Dem(
             self.config["lrm_lepta_geolocation"]["greenland_dem"],

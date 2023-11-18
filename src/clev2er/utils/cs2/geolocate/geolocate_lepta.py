@@ -81,7 +81,7 @@ def datetime2year(date_dt):
 
 def geolocate_lepta(
     l1b: Dataset,
-    thisdem: Dem,
+    thisdem: Dem | None,
     thisdhdt: Dhdt | None,
     config: dict,
     surface_type_20_ku: np.ndarray,
@@ -107,6 +107,9 @@ def geolocate_lepta(
         (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
         (height_20_ku, lat_poca_20_ku, lon_poca_20_ku, slope_ok)
     """
+
+    if thisdem is None:
+        raise ValueError("thisdem None value passed")
     # ------------------------------------------------------------------------------------
     # Get configuration parameters
     # ------------------------------------------------------------------------------------

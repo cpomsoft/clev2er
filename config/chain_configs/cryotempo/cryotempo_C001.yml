@@ -126,7 +126,7 @@ lrm_lepta_geolocation:
   use_bottom_half_of_leading_edge: False
   include_slope_doppler_correction: True
   include_dhdt_correction: True
-  dhdt_grn_name: grn_2010_2021
+  dhdt_grn_name: grn_is2_is1_smith
 
 height_filters:
   # maximum difference to the reference dem elevation in m
