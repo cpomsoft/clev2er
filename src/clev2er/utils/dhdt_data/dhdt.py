@@ -6,12 +6,17 @@ import logging
 import os
 
 import numpy as np
+import rasterio  # to extract GeoTIFF extents
 from netCDF4 import Dataset  # pylint:disable=E0611
 from pyproj import CRS  # coordinate reference system
 from pyproj import Transformer  # transforms
+from rasterio.errors import RasterioIOError
 from scipy.interpolate import interpn
+from scipy.ndimage import median_filter
+from tifffile import imread  # to support large TIFF files
 
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-locals
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +25,8 @@ log = logging.getLogger(__name__)
 #   - add to this list if you add a new dh/dt data resource
 dhdt_list = [
     "grn_2010_2021",  # Greenland dh/dt grid
+    "grn_is2_is1_smith",  # GrIS dh/dt from IS2-IS1, Smith, 2020, doi.org/10.1126/science.aaz5845
+    "ais_is2_is1_smith",  # AIS dh/dt from IS2-IS1, Smith, 2020, doi.org/10.1126/science.aaz5845
 ]
 
 
@@ -47,6 +54,12 @@ class Dhdt:
         self.name = name
         self.config = config
         self.dhdt_dir = dhdt_dir
+        self.dhdt = np.array([])
+        self.xdem = np.array([])
+        self.ydem = np.array([])
+        self.mindemx: float | None = None
+        self.mindemy: float | None = None
+        self.binsize: int | None = None
 
         if thislog is not None:
             self.log = thislog  # optionally attach to a different log instance
@@ -59,6 +72,99 @@ class Dhdt:
 
         self.load()
 
+    def get_geotiff_extent(self, fname: str):
+        """Get info from GeoTIFF on its extent
+
+        Args:
+            fname (str): path of GeoTIFF file
+
+        Raises:
+            ValueError: _description_
+            IOError: _description_
+
+        Returns:
+            tuple(int,int,int,int,int,int,int): width,height,top_left,top_right,bottom_left,
+            bottom_right,pixel_width
+        """
+        try:
+            with rasterio.open(fname) as dataset:
+                transform = dataset.transform
+                width = dataset.width
+                height = dataset.height
+
+                top_left = transform * (0, 0)
+                top_right = transform * (width, 0)
+                bottom_left = transform * (0, height)
+                bottom_right = transform * (width, height)
+
+                pixel_width = transform[0]
+                pixel_height = -transform[4]  # Negative because the height is
+                # typically negative in GeoTIFFs
+                if pixel_width != pixel_height:
+                    raise ValueError(
+                        f"pixel_width {pixel_width} != pixel_height {pixel_width}"
+                    )
+        except RasterioIOError as exc:
+            raise IOError(f"Could not read GeoTIFF: {exc}") from exc
+        return (
+            width,
+            height,
+            top_left,
+            top_right,
+            bottom_left,
+            bottom_right,
+            pixel_width,
+        )
+
+    def load_geotiff(
+        self,
+        dhdt_file: str,
+        flip_y: bool = True,
+        median_filter_width: int | None = None,
+        abs_filter: int | None = None,
+    ):
+        """Load a GeoTIFF file
+
+        Args:
+            dhdt_file (str): path of GeoTIFF
+            flip_y (bool): if True flip the dhdt data in y dirn
+            median_filter_width (int|None): median filter width
+            abs_filter (int| None): set dhdt to np.Nan where abs(dhdt) > abs_filter
+        """
+        (
+            ncols,
+            nrows,
+            top_l,
+            top_r,
+            bottom_l,
+            _,
+            binsize,
+        ) = self.get_geotiff_extent(dhdt_file)
+
+        self.dhdt = imread(dhdt_file)
+
+        # Set void data to Nan
+        if self.void_value:
+            void_data = np.where(self.dhdt == self.void_value)
+            if np.any(void_data):
+                self.dhdt[void_data] = np.nan
+
+        self.xdem = np.linspace(top_l[0], top_r[0], ncols, endpoint=True)
+        self.ydem = np.linspace(bottom_l[1], top_l[1], nrows, endpoint=True)
+        if flip_y:
+            self.ydem = np.flip(self.ydem)
+        self.mindemx = self.xdem.min()
+        self.mindemy = self.ydem.min()
+        self.binsize = binsize  # grid resolution in m
+
+        if abs_filter:
+            void_data = np.where(np.abs(self.dhdt) > abs_filter)
+            if np.any(void_data):
+                self.dhdt[void_data] = np.nan
+
+        if median_filter_width:
+            self.dhdt = median_filter(self.dhdt, size=median_filter_width)
+
     def load(
         self,
     ):
@@ -67,7 +173,40 @@ class Dhdt:
         Raises:
             ValueError: if self.name not found in allowed list
         """
-        if self.name == "grn_2010_2021":
+        if self.name == "grn_is2_is1_smith":
+            self.filename = "gris_dhdt.tif"  # or gris_dhdt_filt.tif
+            self.default_dir = (
+                f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
+            )
+            filename = self.get_filename(self.default_dir, self.filename)
+            self.crs_wgs = CRS("epsg:4326")  #  WGS84
+            self.crs_bng = CRS(
+                "epsg:3413"
+            )  # Polar Stereo - North -lat of origin 70N, 45
+            self.void_value = -9999
+            self.dtype = np.float32
+
+            self.load_geotiff(
+                filename, flip_y=False, median_filter_width=None, abs_filter=10.0
+            )
+        elif self.name == "ais_is2_is1_smith":
+            self.filename = (
+                "ais_dhdt_grounded_filt.tif"  # or ais_dhdt_grounded_filt.tif
+            )
+            self.default_dir = (
+                f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
+            )
+            filename = self.get_filename(self.default_dir, self.filename)
+            self.crs_wgs = CRS("epsg:4326")  #  WGS84
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.void_value = -9999
+            self.dtype = np.float32
+
+            self.load_geotiff(
+                filename, flip_y=False, median_filter_width=None, abs_filter=10.0
+            )
+
+        elif self.name == "grn_2010_2021":
             self.filename = "greenland_dhdt_2011_2022.nc"
             # default_dir provided but will be overridden by config['dhdt_data_dir'][self.name]
             self.default_dir = f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data'
