@@ -282,8 +282,8 @@ def run_chain_on_single_file(
                     if alg_obj.initialized:
                         alg_obj.finalize(stage=6)
 
-    except IOError:
-        error_str = f"Could not read netCDF file {l1b_file}"
+    except (IOError, ValueError, KeyError) as exc:
+        error_str = f"Error processing {l1b_file}: {exc}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
             if rval_queue is not None:
@@ -412,7 +412,7 @@ def run_chain(
         # Load/Initialize algorithm
         try:
             alg_obj = module.Algorithm(config, log)
-        except (FileNotFoundError, IOError, KeyError) as exc:
+        except (FileNotFoundError, IOError, KeyError, ValueError) as exc:
             log.error("Could not initialize algorithm %s, %s", alg, exc)
             return (False, 1, 0, 0)
 
@@ -434,7 +434,7 @@ def run_chain(
             # Load/Initialize algorithm
             try:
                 alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True}, log)
-            except (FileNotFoundError, IOError, KeyError) as exc:
+            except (FileNotFoundError, IOError, KeyError, ValueError) as exc:
                 log.error(
                     "Could not initialize algorithm for shared_memory %s, %s", alg, exc
                 )
@@ -561,40 +561,43 @@ def run_chain(
     # Sequential Processing
     # --------------------------------------------------------------------------------------------
     else:  # Normal sequential processing (when multi-processing is disabled)
-        for fnum, l1b_file in enumerate(l1b_file_list):
-            log.info(
-                "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
-            )
-            success, error_str = run_chain_on_single_file(
-                l1b_file,
-                alg_object_list,
-                config,
-                log,
-                None,
-                None,
-                fnum,
-                breakpoint_alg_name,
-            )
-            num_files_processed += 1
-            if not success and "SKIP_OK" in error_str:
-                log.debug("Skipping file")
-                num_skipped += 1
-                continue
-            if not success:
-                num_errors += 1
+        try:
+            for fnum, l1b_file in enumerate(l1b_file_list):
+                log.info(
+                    "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
+                )
+                success, error_str = run_chain_on_single_file(
+                    l1b_file,
+                    alg_object_list,
+                    config,
+                    log,
+                    None,
+                    None,
+                    fnum,
+                    breakpoint_alg_name,
+                )
+                num_files_processed += 1
+                if not success and "SKIP_OK" in error_str:
+                    log.debug("Skipping file")
+                    num_skipped += 1
+                    continue
+                if not success:
+                    num_errors += 1
 
-                if config["chain"]["stop_on_error"]:
+                    if config["chain"]["stop_on_error"]:
+                        log.error(
+                            "Chain stopped because of error processing L1b file %s",
+                            l1b_file,
+                        )
+                        break
+
                     log.error(
-                        "Chain stopped because of error processing L1b file %s",
+                        "Error processing L1b file %s, skipping file",
                         l1b_file,
                     )
-                    break
-
-                log.error(
-                    "Error processing L1b file %s, skipping file",
-                    l1b_file,
-                )
-                continue
+                    continue
+        except KeyboardInterrupt as exc:
+            log.error("KeyboardInterrupt detected", exc)
 
     # -----------------------------------------------------------------------------
     # Run each algorithms .finalize() function in order

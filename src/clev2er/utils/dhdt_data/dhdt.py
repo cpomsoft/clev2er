@@ -330,6 +330,7 @@ class Dhdt:
         self.log.info("Loading dhdt file: %s", this_path)
 
         if not os.path.isfile(this_path):
+            self.log.error("%s : file not found", this_path)
             raise OSError(f"{this_path} not found")
 
         return this_path
