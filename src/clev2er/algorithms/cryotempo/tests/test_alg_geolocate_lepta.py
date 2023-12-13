@@ -68,8 +68,8 @@ def distance_between_latlon_points(latitudes1, longitudes1, latitudes2, longitud
     "l1b_file, l2i_file",
     [
         (
-            "CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc",  # LRM over GRN
-            "",
+            "CS_LTA__SIR_LRM_1B_20200930T235609_20200930T235758_E001.nc",  # LRM L1B over GRN
+            "CS_LTA__SIR_LRMI2__20200930T235609_20200930T235758_E001.nc",  # LRM L2i over GRN
         ),
         (
             "CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc",  # SIN L1B within AIS
@@ -82,7 +82,7 @@ def distance_between_latlon_points(latitudes1, longitudes1, latitudes2, longitud
     ],
 )
 def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
-    """test of clev2er.algorithms.cryotempo.alg_geolocate_lrm.py"""
+    """test of clev2er.algorithms.cryotempo.alg_geolocate_lepta.py"""
 
     base_dir = os.environ["CLEV2ER_BASE_DIR"]
     assert base_dir is not None

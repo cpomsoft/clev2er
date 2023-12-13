@@ -78,7 +78,7 @@ def test_alg_dilated_coastal_mask() -> None:
 
     l1b_file = (
         f"{base_dir}/testdata/cs2/l1bfiles/"
-        "CS_OFFL_SIR_LRM_1B_20200930T235609_20200930T235758_D001.nc"
+        "CS_LTA__SIR_LRM_1B_20200930T235609_20200930T235758_E001.nc"
     )
     try:
         l1b = Dataset(l1b_file)

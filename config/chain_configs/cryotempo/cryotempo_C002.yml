@@ -119,7 +119,7 @@ lrm_lepta_geolocation:
   antarctic_dem: rema_ant_200m
   greenland_dem: arcticdem_100m_greenland
   filter_on_leading_edge: True
-  use_mean_location_in_window: False
+  use_mean_location_in_window: True
   range_increment: 5
   num_range_increments: 10
   median_filter: False
