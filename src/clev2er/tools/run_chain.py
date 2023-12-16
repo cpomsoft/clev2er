@@ -910,14 +910,14 @@ def main() -> None:
         if config["baseline"] != args.baseline:
             sys.exit(
                 f"Error: baseline key:value parameter in chain config file {chain_config_file} "
-                "must match --baseline arg"
+                f"is {config['baseline']} which does not match --baseline {args.baseline}"
             )
 
     if args.version:
         if config["version"] != args.version:
             sys.exit(
                 f"Error: version key:value parameter in chain config file {chain_config_file} "
-                "must match --version arg"
+                f"is {config['version']} which does not match --version {args.version}"
             )
 
     # -------------------------------------------------------------------------
