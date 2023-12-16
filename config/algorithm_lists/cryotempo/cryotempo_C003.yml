@@ -1,4 +1,4 @@
-# Algorithm list for cryotempo baseline C002
+# Algorithm list for cryotempo baseline C003
 # Optional dynamically loaded modules containing a FileFinder class to use to select L1b input files
 # Class is passed month and year and base path and returns
 # a list of files using their own search logic. If multiple selector modules

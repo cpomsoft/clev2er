@@ -906,6 +906,20 @@ def main() -> None:
     except (KeyError, OSError, ValueError) as exc:
         sys.exit(f"Loading config file error: {exc}")
 
+    if args.baseline:
+        if config["baseline"] != args.baseline:
+            sys.exit(
+                f"Error: baseline key:value parameter in chain config file {chain_config_file} "
+                "must match --baseline arg"
+            )
+
+    if args.version:
+        if config["version"] != args.version:
+            sys.exit(
+                f"Error: version key:value parameter in chain config file {chain_config_file} "
+                "must match --version arg"
+            )
+
     # -------------------------------------------------------------------------
     # Modify  config settings from command line args and store modifications
     # to report later
