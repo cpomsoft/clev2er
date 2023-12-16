@@ -56,7 +56,7 @@ line-length = 100
 select = [
   "E",   # pycodestyle
   "F",   # pyflakes
-  #"I",   # isort (currently conflicts with actual isort)
+  #"I",   # isort : could replace actual isort, but currently causes conflicts
  # "UP",  # pyupgrade
 ]
 target-version = "py310"
