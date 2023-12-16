@@ -7,10 +7,7 @@ import numpy as np
 from scipy.optimize import OptimizeWarning
 
 from clev2er.utils.cs2.geolocate import sarin_phase
-from clev2er.utils.cs2.geolocate.lrm_slope import (
-    ecef_to_llh_pyproj,
-    llh_to_ecef_pyproj,
-)
+from clev2er.utils.cs2.geolocate.lrm_slope import ecef_to_llh_pyproj, llh_to_ecef_pyproj
 
 # too-many-branches, pylint: disable=R0912
 # too-many-arguments, pylint: disable=R0913

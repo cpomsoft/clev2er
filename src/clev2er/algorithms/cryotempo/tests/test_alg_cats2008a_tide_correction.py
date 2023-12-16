@@ -6,12 +6,8 @@ import os
 
 from netCDF4 import Dataset  # pylint: disable=E0611
 
-from clev2er.algorithms.cryotempo.alg_cats2008a_tide_correction import (
-    Algorithm,
-)
-from clev2er.algorithms.cryotempo.alg_surface_type import (
-    Algorithm as SurfaceType,
-)
+from clev2er.algorithms.cryotempo.alg_cats2008a_tide_correction import Algorithm
+from clev2er.algorithms.cryotempo.alg_surface_type import Algorithm as SurfaceType
 from clev2er.utils.config.load_config_settings import load_config_files
 
 # Similar lines in 2 files, pylint: disable=R0801

@@ -9,9 +9,7 @@ import pytest
 from netCDF4 import Dataset  # pylint: disable=E0611
 
 from clev2er.algorithms.cryotempo.alg_ref_dem import Algorithm
-from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
-    Algorithm as SkipArea,
-)
+from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import Algorithm as SkipArea
 from clev2er.utils.config.load_config_settings import load_config_files
 
 # Similar lines in 2 files, pylint: disable=R0801

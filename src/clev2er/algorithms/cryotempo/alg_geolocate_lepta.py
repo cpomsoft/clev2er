@@ -148,7 +148,7 @@ class Algorithm(BaseAlgorithm):
             thisdem = self.dem_grn
             thisdhdt = self.dhdt_grn
 
-        height_20_ku, lat_poca_20_ku, lon_poca_20_ku, _ = geolocate_lepta(
+        height_20_ku, lat_poca_20_ku, lon_poca_20_ku, slope_ok = geolocate_lepta(
             l1b,
             thisdem,
             thisdhdt,
@@ -156,8 +156,8 @@ class Algorithm(BaseAlgorithm):
             shared_dict["cryotempo_surface_type"],
             shared_dict["geo_corrected_tracker_range"],
             shared_dict["retracker_correction"],
-            shared_dict["leading_edge_start"],
-            shared_dict["leading_edge_stop"],
+            # shared_dict["leading_edge_start"],
+            # shared_dict["leading_edge_stop"],
             shared_dict["waveforms_to_include"],
         )
 
@@ -167,6 +167,7 @@ class Algorithm(BaseAlgorithm):
         np.seterr(under="ignore")  # otherwise next line can fail
         shared_dict["lon_poca_20_ku"] = lon_poca_20_ku % 360.0
         shared_dict["height_20_ku"] = height_20_ku
+        shared_dict["lepta_slope_ok"] = slope_ok
 
         # Calculate final product latitudes, longitudes from POCA, set to
         # nadir where no POCA available

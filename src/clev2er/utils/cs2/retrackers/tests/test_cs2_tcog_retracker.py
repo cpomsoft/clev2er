@@ -7,9 +7,7 @@ import os
 import numpy as np
 import pytest
 
-from clev2er.utils.cs2.retrackers.cs2_tcog_retracker import (
-    retrack_tcog_waveforms_cs2,
-)
+from clev2er.utils.cs2.retrackers.cs2_tcog_retracker import retrack_tcog_waveforms_cs2
 
 # pylint: disable=too-many-arguments
 # pylint: disable=R0801

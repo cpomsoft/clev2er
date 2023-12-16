@@ -1,5 +1,5 @@
 """
-Slope correction/geolocation function using an adpated  Roemer/LEPTA method
+Slope correction/geolocation function using an adapted LEPTA method from Li et al (2022)
 """
 
 import logging
@@ -87,11 +87,11 @@ def geolocate_lepta(
     surface_type_20_ku: np.ndarray,
     geo_corrected_tracker_range: np.ndarray,
     retracker_correction: np.ndarray,
-    leading_edge_start: np.ndarray,
-    leading_edge_stop: np.ndarray,
+    # leading_edge_start: np.ndarray,
+    # leading_edge_stop: np.ndarray,
     waveforms_to_include: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """_summary_
+    """Geolocate CS2 LRM measurements using an adapted LEPTA (Li et al, 2022) method
 
     Args:
         l1b (Dataset): NetCDF Dataset of L1b file
@@ -110,20 +110,23 @@ def geolocate_lepta(
 
     if thisdem is None:
         raise ValueError("thisdem None value passed")
+
     # ------------------------------------------------------------------------------------
     # Get configuration parameters
     # ------------------------------------------------------------------------------------
 
-    reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
-    range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
-    num_bins = config["instrument"]["num_range_bins_lrm"]
+    # reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
+    # range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
+    # num_bins = config["instrument"]["num_range_bins_lrm"]
     across_track_beam_width = config["instrument"][
         "across_track_beam_width_lrm"
     ]  # meters
 
-    range_increment = config["lrm_lepta_geolocation"]["range_increment"]
-    max_increments = config["lrm_lepta_geolocation"]["num_range_increments"]
-
+    delta_range_offset = config["lrm_lepta_geolocation"]["delta_range_offset"]
+    include_dhdt_correction = config["lrm_lepta_geolocation"]["include_dhdt_correction"]
+    use_mean_location_in_window = config["lrm_lepta_geolocation"][
+        "use_mean_location_in_window"
+    ]
     # ------------------------------------------------------------------------------------
 
     # Get nadir latitude, longitude and satellite altitude from L1b
@@ -147,12 +150,16 @@ def geolocate_lepta(
     slope_ok = np.full_like(nadir_x, dtype=bool, fill_value=True)
     height_20_ku = np.full_like(nadir_x, dtype=float, fill_value=np.nan)
 
-    if config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
-        time_20_ku = l1b["time_20_ku"][:].data
+    # if using a dh/dt correction to the DEM we need to calculate the time diff in years
+    if include_dhdt_correction:
+        time_20_ku = l1b["time_20_ku"][:].data[0]
 
-        track_year_dt = datetime(2000, 1, 1, 0) + timedelta(seconds=time_20_ku[0])
+        track_year_dt = datetime(2000, 1, 1, 0) + timedelta(seconds=time_20_ku)
         track_year = datetime2year(track_year_dt)
-
+        if track_year < 2010:
+            raise ValueError(
+                f"track_year: {track_year} should not be < 2010 in dhdt correction"
+            )
         if thisdem.reference_year == 0:
             raise ValueError(
                 f"thisdem.reference_year has not been set for DEM {thisdem.name}"
@@ -242,8 +249,7 @@ def geolocate_lepta(
         zdem = zdem[valid_dem_heights]
 
         # Correct DEM elevations for dh/dt changes
-
-        if config["lrm_lepta_geolocation"]["include_dhdt_correction"]:
+        if include_dhdt_correction:
             if thisdhdt is not None:
                 # find dh/dt * year_difference at each DEM location
                 zdem += thisdhdt.interp_dhdt(xdem, ydem) * year_difference
@@ -253,142 +259,89 @@ def geolocate_lepta(
             nadir_x[i], nadir_y[i], altitudes[i], xdem, ydem, zdem
         )
 
-        # Optionally limit DEM points further by restricting to points where their range to
-        # satellite is within the trackers range window
+        # ----------------------------------------------------------------------------------------
+        #   Limit DEM points by finding those that would be within a range window
+        #   defined by the retracking point +/- delta_range_offset (defined by Li as 1.25m)
+        # ----------------------------------------------------------------------------------------
 
-        if config["lrm_lepta_geolocation"]["filter_on_tracker_range_window"]:
-            range_to_window_start = (
-                geo_corrected_tracker_range[i] - (reference_bin_index) * range_bin_size
+        # range_to_window_start = (
+        #     geo_corrected_tracker_range[i] - (reference_bin_index) * range_bin_size
+        # )
+        # range_to_window_end = (
+        #     geo_corrected_tracker_range[i] + (num_bins - reference_bin_index) * range_bin_size
+        # )
+
+        # range_to_le_start = (
+        #     geo_corrected_tracker_range[i]
+        #     - (reference_bin_index - leading_edge_start[i][0]) * range_bin_size
+        # )
+        # range_to_le_end = (
+        #     geo_corrected_tracker_range[i]
+        #     + (leading_edge_stop[i][0] - reference_bin_index) * range_bin_size
+        # )
+
+        # le_width = range_to_le_end - range_to_le_start
+
+        range_to_retracking_point = (
+            geo_corrected_tracker_range[i] + retracker_correction[i]
+        )
+        range_start = range_to_retracking_point - delta_range_offset
+        range_end = range_to_retracking_point + delta_range_offset
+
+        indices_within_range_window = np.where(
+            np.logical_and(
+                dem_to_sat_dists >= range_start,
+                dem_to_sat_dists <= range_end,
             )
-            # calculate distance from sat to bottom of range window
-            range_to_window_end = (
-                geo_corrected_tracker_range[i]
-                + (num_bins - reference_bin_index) * range_bin_size
-            )
+        )[0]
+
+        if len(indices_within_range_window) == 0:
+            closest_dem_to_sat_distance = np.min(dem_to_sat_dists)
+            diff = closest_dem_to_sat_distance - range_start
+            range_start += diff
+            range_end += diff
 
             indices_within_range_window = np.where(
                 np.logical_and(
-                    dem_to_sat_dists >= range_to_window_start,
-                    dem_to_sat_dists <= range_to_window_end,
+                    dem_to_sat_dists >= range_start,
+                    dem_to_sat_dists <= range_end,
                 )
             )[0]
-            if len(indices_within_range_window) == 0:
-                slope_ok[i] = False
-                continue
-            dem_to_sat_dists = np.array(dem_to_sat_dists)[indices_within_range_window]
-            xdem = xdem[indices_within_range_window]
-            ydem = ydem[indices_within_range_window]
-            zdem = zdem[indices_within_range_window]
 
-        # Optionally limit DEM points further by restricting to points where their range to
-        # satellite is within the Leading Edge min/max range
-        #   - if no points found, incrementally expand window up to the tracker range window
-
-        if config["lrm_lepta_geolocation"]["filter_on_leading_edge"]:
-            range_to_window_start = (
-                geo_corrected_tracker_range[i] - (reference_bin_index) * range_bin_size
-            )
-            range_to_window_end = (
-                geo_corrected_tracker_range[i]
-                + (num_bins - reference_bin_index) * range_bin_size
-            )
-
-            range_to_le_start = (
-                geo_corrected_tracker_range[i]
-                - (reference_bin_index - leading_edge_start[i][0]) * range_bin_size
-            )
-            range_to_le_end = (
-                geo_corrected_tracker_range[i]
-                + (leading_edge_stop[i][0] - reference_bin_index) * range_bin_size
-            )
-
-            if config["lrm_lepta_geolocation"]["use_bottom_half_of_leading_edge"]:
-                le_width = range_to_le_end - range_to_le_start
-
-                # Try bottom quater of LE first
-                indices_within_range_window = np.where(
-                    np.logical_and(
-                        dem_to_sat_dists >= range_to_le_start,
-                        dem_to_sat_dists <= range_to_le_start + le_width / 4.0,
-                    )
-                )[0]
-
-                # Try all of LE if no DEM points match bottom half
-                if len(indices_within_range_window) == 0:
-                    # log.debug("No points in bottom half")
-                    indices_within_range_window = np.where(
-                        np.logical_and(
-                            dem_to_sat_dists >= range_to_le_start,
-                            dem_to_sat_dists <= range_to_le_end,
-                        )
-                    )[0]
-            else:
-                indices_within_range_window = np.where(
-                    np.logical_and(
-                        dem_to_sat_dists >= range_to_le_start,
-                        dem_to_sat_dists <= range_to_le_end,
-                    )
-                )[0]
-
-            window_start_reached = False
-            window_end_reached = False
-            num_increments = 0
-
-            while len(indices_within_range_window) == 0:
-                log.debug(
-                    "No matching dem points in LE, num_increments=%d ", num_increments
-                )
-
-                # Incrementally expand range window by
-                # config["lrm_lepta_geolocation"]["range_increment"]
-                range_to_le_start -= range_increment
-                range_to_le_end += range_increment
-                if range_to_le_start <= range_to_window_start:
-                    window_start_reached = True
-                    range_to_le_start = range_to_window_start
-                if range_to_le_end >= range_to_window_end:
-                    range_to_le_end = range_to_window_end
-                    window_end_reached = True
-
-                indices_within_range_window = np.where(
-                    np.logical_and(
-                        dem_to_sat_dists >= range_to_le_start,
-                        dem_to_sat_dists <= range_to_le_end,
-                    )
-                )[0]
-
-                if window_end_reached and window_start_reached:
-                    if len(indices_within_range_window) == 0:
-                        slope_ok[i] = False
-                        break
-                num_increments += 1
-                if num_increments >= max_increments:
-                    range_to_le_start = range_to_window_start
-                    range_to_le_end = range_to_window_end
-
-            if not slope_ok[i]:
-                continue
-
-            dem_to_sat_dists = np.array(dem_to_sat_dists)[indices_within_range_window]
-            xdem = xdem[indices_within_range_window]
-            ydem = ydem[indices_within_range_window]
-            zdem = zdem[indices_within_range_window]
-
-        # Find index of minimum range (ie heighest point) in remaining DEM points
-        # and assign this as POCA
-        index_of_closest = np.argmin(dem_to_sat_dists)
-        if index_of_closest < 0 or index_of_closest > (len(xdem) - 1):
+        if len(indices_within_range_window) == 0:
+            log.debug("No points found in DEM using LEPTA delta range offset")
             slope_ok[i] = False
             continue
 
-        poca_x[i] = xdem[index_of_closest]
-        poca_y[i] = ydem[index_of_closest]
-        poca_z[i] = zdem[index_of_closest]
+        dem_to_sat_dists = np.array(dem_to_sat_dists)[indices_within_range_window]
+        xdem = xdem[indices_within_range_window]
+        ydem = ydem[indices_within_range_window]
+        zdem = zdem[indices_within_range_window]
 
-        # Calculate the slope correction to height
-        slope_correction[i] = (
-            dem_to_sat_dists[index_of_closest] + poca_z[i] - altitudes[i]
-        )
+        # use the mean location as per Li et al (2022):https://doi.org/10.5194/tc-16-2225-2022
+        # section 3.13
+        if use_mean_location_in_window:
+            poca_x[i] = np.mean(xdem)
+            poca_y[i] = np.mean(ydem)
+            poca_z[i] = np.mean(zdem)
+
+            slope_correction[i] = np.nanmean(dem_to_sat_dists - (altitudes[i] - zdem))
+        else:
+            # Find index of minimum range (ie heighest point) in remaining DEM points
+            # and assign this as POCA
+            index_of_closest = np.argmin(dem_to_sat_dists)
+            if index_of_closest < 0 or index_of_closest > (len(xdem) - 1):
+                slope_ok[i] = False
+                continue
+
+            poca_x[i] = xdem[index_of_closest]
+            poca_y[i] = ydem[index_of_closest]
+            poca_z[i] = zdem[index_of_closest]
+
+            # Calculate the slope correction to height
+            slope_correction[i] = (
+                dem_to_sat_dists[index_of_closest] + poca_z[i] - altitudes[i]
+            )
 
     # Transform all POCA x,y to lon,lat
     lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(

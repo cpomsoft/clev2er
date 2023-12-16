@@ -11,9 +11,7 @@ from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from clev2er.utils.cs2.retrackers.cs2_sin_max_coherence_retracker import (
     retrack_cs2_sin_max_coherence,
 )
-from clev2er.utils.cs2.retrackers.cs2_tcog_retracker import (
-    retrack_tcog_waveforms_cs2,
-)
+from clev2er.utils.cs2.retrackers.cs2_tcog_retracker import retrack_tcog_waveforms_cs2
 
 # too-many-locals, pylint: disable=R0914
 

@@ -8,9 +8,7 @@ from typing import Any, Dict
 import pytest
 from netCDF4 import Dataset  # pylint: disable=E0611
 
-from clev2er.algorithms.cryotempo.alg_backscatter import (
-    Algorithm as Backscatter,
-)
+from clev2er.algorithms.cryotempo.alg_backscatter import Algorithm as Backscatter
 from clev2er.algorithms.cryotempo.alg_basin_ids import Algorithm as BasinIds
 from clev2er.algorithms.cryotempo.alg_cats2008a_tide_correction import (
     Algorithm as Cats2008a,
@@ -21,34 +19,18 @@ from clev2er.algorithms.cryotempo.alg_dilated_coastal_mask import (
 from clev2er.algorithms.cryotempo.alg_fes2014b_tide_correction import (
     Algorithm as Fes2014b,
 )
-from clev2er.algorithms.cryotempo.alg_filter_height import (
-    Algorithm as FilterHeight,
-)
-from clev2er.algorithms.cryotempo.alg_geo_corrections import (
-    Algorithm as GeoCorrections,
-)
-from clev2er.algorithms.cryotempo.alg_geolocate_lrm import (
-    Algorithm as Geolocate_Lrm,
-)
-from clev2er.algorithms.cryotempo.alg_geolocate_sin import (
-    Algorithm as Geolocate_Sin,
-)
-from clev2er.algorithms.cryotempo.alg_identify_file import (
-    Algorithm as IdentifyFile,
-)
+from clev2er.algorithms.cryotempo.alg_filter_height import Algorithm as FilterHeight
+from clev2er.algorithms.cryotempo.alg_geo_corrections import Algorithm as GeoCorrections
+from clev2er.algorithms.cryotempo.alg_geolocate_lrm import Algorithm as Geolocate_Lrm
+from clev2er.algorithms.cryotempo.alg_geolocate_sin import Algorithm as Geolocate_Sin
+from clev2er.algorithms.cryotempo.alg_identify_file import Algorithm as IdentifyFile
 from clev2er.algorithms.cryotempo.alg_product_output import Algorithm
 from clev2er.algorithms.cryotempo.alg_ref_dem import Algorithm as RefDem
 from clev2er.algorithms.cryotempo.alg_retrack import Algorithm as Retracker
-from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
-    Algorithm as SkipArea,
-)
+from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import Algorithm as SkipArea
 from clev2er.algorithms.cryotempo.alg_skip_on_mode import Algorithm as SkipMode
-from clev2er.algorithms.cryotempo.alg_surface_type import (
-    Algorithm as SurfaceType,
-)
-from clev2er.algorithms.cryotempo.alg_uncertainty import (
-    Algorithm as Uncertainty,
-)
+from clev2er.algorithms.cryotempo.alg_surface_type import Algorithm as SurfaceType
+from clev2er.algorithms.cryotempo.alg_uncertainty import Algorithm as Uncertainty
 from clev2er.algorithms.cryotempo.alg_waveform_quality import (
     Algorithm as WaveformQuality,
 )

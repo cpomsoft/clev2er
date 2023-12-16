@@ -17,21 +17,13 @@ from clev2er.algorithms.cryotempo.alg_dilated_coastal_mask import (
 from clev2er.algorithms.cryotempo.alg_fes2014b_tide_correction import (
     Algorithm as Fes2014b,
 )
-from clev2er.algorithms.cryotempo.alg_geo_corrections import (
-    Algorithm as GeoCorrections,
-)
+from clev2er.algorithms.cryotempo.alg_geo_corrections import Algorithm as GeoCorrections
 from clev2er.algorithms.cryotempo.alg_geolocate_lrm import Algorithm
-from clev2er.algorithms.cryotempo.alg_identify_file import (
-    Algorithm as IdentifyFile,
-)
+from clev2er.algorithms.cryotempo.alg_identify_file import Algorithm as IdentifyFile
 from clev2er.algorithms.cryotempo.alg_retrack import Algorithm as Retracker
-from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import (
-    Algorithm as SkipArea,
-)
+from clev2er.algorithms.cryotempo.alg_skip_on_area_bounds import Algorithm as SkipArea
 from clev2er.algorithms.cryotempo.alg_skip_on_mode import Algorithm as SkipMode
-from clev2er.algorithms.cryotempo.alg_surface_type import (
-    Algorithm as SurfaceType,
-)
+from clev2er.algorithms.cryotempo.alg_surface_type import Algorithm as SurfaceType
 from clev2er.algorithms.cryotempo.alg_waveform_quality import (
     Algorithm as WaveformQuality,
 )

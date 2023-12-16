@@ -122,7 +122,7 @@ lrm_lepta_geolocation:
   use_mean_location_in_window: True
   delta_range_offset: 1.25  # m as per Li et al
   include_slope_doppler_correction: True
-  include_dhdt_correction: False
+  include_dhdt_correction: True
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
 
