@@ -126,7 +126,7 @@ class FileFinder(BaseFinder):
         if "grn_only" in self.config and self.config["grn_only"]:
             self.log.info("Filtering LRM file list for --grn_only")
 
-            num_processes = 8
+            num_processes = 100
 
             with ProcessPoolExecutor(max_workers=num_processes) as executor:
                 results = list(executor.map(test_nc_file_in_greenland, file_list))
