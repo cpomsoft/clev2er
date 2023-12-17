@@ -12,6 +12,7 @@ from clev2er.algorithms.base.base_finder import BaseFinder
 # pylint: disable=R0801
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-locals
 
 log = logging.getLogger(__name__)
 
@@ -100,15 +101,19 @@ class FileFinder(BaseFinder):
             self.log.info("Filtering LRM file list for --grn_only")
             grn_file_list = []
             for file in file_list:
-                with Dataset(file) as nc:
-                    first_record_lat = nc.first_record_lat / 1e6
-                    if first_record_lat < 0.0:
-                        continue
-                    first_record_lon = nc.first_record_lon / 1e6
-                    if first_record_lon > 10.0:
-                        continue
-                    if first_record_lon < -90.0:
-                        continue
+                try:
+                    with Dataset(file) as nc:
+                        first_record_lat = nc.first_record_lat / 1e6
+                        if first_record_lat < 0.0:
+                            continue
+                        first_record_lon = nc.first_record_lon / 1e6
+                        if first_record_lon > 10.0:
+                            continue
+                        if first_record_lon < -90.0:
+                            continue
+                except OSError as exc:
+                    self.log.error("%s could not be read: %s", file, exc)
+                    continue
 
                 grn_file_list.append(file)
 
