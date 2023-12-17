@@ -97,6 +97,7 @@ class FileFinder(BaseFinder):
         self.log.info("Total number of LRM files found: %d", len(file_list))
 
         if "grn_only" in self.config and self.config["grn_only"]:
+            self.log.info("Filtering LRM file list for --grn_only")
             grn_file_list = []
             for file in file_list:
                 with Dataset(file) as nc:
