@@ -1151,6 +1151,11 @@ def main() -> None:
     if breakpoint_alg_name:
         log.info("breakpoint set after algorithm %s", breakpoint_alg_name)
 
+    if config["chain"]["use_multi_processing"]:
+        # change the default method of multi-processing for Linux from
+        # fork to spawn
+        mp.set_start_method("spawn")
+
     # -------------------------------------------------------------------------------------------
     #  Select input L1b files
     #   - single file : args.file
@@ -1237,12 +1242,6 @@ def main() -> None:
 
     if config["chain"]["stop_on_error"]:
         log.warning("**Chain configured to stop on first error**")
-
-    if config["chain"]["use_multi_processing"]:
-        # change the default method of multi-processing for Linux from
-        # fork to spawn
-        if mp.get_start_method() != "spawn":
-            mp.set_start_method("spawn")
 
     start_time = time.time()
 
