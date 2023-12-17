@@ -5,10 +5,13 @@ import logging
 import os
 from typing import List
 
+from netCDF4 import Dataset  # pylint: disable=E0611
+
 from clev2er.algorithms.base.base_finder import BaseFinder
 
 # pylint: disable=R0801
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-branches
 
 log = logging.getLogger(__name__)
 
@@ -92,4 +95,26 @@ class FileFinder(BaseFinder):
                     "Number of files found for %.02d/%d: %d", month, year, nfiles
                 )
         self.log.info("Total number of LRM files found: %d", len(file_list))
+
+        if "grn_only" in self.config and self.config["grn_only"]:
+            grn_file_list = []
+            for file in file_list:
+                with Dataset(file) as nc:
+                    first_record_lat = nc.first_record_lat / 1e6
+                    if first_record_lat < 0.0:
+                        continue
+                    first_record_lon = nc.first_record_lon / 1e6
+                    if first_record_lon > 10.0:
+                        continue
+                    if first_record_lon < -90.0:
+                        continue
+
+                grn_file_list.append(file)
+
+            file_list = grn_file_list
+            self.log.info(
+                "Total number of LRM files found after grn_only filter: %d",
+                len(file_list),
+            )
+
         return file_list

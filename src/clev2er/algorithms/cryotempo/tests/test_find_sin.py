@@ -13,6 +13,7 @@ def test_find_sin():
     config = {}
     config["l1b_base_dir"] = f'{environ["CPDATA_DIR"]}/SATS/RA/CRY/L1B'
     config["l1b_baselines"] = "D,E"
+    config["grn_only"] = True
 
     finder = FileFinder(config=config)
 

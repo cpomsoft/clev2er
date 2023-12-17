@@ -4,6 +4,8 @@ from os import environ
 
 from clev2er.algorithms.cryotempo.find_lrm import FileFinder
 
+# pylint: disable=R0801
+
 
 def test_find_lrm():
     """test the clev2er.algorithms.cryotempo.find_lrm.FileFinder class"""
@@ -13,6 +15,7 @@ def test_find_lrm():
     config = {}
     config["l1b_base_dir"] = f'{environ["CPDATA_DIR"]}/SATS/RA/CRY/L1B'
     config["l1b_baselines"] = "D,E"
+    config["grn_only"] = True
 
     finder = FileFinder(config=config)
 
