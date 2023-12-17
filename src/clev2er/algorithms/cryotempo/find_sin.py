@@ -26,7 +26,7 @@ def test_nc_file_in_greenland(file: str):
         file (str): path of CS2 L1b file
 
     Returns:
-        None|str : None if not over Grn, file if it is
+        None|str : None if not over Grn, file(name) if it is
     """
     try:
         with Dataset(file) as nc:
@@ -125,6 +125,9 @@ class FileFinder(BaseFinder):
 
         if "grn_only" in self.config and self.config["grn_only"]:
             self.log.info("Filtering SIN file list for --grn_only")
+
+            # As filtering the file list can be slow (as there may be ~20000 files/yr)
+            # use multi-processing to optionally speed it up by ~3x
 
             if (
                 "chain" in self.config

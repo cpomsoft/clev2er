@@ -126,6 +126,9 @@ class FileFinder(BaseFinder):
         if "grn_only" in self.config and self.config["grn_only"]:
             self.log.info("Filtering LRM file list for --grn_only")
 
+            # As filtering the file list can be slow (as there may be ~20000 files/yr)
+            # use multi-processing to optionally speed it up by ~ 3x
+
             if (
                 "chain" in self.config
                 and "max_processes_for_multiprocessing" in self.config["chain"]

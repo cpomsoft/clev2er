@@ -1241,7 +1241,8 @@ def main() -> None:
     if config["chain"]["use_multi_processing"]:
         # change the default method of multi-processing for Linux from
         # fork to spawn
-        mp.set_start_method("spawn")
+        if mp.get_start_method() != "spawn":
+            mp.set_start_method("spawn")
 
     start_time = time.time()
 
