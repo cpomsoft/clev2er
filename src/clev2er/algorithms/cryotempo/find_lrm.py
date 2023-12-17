@@ -126,29 +126,20 @@ class FileFinder(BaseFinder):
         if "grn_only" in self.config and self.config["grn_only"]:
             self.log.info("Filtering LRM file list for --grn_only")
 
-            num_processes = 100
+            if (
+                "chain" in self.config
+                and "max_processes_for_multiprocessing" in self.config["chain"]
+            ):
+                num_processes = self.config["chain"][
+                    "max_processes_for_multiprocessing"
+                ]
+            else:
+                num_processes = 1
 
             with ProcessPoolExecutor(max_workers=num_processes) as executor:
                 results = list(executor.map(test_nc_file_in_greenland, file_list))
 
             grn_file_list = [result for result in results if result is not None]
-
-            # for file in file_list:
-            #     try:
-            #         with Dataset(file) as nc:
-            #             first_record_lat = nc.first_record_lat / 1e6
-            #             if first_record_lat < 0.0:
-            #                 continue
-            #             first_record_lon = nc.first_record_lon / 1e6
-            #             if first_record_lon > 10.0:
-            #                 continue
-            #             if first_record_lon < -90.0:
-            #                 continue
-            #     except OSError as exc:
-            #         self.log.error("%s could not be read: %s", file, exc)
-            #         continue
-
-            #     grn_file_list.append(file)
 
             file_list = grn_file_list
             self.log.info(
