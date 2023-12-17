@@ -3,6 +3,7 @@
 import glob
 import logging
 import os
+from concurrent.futures import ProcessPoolExecutor
 from typing import List
 
 from netCDF4 import Dataset  # pylint: disable=E0611
@@ -15,6 +16,31 @@ from clev2er.algorithms.base.base_finder import BaseFinder
 # pylint: disable=too-many-locals
 
 log = logging.getLogger(__name__)
+
+
+def test_nc_file_in_greenland(file: str):
+    """test if L1b file's global attributes indicate it is measuring over
+       Greenland
+
+    Args:
+        file (str): path of CS2 L1b file
+
+    Returns:
+        None|str : None if not over Grn, file if it is
+    """
+    try:
+        with Dataset(file) as nc:
+            first_record_lat = nc.first_record_lat / 1e6
+            if first_record_lat < 0.0:
+                return None
+            first_record_lon = nc.first_record_lon / 1e6
+            if first_record_lon > 10.0:
+                return None
+            if first_record_lon < -90.0:
+                return None
+            return file
+    except IOError:
+        return None
 
 
 class FileFinder(BaseFinder):
@@ -99,23 +125,30 @@ class FileFinder(BaseFinder):
 
         if "grn_only" in self.config and self.config["grn_only"]:
             self.log.info("Filtering LRM file list for --grn_only")
-            grn_file_list = []
-            for file in file_list:
-                try:
-                    with Dataset(file) as nc:
-                        first_record_lat = nc.first_record_lat / 1e6
-                        if first_record_lat < 0.0:
-                            continue
-                        first_record_lon = nc.first_record_lon / 1e6
-                        if first_record_lon > 10.0:
-                            continue
-                        if first_record_lon < -90.0:
-                            continue
-                except OSError as exc:
-                    self.log.error("%s could not be read: %s", file, exc)
-                    continue
 
-                grn_file_list.append(file)
+            num_processes = 8
+
+            with ProcessPoolExecutor(max_workers=num_processes) as executor:
+                results = list(executor.map(test_nc_file_in_greenland, file_list))
+
+            grn_file_list = [result for result in results if result is not None]
+
+            # for file in file_list:
+            #     try:
+            #         with Dataset(file) as nc:
+            #             first_record_lat = nc.first_record_lat / 1e6
+            #             if first_record_lat < 0.0:
+            #                 continue
+            #             first_record_lon = nc.first_record_lon / 1e6
+            #             if first_record_lon > 10.0:
+            #                 continue
+            #             if first_record_lon < -90.0:
+            #                 continue
+            #     except OSError as exc:
+            #         self.log.error("%s could not be read: %s", file, exc)
+            #         continue
+
+            #     grn_file_list.append(file)
 
             file_list = grn_file_list
             self.log.info(
