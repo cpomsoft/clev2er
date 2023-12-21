@@ -100,12 +100,10 @@ def median_dem_height_around_a_point(
     if thisdem is None:
         raise ValueError("no Dem passed to median_dem_height_around_a_point")
 
-    binsize = float(thisdem.binsize)
-
-    x_min = xpos - (pulse_limited_footprint_size / 2 + binsize)
-    x_max = xpos + (pulse_limited_footprint_size / 2 + binsize)
-    y_min = ypos - (pulse_limited_footprint_size / 2 + binsize)
-    y_max = ypos + (pulse_limited_footprint_size / 2 + binsize)
+    x_min = xpos - (pulse_limited_footprint_size / 2 + thisdem.binsize)
+    x_max = xpos + (pulse_limited_footprint_size / 2 + thisdem.binsize)
+    y_min = ypos - (pulse_limited_footprint_size / 2 + thisdem.binsize)
+    y_max = ypos + (pulse_limited_footprint_size / 2 + thisdem.binsize)
 
     segment = [(x_min, x_max), (y_min, y_max)]
 
