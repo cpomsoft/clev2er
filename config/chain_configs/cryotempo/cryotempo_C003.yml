@@ -115,17 +115,29 @@ sin_geolocation:
   unwrap_trigger_m: 0
 
 lrm_lepta_geolocation:
-  # Configuration for the LRM LEPTA slope correction method (Li et al, 2022)
+  # Configuration for the LRM LEPTA slope correction method (based on Li et al, 2022)
+  #
+  # DEM selection
   antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
   greenland_dem: arcticdem_100m_greenland # Dem class name to use for the slope correction over GIS
-  use_full_leading_edge: False
   median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
-  use_mean_location_in_window: True
-  delta_range_offset: 1.25  # m as per Li et al
-  include_slope_doppler_correction: True
   include_dhdt_correction: True
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
+  # Range Search Window
+  use_full_leading_edge: False
+  use_window_around_retracking_point: True
+  delta_range_offset: 1.25  # m as per Li et al
+  # POCA x,y calculation method
+  use_mean_xy_in_window: True
+  use_xy_at_min_dem_to_sat_distance: False
+  # POCA z calculation method  
+  use_mean_z_in_window: True
+  use_median_height_around_point: False
+  # Additional height corrections
+  include_slope_doppler_correction: True
+
+
 
 height_filters:
   # maximum difference to the reference dem elevation in m

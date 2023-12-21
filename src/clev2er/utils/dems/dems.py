@@ -72,7 +72,7 @@ class Dem:
         self.zdem = np.array([])
         self.mindemx = None
         self.mindemy = None
-        self.binsize = None
+        self.binsize = 0
         self.store_in_shared_memory = store_in_shared_memory
         self.shape = ()
         self.dtype = np.float32

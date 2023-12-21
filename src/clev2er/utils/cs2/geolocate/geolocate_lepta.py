@@ -79,6 +79,64 @@ def datetime2year(date_dt):
     return date_dt.year + year_part / year_length
 
 
+def median_dem_height_around_a_point(
+    thisdem: Dem, xpos: float, ypos: float, pulse_limited_footprint_size: int
+):
+    """Find the median DEM height in a rectangle of width
+    pulse_limited_footprint_size around a x,y point
+
+    Args:
+        thisdem (Dem): Dem object used for Roemer/LEPTA correction
+        xpos (float):x location of point in m
+        ypos (float):y location of point in m
+        pulse_limited_footprint_size (int): pulse limited footprint size in m
+
+    Returns:
+        float|None
+    """
+    # get the rectangular bounds of the pulse limited footprint
+    # about the point
+
+    if thisdem is None:
+        raise ValueError("no Dem passed to median_dem_height_around_a_point")
+
+    binsize = float(thisdem.binsize)
+
+    x_min = xpos - (pulse_limited_footprint_size / 2 + binsize)
+    x_max = xpos + (pulse_limited_footprint_size / 2 + binsize)
+    y_min = ypos - (pulse_limited_footprint_size / 2 + binsize)
+    y_max = ypos + (pulse_limited_footprint_size / 2 + binsize)
+
+    segment = [(x_min, x_max), (y_min, y_max)]
+
+    # Extract the rectangular segment from the DEM
+    try:
+        _, _, zdem = thisdem.get_segment(segment, grid_xy=True, flatten=False)
+    except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
+        return None
+    except Exception:  # pylint: disable=W0718
+        return None
+
+    # Check DEM segment for bad values and remove
+    nan_mask = np.isnan(zdem)
+    include_only_good_zdem_indices = np.where(~nan_mask)[0]
+    if len(include_only_good_zdem_indices) < 1:
+        return None
+
+    zdem = zdem[include_only_good_zdem_indices]
+
+    # Only keep DEM heights which are in a sensible range
+    # this step removes DEM values set to fill_value (a high number)
+    valid_dem_heights = np.where(zdem < 5000.0)[0]
+    if len(valid_dem_heights) < 1:
+        return None
+
+    zdem = zdem[valid_dem_heights]
+
+    smoothed_zdem = median_filter(zdem, size=3)
+    return np.nanmedian(smoothed_zdem)
+
+
 def geolocate_lepta(
     l1b: Dataset,
     thisdem: Dem | None,
@@ -121,13 +179,35 @@ def geolocate_lepta(
     across_track_beam_width = config["instrument"][
         "across_track_beam_width_lrm"
     ]  # meters
+    pulse_limited_footprint_size_lrm = config["instrument"][
+        "pulse_limited_footprint_size_lrm"
+    ]  # m
 
-    delta_range_offset = config["lrm_lepta_geolocation"]["delta_range_offset"]
-    include_dhdt_correction = config["lrm_lepta_geolocation"]["include_dhdt_correction"]
-    use_mean_location_in_window = config["lrm_lepta_geolocation"][
-        "use_mean_location_in_window"
+    # Search window selection
+    use_window_around_retracking_point = config["lrm_lepta_geolocation"][
+        "use_window_around_retracking_point"
     ]
     use_full_leading_edge = config["lrm_lepta_geolocation"]["use_full_leading_edge"]
+    delta_range_offset = config["lrm_lepta_geolocation"]["delta_range_offset"]
+
+    # POCA(x,y) selection method
+    use_xy_at_min_dem_to_sat_distance = config["lrm_lepta_geolocation"][
+        "use_xy_at_min_dem_to_sat_distance"
+    ]
+    use_mean_xy_in_window = config["lrm_lepta_geolocation"]["use_mean_xy_in_window"]
+
+    # POCA(z) selection method
+    use_mean_z_in_window = config["lrm_lepta_geolocation"]["use_mean_z_in_window"]
+    use_z_at_min_dem_to_sat_distance = config["lrm_lepta_geolocation"][
+        "use_z_at_min_dem_to_sat_distance"
+    ]
+
+    use_median_height_around_point = config["lrm_lepta_geolocation"][
+        "use_median_height_around_point"
+    ]
+
+    # Additional options
+    include_dhdt_correction = config["lrm_lepta_geolocation"]["include_dhdt_correction"]
 
     # ------------------------------------------------------------------------------------
 
@@ -293,7 +373,12 @@ def geolocate_lepta(
                     dem_to_sat_dists <= range_to_le_end,
                 )
             )[0]
-        else:
+
+        # --------------------------------------------------------------------------------------
+        # Find locations in DEM to Satellite distances are within the range of the
+        # retracking point +/- an offset
+        # --------------------------------------------------------------------------------------
+        elif use_window_around_retracking_point:
             range_to_retracking_point = (
                 geo_corrected_tracker_range[i] + retracker_correction[i]
             )
@@ -319,41 +404,79 @@ def geolocate_lepta(
                         dem_to_sat_dists <= range_end,
                     )
                 )[0]
+        else:
+            raise ValueError("No LEPTA window method selected")
+        # --------------------------------------------------------------------------------------
 
         if len(indices_within_range_window) == 0:
             log.debug("No points found in DEM using LEPTA delta range offset")
             slope_ok[i] = False
             continue
 
-        dem_to_sat_dists = np.array(dem_to_sat_dists)[indices_within_range_window]
+        # Reduce DEM points to those found within range window
         xdem = xdem[indices_within_range_window]
         ydem = ydem[indices_within_range_window]
         zdem = zdem[indices_within_range_window]
+        dem_to_sat_dists = np.array(dem_to_sat_dists)[indices_within_range_window]
 
-        # use the mean location as per Li et al (2022):https://doi.org/10.5194/tc-16-2225-2022
-        # section 3.13
-        if use_mean_location_in_window:
+        # --------------------------------------------------------------------------------------
+        #  Find Location of POCA x,y
+        # --------------------------------------------------------------------------------------
+        index_of_closest = None
+
+        if use_mean_xy_in_window:
+            # use the mean location as per Li et al (2022):https://doi.org/10.5194/tc-16-2225-2022
+            # section 3.13
             poca_x[i] = np.mean(xdem)
             poca_y[i] = np.mean(ydem)
-            poca_z[i] = np.mean(zdem)
-
-            slope_correction[i] = np.nanmean(dem_to_sat_dists - (altitudes[i] - zdem))
-        else:
-            # Find index of minimum range (ie heighest point) in remaining DEM points
-            # and assign this as POCA
+        elif use_xy_at_min_dem_to_sat_distance:
             index_of_closest = np.argmin(dem_to_sat_dists)
             if index_of_closest < 0 or index_of_closest > (len(xdem) - 1):
                 slope_ok[i] = False
                 continue
-
             poca_x[i] = xdem[index_of_closest]
             poca_y[i] = ydem[index_of_closest]
+        else:
+            raise ValueError("no method selected for LEPTA POCA(x,y)")
+
+        # --------------------------------------------------------------------------------------
+        #  Find Location of POCA z
+        # --------------------------------------------------------------------------------------
+
+        if use_mean_z_in_window:
+            poca_z[i] = np.mean(zdem)
+
+            slope_correction[i] = np.nanmean(dem_to_sat_dists - (altitudes[i] - zdem))
+        elif use_z_at_min_dem_to_sat_distance:
+            # Find index of minimum range (ie heighest point) in remaining DEM points
+            # and assign this as POCA
+            if index_of_closest is None:
+                index_of_closest = np.argmin(dem_to_sat_dists)
+                if index_of_closest < 0 or index_of_closest > (len(xdem) - 1):
+                    slope_ok[i] = False
+                    continue
             poca_z[i] = zdem[index_of_closest]
 
-            # Calculate the slope correction to height
-            slope_correction[i] = (
-                dem_to_sat_dists[index_of_closest] + poca_z[i] - altitudes[i]
+        elif use_median_height_around_point:
+            poca_z[i] = median_dem_height_around_a_point(
+                thisdem,
+                poca_x[i],
+                poca_y[i],
+                pulse_limited_footprint_size_lrm,
             )
+        else:
+            raise ValueError("no method selected for LEPTA POCA(z)")
+
+        # --------------------------------------------------------------------------------------
+        #  Calculate Slope Correction
+        # --------------------------------------------------------------------------------------
+
+        dem_to_sat_dists = calculate_distances(
+            nadir_x[i], nadir_y[i], altitudes[i], [poca_x[i]], [poca_y[i]], [poca_z[i]]
+        )
+
+        # Calculate the slope correction to height
+        slope_correction[i] = dem_to_sat_dists[0] + poca_z[i] - altitudes[i]
 
     # Transform all POCA x,y to lon,lat
     lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(

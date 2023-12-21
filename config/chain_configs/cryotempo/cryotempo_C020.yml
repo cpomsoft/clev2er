@@ -6,7 +6,7 @@
 project: cryotempo
 theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
 baseline: C  # CryoTEMPO product baseline to produce: A..Z
-version: 6   # CryoTEMPO product version to produce: 1..100
+version: 20   # CryoTEMPO product version to produce: 1..100
 l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B # should contain LRM,SIN/<YYYY>/<MM>/
 l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
 # CryoTEMPO product base dir which will contain 
@@ -125,19 +125,18 @@ lrm_lepta_geolocation:
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
   # Range Search Window
-  use_full_leading_edge: True
-  use_window_around_retracking_point: False
+  use_full_leading_edge: False
+  use_window_around_retracking_point: True
   delta_range_offset: 1.25  # m as per Li et al
   # POCA x,y calculation method
-  use_mean_xy_in_window: False
-  use_xy_at_min_dem_to_sat_distance: True
+  use_mean_xy_in_window: True
+  use_xy_at_min_dem_to_sat_distance: False
   # POCA z calculation method  
+  use_z_at_min_dem_to_sat_distance: False
   use_mean_z_in_window: True
   use_median_height_around_point: False
   # Additional height corrections
   include_slope_doppler_correction: True
-
-  
 
 height_filters:
   # maximum difference to the reference dem elevation in m

@@ -1,0 +1,30 @@
+# Algorithm list for cryotempo baseline C020
+# Optional dynamically loaded modules containing a FileFinder class to use to select L1b input files
+# Class is passed month and year and base path and returns
+# a list of files using their own search logic. If multiple selector modules
+# are used, file lists are concatentated
+l1b_file_selectors:
+  - find_lrm
+  - find_sin
+# List of algorithms to call in order
+algorithms:
+  - alg_identify_file # find and store basic l1b parameters
+  - alg_skip_on_mode  # finds the instrument mode of L1b, skip SAR files
+  - alg_skip_on_area_bounds # fast area check, skip files definitely outside Antarctica and Greenlan
+  - alg_surface_type        # get surface type from Bedmachine, skip file if no grounded or floating ice
+  - alg_dilated_coastal_mask # mask records > 10km from Ant/Grn coast, skip if no records in mask
+  - alg_fes2014b_tide_correction # get FES2014b tide corrections
+  - alg_cats2008a_tide_correction # get CATS2008a tide corrections
+  - alg_geo_corrections  # calculate sum of geo-corrections
+  - alg_waveform_quality # waveform quality checks for LRM & SIN
+  - alg_retrack          # calls LRM (TCOG) or SIN (MC) retrackers
+  - alg_backscatter      # calculate backscatter
+  - alg_geolocate_lepta  # use LEPTA method to geolocate LRM measurements to POCA and calc height
+  - alg_geolocate_sin    # geolocate SIN measurements to POCA and calc height
+  - alg_basin_ids        # find ice sheet basin ids for each track location
+  - alg_ref_dem          # get reference DEM elevations for track
+  - alg_filter_height    # apply filters to height
+  - alg_uncertainty      # calculate the uncertainty for each elev measurement
+  - alg_product_output   # create the final L2 product
+ # - alg_dump            # dump the shared dict
+
