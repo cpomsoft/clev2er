@@ -16,6 +16,7 @@ from clev2er.utils.dhdt_data.dhdt import Dhdt
 # pylint config
 # Similar lines in 2 files, pylint: disable=R0801
 # Too many return statements, pylint: disable=R0911
+# Too many function args, pylint: disable=E1121
 
 
 class Algorithm(BaseAlgorithm):
@@ -156,8 +157,8 @@ class Algorithm(BaseAlgorithm):
             shared_dict["cryotempo_surface_type"],
             shared_dict["geo_corrected_tracker_range"],
             shared_dict["retracker_correction"],
-            # shared_dict["leading_edge_start"],
-            # shared_dict["leading_edge_stop"],
+            shared_dict["leading_edge_start"],
+            shared_dict["leading_edge_stop"],
             shared_dict["waveforms_to_include"],
         )
 

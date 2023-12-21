@@ -87,8 +87,8 @@ def geolocate_lepta(
     surface_type_20_ku: np.ndarray,
     geo_corrected_tracker_range: np.ndarray,
     retracker_correction: np.ndarray,
-    # leading_edge_start: np.ndarray,
-    # leading_edge_stop: np.ndarray,
+    leading_edge_start: np.ndarray,
+    leading_edge_stop: np.ndarray,
     waveforms_to_include: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Geolocate CS2 LRM measurements using an adapted LEPTA (Li et al, 2022) method
@@ -115,8 +115,8 @@ def geolocate_lepta(
     # Get configuration parameters
     # ------------------------------------------------------------------------------------
 
-    # reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
-    # range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
+    reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
+    range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
     # num_bins = config["instrument"]["num_range_bins_lrm"]
     across_track_beam_width = config["instrument"][
         "across_track_beam_width_lrm"
@@ -127,6 +127,8 @@ def geolocate_lepta(
     use_mean_location_in_window = config["lrm_lepta_geolocation"][
         "use_mean_location_in_window"
     ]
+    use_full_leading_edge = config["lrm_lepta_geolocation"]["use_full_leading_edge"]
+
     # ------------------------------------------------------------------------------------
 
     # Get nadir latitude, longitude and satellite altitude from L1b
@@ -271,35 +273,32 @@ def geolocate_lepta(
         #     geo_corrected_tracker_range[i] + (num_bins - reference_bin_index) * range_bin_size
         # )
 
-        # range_to_le_start = (
-        #     geo_corrected_tracker_range[i]
-        #     - (reference_bin_index - leading_edge_start[i][0]) * range_bin_size
-        # )
-        # range_to_le_end = (
-        #     geo_corrected_tracker_range[i]
-        #     + (leading_edge_stop[i][0] - reference_bin_index) * range_bin_size
-        # )
-
-        # le_width = range_to_le_end - range_to_le_start
-
-        range_to_retracking_point = (
-            geo_corrected_tracker_range[i] + retracker_correction[i]
-        )
-        range_start = range_to_retracking_point - delta_range_offset
-        range_end = range_to_retracking_point + delta_range_offset
-
-        indices_within_range_window = np.where(
-            np.logical_and(
-                dem_to_sat_dists >= range_start,
-                dem_to_sat_dists <= range_end,
+        # --------------------------------------------------------------------------------------
+        # Find locations in DEM to Satellite distances are within the range of the full
+        # width of the leading edge
+        # --------------------------------------------------------------------------------------
+        if use_full_leading_edge:
+            range_to_le_start = (
+                geo_corrected_tracker_range[i]
+                - (reference_bin_index - leading_edge_start[i][0]) * range_bin_size
             )
-        )[0]
+            range_to_le_end = (
+                geo_corrected_tracker_range[i]
+                + (leading_edge_stop[i][0] - reference_bin_index) * range_bin_size
+            )
 
-        if len(indices_within_range_window) == 0:
-            closest_dem_to_sat_distance = np.min(dem_to_sat_dists)
-            diff = closest_dem_to_sat_distance - range_start
-            range_start += diff
-            range_end += diff
+            indices_within_range_window = np.where(
+                np.logical_and(
+                    dem_to_sat_dists >= range_to_le_start,
+                    dem_to_sat_dists <= range_to_le_end,
+                )
+            )[0]
+        else:
+            range_to_retracking_point = (
+                geo_corrected_tracker_range[i] + retracker_correction[i]
+            )
+            range_start = range_to_retracking_point - delta_range_offset
+            range_end = range_to_retracking_point + delta_range_offset
 
             indices_within_range_window = np.where(
                 np.logical_and(
@@ -307,6 +306,19 @@ def geolocate_lepta(
                     dem_to_sat_dists <= range_end,
                 )
             )[0]
+
+            if len(indices_within_range_window) == 0:
+                closest_dem_to_sat_distance = np.min(dem_to_sat_dists)
+                diff = closest_dem_to_sat_distance - range_start
+                range_start += diff
+                range_end += diff
+
+                indices_within_range_window = np.where(
+                    np.logical_and(
+                        dem_to_sat_dists >= range_start,
+                        dem_to_sat_dists <= range_end,
+                    )
+                )[0]
 
         if len(indices_within_range_window) == 0:
             log.debug("No points found in DEM using LEPTA delta range offset")
