@@ -134,6 +134,7 @@ lrm_lepta_geolocation:
   # POCA z calculation method  
   use_z_at_min_dem_to_sat_distance: False
   use_mean_z_in_window: True
+  use_median_z_in_window: False
   use_median_height_around_point: False
   # Additional height corrections
   include_slope_doppler_correction: True

@@ -196,6 +196,8 @@ def geolocate_lepta(
 
     # POCA(z) selection method
     use_mean_z_in_window = config["lrm_lepta_geolocation"]["use_mean_z_in_window"]
+    use_median_z_in_window = config["lrm_lepta_geolocation"]["use_median_z_in_window"]
+
     use_z_at_min_dem_to_sat_distance = config["lrm_lepta_geolocation"][
         "use_z_at_min_dem_to_sat_distance"
     ]
@@ -443,8 +445,9 @@ def geolocate_lepta(
 
         if use_mean_z_in_window:
             poca_z[i] = np.mean(zdem)
+        elif use_median_z_in_window:
+            poca_z[i] = np.median(zdem)
 
-            slope_correction[i] = np.nanmean(dem_to_sat_dists - (altitudes[i] - zdem))
         elif use_z_at_min_dem_to_sat_distance:
             # Find index of minimum range (ie heighest point) in remaining DEM points
             # and assign this as POCA
