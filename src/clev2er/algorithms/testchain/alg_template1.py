@@ -28,6 +28,7 @@
     None
 """
 
+from time import sleep
 from typing import Tuple
 
 from codetiming import Timer  # used to time the Algorithm.process() function
@@ -116,6 +117,9 @@ class Algorithm(BaseAlgorithm):
         # Perform the algorithm processing, store results that need to be passed
         # \/    down the chain in the 'shared_dict' dict     \/
         # -------------------------------------------------------------------
+
+        sleep(5)  # dummy operation
+        self.log.debug("example debug message")
 
         # example line below to calculate 2 x ocean_tide_01 in shared_dict,
         # remove/adapt the following line in real algorithm

@@ -330,18 +330,13 @@ def mp_logger_process(queue, config) -> None:
     logger.addHandler(file_handler_info)
 
     # include all allowed log levels up to DEBUG
-    file_handler_debug = logging.FileHandler(
-        config["log_files"]["debug"] + ".mp", mode="w"
-    )
-    file_handler_debug.setFormatter(log_formatter)
-    file_handler_debug.setLevel(logging.DEBUG)
-    logger.addHandler(file_handler_debug)
-
-    # Stream handler disabled for multi-processing as it causes intermixed log messages
-    # configure a stream handler
-    # logger.addHandler(logging.StreamHandler())
-    # log all messages, debug and up
-    # logger.setLevel(logging.DEBUG)
+    if config["log_files"]["debug_mode"]:
+        file_handler_debug = logging.FileHandler(
+            config["log_files"]["debug"] + ".mp", mode="w"
+        )
+        file_handler_debug.setFormatter(log_formatter)
+        file_handler_debug.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler_debug)
 
     # run forever
     while True:
@@ -938,6 +933,9 @@ def main() -> None:
         modified_args.append("quiet=True")
     if args.debug:
         modified_args.append("debug=True")
+        config["log_files"]["debug_mode"] = True
+    else:
+        config["log_files"]["debug_mode"] = False
     if args.max_files:
         modified_args.append(f"max_files={args.max_files}")
     if args.alglist:
