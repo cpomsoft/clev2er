@@ -1,0 +1,167 @@
+# Cryo-TEMPO Baseline settings
+project: cryotempo
+theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
+baseline: B  # CryoTEMPO product baseline to produce: A..Z
+version: 1   # CryoTEMPO product version to produce: 1..100
+l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B # should contain LRM,SIN/<YYYY>/<MM>/
+l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
+# CryoTEMPO product base dir which will contain 
+# /<baseline>/<version:03>/LAND_ICE/<ANTARC,GREENL>/<YYYY>/<MM>/
+product_base_dir: /raid6/cryo-tempo/product_baselines
+
+# Set breakpoint file directory
+breakpoint_files:
+  default_dir: /tmp
+  
+# Default locations for log files
+log_files:
+  append_year_month_to_logname: true  # if chain is run for specific month and year, use <logtype>_MMYYYY.log
+                                   # or <logtype>_YYYY.log (if only year specified) 
+  errors: ${CT_LOG_DIR}/errors.log  # or errors_MMYYYY.log
+  info:   ${CT_LOG_DIR}/info.log
+  debug:  ${CT_LOG_DIR}/debug.log
+
+# CS2 instrument parameters
+instrument:
+  wavelength: 0.022084
+  baseline: 1.1676
+  # The '+' in the exponential format below is ABSOLUTELY required, or will be seen as a str
+  chirp_slope: 7.142857E+12
+  num_range_bins_lrm: 128
+  ref_bin_index_lrm: 64
+  range_bin_size_lrm: 0.468425715625  # c/(2*chirp_bandwidth), in meters
+  across_track_beam_width_lrm: 15000 # approx, meters
+  along_track_beam_width_lrm: 15000 # approx, meters
+  pulse_limited_footprint_size_lrm: 1600 # meters
+
+# Calibration parameters derived by experiment
+calibration:
+  inferred_angle_cal_mult: 1.02775
+  inferred_angle_cal_add: 0.0
+
+# Waveform Quality Tests
+lrm_waveform_quality_tests:
+  low_peakiness_threshold: 0.85
+  high_peakiness_threshold: 3.0
+  total_power_threshold: 3e-16
+
+sin_waveform_quality_tests:
+  low_peakiness_threshold: 0.9
+  total_power_threshold: 5e-17
+  low_position_max_power: 2
+  high_position_max_power: 1011
+
+# Retracker Thresholds
+# TCOG Retracker
+tcog_retracker:
+  retrack_threshold_lrm: 0.2
+  retrack_threshold_sin: 0.5
+  ref_bin_ind_lrm: 64
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.5
+  show_plots: false
+
+# Maximum Coherence Retracker
+mc_retracker:
+  ref_bin_ind_sin: 512
+  noise_sample_limit: 6
+  savitsky_golay_width: 9
+  savitsky_golay_poly_order: 3
+  wf_oversampling_factor: 100
+  noise_threshold: 0.3
+  le_id_threshold: 0.05
+  le_dp_threshold: 0.2
+  coherence_smoothing_width: 9 
+  show_plots: false
+
+# Backscatter
+backscatter:
+  sigma_bias_lrm: 3.45         
+  sigma_bias_sin: 13.23   
+
+# Geolocation
+sin_geolocation:
+  # Flag heights out of these bounds as bad
+  height_min: -2000.0
+  height_max: 10000.0
+  # Phase method: 1 = least_squares; 2 = curve_fit; 3 = sample window
+  phase_method: 3
+  # Window centred on retrack location
+  phase_window_width: 10
+  # If do_three True then do two additional fits, seeded with non-zero phase slope
+  do_three: True
+  # These parameters are for the sample window method only
+  # If mask is True, mask out coherence values lower than the threshold
+  mask: False
+  mask_coh_ths: 0.7
+  # How to sample the window:
+  #   max = take the phase at maximum coherence
+  #   interp = linear interpolate phase from the two bins bounding the retrack point
+  #   Default in the average of these is to take the mean of the non-masked values.
+  window_method: "max"
+  # If True, geolocate using computed phase and unwrapped phase and keep the better
+  # solution (as determined by delta from a DEM)
+  unwrap: True
+  unwrap_trigger_m: 0
+
+height_filters:
+  # maximum difference to the reference dem elevation in m
+  max_diff_to_ref_dem: 50
+  max_elevation_antarctica: 4900
+  min_elevation_antarctica: -500
+  max_elevation_greenland: 3900
+  min_elevation_greenland: -500
+
+
+# Geophysical parameters
+geophysical:
+  earth_semi_major: 6378137.0
+  eccentricity: 0.08181919078479198
+  speed_light: 299792458.0
+
+#-------------------------------------------------------------------------------------
+# Resource Locators
+#-------------------------------------------------------------------------------------
+
+surface_type_masks:
+  antarctica_bedmachine_v2_grid_mask: ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/BedMachineAntarctica_2020-07-15_v02.nc
+  greenland_bedmachine_v3_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/BedMachineGreenland-2017-09-20.nc
+  antarctica_iceandland_dilated_10km_grid_mask:  ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/antarctica/bedmachine_v2/dilated_10km_mask.npz
+  greenland_iceandland_dilated_10km_grid_mask:   ${CPDATA_DIR}/RESOURCES/surface_discrimination_masks/greenland/bedmachine_v3/dilated_10km_mask.npz
+
+basin_masks:
+  antarctic_grounded_and_floating_2km_grid_mask: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/antarctica/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins/basins/zwally_2012_imbie1_ant_grounded_and_floating_icesheet_basins_2km.nc
+  greenland_icesheet_2km_grid_mask:  ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/zwally_2012_grn_icesheet_basins/basins/Zwally_GIS_basins_2km.nc
+  antarctic_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/antarctica/rignot_2016_imbie2_ant_grounded_icesheet_basins/basins/rignot_2016_imbie2_ant_grounded_icesheet_basins_2km.nc
+  greenland_icesheet_2km_grid_mask_rignot2016: ${CPOM_SOFTWARE_DIR}/cpom/resources/drainage_basins/greenland/GRE_Basins_IMBIE2_v1.3/basins/rignot_2016_imbie2_grn_grounded_icesheet_basins_2km.nc
+
+tides:
+  fes2014b_base_dir: ${FES2014B_BASE_DIR} # set to base dir of FES2014 (containing LRM,SIN/<YYYY>/<MM>/CS*.fes2014b.nc)
+  cats2008a_base_dir: ${CATS2008A_BASE_DIR} # set to base dir of CATS2008a (containing <YYYY>/<MM>/CS*_cats2008a_tides.nc)
+
+slope_models:
+  # Set to dir containing /cs2/CS_OPER_AUX_SLPMSL*.DBL
+  model_file: ${CS2_SLOPE_MODELS_DIR}/cs2/CS_OPER_AUX_SLPMSL_00000000T000000_99999999T999999_0007.DBL
+
+dem_dirs:
+  rema_ant_1km: ${CPDATA_DIR}/SATS/RA/DEMS/rema_1km_dem
+  arcticdem_1km: ${CPDATA_DIR}/SATS/RA/DEMS/arctic_dem_1km
+
+uncertainty_tables:
+  # Set to dir containing /data/uncertainty_tables/<antarctica,greenland>_uncertainty_from_is2.npz
+  base_dir: ${CS2_UNCERTAINTY_BASE_DIR}/data/uncertainty_tables
+
+slope_data:
+  cpom_ant_2018_1km_slopes: ${CPDATA_DIR}/SATS/RA/DEMS/ant_cpom_cs2_1km/Antarctica_Cryosat2_1km_DEMv1.0_slope.unpacked.tif
+  awi_grn_2013_1km_slopes:  ${CPDATA_DIR}/SATS/RA/DEMS/grn_awi_2013_dem/grn_awi_2013_dem_slope.nc
+
+leap_seconds: ${CPOM_SOFTWARE_DIR}/cpom/resources/leap_seconds/leap-seconds.list
+
+  
+  
