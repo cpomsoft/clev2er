@@ -119,7 +119,7 @@ class Algorithm(BaseAlgorithm):
         # -------------------------------------------------------------------
 
         sleep(5)  # dummy operation
-        self.log.debug("example debug message")
+        self.log.debug("example of a debug message")
 
         # example line below to calculate 2 x ocean_tide_01 in shared_dict,
         # remove/adapt the following line in real algorithm
