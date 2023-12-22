@@ -131,8 +131,8 @@ def median_dem_height_around_a_point(
 
     zdem = zdem[valid_dem_heights]
 
-    smoothed_zdem = median_filter(zdem, size=3)
-    return np.nanmedian(smoothed_zdem)
+    # smoothed_zdem = median_filter(zdem, size=3)
+    return np.nanmedian(zdem)
 
 
 def geolocate_lepta(
