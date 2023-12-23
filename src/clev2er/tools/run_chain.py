@@ -310,7 +310,11 @@ def mp_logger_process(queue, config) -> None:
     """
     # create a logger
     logger = logging.getLogger("mp")
-    log_format = "[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s"
+    if config["log_files"]["debug_mode"]:
+        log_format = "[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s"
+    else:
+        log_format = "[%(levelname)-2s] : %(asctime)s :  %(message)s"
+
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
 
     # only includes ERROR level messages

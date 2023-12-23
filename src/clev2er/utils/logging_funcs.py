@@ -10,7 +10,8 @@ import logging
 
 
 def get_logger(
-    log_format="[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s",
+    log_format="[%(levelname)-2s] : %(asctime)s : %(message)s",
+    log_format_debug="[%(levelname)-2s] : %(asctime)s : %(name)-12s :  %(message)s",
     log_name="",
     log_file_info="info.log",
     log_file_error="err.log",
@@ -42,6 +43,9 @@ def get_logger(
     log = logging.getLogger(log_name)
     log.propagate = True
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
+    log_formatter_debug = logging.Formatter(
+        log_format_debug, datefmt="%d/%m/%Y %H:%M:%S"
+    )
 
     # log messages -> stdout
     if not silent:
@@ -71,7 +75,7 @@ def get_logger(
         # to the log file path : log_file_error
         # will include messages for levels: DEBUG, INFO, WARNING, ERROR, and CRITICAL
         file_handler_debug = logging.FileHandler(log_file_debug, mode="w")
-        file_handler_debug.setFormatter(log_formatter)
+        file_handler_debug.setFormatter(log_formatter_debug)
         file_handler_debug.setLevel(logging.DEBUG)
         log.addHandler(file_handler_debug)
 
