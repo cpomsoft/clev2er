@@ -15,6 +15,7 @@ import numpy as np
 import pyproj
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pyproj import Transformer
+from scipy.interpolate import RectBivariateSpline
 from scipy.ndimage import median_filter
 
 from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
@@ -195,6 +196,8 @@ def geolocate_roemer(
         "max_poca_reloc_distance"
     ]
 
+    interpolate_to_10m = config["lrm_roemer_geolocation"]["interpolate_to_10m"]
+
     # ------------------------------------------------------------------------------------
 
     # Get nadir latitude, longitude and satellite altitude from L1b
@@ -338,6 +341,80 @@ def geolocate_roemer(
             poca_x[i] = this_poca_x
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
+
+            if interpolate_to_10m:
+                # Create finer grid to 10m resolution around poca
+                # -------------------------------------
+
+                # get the rectangular bounds about the track, adjusted for pulse limited width and
+                # the dem posting
+                x_min = poca_x[i] - (
+                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
+                )
+                x_max = poca_x[i] + (
+                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
+                )
+                y_min = poca_y[i] - (
+                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
+                )
+                y_max = poca_y[i] + (
+                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
+                )
+
+                segment = [(x_min, x_max), (y_min, y_max)]
+
+                # Extract the rectangular segment from the DEM
+                try:
+                    xdem, ydem, zdem = thisdem.get_segment(
+                        segment, grid_xy=True, flatten=False
+                    )
+                except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
+                    slope_ok[i] = False
+                    continue
+                except Exception:  # pylint: disable=W0718
+                    slope_ok[i] = False
+                    continue
+
+                # Only keep DEM heights which are in a sensible range
+                # this step removes DEM values set to most fill_values
+                valid_dem_heights = np.where(np.abs(zdem) < 5000.0)[0]
+                if len(valid_dem_heights) < 1:
+                    slope_ok[i] = False
+                    continue
+
+                zdem[valid_dem_heights] = np.nan
+
+                # create vectors
+                x_new = np.linspace(
+                    np.min(xdem),
+                    np.max(xdem),
+                    num=int((np.max(xdem) - np.min(xdem)) / 10),
+                )
+                y_new = np.linspace(
+                    np.min(ydem),
+                    np.max(ydem),
+                    num=int((np.max(ydem) - np.min(ydem)) / 10),
+                )
+
+                # Interpolate using RectBivariateSpline
+                interp_spline = RectBivariateSpline(xdem, ydem, zdem)
+                z_new = interp_spline(x_new, y_new)
+
+                # Find the POCA location and slope correction to height
+                (
+                    this_poca_x,
+                    this_poca_y,
+                    this_poca_z,
+                    slope_correction_to_height,
+                    flg_success,
+                ) = find_poca(z_new, x_new, y_new, nadir_x[i], nadir_y[i], altitudes[i])
+                if not flg_success:
+                    slope_ok[i] = False
+                    continue
+                poca_x[i] = this_poca_x
+                poca_y[i] = this_poca_y
+                poca_z[i] = this_poca_z
+
             slope_correction[i] = slope_correction_to_height
             dist_reloc = np.sqrt(
                 (this_poca_x - nadir_x[i]) ** 2 + (this_poca_y - nadir_y[i]) ** 2
