@@ -150,7 +150,7 @@ lrm_roemer_geolocation:
   include_dhdt_correction: True
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
-  max_poca_reloc_distance: 7000
+  max_poca_reloc_distance: 4000
 
   # Method to use
   cls_method: True
