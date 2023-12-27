@@ -117,6 +117,17 @@ class Algorithm(BaseAlgorithm):
 
         max_diff = self.config["height_filters"]["max_diff_to_ref_dem"]
 
+        if (
+            "max_diff_to_ref_dem_lrm" in self.config["height_filters"]
+            and shared_dict["instr_mode"] == "LRM"
+        ):
+            max_diff = self.config["height_filters"]["max_diff_to_ref_dem_lrm"]
+        if (
+            "max_diff_to_ref_dem_sin" in self.config["height_filters"]
+            and shared_dict["instr_mode"] == "SIN"
+        ):
+            max_diff = self.config["height_filters"]["max_diff_to_ref_dem_sin"]
+
         elevation_outliers = np.where(
             np.abs(shared_dict["height_20_ku"] - shared_dict["dem_elevation_values"])
             > max_diff

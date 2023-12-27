@@ -31,6 +31,7 @@ dem_list = [
     "rema_ant_200m",  # Antarctic REMA v1.1 at 200m
     "arcticdem_1km",  # ArcticDEM v3.0 at 1km
     "arcticdem_100m_greenland",  # ArcticDEM v3.0, 100m resolution, subarea greenland
+    "arcticdem_100m_greenland_v4.1",  # ArcticDEM v4.1, 100m resolution, subarea greenland
 ]
 
 
@@ -391,6 +392,32 @@ class Dem:
             )
             self.src_url_filled = ""
             self.dem_version = "3.0"
+            self.src_institute = "PGC"
+            self.long_name = "ArcticDem 100m, Greenland"
+            self.crs_bng = CRS(
+                "epsg:3413"
+            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.southern_hemisphere = False
+            self.void_value = -9999
+            self.dtype = np.float32
+        # --------------------------------------------------------------------------------
+        elif self.name == "arcticdem_100m_greenland_v4.1":
+            # 100m DEM (subarea of Greenland) extracted from ArcticDem v4.1
+            # The void areas will contain null values (-9999) in lieu of the terrain elevations.
+            filename = "arcticdem_mosaic_100m_v4.1_subarea_greenland.tif"
+            filled_filename = ""  # No filled version available
+            default_dir = (
+                f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/arctic_dem_100m_v4.1'
+            )
+            self.src_url = (
+                "https://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/v3.0/100m/"
+                "arcticdem_mosaic_100m_v3.0.tif"
+            )
+            self.reference_year = (
+                2010  # YYYY, the year the DEM's elevations are referenced to
+            )
+            self.src_url_filled = ""
+            self.dem_version = "4.1"
             self.src_institute = "PGC"
             self.long_name = "ArcticDem 100m, Greenland"
             self.crs_bng = CRS(

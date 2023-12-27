@@ -6,7 +6,7 @@
 project: cryotempo
 theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
 baseline: C  # CryoTEMPO product baseline to produce: A..Z
-version: 72   # CryoTEMPO product version to produce: 1..100
+version: 73   # CryoTEMPO product version to produce: 1..100
 l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B # should contain LRM,SIN/<YYYY>/<MM>/
 l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
 # CryoTEMPO product base dir which will contain 
@@ -145,9 +145,9 @@ lrm_roemer_geolocation:
   #
   # DEM selection
   antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
-  greenland_dem: arcticdem_100m_greenland # Dem class name to use for the slope correction over GIS
+  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for the slope correction over GIS
   median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
-  include_dhdt_correction: True
+  include_dhdt_correction: False
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
   max_poca_reloc_distance: 6000
@@ -161,7 +161,8 @@ lrm_roemer_geolocation:
 
 height_filters:
   # maximum difference to the reference dem elevation in m
-  max_diff_to_ref_dem: 50
+  max_diff_to_ref_dem_sin: 50
+  max_diff_to_ref_dem_lrm: 30
   max_elevation_antarctica: 4900
   min_elevation_antarctica: -500
   max_elevation_greenland: 3900
