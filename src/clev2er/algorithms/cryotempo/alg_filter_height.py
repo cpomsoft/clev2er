@@ -13,6 +13,7 @@ from clev2er.algorithms.base.base_alg import BaseAlgorithm
 # pylint config
 # Similar lines in 2 files, pylint: disable=R0801
 # Too many return statements, pylint: disable=R0911
+# pylint: disable=too-many-branches
 
 
 class Algorithm(BaseAlgorithm):
@@ -122,11 +123,16 @@ class Algorithm(BaseAlgorithm):
             and shared_dict["instr_mode"] == "LRM"
         ):
             max_diff = self.config["height_filters"]["max_diff_to_ref_dem_lrm"]
-        if (
+        elif (
             "max_diff_to_ref_dem_sin" in self.config["height_filters"]
             and shared_dict["instr_mode"] == "SIN"
         ):
             max_diff = self.config["height_filters"]["max_diff_to_ref_dem_sin"]
+        elif "max_diff_to_ref_dem" in self.config["height_filters"]:
+            max_diff = self.config["height_filters"]["max_diff_to_ref_dem"]
+        else:
+            self.log.error("max_diff_to_ref_dem[_lrm,sin] not in height_filters")
+            raise ValueError("max_diff_to_ref_dem[_lrm,sin] not in height_filters")
 
         elevation_outliers = np.where(
             np.abs(shared_dict["height_20_ku"] - shared_dict["dem_elevation_values"])
