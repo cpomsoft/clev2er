@@ -138,7 +138,8 @@ class Algorithm(BaseAlgorithm):
         if elevation_outliers.size > 0:
             shared_dict["height_filt"][elevation_outliers] = np.nan
             self.log.info(
-                "Number of elevation outliers > |50m| from DEM : %d",
+                "Number of elevation outliers > |%d m| from DEM : %d",
+                max_diff,
                 elevation_outliers.size,
             )
 

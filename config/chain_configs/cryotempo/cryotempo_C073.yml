@@ -58,7 +58,7 @@ sin_waveform_quality_tests:
 # Retracker Thresholds
 # TCOG Retracker
 tcog_retracker:
-  retrack_threshold_lrm: 0.1 # Note was 0.2 in Baseline-B
+  retrack_threshold_lrm: 0.2 # Note was 0.2 in Baseline-B
   retrack_threshold_sin: 0.5
   ref_bin_ind_lrm: 64
   ref_bin_ind_sin: 512
@@ -68,7 +68,7 @@ tcog_retracker:
   wf_oversampling_factor: 100
   noise_threshold: 0.3
   le_id_threshold: 0.05
-  le_dp_threshold: 0.5
+  le_dp_threshold: 0.4
   show_plots: false
 
 # Maximum Coherence Retracker
@@ -150,7 +150,7 @@ lrm_roemer_geolocation:
   include_dhdt_correction: False
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
-  max_poca_reloc_distance: 6000
+  max_poca_reloc_distance: 7000
 
   # Method to use
   cls_method: True
