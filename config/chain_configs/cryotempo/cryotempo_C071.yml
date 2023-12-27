@@ -146,8 +146,8 @@ lrm_roemer_geolocation:
   # DEM selection
   antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
   greenland_dem: arcticdem_100m_greenland # Dem class name to use for the slope correction over GIS
-  median_filter: True # Apply 3x3 median filter to DEM segments extracted around each nadir point
-  include_dhdt_correction: False
+  median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
+  include_dhdt_correction: True
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
 
