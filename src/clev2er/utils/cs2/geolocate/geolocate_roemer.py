@@ -191,6 +191,10 @@ def geolocate_roemer(
         "include_dhdt_correction"
     ]
 
+    max_poca_reloc_distance = config["lrm_roemer_geolocation"][
+        "max_poca_reloc_distance"
+    ]
+
     # ------------------------------------------------------------------------------------
 
     # Get nadir latitude, longitude and satellite altitude from L1b
@@ -335,6 +339,11 @@ def geolocate_roemer(
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
             slope_correction[i] = slope_correction_to_height
+            dist_reloc = np.sqrt(
+                (this_poca_x - nadir_x[i]) ** 2 + (this_poca_y - nadir_y[i]) ** 2
+            )
+            if dist_reloc > max_poca_reloc_distance:
+                slope_ok[i] = False
 
         if config["lrm_roemer_geolocation"]["use_sliding_window"]:
             # Step 1: Calculate all distances once
