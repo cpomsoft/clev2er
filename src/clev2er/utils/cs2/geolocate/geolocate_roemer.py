@@ -15,6 +15,7 @@ import numpy as np
 import pyproj
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pyproj import Transformer
+from scipy.ndimage import median_filter
 
 from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
 from clev2er.utils.dems.dems import Dem
@@ -262,6 +263,10 @@ def geolocate_roemer(
         except Exception:  # pylint: disable=W0718
             slope_ok[i] = False
             continue
+
+        if config["lrm_roemer_geolocation"]["median_filter"]:
+            smoothed_zdem = median_filter(zdem, size=3)
+            zdem = smoothed_zdem
 
         if config["lrm_roemer_geolocation"]["cls_method"]:
             # Step 1: find the DEM points within a circular area centred on the nadir
