@@ -99,7 +99,6 @@ class Algorithm(BaseAlgorithm):
 
         # Test if config contains required height filters
         height_filters = [
-            "max_diff_to_ref_dem",
             "min_elevation_antarctica",
             "max_elevation_antarctica",
             "min_elevation_greenland",
