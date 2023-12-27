@@ -149,6 +149,8 @@ class Algorithm(BaseAlgorithm):
             thisdem = self.dem_grn
             thisdhdt = self.dhdt_grn
 
+        # Run the slope correction to calculate POCA lat,lon and height
+        # If geolocation fails, lat,lon are set to nadir and height to np.nan
         height_20_ku, lat_poca_20_ku, lon_poca_20_ku, slope_ok = geolocate_roemer(
             l1b,
             thisdem,
@@ -160,33 +162,19 @@ class Algorithm(BaseAlgorithm):
             shared_dict["waveforms_to_include"],
         )
 
-        self.log.info("LRM geolocation completed")
+        self.log.info("LRM roemer geolocation completed")
+        self.log.info(
+            "Roemer slope correction succeded in %.2f %% of measurements",
+            np.mean(slope_ok) * 100,
+        )
 
         shared_dict["lat_poca_20_ku"] = lat_poca_20_ku
         np.seterr(under="ignore")  # otherwise next line can fail
         shared_dict["lon_poca_20_ku"] = lon_poca_20_ku % 360.0
+        shared_dict["latitudes"] = lat_poca_20_ku
+        shared_dict["longitudes"] = lon_poca_20_ku
         shared_dict["height_20_ku"] = height_20_ku
         shared_dict["roemer_slope_ok"] = slope_ok
-
-        # Calculate final product latitudes, longitudes from POCA, set to
-        # nadir where no POCA available
-
-        poca_failed = np.where(np.isnan(lat_poca_20_ku))[0]
-
-        latitudes = lat_poca_20_ku
-        longitudes = lon_poca_20_ku
-
-        if poca_failed.size > 0:
-            self.log.info(
-                "POCA replaced by nadir in %d of %d measurements ",
-                poca_failed.size,
-                latitudes.size,
-            )
-            latitudes[poca_failed] = l1b["lat_20_ku"][:].data[poca_failed]
-            longitudes[poca_failed] = l1b["lon_20_ku"][:].data[poca_failed]
-
-        shared_dict["latitudes"] = latitudes
-        shared_dict["longitudes"] = longitudes
 
         # Return success (True,'')
         return (True, "")

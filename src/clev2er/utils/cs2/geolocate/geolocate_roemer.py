@@ -70,10 +70,11 @@ def calculate_distances(
 
 
 def find_poca(dem_interp_f, gridx_f, gridy_f, nadir_x, nadir_y, alt_pt):
-    """CLS Function that finds the POCA using Roemer et al. method (shortest range in the DEM)
+    """CLS/McMillan Function that finds the POCA using Roemer et al. method
+    (shortest range in the DEM segment)
 
     Args:
-        dem_interp_f (_type_): _description_
+        dem_interp_f (_type_): DEM
         gridx_f (_type_): _description_
         gridy_f (_type_): _description_
         nadir_x (_type_): x location of nadir in polar stereo coordinates (m)
@@ -140,62 +141,6 @@ def datetime2year(date_dt):
         year=date_dt.year, month=1, day=1
     )
     return date_dt.year + year_part / year_length
-
-
-def median_dem_height_around_a_point(
-    thisdem: Dem, xpos: float, ypos: float, pulse_limited_footprint_size: int
-):
-    """Find the median DEM height in a rectangle of width
-    pulse_limited_footprint_size around a x,y point
-
-    Args:
-        thisdem (Dem): Dem object used for Roemer/LEPTA correction
-        xpos (float):x location of point in m
-        ypos (float):y location of point in m
-        pulse_limited_footprint_size (int): pulse limited footprint size in m
-
-    Returns:
-        float|None
-    """
-    # get the rectangular bounds of the pulse limited footprint
-    # about the point
-
-    if thisdem is None:
-        raise ValueError("no Dem passed to median_dem_height_around_a_point")
-
-    x_min = xpos - (pulse_limited_footprint_size / 2 + thisdem.binsize)
-    x_max = xpos + (pulse_limited_footprint_size / 2 + thisdem.binsize)
-    y_min = ypos - (pulse_limited_footprint_size / 2 + thisdem.binsize)
-    y_max = ypos + (pulse_limited_footprint_size / 2 + thisdem.binsize)
-
-    segment = [(x_min, x_max), (y_min, y_max)]
-
-    # Extract the rectangular segment from the DEM
-    try:
-        _, _, zdem = thisdem.get_segment(segment, grid_xy=True, flatten=False)
-    except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
-        return None
-    except Exception:  # pylint: disable=W0718
-        return None
-
-    # Check DEM segment for bad values and remove
-    nan_mask = np.isnan(zdem)
-    include_only_good_zdem_indices = np.where(~nan_mask)[0]
-    if len(include_only_good_zdem_indices) < 1:
-        return None
-
-    zdem = zdem[include_only_good_zdem_indices]
-
-    # Only keep DEM heights which are in a sensible range
-    # this step removes DEM values set to fill_value (a high number)
-    valid_dem_heights = np.where(zdem < 5000.0)[0]
-    if len(valid_dem_heights) < 1:
-        return None
-
-    zdem = zdem[valid_dem_heights]
-
-    # smoothed_zdem = median_filter(zdem, size=3)
-    return np.nanmedian(zdem)
 
 
 def geolocate_roemer(
@@ -319,6 +264,8 @@ def geolocate_roemer(
             continue
 
         if config["lrm_roemer_geolocation"]["cls_method"]:
+            # Step 1: find the DEM points within a circular area centred on the nadir
+            # point corresponding to a radius of half the beam width
             xdem = xdem.flatten()
             ydem = ydem.flatten()
             zdem = zdem.flatten()
@@ -340,7 +287,7 @@ def geolocate_roemer(
             ydem = ydem[include_dem_indices]
             zdem = zdem[include_dem_indices]
 
-            # Check DEM segment for bad values and remove
+            # Check remaining DEM points for bad height values and remove
             nan_mask = np.isnan(zdem)
             include_only_good_zdem_indices = np.where(~nan_mask)[0]
             if len(include_only_good_zdem_indices) < 1:
@@ -352,8 +299,8 @@ def geolocate_roemer(
             zdem = zdem[include_only_good_zdem_indices]
 
             # Only keep DEM heights which are in a sensible range
-            # this step removes DEM values set to fill_value (a high number)
-            valid_dem_heights = np.where(zdem < 5000.0)[0]
+            # this step removes DEM values set to most fill_values
+            valid_dem_heights = np.where(np.abs(zdem) < 5000.0)[0]
             if len(valid_dem_heights) < 1:
                 slope_ok[i] = False
                 continue
@@ -368,11 +315,7 @@ def geolocate_roemer(
                     # find dh/dt * year_difference at each DEM location
                     zdem += thisdhdt.interp_dhdt(xdem, ydem) * year_difference
 
-            # Compute distance between each remaining dem location and satellite
-            dem_to_sat_dists = calculate_distances(
-                nadir_x[i], nadir_y[i], altitudes[i], xdem, ydem, zdem
-            )
-
+            # Find the POCA location and slope correction to height
             (
                 this_poca_x,
                 this_poca_y,
@@ -386,7 +329,6 @@ def geolocate_roemer(
             poca_x[i] = this_poca_x
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
-
             slope_correction[i] = slope_correction_to_height
 
         if config["lrm_roemer_geolocation"]["use_sliding_window"]:
@@ -461,8 +403,7 @@ def geolocate_roemer(
     # Calculate height as altitude-(corrected range)+slope_correction
     height_20_ku = np.full_like(lat_20_ku, np.nan)
 
-    num_measurements = len(lat_20_ku)
-    for i in range(num_measurements):
+    for i in range(len(lat_20_ku)):  # pylint: disable=consider-using-enumerate
         if np.isfinite(geo_corrected_tracker_range[i]):
             if slope_ok[i] and surface_type_20_ku[i] == 1:  # grounded ice type only
                 height_20_ku[i] = (
