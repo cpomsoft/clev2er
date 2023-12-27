@@ -115,8 +115,6 @@ class Algorithm(BaseAlgorithm):
         # Set elevation to nan where it differs from reference DEM by more than Nm
         # --------------------------------------------------------------------------
 
-        max_diff = self.config["height_filters"]["max_diff_to_ref_dem"]
-
         if (
             "max_diff_to_ref_dem_lrm" in self.config["height_filters"]
             and shared_dict["instr_mode"] == "LRM"
