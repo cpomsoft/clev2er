@@ -41,6 +41,7 @@ import os
 import re
 import sys
 import time
+import traceback
 import types
 from logging.handlers import QueueHandler
 from math import ceil
@@ -282,8 +283,8 @@ def run_chain_on_single_file(
                     if alg_obj.initialized:
                         alg_obj.finalize(stage=6)
 
-    except (IOError, ValueError, KeyError) as exc:
-        error_str = f"Error processing {l1b_file}: {exc}"
+    except (IOError, ValueError, KeyError):
+        error_str = f"Error processing {l1b_file}: {traceback.format_exc()}"
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
             if rval_queue is not None:
@@ -411,8 +412,10 @@ def run_chain(
         # Load/Initialize algorithm
         try:
             alg_obj = module.Algorithm(config, log)
-        except (FileNotFoundError, IOError, KeyError, ValueError) as exc:
-            log.error("Could not initialize algorithm %s, %s", alg, exc)
+        except (FileNotFoundError, IOError, KeyError, ValueError):
+            log.error(
+                "Could not initialize algorithm %s, %s", alg, traceback.format_exc()
+            )
             return (False, 1, 0, 0)
 
         alg_object_list.append(alg_obj)
@@ -433,9 +436,11 @@ def run_chain(
             # Load/Initialize algorithm
             try:
                 alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True}, log)
-            except (FileNotFoundError, IOError, KeyError, ValueError) as exc:
+            except (FileNotFoundError, IOError, KeyError, ValueError):
                 log.error(
-                    "Could not initialize algorithm for shared_memory %s, %s", alg, exc
+                    "Could not initialize algorithm for shared_memory %s, %s",
+                    alg,
+                    traceback.format_exc(),
                 )
                 # If there is a failure we must clean up any shared memory already allocated
                 for alg_obj_shm in shared_mem_alg_object_list:
@@ -902,8 +907,8 @@ def main() -> None:
             main_config_file=args.mconf,
             chain_config_file=args.conf,
         )
-    except (KeyError, OSError, ValueError) as exc:
-        sys.exit(f"Loading config file error: {exc}")
+    except (KeyError, OSError, ValueError):
+        sys.exit(f"Loading config file error: {traceback.format_exc()}")
 
     if args.baseline:
         if config["baseline"] != args.baseline:
@@ -1143,8 +1148,8 @@ def main() -> None:
             alg_list_file=args.alglist,
             log=log,
         )
-    except (KeyError, OSError, ValueError) as exc:
-        log.error("Loading algorithm list file failed : %s", exc)
+    except (KeyError, OSError, ValueError):
+        log.error("Loading algorithm list file failed : %s", traceback.format_exc())
         sys.exit(1)
 
     if args.breakpoint_after:

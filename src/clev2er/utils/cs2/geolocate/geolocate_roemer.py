@@ -278,7 +278,7 @@ def geolocate_roemer(
             slope_ok[i] = False
             continue
 
-        if config["lrm_roemer_geolocation"]["median_filter"]:
+        if config["lrm_roemer_geolocation"]["median_filter7"]:
             smoothed_zdem = median_filter(zdem, size=3)
             zdem = smoothed_zdem
 
