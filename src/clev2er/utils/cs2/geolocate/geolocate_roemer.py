@@ -243,7 +243,6 @@ def geolocate_roemer(
     # ------------------------------------------------------------------------------------
 
     for i, _ in enumerate(nadir_x):
-        print(i)
         # By default, set POCA x,y to nadir, and height to Nan
         poca_x[i] = nadir_x[i]
         poca_y[i] = nadir_y[i]
