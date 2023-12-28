@@ -151,6 +151,7 @@ lrm_roemer_geolocation:
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
   max_poca_reloc_distance: 6600
+  interpolate_to_10m: True
 
   # Method to use
   cls_method: True

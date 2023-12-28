@@ -15,7 +15,7 @@ import numpy as np
 import pyproj
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pyproj import Transformer
-from scipy.interpolate import RectBivariateSpline
+from scipy.interpolate import interpn
 from scipy.ndimage import median_filter
 
 from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
@@ -243,6 +243,7 @@ def geolocate_roemer(
     # ------------------------------------------------------------------------------------
 
     for i, _ in enumerate(nadir_x):
+        print(i)
         # By default, set POCA x,y to nadir, and height to Nan
         poca_x[i] = nadir_x[i]
         poca_y[i] = nadir_y[i]
@@ -342,6 +343,8 @@ def geolocate_roemer(
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
 
+            # print(f"first poca: {this_poca_x} {this_poca_y} {this_poca_z}")
+
             if interpolate_to_10m:
                 # Create finer grid to 10m resolution around poca
                 # -------------------------------------
@@ -366,7 +369,7 @@ def geolocate_roemer(
                 # Extract the rectangular segment from the DEM
                 try:
                     xdem, ydem, zdem = thisdem.get_segment(
-                        segment, grid_xy=True, flatten=False
+                        segment, grid_xy=False, flatten=False
                     )
                 except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
                     slope_ok[i] = False
@@ -375,6 +378,52 @@ def geolocate_roemer(
                     slope_ok[i] = False
                     continue
 
+                # Define new grid for 20m resolution
+                grid_x, grid_y = np.mgrid[x_min:x_max:10, y_min:y_max:10]
+                grid_x = grid_x.flatten()
+                grid_y = grid_y.flatten()
+
+                new_z = interpn(
+                    (np.flip(ydem.copy()), xdem),
+                    np.flip(zdem.copy(), 0),
+                    (grid_y, grid_x),
+                    method="linear",
+                    bounds_error=False,
+                    fill_value=np.nan,
+                )
+
+                # Step 1: find the DEM points within a circular area centred on the nadir
+                # point corresponding to a radius of half the beam width
+
+                # Compute distance between each dem location and nadir in (x,y,z)
+                dem_to_poca_dists = calculate_distances(
+                    poca_x[i], poca_y[i], poca_z[i], grid_x, grid_y, new_z
+                )
+
+                # find where dem_to_nadir_dists is within beam. ie extract circular area
+                include_dem_indices = np.where(
+                    np.array(dem_to_poca_dists)
+                    < (pulse_limited_footprint_size_lrm / 2.0)
+                )[0]
+                if len(include_dem_indices) == 0:
+                    slope_ok[i] = False
+                    continue
+
+                xdem = grid_x[include_dem_indices]
+                ydem = grid_y[include_dem_indices]
+                zdem = new_z[include_dem_indices]
+
+                # Check remaining DEM points for bad height values and remove
+                nan_mask = np.isnan(zdem)
+                include_only_good_zdem_indices = np.where(~nan_mask)[0]
+                if len(include_only_good_zdem_indices) < 1:
+                    slope_ok[i] = False
+                    continue
+
+                xdem = xdem[include_only_good_zdem_indices]
+                ydem = ydem[include_only_good_zdem_indices]
+                zdem = zdem[include_only_good_zdem_indices]
+
                 # Only keep DEM heights which are in a sensible range
                 # this step removes DEM values set to most fill_values
                 valid_dem_heights = np.where(np.abs(zdem) < 5000.0)[0]
@@ -382,23 +431,15 @@ def geolocate_roemer(
                     slope_ok[i] = False
                     continue
 
-                zdem[valid_dem_heights] = np.nan
+                xdem = xdem[valid_dem_heights]
+                ydem = ydem[valid_dem_heights]
+                zdem = zdem[valid_dem_heights]
 
-                # create vectors
-                x_new = np.linspace(
-                    np.min(xdem),
-                    np.max(xdem),
-                    num=int((np.max(xdem) - np.min(xdem)) / 10),
-                )
-                y_new = np.linspace(
-                    np.min(ydem),
-                    np.max(ydem),
-                    num=int((np.max(ydem) - np.min(ydem)) / 10),
-                )
-
-                # Interpolate using RectBivariateSpline
-                interp_spline = RectBivariateSpline(xdem, ydem, zdem)
-                z_new = interp_spline(x_new, y_new)
+                # Correct DEM elevations for dh/dt changes
+                if include_dhdt_correction:
+                    if thisdhdt is not None:
+                        # find dh/dt * year_difference at each DEM location
+                        zdem += thisdhdt.interp_dhdt(xdem, ydem) * year_difference
 
                 # Find the POCA location and slope correction to height
                 (
@@ -407,13 +448,15 @@ def geolocate_roemer(
                     this_poca_z,
                     slope_correction_to_height,
                     flg_success,
-                ) = find_poca(z_new, x_new, y_new, nadir_x[i], nadir_y[i], altitudes[i])
+                ) = find_poca(zdem, xdem, ydem, nadir_x[i], nadir_y[i], altitudes[i])
                 if not flg_success:
                     slope_ok[i] = False
                     continue
                 poca_x[i] = this_poca_x
                 poca_y[i] = this_poca_y
                 poca_z[i] = this_poca_z
+
+                # print(f"2nd poca: {this_poca_x} {this_poca_y} {this_poca_z}")
 
             slope_correction[i] = slope_correction_to_height
             dist_reloc = np.sqrt(
