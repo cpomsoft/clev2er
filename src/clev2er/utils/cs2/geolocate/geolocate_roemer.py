@@ -71,16 +71,25 @@ def calculate_distances(
     return distances  # Convert back to a regular Python list
 
 
-def find_poca(dem_interp_f, gridx_f, gridy_f, nadir_x, nadir_y, alt_pt):
-    """CLS/McMillan Function that finds the POCA using Roemer et al. method
-    (shortest range in the DEM segment)
+def find_poca(
+    dem_interp_f: np.ndarray,
+    gridx_f: np.ndarray,
+    gridy_f: np.ndarray,
+    nadir_x: float,
+    nadir_y: float,
+    alt_pt: float,
+):
+    """Function that finds the POCA using method similar to Roemer et al. (2007)
+       Finds the point with the shortest range to the satellite in the DEM segment and
+       computes the slope correction to height
+       Adapted from original : CLS (python) of McMillan (Matlab) code
 
     Args:
-        dem_interp_f (_type_): DEM
-        gridx_f (_type_): _description_
-        gridy_f (_type_): _description_
-        nadir_x (_type_): x location of nadir in polar stereo coordinates (m)
-        nadir_y (_type_): y location of nadir in polar stereo coordinates (m)
+        dem_interp_f (np.ndarray): DEM
+        gridx_f (np.ndarray): _description_
+        gridy_f (np.ndarray): _description_
+        nadir_x (float): x location of nadir in polar stereo coordinates (m)
+        nadir_y (float): y location of nadir in polar stereo coordinates (m)
         alt_pt (float): altitude at nadir (m)
 
     Returns:
@@ -100,9 +109,7 @@ def find_poca(dem_interp_f, gridx_f, gridy_f, nadir_x, nadir_y, alt_pt):
     # compute magnitude of distance from nadir
     dem_dmag_vec = np.sqrt(dem_dx_vec**2 + dem_dy_vec**2)
 
-    # ------------------------------------------------
-    # JA: => accounting for earth curvature
-    # ------------------------------------------------
+    # account for earth curvature
 
     dem_dmag_vec_ec = dem_dmag_vec / EARTH_RADIUS
 
@@ -196,7 +203,7 @@ def geolocate_roemer(
         "max_poca_reloc_distance"
     ]
 
-    interpolate_to_10m = config["lrm_roemer_geolocation"]["interpolate_to_10m"]
+    fine_grid_resolution = config["lrm_roemer_geolocation"]["fine_grid_resolution"]
 
     # ------------------------------------------------------------------------------------
 
@@ -275,7 +282,7 @@ def geolocate_roemer(
             smoothed_zdem = median_filter(zdem, size=3)
             zdem = smoothed_zdem
 
-        if config["lrm_roemer_geolocation"]["cls_method"]:
+        if config["lrm_roemer_geolocation"]["dual_search"]:
             # Step 1: find the DEM points within a circular area centred on the nadir
             # point corresponding to a radius of half the beam width
             xdem = xdem.flatten()
@@ -344,12 +351,13 @@ def geolocate_roemer(
 
             # print(f"first poca: {this_poca_x} {this_poca_y} {this_poca_z}")
 
-            if interpolate_to_10m:
-                # Create finer grid to 10m resolution around poca
+            if fine_grid_resolution > 0:
+                # Create finer grid resolution around poca
                 # -------------------------------------
 
-                # get the rectangular bounds about the track, adjusted for pulse limited width and
-                # the dem posting
+                # get the rectangular bounds around the approx POCA,
+                # adjusted for pulse limited width and the dem posting
+
                 x_min = poca_x[i] - (
                     pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
                 )
@@ -378,7 +386,9 @@ def geolocate_roemer(
                     continue
 
                 # Define new grid for 20m resolution
-                grid_x, grid_y = np.mgrid[x_min:x_max:10, y_min:y_max:10]
+                grid_x, grid_y = np.mgrid[
+                    x_min:x_max:fine_grid_resolution, y_min:y_max:fine_grid_resolution
+                ]
                 grid_x = grid_x.flatten()
                 grid_y = grid_y.flatten()
 
@@ -548,8 +558,8 @@ def geolocate_roemer(
                 height_20_ku[i] = np.nan
         else:
             height_20_ku[i] = np.nan
-        # Set POCA lat,lon to nadir if no slope correction
 
+        # Set POCA lat,lon to nadir if no slope correction
         if (
             (not np.isfinite(lat_poca_20_ku[i]))
             or (not np.isfinite(lon_poca_20_ku[i]))

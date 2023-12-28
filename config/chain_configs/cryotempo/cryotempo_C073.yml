@@ -150,13 +150,15 @@ lrm_roemer_geolocation:
   include_dhdt_correction: False
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith
-  max_poca_reloc_distance: 6600
-  interpolate_to_10m: True
 
   # Method to use
-  cls_method: True
-  use_sliding_window: False
-  
+  dual_search: True # find approx POCA in BLF closest to satellite, then use finer grid
+  use_sliding_window: False # searches for approx POCA using sliding PLF (slower) 
+
+  # Tuning
+  fine_grid_resolution: 10  # meters. Set to 0 to turn off secondary searching for POCA at finer grid
+  max_poca_reloc_distance: 6600 # reject points relocated further than this distance (m) from nadir
+
   # Additional height corrections
   include_slope_doppler_correction: True
 
