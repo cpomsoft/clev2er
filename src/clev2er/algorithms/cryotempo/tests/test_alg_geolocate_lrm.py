@@ -43,9 +43,7 @@ def distance_between_latlon_points(latitudes1, longitudes1, latitudes2, longitud
     on the earth (specified in decimal degrees)
     """
     # convert decimal degrees to radians
-    lat1, lon1, lat2, lon2 = map(
-        np.radians, [latitudes1, longitudes1, latitudes2, longitudes2]
-    )
+    lat1, lon1, lat2, lon2 = map(np.radians, [latitudes1, longitudes1, latitudes2, longitudes2])
 
     # haversine formula
     dlon = lon2 - lon1
@@ -233,12 +231,8 @@ def test_alg_geolocate_lrm(l1b_file, l2i_file) -> None:
         max_distance = np.nanmax(distances)
         min_distance = np.nanmin(distances)
 
-        assert (
-            stdev_distance < 3.0
-        ), "StDev of distances between L2i locations and POCA > 3km"
-        assert (
-            mean_distance < 2.0
-        ), "Mean of distances between L2i locations and POCA > 2km"
+        assert stdev_distance < 3.0, "StDev of distances between L2i locations and POCA > 3km"
+        assert mean_distance < 2.0, "Mean of distances between L2i locations and POCA > 2km"
 
         log.info("Mean distance %.2f km", mean_distance)
         log.info("Standard deviation distance %.2f  km", stdev_distance)

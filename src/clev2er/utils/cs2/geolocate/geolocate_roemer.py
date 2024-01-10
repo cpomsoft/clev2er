@@ -59,11 +59,7 @@ def calculate_distances(
     y2_array = np.array(y2_array)
     z2_array = np.array(z2_array)
 
-    distances = (
-        (x2_array - x1_coord) ** 2
-        + (y2_array - y1_coord) ** 2
-        + (z2_array - z1_coord) ** 2
-    )
+    distances = (x2_array - x1_coord) ** 2 + (y2_array - y1_coord) ** 2 + (z2_array - z1_coord) ** 2
 
     if not squared_only:
         distances = np.sqrt(distances)
@@ -187,21 +183,13 @@ def geolocate_roemer(
     # reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
     # range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
     # num_bins = config["instrument"]["num_range_bins_lrm"]
-    across_track_beam_width = config["instrument"][
-        "across_track_beam_width_lrm"
-    ]  # meters
-    pulse_limited_footprint_size_lrm = config["instrument"][
-        "pulse_limited_footprint_size_lrm"
-    ]  # m
+    across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
+    pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
 
     # Additional options
-    include_dhdt_correction = config["lrm_roemer_geolocation"][
-        "include_dhdt_correction"
-    ]
+    include_dhdt_correction = config["lrm_roemer_geolocation"]["include_dhdt_correction"]
 
-    max_poca_reloc_distance = config["lrm_roemer_geolocation"][
-        "max_poca_reloc_distance"
-    ]
+    max_poca_reloc_distance = config["lrm_roemer_geolocation"]["max_poca_reloc_distance"]
 
     fine_grid_resolution = config["lrm_roemer_geolocation"]["fine_grid_resolution"]
 
@@ -235,13 +223,9 @@ def geolocate_roemer(
         track_year_dt = datetime(2000, 1, 1, 0) + timedelta(seconds=time_20_ku)
         track_year = datetime2year(track_year_dt)
         if track_year < 2010:
-            raise ValueError(
-                f"track_year: {track_year} should not be < 2010 in dhdt correction"
-            )
+            raise ValueError(f"track_year: {track_year} should not be < 2010 in dhdt correction")
         if thisdem.reference_year == 0:
-            raise ValueError(
-                f"thisdem.reference_year has not been set for DEM {thisdem.name}"
-            )
+            raise ValueError(f"thisdem.reference_year has not been set for DEM {thisdem.name}")
 
         year_difference = track_year - thisdem.reference_year
 
@@ -358,26 +342,16 @@ def geolocate_roemer(
                 # get the rectangular bounds around the approx POCA,
                 # adjusted for pulse limited width and the dem posting
 
-                x_min = poca_x[i] - (
-                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
-                )
-                x_max = poca_x[i] + (
-                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
-                )
-                y_min = poca_y[i] - (
-                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
-                )
-                y_max = poca_y[i] + (
-                    pulse_limited_footprint_size_lrm / 2 + thisdem.binsize
-                )
+                x_min = poca_x[i] - (pulse_limited_footprint_size_lrm / 2 + thisdem.binsize)
+                x_max = poca_x[i] + (pulse_limited_footprint_size_lrm / 2 + thisdem.binsize)
+                y_min = poca_y[i] - (pulse_limited_footprint_size_lrm / 2 + thisdem.binsize)
+                y_max = poca_y[i] + (pulse_limited_footprint_size_lrm / 2 + thisdem.binsize)
 
                 segment = [(x_min, x_max), (y_min, y_max)]
 
                 # Extract the rectangular segment from the DEM
                 try:
-                    xdem, ydem, zdem = thisdem.get_segment(
-                        segment, grid_xy=False, flatten=False
-                    )
+                    xdem, ydem, zdem = thisdem.get_segment(segment, grid_xy=False, flatten=False)
                 except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
                     slope_ok[i] = False
                     continue
@@ -411,8 +385,7 @@ def geolocate_roemer(
 
                 # find where dem_to_nadir_dists is within beam. ie extract circular area
                 include_dem_indices = np.where(
-                    np.array(dem_to_poca_dists)
-                    < (pulse_limited_footprint_size_lrm / 2.0)
+                    np.array(dem_to_poca_dists) < (pulse_limited_footprint_size_lrm / 2.0)
                 )[0]
                 if len(include_dem_indices) == 0:
                     slope_ok[i] = False
@@ -468,9 +441,7 @@ def geolocate_roemer(
                 # print(f"2nd poca: {this_poca_x} {this_poca_y} {this_poca_z}")
 
             slope_correction[i] = slope_correction_to_height
-            dist_reloc = np.sqrt(
-                (this_poca_x - nadir_x[i]) ** 2 + (this_poca_y - nadir_y[i]) ** 2
-            )
+            dist_reloc = np.sqrt((this_poca_x - nadir_x[i]) ** 2 + (this_poca_y - nadir_y[i]) ** 2)
             if dist_reloc > max_poca_reloc_distance:
                 slope_ok[i] = False
 
@@ -539,9 +510,7 @@ def geolocate_roemer(
             slope_correction[i] = dem_to_sat_dists[0] + poca_z[i] - altitudes[i]
 
     # Transform all POCA x,y to lon,lat
-    lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(
-        poca_x, poca_y
-    )
+    lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(poca_x, poca_y)
 
     # Calculate height as altitude-(corrected range)+slope_correction
     height_20_ku = np.full_like(lat_20_ku, np.nan)

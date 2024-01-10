@@ -132,15 +132,11 @@ class Algorithm(BaseAlgorithm):
             mod_wet_tropo_cor_20 = l1b.variables["mod_wet_tropo_cor_01"][:].data[
                 ind_meas_1hz_20_ku
             ]  # WET
-            iono_cor_gim_20 = l1b.variables["iono_cor_gim_01"][:].data[
-                ind_meas_1hz_20_ku
-            ]  # GIM
+            iono_cor_gim_20 = l1b.variables["iono_cor_gim_01"][:].data[ind_meas_1hz_20_ku]  # GIM
             solid_earth_tide_20 = l1b.variables["solid_earth_tide_01"][:].data[
                 ind_meas_1hz_20_ku
             ]  # SET
-            pole_tide_20 = l1b.variables["pole_tide_01"][:].data[
-                ind_meas_1hz_20_ku
-            ]  # GPT
+            pole_tide_20 = l1b.variables["pole_tide_01"][:].data[ind_meas_1hz_20_ku]  # GPT
         except KeyError as exc:
             self.log.error("Error reading l1b tide variables : %s", exc)
             return (False, "Error reading l1b tide variables")
@@ -159,10 +155,7 @@ class Algorithm(BaseAlgorithm):
         # corrections DAC, OT, LPEOT
         # Over the southern hemisphere we will use CATS2008a
 
-        if (
-            shared_dict["floating_ice_locations"].size
-            + shared_dict["ocean_locations"].size
-        ) > 0:
+        if (shared_dict["floating_ice_locations"].size + shared_dict["ocean_locations"].size) > 0:
             # Load DAC
             hf_fluct_total_cor_20 = l1b.variables["hf_fluct_total_cor_01"][:].data[
                 ind_meas_1hz_20_ku

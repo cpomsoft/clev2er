@@ -14,6 +14,8 @@ Copyright: UCL/MSSL/CPOM. Not to be used outside CPOM/MSSL without permission of
 import numpy as np
 from scipy.interpolate import interp1d
 
+# pylint: disable=R0801
+
 
 def calc_uncertainty(
     slopes: np.ndarray,

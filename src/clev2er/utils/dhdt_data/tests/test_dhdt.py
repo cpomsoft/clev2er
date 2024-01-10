@@ -37,9 +37,7 @@ def test_dhdt(dhdt_name, limits, width, outfile):
     thisdhdt = Dhdt(dhdt_name)
 
     latmin, latmax, lonmin, lonmax = limits
-    lats, lons = np.meshgrid(
-        np.linspace(latmin, latmax, width), np.linspace(lonmin, lonmax, width)
-    )
+    lats, lons = np.meshgrid(np.linspace(latmin, latmax, width), np.linspace(lonmin, lonmax, width))
     lats = lats.flatten()
     lons = lons.flatten()
 
@@ -80,9 +78,7 @@ def test_grn_diff():
 
     latmin, latmax, lonmin, lonmax = 50.0, 90.0, 0.0, 360.0
     width = 2400
-    lats, lons = np.meshgrid(
-        np.linspace(latmin, latmax, width), np.linspace(lonmin, lonmax, width)
-    )
+    lats, lons = np.meshgrid(np.linspace(latmin, latmax, width), np.linspace(lonmin, lonmax, width))
     lats = lats.flatten()
     lons = lons.flatten()
 

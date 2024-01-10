@@ -92,13 +92,11 @@ class Algorithm(BaseAlgorithm):
 
         if not os.path.isfile(self.uncertainty_table_antarctica):
             raise FileNotFoundError(
-                f"Antarctic uncertainty table {self.uncertainty_table_antarctica}"
-                " not found"
+                f"Antarctic uncertainty table {self.uncertainty_table_antarctica}" " not found"
             )
         if not os.path.isfile(self.uncertainty_table_greenland):
             raise FileNotFoundError(
-                f"Greenland uncertainty table {self.uncertainty_table_greenland}"
-                " not found"
+                f"Greenland uncertainty table {self.uncertainty_table_greenland}" " not found"
             )
 
         ut_grn_data = np.load(self.uncertainty_table_greenland, allow_pickle=True)

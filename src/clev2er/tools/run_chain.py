@@ -270,9 +270,7 @@ def run_chain_on_single_file(
                     return (False, error_str)
 
                 if alg_obj.alg_name.rsplit(".", maxsplit=1)[-1] == breakpoint_alg_name:
-                    thislog.debug(
-                        "breakpoint reached at algorithm %s", alg_obj.alg_name
-                    )
+                    thislog.debug("breakpoint reached at algorithm %s", alg_obj.alg_name)
                     write_breakpoint_file(config, shared_dict)
                     break
 
@@ -288,9 +286,7 @@ def run_chain_on_single_file(
         thislog.error(error_str)
         if config["chain"]["use_multi_processing"]:
             if rval_queue is not None:
-                rval_queue.put(
-                    (False, error_str, Timer.timers)
-                )  # pass the function return values
+                rval_queue.put((False, error_str, Timer.timers))  # pass the function return values
                 # back to the parent process
                 # via a queue
         return (False, error_str)
@@ -319,26 +315,20 @@ def mp_logger_process(queue, config) -> None:
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
 
     # only includes ERROR level messages
-    file_handler_error = logging.FileHandler(
-        config["log_files"]["errors"] + ".mp", mode="w"
-    )
+    file_handler_error = logging.FileHandler(config["log_files"]["errors"] + ".mp", mode="w")
     file_handler_error.setFormatter(log_formatter)
     file_handler_error.setLevel(logging.ERROR)
     logger.addHandler(file_handler_error)
 
     # include all allowed log levels up to INFO (ie ERROR, WARNING, INFO, not DEBUG)
-    file_handler_info = logging.FileHandler(
-        config["log_files"]["info"] + ".mp", mode="w"
-    )
+    file_handler_info = logging.FileHandler(config["log_files"]["info"] + ".mp", mode="w")
     file_handler_info.setFormatter(log_formatter)
     file_handler_info.setLevel(logging.INFO)
     logger.addHandler(file_handler_info)
 
     # include all allowed log levels up to DEBUG
     if config["log_files"]["debug_mode"]:
-        file_handler_debug = logging.FileHandler(
-            config["log_files"]["debug"] + ".mp", mode="w"
-        )
+        file_handler_debug = logging.FileHandler(config["log_files"]["debug"] + ".mp", mode="w")
         file_handler_debug.setFormatter(log_formatter)
         file_handler_debug.setLevel(logging.DEBUG)
         logger.addHandler(file_handler_debug)
@@ -413,9 +403,7 @@ def run_chain(
         try:
             alg_obj = module.Algorithm(config, log)
         except (FileNotFoundError, IOError, KeyError, ValueError):
-            log.error(
-                "Could not initialize algorithm %s, %s", alg, traceback.format_exc()
-            )
+            log.error("Could not initialize algorithm %s, %s", alg, traceback.format_exc())
             return (False, 1, 0, 0)
 
         alg_object_list.append(alg_obj)
@@ -429,10 +417,7 @@ def run_chain(
         # Algorithm knows to run any shared memory initialization
         # --------------------------------------------------------------------
 
-        if (
-            config["chain"]["use_multi_processing"]
-            and config["chain"]["use_shared_memory"]
-        ):
+        if config["chain"]["use_multi_processing"] and config["chain"]["use_shared_memory"]:
             # Load/Initialize algorithm
             try:
                 alg_obj_shm = module.Algorithm(config | {"_init_shared_mem": True}, log)
@@ -492,17 +477,13 @@ def run_chain(
             config["chain"]["max_processes_for_multiprocessing"],
         )
 
-        num_chunks = ceil(
-            n_files / config["chain"]["max_processes_for_multiprocessing"]
-        )
+        num_chunks = ceil(n_files / config["chain"]["max_processes_for_multiprocessing"])
         file_indices = list(range(n_files))
         file_indices_chunks = np.array_split(file_indices, num_chunks)
 
         for chunk_num, file_indices in enumerate(file_indices_chunks):
             chunked_l1b_file_list = np.array(l1b_file_list)[file_indices]
-            log.debug(
-                f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}"
-            )
+            log.debug(f"mp chunk_num {chunk_num}: chunked_l1b_file_list={chunked_l1b_file_list}")
 
             num_procs = len(chunked_l1b_file_list)
 
@@ -567,9 +548,7 @@ def run_chain(
     else:  # Normal sequential processing (when multi-processing is disabled)
         try:
             for fnum, l1b_file in enumerate(l1b_file_list):
-                log.info(
-                    "\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20
-                )
+                log.info("\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20)
                 success, error_str = run_chain_on_single_file(
                     l1b_file,
                     alg_object_list,
@@ -853,9 +832,7 @@ def main() -> None:
     parser.add_argument(
         "--stop_on_error",
         "-st",
-        help=(
-            "[Optional] stop chain on first error. Default is set in main config file"
-        ),
+        help=("[Optional] stop chain on first error. Default is set in main config file"),
         action="store_const",
         const=1,
     )
@@ -873,9 +850,7 @@ def main() -> None:
     parser.add_argument(
         "--breakpoint_after",
         "-bp",
-        help=(
-            "[Optional, str] algorithm_name : set a breakpoint after the named algorithm "
-        ),
+        help=("[Optional, str] algorithm_name : set a breakpoint after the named algorithm "),
         type=str,
     )
 
@@ -1015,13 +990,7 @@ def main() -> None:
     # Check we have enough input command line args
     # -------------------------------------------------------------------------
 
-    if (
-        not args.cs2testdir
-        and not args.file
-        and not args.dir
-        and not args.year
-        and not args.month
-    ):
+    if not args.cs2testdir and not args.file and not args.dir and not args.year and not args.month:
         sys.exit(
             f"usage error: No inputs specified for the {args.name} chain. Must have either "
             "\n--cs2testdir (-ct),"
@@ -1044,22 +1013,14 @@ def main() -> None:
     # Test that log file settings are in the config dict
 
     if "log_files" not in config:
-        sys.exit(
-            f"log_files section missing from chain configuration file {chain_config_file}"
-        )
+        sys.exit(f"log_files section missing from chain configuration file {chain_config_file}")
 
     if "errors" not in config["log_files"]:
-        sys.exit(
-            f"log_files:errors section missing from chain config file {chain_config_file}"
-        )
+        sys.exit(f"log_files:errors section missing from chain config file {chain_config_file}")
     if "info" not in config["log_files"]:
-        sys.exit(
-            f"log_files:info section missing from chain config file {chain_config_file}"
-        )
+        sys.exit(f"log_files:info section missing from chain config file {chain_config_file}")
     if "debug" not in config["log_files"]:
-        sys.exit(
-            f"log_files:debug section missing from chain config file {chain_config_file}"
-        )
+        sys.exit(f"log_files:debug section missing from chain config file {chain_config_file}")
     if "append_year_month_to_logname" not in config["log_files"]:
         sys.exit(
             "log_files:append_year_month_to_logname section missing from chain config file "
@@ -1072,27 +1033,17 @@ def main() -> None:
 
     # Add a string before .log if args.logstring is set
     if args.logstring:
-        log_file_error_name = log_file_error_name.replace(
-            ".log", f"_{args.logstring}.log"
-        )
-        log_file_info_name = log_file_info_name.replace(
-            ".log", f"_{args.logstring}.log"
-        )
-        log_file_debug_name = log_file_debug_name.replace(
-            ".log", f"_{args.logstring}.log"
-        )
+        log_file_error_name = log_file_error_name.replace(".log", f"_{args.logstring}.log")
+        log_file_info_name = log_file_info_name.replace(".log", f"_{args.logstring}.log")
+        log_file_debug_name = log_file_debug_name.replace(".log", f"_{args.logstring}.log")
 
     # Add _YYYY or _MMYYYY before .log if config["log_files"]["append_year_month_to_logname"]
     # is set
     if config["log_files"]["append_year_month_to_logname"]:
         if args.year and not args.month:
-            log_file_error_name = log_file_error_name.replace(
-                ".log", f"_{args.year}.log"
-            )
+            log_file_error_name = log_file_error_name.replace(".log", f"_{args.year}.log")
             log_file_info_name = log_file_info_name.replace(".log", f"_{args.year}.log")
-            log_file_debug_name = log_file_debug_name.replace(
-                ".log", f"_{args.year}.log"
-            )
+            log_file_debug_name = log_file_debug_name.replace(".log", f"_{args.year}.log")
         if args.year and args.month:
             log_file_error_name = log_file_error_name.replace(
                 ".log", f"_{args.month:02d}{args.year}.log"
@@ -1170,9 +1121,7 @@ def main() -> None:
     # -------------------------------------------------------------------------------------------
 
     if args.cs2testdir:
-        l1b_file_list = glob.glob(
-            f"{os.environ['CLEV2ER_BASE_DIR']}/testdata/cs2/l1bfiles/*"
-        )
+        l1b_file_list = glob.glob(f"{os.environ['CLEV2ER_BASE_DIR']}/testdata/cs2/l1bfiles/*")
     elif args.file:
         l1b_file_list = [args.file]
     elif args.dir:
@@ -1191,9 +1140,7 @@ def main() -> None:
                         f"clev2er.algorithms.{config['chain']['chain_name']}.{file_selector_module}"
                     )
                 except ImportError as exc:
-                    log.error(
-                        "Could not import module %s, %s", file_selector_module, exc
-                    )
+                    log.error("Could not import module %s, %s", file_selector_module, exc)
                     sys.exit(1)
 
                 try:
@@ -1229,9 +1176,7 @@ def main() -> None:
             num_files_readable += 1
             break
     if num_files_readable == 0:
-        log.error(
-            "No input files in list exist, please check L1b input directories and files"
-        )
+        log.error("No input files in list exist, please check L1b input directories and files")
         sys.exit(1)
 
     log.info("Total number of L1b file found:  %d", n_l1b_files)
@@ -1310,9 +1255,7 @@ def main() -> None:
                 config["log_files"]["debug"],
                 "MP processing completed with outputs logged:",
             )
-        append_file(
-            config["log_files"]["errors"] + ".mp", config["log_files"]["errors"]
-        )
+        append_file(config["log_files"]["errors"] + ".mp", config["log_files"]["errors"])
 
         # remove all the .mp temporary log files
         for file_path in [
@@ -1326,9 +1269,7 @@ def main() -> None:
                     # Delete the file
                     os.remove(file_path)
             except OSError as exc:
-                log.error(
-                    "Error occurred while deleting the file %s : %s", file_path, exc
-                )
+                log.error("Error occurred while deleting the file %s : %s", file_path, exc)
     else:
         # remove the multi-processing marker string '[fN]' from log files
         remove_strings_from_file(config["log_files"]["info"])

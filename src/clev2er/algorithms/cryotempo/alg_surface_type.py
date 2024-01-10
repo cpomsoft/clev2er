@@ -102,9 +102,7 @@ class Algorithm(BaseAlgorithm):
         else:
             # Antarctic surface type mask from BedMachine v2
             try:
-                mask_file = self.config["surface_type_masks"][
-                    "antarctica_bedmachine_v2_grid_mask"
-                ]
+                mask_file = self.config["surface_type_masks"]["antarctica_bedmachine_v2_grid_mask"]
             except KeyError as exc:
                 self.log.error(
                     "surface_type_masks:antarctica_bedmachine_v2_grid_mask not in config file %s",
@@ -120,9 +118,7 @@ class Algorithm(BaseAlgorithm):
             )
         # Greenland surface type mask from BedMachine v3
         try:
-            mask_file = self.config["surface_type_masks"][
-                "greenland_bedmachine_v3_grid_mask"
-            ]
+            mask_file = self.config["surface_type_masks"]["greenland_bedmachine_v3_grid_mask"]
         except KeyError as exc:
             self.log.error(
                 "surface_type_masks:greenland_bedmachine_v3_grid_mask not in config file: %s",
@@ -221,9 +217,7 @@ class Algorithm(BaseAlgorithm):
         # --------------------------------------------------------------------------------
 
         if (
-            grounded_ice_locations.size
-            + floating_ice_locations.size
-            + icefree_land_locations.size
+            grounded_ice_locations.size + floating_ice_locations.size + icefree_land_locations.size
         ) == 0:
             self.log.info(
                 "File Skipped: No grounded or floating ice or icefree_land in file %s",

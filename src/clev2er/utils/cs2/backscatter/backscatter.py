@@ -131,13 +131,7 @@ def compute_backscatter(
     """
 
     gamma = (2.0 / np.log(2.0)) * np.power(
-        np.sin(
-            1.0
-            / (
-                1.0 / np.radians(beam_angle_az_deg)
-                + 1.0 / np.radians(beam_angle_el_deg)
-            )
-        ),
+        np.sin(1.0 / (1.0 / np.radians(beam_angle_az_deg) + 1.0 / np.radians(beam_angle_el_deg))),
         2.0,
     )
     power_ratio_db = 10.0 * np.log10(rx_pow_w / tx_pow_w)
@@ -169,18 +163,13 @@ def compute_backscatter(
 
         if misp_mode == 1:
             rough_cor_lin *= (
-                np.cos(2.0 * mispoint_rad)
-                - np.power(np.sin(2.0 * mispoint_rad), 2.0) / gamma
+                np.cos(2.0 * mispoint_rad) - np.power(np.sin(2.0 * mispoint_rad), 2.0) / gamma
             )
 
     misp_and_surf_db = 10.0 * (mispoint_cor_lin + rough_cor_lin) / np.log(10.0)
 
     return (
-        power_ratio_db
-        - sigma_calc_const_db
-        + sigma_loss_const_db
-        - misp_and_surf_db
-        + sigma_bias
+        power_ratio_db - sigma_calc_const_db + sigma_loss_const_db - misp_and_surf_db + sigma_bias
     )
 
 

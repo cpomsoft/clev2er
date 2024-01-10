@@ -184,13 +184,9 @@ def retrack_tcog_waveforms_cs2(
     """
 
     if retrack_threshold_lrm < 0.0 or retrack_threshold_lrm > 1.0:
-        raise ValueError(
-            f"retrack_threshold_lrm {retrack_threshold_lrm} not between 0. and 1."
-        )
+        raise ValueError(f"retrack_threshold_lrm {retrack_threshold_lrm} not between 0. and 1.")
     if retrack_threshold_sin < 0.0 or retrack_threshold_sin > 1.0:
-        raise ValueError(
-            f"retrack_threshold_sin {retrack_threshold_sin} not between 0. and 1."
-        )
+        raise ValueError(f"retrack_threshold_sin {retrack_threshold_sin} not between 0. and 1.")
     if noise_threshold < 0.0 or noise_threshold > 1.0:
         raise ValueError(f"noise_threshold {noise_threshold} not between 0. and 1.")
 
@@ -198,9 +194,7 @@ def retrack_tcog_waveforms_cs2(
         raise ValueError(f"le_dp_threshold {le_dp_threshold} not between 0. and 1.")
 
     if l1b_file and waveforms:
-        raise ValueError(
-            "Must have either l1b_file or waveforms, not both as input to function"
-        )
+        raise ValueError("Must have either l1b_file or waveforms, not both as input to function")
 
     # ---------------------------------
     # Find if input L1b file is LRM or SIN
@@ -214,9 +208,7 @@ def retrack_tcog_waveforms_cs2(
             lrm_mode = True
             mode_str = "LRM"
         else:
-            raise ValueError(
-                f"L1b file name {l1b_file} must include SIR_SIN_1B or SIR_LRM_1B"
-            )
+            raise ValueError(f"L1b file name {l1b_file} must include SIR_SIN_1B or SIR_LRM_1B")
 
         # Load netcdf L1 data file
         nc = Dataset(l1b_file)
@@ -244,9 +236,7 @@ def retrack_tcog_waveforms_cs2(
     # Define system parameters
     # -------------------------
 
-    speed_of_light = (
-        299792458  # speed of light (m/s) from CS2 Baseline-D User Manual, p36.
-    )
+    speed_of_light = 299792458  # speed of light (m/s) from CS2 Baseline-D User Manual, p36.
     bandwidth = 320000000  # chirp bandwidth used (Hz) from from CS2 Baseline-D User Manual, p36.
 
     # compute size of range bin
@@ -348,9 +338,7 @@ def retrack_tcog_waveforms_cs2(
             plt.show()
 
         # switch end values from 0 to nan
-        wfnorm_sm[
-            wfnorm_sm == 0
-        ] = np.nan  # COMMENT : sets any 0 to Nan, not just end points?
+        wfnorm_sm[wfnorm_sm == 0] = np.nan  # COMMENT : sets any 0 to Nan, not just end points?
 
         # ---------------------
         # compute thermal noise
@@ -392,9 +380,7 @@ def retrack_tcog_waveforms_cs2(
             #  LRM: array([  0.,1.,..,127.]), size=128
 
             # create oversampled waveform bin indices
-            wf_bin_numi = np.linspace(
-                0, waveform_size - 1, waveform_size * wf_oversampling_factor
-            )
+            wf_bin_numi = np.linspace(0, waveform_size - 1, waveform_size * wf_oversampling_factor)
             # LRM: array([  0.,1.,..,127.]), size=12800
 
             # Oversample normalised waveform
@@ -432,14 +418,10 @@ def retrack_tcog_waveforms_cs2(
                 #    d_wf_sm > 0
                 #    index > previous_le_ind
 
-                le_index = np.where(
-                    (wfi_sm > (wf_noise_mean + le_id_threshold)) & (d_wf_sm > 0)
-                )[0]
+                le_index = np.where((wfi_sm > (wf_noise_mean + le_id_threshold)) & (d_wf_sm > 0))[0]
 
                 if le_index.size > 0:
-                    le_index = le_index[
-                        le_index > (previous_le_ind + wf_oversampling_factor)
-                    ]
+                    le_index = le_index[le_index > (previous_le_ind + wf_oversampling_factor)]
 
                 # ----------------------------------------------------------------------
                 # quality check 2 - if no samples are sufficiently above the noise floor
@@ -461,9 +443,7 @@ def retrack_tcog_waveforms_cs2(
 
                 # find where the gradient first becomes negative after the power threshold
                 # is exceeded
-                first_peak_ind = np.where(
-                    (d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index])
-                )[0]
+                first_peak_ind = np.where((d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index]))[0]
                 # Select the first one
                 if first_peak_ind.size > 0:
                     first_peak_ind = first_peak_ind[0]
@@ -477,9 +457,7 @@ def retrack_tcog_waveforms_cs2(
                     previous_le_ind = first_peak_ind
 
                     # if reached end of waveform
-                    if previous_le_ind > (
-                        wf_bin_numi.size - wf_oversampling_factor - 1
-                    ):
+                    if previous_le_ind > (wf_bin_numi.size - wf_oversampling_factor - 1):
                         # set flag
                         retrack_flag[i][3] = 1
                         # exit search for leading edge
@@ -537,9 +515,7 @@ def retrack_tcog_waveforms_cs2(
                 if retrack_smooth_wf:
                     # find first wf sample above threshold apply to oversampled waveform to
                     # improve precision,
-                    samples_above_threshold = np.where(
-                        (wfi_sm > retrack_wf_threshold_tcog)
-                    )[0]
+                    samples_above_threshold = np.where((wfi_sm > retrack_wf_threshold_tcog))[0]
                     n_samples_above_threshold = len(samples_above_threshold)
                     log.debug("n_samples_above_threhold=%d", n_samples_above_threshold)
 
@@ -553,8 +529,7 @@ def retrack_tcog_waveforms_cs2(
                     # find first leading edge value above the retracking threshold for
                     # unsmoothed waveform
                     samples_above_threshold = np.where(
-                        (wfi > retrack_wf_threshold_tcog)
-                        & (wf_bin_numi > wf_bin_numi[le_index])
+                        (wfi > retrack_wf_threshold_tcog) & (wf_bin_numi > wf_bin_numi[le_index])
                     )[0]
 
                     if plot_flag:
@@ -602,9 +577,7 @@ def retrack_tcog_waveforms_cs2(
                     ax1.plot(wf_bin_numi, d_wf_sm, color="lightgray", label="gradient")
                     ax1.set_xlabel("Waveform bin number")
                     ax1.set_ylabel("Normalised power")
-                    ax1.set_title(
-                        f"{mode_str} Waveform Retracking for Measurement Number : {i}"
-                    )
+                    ax1.set_title(f"{mode_str} Waveform Retracking for Measurement Number : {i}")
                     ax1.xaxis.grid()
                     ax1.yaxis.grid()
                     ax1.axvline(

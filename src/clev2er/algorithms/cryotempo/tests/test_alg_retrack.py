@@ -68,9 +68,7 @@ def test_alg_retrack(l1b_file) -> None:
         shared_dict["instr_mode"] = "LRM"
     shared_dict["waveforms_to_include"] = np.full_like(l1b["lat_20_ku"][:].data, True)
     ind_meas_1hz_20_ku = l1b.variables["ind_meas_1hz_20_ku"][:].data
-    mod_dry_tropo_cor_20 = l1b.variables["mod_dry_tropo_cor_01"][:].data[
-        ind_meas_1hz_20_ku
-    ]  # DRY
+    mod_dry_tropo_cor_20 = l1b.variables["mod_dry_tropo_cor_01"][:].data[ind_meas_1hz_20_ku]  # DRY
     # Dummy some geo corrections with just dry tropo
     shared_dict["sum_cor_20_ku"] = mod_dry_tropo_cor_20
 
@@ -83,9 +81,7 @@ def test_alg_retrack(l1b_file) -> None:
     assert success, "algorithm should not fail"
 
     assert "range_cor_20_ku" in shared_dict, "range_cor_20_ku not in shared_dict"
-    assert (
-        shared_dict["percent_retracker_failure"] < 5
-    ), "more than 5% retracker failure"
+    assert shared_dict["percent_retracker_failure"] < 5, "more than 5% retracker failure"
     assert (
         shared_dict["percent_retracker_failure"] >= 0
         and shared_dict["percent_retracker_failure"] <= 100

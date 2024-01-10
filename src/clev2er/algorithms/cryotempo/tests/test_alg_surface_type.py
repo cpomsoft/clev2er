@@ -55,16 +55,12 @@ def test_alg_skip_on_area_bounds() -> None:
     shared_dict["num_20hz_records"] = l1b["lat_20_ku"].size
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
     success, error_str = thisalg.process(l1b, shared_dict)
 
-    assert (
-        success is False
-    ), "Algorithm.process should fail as file is outside cryosphere"
+    assert success is False, "Algorithm.process should fail as file is outside cryosphere"
     assert "SKIP_OK" in error_str, "Algorithm.process should fail with SKIP_OK"
 
     # Test with SIN file in Southern Hemisphere
@@ -82,9 +78,7 @@ def test_alg_skip_on_area_bounds() -> None:
     shared_dict["hemisphere"] = "south"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     # This should succeed,
     success, error_str = thisalg.process(l1b, shared_dict)

@@ -39,9 +39,7 @@ def create_netcdf_file(file_path, data_dict):
             ValueError: _description_
         """
         for key, value in data.items():
-            current_key = (
-                f"{parent_key}_{key}" if parent_key else key
-            )  # Include parent_key in the
+            current_key = f"{parent_key}_{key}" if parent_key else key  # Include parent_key in the
             # variable name for nested levels
             if isinstance(value, list):
                 value = np.array(value)
@@ -63,9 +61,7 @@ def create_netcdf_file(file_path, data_dict):
                     dim = dims[dim_sizes.index(dim_size)]
 
                 # Create a new dimension
-                var = ncfile.createVariable(
-                    current_key, str(value.dtype), dimensions=(dim,)
-                )
+                var = ncfile.createVariable(current_key, str(value.dtype), dimensions=(dim,))
 
                 var[:] = value
 

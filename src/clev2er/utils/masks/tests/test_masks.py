@@ -76,9 +76,7 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
 
     if expected_number_inside > 0:
         for index_inside in indices_inside:
-            assert true_inside[
-                index_inside
-            ], f"Index {index_inside} should be inside mask"
+            assert true_inside[index_inside], f"Index {index_inside} should be inside mask"
 
 
 @pytest.mark.parametrize(

@@ -101,9 +101,7 @@ class Dhdt:
                 pixel_height = -transform[4]  # Negative because the height is
                 # typically negative in GeoTIFFs
                 if pixel_width != pixel_height:
-                    raise ValueError(
-                        f"pixel_width {pixel_width} != pixel_height {pixel_width}"
-                    )
+                    raise ValueError(f"pixel_width {pixel_width} != pixel_height {pixel_width}")
         except RasterioIOError as exc:
             raise IOError(f"Could not read GeoTIFF: {exc}") from exc
         return (
@@ -175,45 +173,31 @@ class Dhdt:
         """
         if self.name == "grn_is2_is1_smith":
             self.filename = "gris_dhdt.tif"  # or gris_dhdt_filt.tif
-            self.default_dir = (
-                f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
-            )
+            self.default_dir = f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
             filename = self.get_filename(self.default_dir, self.filename)
             self.crs_wgs = CRS("epsg:4326")  #  WGS84
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -lat of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -lat of origin 70N, 45
             self.void_value = -9999
             self.dtype = np.float32
 
-            self.load_geotiff(
-                filename, flip_y=False, median_filter_width=3, abs_filter=10.0
-            )
+            self.load_geotiff(filename, flip_y=False, median_filter_width=3, abs_filter=10.0)
         elif self.name == "ais_is2_is1_smith":
-            self.filename = (
-                "ais_dhdt_grounded_filt.tif"  # or ais_dhdt_grounded_filt.tif
-            )
-            self.default_dir = (
-                f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
-            )
+            self.filename = "ais_dhdt_grounded_filt.tif"  # or ais_dhdt_grounded_filt.tif
+            self.default_dir = f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data/smith2020_is2_is1'
             filename = self.get_filename(self.default_dir, self.filename)
             self.crs_wgs = CRS("epsg:4326")  #  WGS84
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
             self.void_value = -9999
             self.dtype = np.float32
 
-            self.load_geotiff(
-                filename, flip_y=False, median_filter_width=3, abs_filter=10.0
-            )
+            self.load_geotiff(filename, flip_y=False, median_filter_width=3, abs_filter=10.0)
 
         elif self.name == "grn_2010_2021":
             self.filename = "greenland_dhdt_2011_2022.nc"
             # default_dir provided but will be overridden by config['dhdt_data_dir'][self.name]
             self.default_dir = f'{os.environ["CPDATA_DIR"]}/RESOURCES/dhdt_data'
             self.crs_wgs = CRS("epsg:4326")  #  WGS84
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -lat of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -lat of origin 70N, 45
 
             # Find the dataset path/filename
             filename = self.get_filename(self.default_dir, self.filename)
@@ -307,14 +291,9 @@ class Dhdt:
         """
         this_dhdt_dir = None
         if self.config:
-            if (
-                "dhdt_data_dir" in self.config
-                and self.name in self.config["dhdt_data_dir"]
-            ):
+            if "dhdt_data_dir" in self.config and self.name in self.config["dhdt_data_dir"]:
                 this_dhdt_dir = self.config["dhdt_data_dir"][self.name]
-                self.log.info(
-                    "Loading dhdt path from config['dhdt_data_dir']['%s']", self.name
-                )
+                self.log.info("Loading dhdt path from config['dhdt_data_dir']['%s']", self.name)
         if this_dhdt_dir is None and self.dhdt_dir:
             this_dhdt_dir = self.dhdt_dir
             self.log.info("Loading dhdt path from supplied dir: %s", self.name)

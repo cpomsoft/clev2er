@@ -55,16 +55,12 @@ def test_alg_fes2014b_tide_correction() -> None:
     shared_dict["instr_mode"] = "SIN"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     success, _ = thisalg.process(l1b, shared_dict)
 
     assert success, "Should succeed as matching FES2014b file available"
-    assert (
-        "fes2014b_corrections" in shared_dict
-    ), "fes2014b_corrections should have been added"
+    assert "fes2014b_corrections" in shared_dict, "fes2014b_corrections should have been added"
 
     assert (
         "ocean_tide_20" in shared_dict["fes2014b_corrections"]

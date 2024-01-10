@@ -175,9 +175,7 @@ class Algorithm(BaseAlgorithm):
         # <cats2008a_base_dir> can be either set for
         # L2I: /cpdata/SATS/RA/CRY/L2I/SIN/CATS_tides
         # L1B: /cpdata/SATS/RA/CRY/L1B/CATS2008/SIN
-        cats_file = glob(
-            f"{self.cats2008a_base_dir}/{year}/{month:02d}/*{time_string}*.nc"
-        )
+        cats_file = glob(f"{self.cats2008a_base_dir}/{year}/{month:02d}/*{time_string}*.nc")
         if len(cats_file) != 1:
             self.log.error(
                 "Missing CATS2008a file for timestring %s in %s",

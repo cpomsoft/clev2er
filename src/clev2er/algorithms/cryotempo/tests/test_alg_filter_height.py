@@ -69,9 +69,7 @@ def test_alg_filter_height(l1b_file) -> None:
     shared_dict["hemisphere"] = "south"
 
     # Mock height_20_ku
-    shared_dict["height_20_ku"] = np.full_like(
-        l1b["lat_20_ku"][:].data, 4899.0, dtype="float"
-    )
+    shared_dict["height_20_ku"] = np.full_like(l1b["lat_20_ku"][:].data, 4899.0, dtype="float")
     shared_dict["height_20_ku"][0:5] = 6000.0
     shared_dict["height_20_ku"][6] = 4920.0
 

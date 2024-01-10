@@ -61,9 +61,7 @@ def test_alg_cats2008a_tide_correction() -> None:
     shared_dict["instr_mode"] = "SIN"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     success, _ = surface_type.process(l1b, shared_dict)
     assert success, "surface_type algorithm should not fail"

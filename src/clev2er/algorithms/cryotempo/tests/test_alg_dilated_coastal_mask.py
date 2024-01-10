@@ -57,17 +57,13 @@ def test_alg_dilated_coastal_mask() -> None:
     shared_dict["hemisphere"] = "south"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
     success, _ = thisalg.process(l1b, shared_dict)
 
     assert success, "Should not fail"
-    assert (
-        "dilated_surface_mask" in shared_dict
-    ), "dilated_surface_mask should have been added"
+    assert "dilated_surface_mask" in shared_dict, "dilated_surface_mask should have been added"
 
     num_in_mask = np.count_nonzero(shared_dict["dilated_surface_mask"])
     num_records = len(shared_dict["lats_nadir"])
@@ -95,17 +91,13 @@ def test_alg_dilated_coastal_mask() -> None:
     shared_dict["hemisphere"] = "north"
 
     shared_dict["lats_nadir"] = l1b["lat_20_ku"][:].data
-    shared_dict["lons_nadir"] = (
-        l1b["lon_20_ku"][:].data % 360.0
-    )  # [-180,+180E] -> 0..360E
+    shared_dict["lons_nadir"] = l1b["lon_20_ku"][:].data % 360.0  # [-180,+180E] -> 0..360E
 
     # This should fail, as file is outside cryosphere
     success, _ = thisalg.process(l1b, shared_dict)
 
     assert success, "Should not fail"
-    assert (
-        "dilated_surface_mask" in shared_dict
-    ), "dilated_surface_mask should have been added"
+    assert "dilated_surface_mask" in shared_dict, "dilated_surface_mask should have been added"
 
     num_in_mask = np.count_nonzero(shared_dict["dilated_surface_mask"])
     num_records = len(shared_dict["lats_nadir"])

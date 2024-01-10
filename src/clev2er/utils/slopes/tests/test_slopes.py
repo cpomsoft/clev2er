@@ -27,9 +27,7 @@ def test_slopes_ant():
     # Test values returned are not nan
     assert np.count_nonzero(~np.isnan(slopes)) == len(lats), "Nan values returned"
 
-    assert (
-        slopes > 0.05
-    ).sum() == 0, " Should not have slopes > 0.05 at this Vostok location"
+    assert (slopes > 0.05).sum() == 0, " Should not have slopes > 0.05 at this Vostok location"
     assert (slopes < 0.0).sum() == 0, " Should not have slopes < 0"
 
 
@@ -47,7 +45,5 @@ def test_slopes_grn():
     # Test values returned are not nan
     assert np.count_nonzero(~np.isnan(slopes)) == len(lats), "Nan values returned"
 
-    assert (
-        slopes > 0.2
-    ).sum() == 0, " Should not have slopes > 0.2 at this Greenland location"
+    assert (slopes > 0.2).sum() == 0, " Should not have slopes > 0.2 at this Greenland location"
     assert (slopes < 0.0).sum() == 0, " Should not have slopes < 0"

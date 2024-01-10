@@ -23,12 +23,8 @@ log = logging.getLogger(__name__)
 @pytest.mark.parametrize(
     "l1b_file",
     [
-        (
-            "CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc"
-        ),  # SIN, over AIS margin
-        (
-            "CS_OFFL_SIR_SIN_1B_20190511T005631_20190511T005758_D001.nc"
-        ),  # SIN, over GIS margin
+        ("CS_OFFL_SIR_SIN_1B_20190504T122546_20190504T122726_D001.nc"),  # SIN, over AIS margin
+        ("CS_OFFL_SIR_SIN_1B_20190511T005631_20190511T005758_D001.nc"),  # SIN, over GIS margin
         ("CS_OFFL_SIR_LRM_1B_20200911T023800_20200911T024631_D001.nc"),  # LRM, over AIS
         ("CS_LTA__SIR_LRM_1B_20200930T235609_20200930T235758_E001.nc"),  # LRM, over GRN
     ],

@@ -16,7 +16,7 @@ from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
 from clev2er.utils.dems.dems import Dem
 from clev2er.utils.dhdt_data.dhdt import Dhdt
 
-# pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
+# pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements,R0801
 
 log = logging.getLogger(__name__)
 
@@ -51,11 +51,7 @@ def calculate_distances(
     y2_array = np.array(y2_array)
     z2_array = np.array(z2_array)
 
-    distances = (
-        (x2_array - x1_coord) ** 2
-        + (y2_array - y1_coord) ** 2
-        + (z2_array - z1_coord) ** 2
-    )
+    distances = (x2_array - x1_coord) ** 2 + (y2_array - y1_coord) ** 2 + (z2_array - z1_coord) ** 2
 
     if not squared_only:
         distances = np.sqrt(distances)
@@ -174,12 +170,8 @@ def geolocate_lepta(
     reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
     range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
     # num_bins = config["instrument"]["num_range_bins_lrm"]
-    across_track_beam_width = config["instrument"][
-        "across_track_beam_width_lrm"
-    ]  # meters
-    pulse_limited_footprint_size_lrm = config["instrument"][
-        "pulse_limited_footprint_size_lrm"
-    ]  # m
+    across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
+    pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
 
     # Search window selection
     use_window_around_retracking_point = config["lrm_lepta_geolocation"][
@@ -239,13 +231,9 @@ def geolocate_lepta(
         track_year_dt = datetime(2000, 1, 1, 0) + timedelta(seconds=time_20_ku)
         track_year = datetime2year(track_year_dt)
         if track_year < 2010:
-            raise ValueError(
-                f"track_year: {track_year} should not be < 2010 in dhdt correction"
-            )
+            raise ValueError(f"track_year: {track_year} should not be < 2010 in dhdt correction")
         if thisdem.reference_year == 0:
-            raise ValueError(
-                f"thisdem.reference_year has not been set for DEM {thisdem.name}"
-            )
+            raise ValueError(f"thisdem.reference_year has not been set for DEM {thisdem.name}")
 
         year_difference = track_year - thisdem.reference_year
 
@@ -379,9 +367,7 @@ def geolocate_lepta(
         # retracking point +/- an offset
         # --------------------------------------------------------------------------------------
         elif use_window_around_retracking_point:
-            range_to_retracking_point = (
-                geo_corrected_tracker_range[i] + retracker_correction[i]
-            )
+            range_to_retracking_point = geo_corrected_tracker_range[i] + retracker_correction[i]
             range_start = range_to_retracking_point - delta_range_offset
             range_end = range_to_retracking_point + delta_range_offset
 
@@ -480,9 +466,7 @@ def geolocate_lepta(
         slope_correction[i] = dem_to_sat_dists[0] + poca_z[i] - altitudes[i]
 
     # Transform all POCA x,y to lon,lat
-    lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(
-        poca_x, poca_y
-    )
+    lon_poca_20_ku, lat_poca_20_ku = thisdem.xy_to_lonlat_transformer.transform(poca_x, poca_y)
 
     # Calculate height as altitude-(corrected range)+slope_correction
     height_20_ku = np.full_like(lat_20_ku, np.nan)

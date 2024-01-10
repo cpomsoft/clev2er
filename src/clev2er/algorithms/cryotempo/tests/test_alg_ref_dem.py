@@ -84,8 +84,6 @@ def test_alg_ref_dem(l1b_file) -> None:
     success, _ = thisalg.process(l1b, shared_dict)
     assert success, "algorithm should not fail"
 
-    assert (
-        "dem_elevation_values" in shared_dict
-    ), "dem_elevation_values missing from shared_dict"
+    assert "dem_elevation_values" in shared_dict, "dem_elevation_values missing from shared_dict"
 
     # Test outputs of algorithm

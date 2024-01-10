@@ -119,9 +119,7 @@ class Algorithm(BaseAlgorithm):
         self.leap_seconds_file = self.config["leap_seconds"]
         if not os.path.isfile(self.leap_seconds_file):
             self.log.error("leap_seconds file: %s not found", self.leap_seconds_file)
-            raise FileNotFoundError(
-                f"leap_seconds file {self.leap_seconds_file} not found"
-            )
+            raise FileNotFoundError(f"leap_seconds file {self.leap_seconds_file} not found")
 
         return (True, "")
 
@@ -171,13 +169,10 @@ class Algorithm(BaseAlgorithm):
 
         this_grain = Grain(leap_second_filename=self.leap_seconds_file)
 
-        time_tai_dt = [
-            (datetime(2000, 1, 1, 0) + timedelta(seconds=i)) for i in time_20_ku
-        ]
+        time_tai_dt = [(datetime(2000, 1, 1, 0) + timedelta(seconds=i)) for i in time_20_ku]
         time_utc_dt = [this_grain.tai2utc(i) for i in time_20_ku]
         diff_in_seconds = [
-            (time_utc_dt[i] - time_tai_dt[i]).total_seconds()
-            for i in range(len(time_tai_dt))
+            (time_utc_dt[i] - time_tai_dt[i]).total_seconds() for i in range(len(time_tai_dt))
         ]
         time_utc_secs = time_20_ku + np.asarray(diff_in_seconds)
 
@@ -332,12 +327,8 @@ class Algorithm(BaseAlgorithm):
         dset.geospatial_vertical_min = f"{np.nanmin(shared_dict['height_20_ku']):.4f}"
         dset.geospatial_vertical_max = f"{np.nanmax(shared_dict['height_20_ku']):.4f}"
 
-        measurement_start_time = datetime(2000, 1, 1, 0) + timedelta(
-            seconds=time_utc_secs[0]
-        )
-        measurement_end_time = datetime(2000, 1, 1, 0) + timedelta(
-            seconds=time_utc_secs[-1]
-        )
+        measurement_start_time = datetime(2000, 1, 1, 0) + timedelta(seconds=time_utc_secs[0])
+        measurement_end_time = datetime(2000, 1, 1, 0) + timedelta(seconds=time_utc_secs[-1])
 
         dset.time_coverage_start = f"{measurement_start_time}"
         dset.time_coverage_end = f"{measurement_end_time}"
@@ -353,9 +344,7 @@ class Algorithm(BaseAlgorithm):
         dset.sw_version = get_current_commit_hash(self.log)
 
         # Add CNES sub-cycle. Need to check what to do after orbit change in Jul 2020
-        cnes_subcycle, cnes_track = cnes_cycle_to_subcycle(
-            cycle_number, rel_orbit_number
-        )
+        cnes_subcycle, cnes_track = cnes_cycle_to_subcycle(cycle_number, rel_orbit_number)
         dset.cnes_subcycle = np.int32(cnes_subcycle)
         dset.cnes_track = np.int32(cnes_track)
 
@@ -398,9 +387,7 @@ class Algorithm(BaseAlgorithm):
         nc_var = dset.createVariable("latitude", "double", ("time",))
         nc_var.units = "degrees north"
         nc_var.coordinates = "time"
-        nc_var.long_name = (
-            "latitude of measurement at POCA or nadir (if no POCA available)"
-        )
+        nc_var.long_name = "latitude of measurement at POCA or nadir (if no POCA available)"
         nc_var.standard_name = "latitude"
         nc_var.valid_min = -90
         nc_var.valid_max = 90
@@ -417,9 +404,7 @@ class Algorithm(BaseAlgorithm):
         nc_var = dset.createVariable("longitude", "double", ("time",))
         nc_var.units = "degrees east"
         nc_var.coordinates = "time"
-        nc_var.long_name = (
-            "longitude of measurement at POCA or nadir (if no POCA available)"
-        )
+        nc_var.long_name = "longitude of measurement at POCA or nadir (if no POCA available)"
         nc_var.standard_name = "longitude"
         nc_var.valid_min = -180
         nc_var.valid_max = 180
@@ -432,9 +417,7 @@ class Algorithm(BaseAlgorithm):
         nc_var[:] = prod_longitudes
 
         # Instrument_mode
-        nc_var = dset.createVariable(
-            "instrument_mode", np.byte, ("time",), fill_value=-128
-        )
+        nc_var = dset.createVariable("instrument_mode", np.byte, ("time",), fill_value=-128)
         nc_var.coordinates = "longitude latitude"
         nc_var.long_name = "CryoSat SIRAL instrument operating mode"
         nc_var.flag_values = "1b, 2b, 3b"
@@ -485,9 +468,7 @@ class Algorithm(BaseAlgorithm):
         nc_var[:] = shared_dict["sig0_20_ku"]
 
         # surface_type
-        nc_var = dset.createVariable(
-            "surface_type", np.byte, ("time",), fill_value=-128
-        )
+        nc_var = dset.createVariable("surface_type", np.byte, ("time",), fill_value=-128)
         nc_var.coordinates = "longitude latitude"
         nc_var.long_name = "surface type from mask"
         nc_var.flag_values = "0b, 1b, 2b, 3b, 4b"

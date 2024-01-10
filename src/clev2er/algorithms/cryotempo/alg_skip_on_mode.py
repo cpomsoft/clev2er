@@ -102,16 +102,12 @@ class Algorithm(BaseAlgorithm):
         if "lrm_only" in self.config:
             if self.config["lrm_only"]:
                 if shared_dict["instr_mode"] != "LRM":
-                    self.log.info(
-                        "skipping as config:lrm_only specified and mode not LRM"
-                    )
+                    self.log.info("skipping as config:lrm_only specified and mode not LRM")
                     return (False, "SKIP_OK: config:lrm_only specified")
         if "sin_only" in self.config:
             if self.config["sin_only"]:
                 if shared_dict["instr_mode"] != "SIN":
-                    self.log.info(
-                        "skipping as config:sin_only specified and mode not SIN"
-                    )
+                    self.log.info("skipping as config:sin_only specified and mode not SIN")
                     return (False, "SKIP_OK: config:sin_only specified")
 
         # --------------------------------------------------------

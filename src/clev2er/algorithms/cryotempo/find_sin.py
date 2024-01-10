@@ -118,9 +118,7 @@ class FileFinder(BaseFinder):
                 nfiles = len(files)
                 if nfiles:
                     file_list.extend(files)
-                self.log.info(
-                    "Number of files found for %.02d/%d: %d", month, year, nfiles
-                )
+                self.log.info("Number of files found for %.02d/%d: %d", month, year, nfiles)
         self.log.info("Total number of SIN files found: %d", len(file_list))
 
         if "grn_only" in self.config and self.config["grn_only"]:
@@ -133,9 +131,7 @@ class FileFinder(BaseFinder):
                 "chain" in self.config
                 and "max_processes_for_multiprocessing" in self.config["chain"]
             ):
-                num_processes = self.config["chain"][
-                    "max_processes_for_multiprocessing"
-                ]
+                num_processes = self.config["chain"]["max_processes_for_multiprocessing"]
             else:
                 num_processes = 1
 

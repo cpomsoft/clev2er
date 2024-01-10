@@ -36,9 +36,7 @@ def llh_to_ecef_pyproj(lat, lon, alt):
 
     trans = Transformer.from_proj(lla, ecef, always_xy=True)
 
-    x, y, z = trans.transform(  # pylint: disable=E0633
-        xx=lon, yy=lat, zz=alt, radians=False
-    )
+    x, y, z = trans.transform(xx=lon, yy=lat, zz=alt, radians=False)  # pylint: disable=E0633
 
     return x, y, z
 
@@ -59,9 +57,7 @@ def ecef_to_llh_pyproj(x, y, z):
 
     trans = Transformer.from_proj(ecef, lla, always_xy=True)
 
-    lon, lat, height = trans.transform(  # pylint: disable=E0633
-        xx=x, yy=y, zz=z, radians=False
-    )
+    lon, lat, height = trans.transform(xx=x, yy=y, zz=z, radians=False)  # pylint: disable=E0633
 
     return lat, lon, height
 
@@ -345,9 +341,7 @@ def comp_part_devs(lat, lon, meridional, eccentricity):
     return deriv00, deriv01, deriv10, deriv11
 
 
-def calc_echo_dir(
-    deriv00, deriv01, deriv10, deriv11, xs, ys, meridional, zonal, alt, lat
-):
+def calc_echo_dir(deriv00, deriv01, deriv10, deriv11, xs, ys, meridional, zonal, alt, lat):
     """djb to document
 
     Args:
@@ -465,29 +459,17 @@ def prepare_slope(slope_filename):
 
                     slope_header[-1]["id"] = struct.unpack(">h", file_desc.read(2))[0]
 
-                    slope_header[-1]["hemisphere_flag"] = struct.unpack(
-                        ">h", file_desc.read(2)
-                    )[0]
+                    slope_header[-1]["hemisphere_flag"] = struct.unpack(">h", file_desc.read(2))[0]
 
-                    slope_header[-1]["corner_x"] = struct.unpack(
-                        ">d", file_desc.read(8)
-                    )[0]
+                    slope_header[-1]["corner_x"] = struct.unpack(">d", file_desc.read(8))[0]
 
-                    slope_header[-1]["corner_y"] = struct.unpack(
-                        ">d", file_desc.read(8)
-                    )[0]
+                    slope_header[-1]["corner_y"] = struct.unpack(">d", file_desc.read(8))[0]
 
-                    slope_header[-1]["x_num"] = struct.unpack(">h", file_desc.read(2))[
-                        0
-                    ]
+                    slope_header[-1]["x_num"] = struct.unpack(">h", file_desc.read(2))[0]
 
-                    slope_header[-1]["y_num"] = struct.unpack(">h", file_desc.read(2))[
-                        0
-                    ]
+                    slope_header[-1]["y_num"] = struct.unpack(">h", file_desc.read(2))[0]
 
-                    slope_header[-1]["resolution"] = struct.unpack(
-                        ">d", file_desc.read(8)
-                    )[0]
+                    slope_header[-1]["resolution"] = struct.unpack(">d", file_desc.read(8))[0]
 
                     log.debug("Read id %d", slope_header[-1]["id"])
 
@@ -551,9 +533,7 @@ def do_slope(lat, lon, alt, slope, slope_filename, eccentricity, semimajor):
         else:
             log.debug("interpolated slope %f,%f", xs, ys)
 
-        deriv00, deriv01, deriv10, deriv11 = comp_part_devs(
-            lat, lon, meridional, eccentricity
-        )
+        deriv00, deriv01, deriv10, deriv11 = comp_part_devs(lat, lon, meridional, eccentricity)
 
         log.debug("Derivs: %f %f %f %f", deriv00, deriv01, deriv10, deriv11)
 
@@ -665,9 +645,7 @@ def slope_doppler(
 
     los_z = echo_z - sat_z
 
-    los_mag = np.sqrt(
-        np.power(los_x, 2.0) + np.power(los_y, 2.0) + np.power(los_z, 2.0)
-    )
+    los_mag = np.sqrt(np.power(los_x, 2.0) + np.power(los_y, 2.0) + np.power(los_z, 2.0))
 
     v_los = ((vel[:, 0] * los_x) + (vel[:, 1] * los_y) + (vel[:, 2] * los_z)) / los_mag
 

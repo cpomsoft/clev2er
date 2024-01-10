@@ -43,9 +43,7 @@ def get_logger(
     log = logging.getLogger(log_name)
     log.propagate = True
     log_formatter = logging.Formatter(log_format, datefmt="%d/%m/%Y %H:%M:%S")
-    log_formatter_debug = logging.Formatter(
-        log_format_debug, datefmt="%d/%m/%Y %H:%M:%S"
-    )
+    log_formatter_debug = logging.Formatter(log_format_debug, datefmt="%d/%m/%Y %H:%M:%S")
 
     # log messages -> stdout
     if not silent:

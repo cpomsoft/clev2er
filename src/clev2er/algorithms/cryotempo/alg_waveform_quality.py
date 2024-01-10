@@ -166,9 +166,7 @@ class Algorithm(BaseAlgorithm):
         # shared_dict["waveforms_to_include"] : nd.array of size num_records containing bool vals
         # indicating to include waveform in future analysis based on waveform quality and being
         # inside dilated surface mask
-        shared_dict["waveforms_to_include"] = (
-            waveforms_ok & shared_dict["dilated_surface_mask"]
-        )
+        shared_dict["waveforms_to_include"] = waveforms_ok & shared_dict["dilated_surface_mask"]
 
         # Return success (True,'')
         return (True, "")

@@ -54,9 +54,7 @@ def test_alg_skip_on_area_bounds() -> None:
     # This should fail, as algorithm expects shared_dict['instr_mode'] to be present
     success, _ = thisalg.process(l1b, shared_dict)
 
-    assert (
-        success is False
-    ), "Algorithm.process should fail as no shared_dict['instr_mode']"
+    assert success is False, "Algorithm.process should fail as no shared_dict['instr_mode']"
 
     shared_dict["instr_mode"] = "LRM"
 

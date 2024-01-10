@@ -65,12 +65,21 @@ class Mask:
             store_in_shared_memory (bool, optional): stores/access mask array in SharedMemory
             thislog (logging.Logger|None, optional): attach to a different log instance
         """
+        self.nomask = False
+        if not mask_name:
+            self.nomask = True
+            return
         self.mask_name = mask_name
         self.basin_numbers = basin_numbers
         self.store_in_shared_memory = store_in_shared_memory
         self.shared_mem: Any = None
         self.shared_mem_child = False  # set to True if a child process
-
+        self.polygons = None
+        self.polygons_lon = np.array([])
+        self.polygons_lat = np.array([])
+        self.polygon = None
+        self.polygon_lon = np.array([])
+        self.polygon_lat = np.array([])
         self.mask_type = None  # 'xylimits', 'polygon', 'grid','latlimits'
 
         self.crs_wgs = CRS("epsg:4326")  # assuming you're using WGS84 geographic
@@ -103,9 +112,7 @@ class Mask:
                 -3355844,
                 -654853,
             ]  # [miny, maxy] in m, in current  coordinate system
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45W
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45W
 
         # -----------------------------------------------------------------------------
 
@@ -324,9 +331,7 @@ class Mask:
 
             self.load_netcdf_mask(mask_file, flip=False, nc_mask_var="gre_basin_mask")
 
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45
             self.grid_value_names = [
                 "None",
                 "1.1",
@@ -466,9 +471,7 @@ class Mask:
             self.grid_value_names[55] = "NE"
             self.grid_value_names[56] = "NO"
 
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45
 
         else:
             raise ValueError(f"mask name: {mask_name} not supported")
@@ -512,18 +515,12 @@ class Mask:
             except FileNotFoundError:  # Create shared memory with this mask name
                 # first, load the mask array from the netcdf file
                 with Dataset(mask_file) as nc:
-                    mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(
-                        self.dtype
-                    )
+                    mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(self.dtype)
                     if flip:
-                        mask_grid = np.flipud(
-                            mask_grid
-                        )  # flip each column in the up/down dirn
+                        mask_grid = np.flipud(mask_grid)  # flip each column in the up/down dirn
 
                 # Create the shared memory with the appropriate size
-                self.shared_mem = SharedMemory(
-                    name=hash_name, create=True, size=mask_grid.nbytes
-                )
+                self.shared_mem = SharedMemory(name=hash_name, create=True, size=mask_grid.nbytes)
 
                 # Create an ndarray of the correct size linked to the shared mem
                 self.mask_grid = np.ndarray(
@@ -540,9 +537,7 @@ class Mask:
         else:  # load normally without using shared memory
             # read netcdf file
             with Dataset(mask_file) as nc:
-                self.mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(
-                    self.dtype
-                )
+                self.mask_grid = np.array(nc.variables[nc_mask_var][:]).astype(self.dtype)
                 if flip:
                     self.mask_grid = np.flipud(self.mask_grid)
 
@@ -574,15 +569,11 @@ class Mask:
             except FileNotFoundError:  # Create shared memory with this mask name
                 # first, load the mask array from the npz file
                 mask_grid = (
-                    np.load(mask_file, allow_pickle=True)
-                    .get("mask_grid")
-                    .astype(self.dtype)
+                    np.load(mask_file, allow_pickle=True).get("mask_grid").astype(self.dtype)
                 )
 
                 # Create the shared memory with the appropriate size
-                self.shared_mem = SharedMemory(
-                    name=hash_name, create=True, size=mask_grid.nbytes
-                )
+                self.shared_mem = SharedMemory(name=hash_name, create=True, size=mask_grid.nbytes)
 
                 # Create an ndarray of the correct size linked to the shared mem
                 self.mask_grid = np.ndarray(
@@ -599,9 +590,7 @@ class Mask:
         else:  # load normally without using shared memory
             # read npz file
             self.mask_grid = (
-                np.load(mask_file, allow_pickle=True)
-                .get("mask_grid")
-                .astype(self.dtype)
+                np.load(mask_file, allow_pickle=True).get("mask_grid").astype(self.dtype)
             )
 
     def clean_up(self):
@@ -627,9 +616,7 @@ class Mask:
                         )
 
             except Exception as exc:  # pylint: disable=broad-exception-caught
-                self.log.error(
-                    "Shared memory for %s could not be closed %s", self.mask_name, exc
-                )
+                self.log.error("Shared memory for %s could not be closed %s", self.mask_name, exc)
                 raise IOError(
                     f'Shared memory for {self.mask_name} could not be closed {exc}"'
                 ) from exc

@@ -20,12 +20,17 @@ from tifffile import imread  # to support large TIFF files
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-statements
+# pylint: disable=too-many-branches
+# pylint: disable=R0801
 
 log = logging.getLogger(__name__)
 
 # List of supported DEMs
 #   - add to this list if you add a new DEM in the Dem class
 dem_list = [
+    "awi_ant_1km",  # AWI (2014) DEM of Antarctica from CS2. Helm et al.
+    "awi_ant_1km_grounded",  # awi_ant_1km but masked for grounded ice only, from Bedmachine v2 mask
+    "awi_ant_1km_floating",  # awi_ant_1km but masked for floating ice only from Bedmachine v2 mask
     "rema_ant_1km",  # Antarctic REMA v1.1 at 1km
     "rema_ant_1km_v2",  # Antarctic REMA v2.0 at 1km
     "rema_ant_200m",  # Antarctic REMA v1.1 at 200m
@@ -79,6 +84,8 @@ class Dem:
         self.dtype = np.float32
         self.shared_mem: Any = None
         self.shared_mem_child = False  # set to True if a child process
+        self.npz_type = False  # set to True when using .npz DEM file
+
         # is accessing the Dem's shared memory
         # default is False (parent process which allocates
         # the shared memory). Necessary for tracking who
@@ -124,9 +131,7 @@ class Dem:
                 pixel_height = -transform[4]  # Negative because the height is
                 # typically negative in GeoTIFFs
                 if pixel_width != pixel_height:
-                    raise ValueError(
-                        f"pixel_width {pixel_width} != pixel_height {pixel_width}"
-                    )
+                    raise ValueError(f"pixel_width {pixel_width} != pixel_height {pixel_width}")
         except RasterioIOError as exc:
             raise IOError(f"Could not read GeoTIFF: {exc}") from exc
         return (
@@ -139,9 +144,7 @@ class Dem:
             pixel_width,
         )
 
-    def get_filename(
-        self, default_dir: str, filename: str, filled_filename: str
-    ) -> str:
+    def get_filename(self, default_dir: str, filename: str, filled_filename: str) -> str:
         """Find the path of the DEM file from dir and file names :
         For the directory, it is chosen in order of preference:
         a) self.config["dem_dirs"][self.name], or
@@ -199,9 +202,21 @@ class Dem:
                         self.log.info("unlinked shared memory for %s", self.name)
 
             except Exception as exc:  # pylint: disable=broad-exception-caught
-                self.log.error(
-                    "Shared memory for %s could not be closed %s", self.name, exc
-                )
+                self.log.error("Shared memory for %s could not be closed %s", self.name, exc)
+
+    def load_npz(self, npz_file: str):
+        """Load DEM from npz format file
+
+        Args:
+            npz_file (str): path of npz file
+        """
+        data = np.load(npz_file, allow_pickle=True)
+        self.zdem = data["zdem"]
+        self.xdem = data["xdem"]
+        self.ydem = data["ydem"]
+        self.mindemx = data["mindemx"]
+        self.mindemy = data["mindemy"]
+        self.binsize = data["binsize"]
 
     def load_geotiff(self, demfile: str):
         """Load a GeoTIFF file
@@ -235,14 +250,10 @@ class Dem:
                 zdem = imread(demfile)
 
                 # Create the shared memory with the appropriate size
-                self.shared_mem = SharedMemory(
-                    name=self.name, create=True, size=zdem.nbytes
-                )
+                self.shared_mem = SharedMemory(name=self.name, create=True, size=zdem.nbytes)
 
                 # Link the shared memory to the zdem data
-                self.zdem = np.ndarray(
-                    zdem.shape, dtype=zdem.dtype, buffer=self.shared_mem.buf
-                )
+                self.zdem = np.ndarray(zdem.shape, dtype=zdem.dtype, buffer=self.shared_mem.buf)
 
                 # Copy the data from zdem to the shared_np_array
                 self.zdem[:] = zdem[:]
@@ -271,7 +282,64 @@ class Dem:
             bool: DEM loaded ok (True), failed (False)
         """
         # --------------------------------------------------------------------------------
-        if self.name == "arcticdem_1km":
+        if self.name == "awi_ant_1km":
+            filename = "DEM_ANT_CS_20130901.tif"
+            filled_filename = "DEM_ANT_CS_20130901.tif"
+            default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/ant_awi_2013_dem'
+            self.src_url = (
+                "http://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/1km/REMA_1km_dem.tif"
+            )
+            self.src_url_filled = (
+                "http://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/1km/"
+                "REMA_1km_dem_filled.tif"
+            )
+            self.dem_version = "1.0"
+            self.src_institute = "AWI"
+            self.long_name = "AWI Antarctic DEM (2013)"
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.southern_hemisphere = True
+            self.void_value = -9999
+            self.dtype = np.float32
+            self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
+
+        # --------------------------------------------------------------------------------
+        # awi_ant_1km but masked for grounded ice only, using Bedmachine v2 mask
+        elif self.name == "awi_ant_1km_grounded":
+            filename = "ant_awi_2013_dem_grounded.npz"
+            filled_filename = "ant_awi_2013_dem_grounded.npz"
+            default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/ant_awi_2013_dem'
+            self.src_url = ""
+            self.src_url_filled = ""
+            self.dem_version = "1.0"
+            self.src_institute = "AWI"
+            self.long_name = "AWI Antarctic DEM (2013), Grounded Ice only"
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.southern_hemisphere = True
+            self.void_value = -9999
+            self.dtype = np.float32
+            self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
+            self.npz_type = True
+
+        # --------------------------------------------------------------------------------
+        # awi_ant_1km but masked for floating ice only, using Bedmachine v2 mask
+        elif self.name == "awi_ant_1km_floating":
+            filename = "ant_awi_2013_dem_floating.npz"
+            filled_filename = "ant_awi_2013_dem_floating.npz"
+            default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/ant_awi_2013_dem'
+            self.src_url = ""
+            self.src_url_filled = ""
+            self.dem_version = "1.0"
+            self.src_institute = "AWI"
+            self.long_name = "AWI Antarctic DEM (2013), Floating Ice only"
+            self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.southern_hemisphere = True
+            self.void_value = -9999
+            self.dtype = np.float32
+            self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
+            self.npz_type = True
+
+        # --------------------------------------------------------------------------------
+        elif self.name == "arcticdem_1km":
             # Arctic DEM at 1km resolution
 
             filename = "arcticdem_mosaic_1km_v3.0.tif"
@@ -281,16 +349,12 @@ class Dem:
                 "http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/"
                 "v3.0/1km/arcticdem_mosaic_1km_v3.0.tif"
             )
-            self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
-            )
+            self.reference_year = 2010  # YYYY, the year the DEM's elevations are referenced to
             self.src_url_filled = ""
             self.dem_version = "3.0"
             self.src_institute = "PGC"
             self.long_name = "ArcticDEM 1km"
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -lat of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -lat of origin 70N, 45
             self.southern_hemisphere = False
             self.void_value = -9999
             self.dtype = np.float32
@@ -304,8 +368,7 @@ class Dem:
             filled_filename = "REMA_1km_dem_filled.tif"
             default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/rema_1km_dem'
             self.src_url = (
-                "http://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/1km/"
-                "REMA_1km_dem.tif"
+                "http://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/1km/REMA_1km_dem.tif"
             )
             self.src_url_filled = (
                 "http://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/1km/"
@@ -318,9 +381,7 @@ class Dem:
             self.southern_hemisphere = True
             self.void_value = -9999
             self.dtype = np.float32
-            self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
-            )
+            self.reference_year = 2010  # YYYY, the year the DEM's elevations are referenced to
 
         # --------------------------------------------------------------------------------
         elif self.name == "rema_ant_1km_v2":
@@ -358,8 +419,7 @@ class Dem:
             filled_filename = "REMA_200m_dem_filled.tif"
             default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/ant_rema_200m_dem'
             self.src_url = (
-                "https://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/200m/"
-                "REMA_200m_dem.tif"
+                "https://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/200m/REMA_200m_dem.tif"
             )
             self.src_url_filled = (
                 "https://data.pgc.umn.edu/elev/dem/setsm/REMA/mosaic/v1.1/200m/"
@@ -372,9 +432,7 @@ class Dem:
             self.southern_hemisphere = True
             self.void_value = -9999
             self.dtype = np.float32
-            self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
-            )
+            self.reference_year = 2010  # YYYY, the year the DEM's elevations are referenced to
 
         # --------------------------------------------------------------------------------
         elif self.name == "arcticdem_100m_greenland":
@@ -387,16 +445,12 @@ class Dem:
                 "https://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/v3.0/100m/"
                 "arcticdem_mosaic_100m_v3.0.tif"
             )
-            self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
-            )
+            self.reference_year = 2010  # YYYY, the year the DEM's elevations are referenced to
             self.src_url_filled = ""
             self.dem_version = "3.0"
             self.src_institute = "PGC"
             self.long_name = "ArcticDem 100m, Greenland"
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45
             self.southern_hemisphere = False
             self.void_value = -9999
             self.dtype = np.float32
@@ -406,23 +460,17 @@ class Dem:
             # The void areas will contain null values (-9999) in lieu of the terrain elevations.
             filename = "arcticdem_mosaic_100m_v4.1_subarea_greenland.tif"
             filled_filename = ""  # No filled version available
-            default_dir = (
-                f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/arctic_dem_100m_v4.1'
-            )
+            default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/arctic_dem_100m_v4.1'
             self.src_url = (
                 "https://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/mosaic/v3.0/100m/"
                 "arcticdem_mosaic_100m_v3.0.tif"
             )
-            self.reference_year = (
-                2010  # YYYY, the year the DEM's elevations are referenced to
-            )
+            self.reference_year = 2010  # YYYY, the year the DEM's elevations are referenced to
             self.src_url_filled = ""
             self.dem_version = "4.1"
             self.src_institute = "PGC"
             self.long_name = "ArcticDem 100m, Greenland"
-            self.crs_bng = CRS(
-                "epsg:3413"
-            )  # Polar Stereo - North -latitude of origin 70N, 45
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45
             self.southern_hemisphere = False
             self.void_value = -9999
             self.dtype = np.float32
@@ -439,7 +487,10 @@ class Dem:
             self.log.error("Could not form dem path for %s : %s", self.name, exc)
             return False
 
-        self.load_geotiff(demfile)
+        if self.npz_type:
+            self.load_npz(demfile)
+        else:
+            self.load_geotiff(demfile)
 
         # Setup the Transforms
         self.xy_to_lonlat_transformer = Transformer.from_proj(
@@ -569,8 +620,8 @@ class Dem:
         azimuthrad = azimuth * np.pi / 180.0
         altituderad = pitch * np.pi / 180.0
 
-        shaded = np.sin(altituderad) * np.sin(slope) + np.cos(altituderad) * np.cos(
-            slope
-        ) * np.cos((azimuthrad - np.pi / 2.0) - aspect)
+        shaded = np.sin(altituderad) * np.sin(slope) + np.cos(altituderad) * np.cos(slope) * np.cos(
+            (azimuthrad - np.pi / 2.0) - aspect
+        )
 
         self.zdem = 255 * (shaded + 1) / 2

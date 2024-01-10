@@ -132,8 +132,7 @@ class Algorithm(BaseAlgorithm):
             raise ValueError("max_diff_to_ref_dem[_lrm,sin] not in height_filters")
 
         elevation_outliers = np.where(
-            np.abs(shared_dict["height_20_ku"] - shared_dict["dem_elevation_values"])
-            > max_diff
+            np.abs(shared_dict["height_20_ku"] - shared_dict["dem_elevation_values"]) > max_diff
         )[0]
         if elevation_outliers.size > 0:
             shared_dict["height_filt"][elevation_outliers] = np.nan

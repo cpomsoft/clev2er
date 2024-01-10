@@ -34,12 +34,7 @@ def solve_eqn(aaa, bbb, base_vec, crf_centre):
 
     d_xplus = 2.0 * bbb * base_vec[0] / np.power(base_vec[2], 2.0)
 
-    d_befosqrt = (
-        4.0
-        * np.power(bbb, 2.0)
-        * np.power(base_vec[0], 2.0)
-        / np.power(base_vec[2], 4.0)
-    )
+    d_befosqrt = 4.0 * np.power(bbb, 2.0) * np.power(base_vec[0], 2.0) / np.power(base_vec[2], 4.0)
     d_befosqrt -= (
         4.0
         * (np.power(base_vec[0], 2.0) / np.power(base_vec[2], 2.0) + 1.0)
@@ -199,9 +194,7 @@ def angle_to_poca(angle, lat, lon, alt, cor_range, vel_vec, base_vec):
     log.debug("efc_cog %s len %f", str(efc_cog), np.linalg.norm(efc_cog))
     efc_point = efc_vec + efc_cog
     log.debug("efc_point %s len %f", str(efc_point), np.linalg.norm(efc_point))
-    lat_poca, lon_poca, elev_poca = ecef_to_llh_pyproj(
-        efc_point[0], efc_point[1], efc_point[2]
-    )
+    lat_poca, lon_poca, elev_poca = ecef_to_llh_pyproj(efc_point[0], efc_point[1], efc_point[2])
     log.debug("SAT lat=%f lon=%f h=%f", lat, lon, alt)
     log.debug("POCA lat=%f lon=%f h=%f", lat_poca, lon_poca, elev_poca)
     if lon_poca > 180.0:
@@ -236,9 +229,7 @@ def phase_to_angle(
     return angle
 
 
-def geolocate_sin(
-    l1b, config, dem_ant, dem_grn, range_cor_20_ku, ind_wfm_retrack_20_ku
-):
+def geolocate_sin(l1b, config, dem_ant, dem_grn, range_cor_20_ku, ind_wfm_retrack_20_ku):
     """djb to document
 
     Args:
@@ -323,9 +314,7 @@ def geolocate_sin(
             log.info("Completed %d%%", int(complete))
         try:
             # Check if inputs are OK
-            if (
-                ind_wfm_retrack_20_ku[i] == -32768
-            ):  # This is the fill value used in stage1
+            if ind_wfm_retrack_20_ku[i] == -32768:  # This is the fill value used in stage1
                 height_20_ku[i] = np.nan
                 final_lat_20_ku[i] = np.nan
                 final_lon_20_ku[i] = np.nan
@@ -431,10 +420,8 @@ def geolocate_sin(
         # Work out which is best
         idx = np.where(
             np.bitwise_and(
-                np.abs(height_unwrap_20_ku - unwrap_dem)
-                < np.abs(height_20_ku - orig_dem),
-                np.abs(height_20_ku - orig_dem)
-                >= config["sin_geolocation"]["unwrap_trigger_m"],
+                np.abs(height_unwrap_20_ku - unwrap_dem) < np.abs(height_20_ku - orig_dem),
+                np.abs(height_20_ku - orig_dem) >= config["sin_geolocation"]["unwrap_trigger_m"],
             )
         )[0]
 

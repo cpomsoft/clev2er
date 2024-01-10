@@ -116,9 +116,7 @@ class Algorithm(BaseAlgorithm):
         n_waveforms_to_include = np.count_nonzero(waveforms_to_include)
 
         if shared_dict["instr_mode"] == "SIN":
-            self.log.debug(
-                "noise_threshold=%f", self.config["mc_retracker"]["noise_threshold"]
-            )
+            self.log.debug("noise_threshold=%f", self.config["mc_retracker"]["noise_threshold"])
 
             coherence_waveform_20_ku = l1b.variables["coherence_waveform_20_ku"][:].data
             ref_bin_index = self.config["mc_retracker"]["ref_bin_ind_sin"]
@@ -186,9 +184,7 @@ class Algorithm(BaseAlgorithm):
             ) = retrack_tcog_waveforms_cs2(
                 plot_flag=self.config["tcog_retracker"]["show_plots"],
                 waveforms=pwr_waveform_20_ku,  # input waveforms
-                retrack_threshold_lrm=self.config["tcog_retracker"][
-                    "retrack_threshold_lrm"
-                ],
+                retrack_threshold_lrm=self.config["tcog_retracker"]["retrack_threshold_lrm"],
                 ref_bin_ind_lrm=self.config["tcog_retracker"][
                     "ref_bin_ind_lrm"
                 ],  # from CS2 Baseline-D User Manual, p36;
@@ -259,14 +255,10 @@ class Algorithm(BaseAlgorithm):
         shared_dict["retracker_correction"] = dr_meters
 
         # Store fully corrected range
-        shared_dict["range_cor_20_ku"] = (
-            shared_dict["geo_corrected_tracker_range"] + dr_meters
-        )
+        shared_dict["range_cor_20_ku"] = shared_dict["geo_corrected_tracker_range"] + dr_meters
 
         shared_dict["num_retracker_failures"] = n_retrack_failed
-        shared_dict["percent_retracker_failure"] = (
-            100.0 * n_retrack_failed / n_waveforms_to_include
-        )
+        shared_dict["percent_retracker_failure"] = 100.0 * n_retrack_failed / n_waveforms_to_include
 
         # Return success (True,'')
         return (True, "")

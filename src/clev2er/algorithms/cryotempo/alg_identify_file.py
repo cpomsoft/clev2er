@@ -109,9 +109,7 @@ class Algorithm(BaseAlgorithm):
             elif "SAR" in l1b.sir_op_mode:
                 shared_dict["instr_mode"] = "SAR"
             else:
-                error_str = (
-                    f"Invalid mode attribute .sir_op_mode in L1b file {l1b.sir_op_mode}"
-                )
+                error_str = f"Invalid mode attribute .sir_op_mode in L1b file {l1b.sir_op_mode}"
         except AttributeError:
             error_str = "Missing attribute .sir_op_mode in L1b file"
 

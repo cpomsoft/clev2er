@@ -26,9 +26,7 @@ def test_load_algorithm_list():
         assert False, f"Loading config file failed due to {exc}"
 
     n_algs = len(alg_list)
-    assert (
-        n_algs == 2
-    ), f"Should return two algorithms from testchain but {n_algs} returned"
+    assert n_algs == 2, f"Should return two algorithms from testchain but {n_algs} returned"
 
     n_finders = len(finder_list)
     assert n_finders == 0, "Should be no finders returned from testchain"
@@ -51,9 +49,7 @@ def test_load_algorithm_list():
         assert False, f"Loading config file failed due to {exc}"
 
     n_algs = len(alg_list)
-    assert (
-        n_algs == 18
-    ), f"Should return 18 algorithms from cryotempo but {n_algs} returned"
+    assert n_algs == 18, f"Should return 18 algorithms from cryotempo but {n_algs} returned"
 
     n_finders = len(finder_list)
     assert n_finders == 2, "Should be 2 finders returned from cryotempo"
@@ -74,6 +70,4 @@ def test_load_algorithm_list():
         assert False, f"Loading config file failed due to {exc}"
 
     n_algs = len(alg_list)
-    assert (
-        n_algs == 18
-    ), f"Should return 18 algorithms from cryotempo but {n_algs} returned"
+    assert n_algs == 18, f"Should return 18 algorithms from cryotempo but {n_algs} returned"

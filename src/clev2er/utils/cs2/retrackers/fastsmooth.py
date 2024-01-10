@@ -37,9 +37,7 @@ def fastsmooth(input_array, smoothwidth):
 
     smoothed_input_array[0] = (input_array[0] + input_array[1]) / 2.0
     for kkk in range(1, startpoint):
-        smoothed_input_array[kkk] = np.sum(input_array[0 : (kkk * 2) + 1]) / (
-            (kkk * 2) + 1
-        )
+        smoothed_input_array[kkk] = np.sum(input_array[0 : (kkk * 2) + 1]) / ((kkk * 2) + 1)
         smoothed_input_array[length - 1 - kkk] = np.mean(
             input_array[length - 1 - (2 * kkk) + 1 : length - 1]
         )

@@ -203,9 +203,7 @@ class Slopes:
 
         # Transform to x,y if inputs are lon,lat
         if xy_is_lonlat:
-            x, y = self.lonlat_to_xy_transformer.transform(
-                x, y
-            )  # transform lon,lat -> x,y
+            x, y = self.lonlat_to_xy_transformer.transform(x, y)  # transform lon,lat -> x,y
 
         badx = np.flatnonzero(np.logical_or(x < self.minx, x > self.maxx))
         if badx.size > 0:

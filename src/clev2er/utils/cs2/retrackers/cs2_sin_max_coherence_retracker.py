@@ -181,9 +181,7 @@ def retrack_cs2_sin_max_coherence(
     """
 
     if l1b_file and waveforms:
-        raise ValueError(
-            "Must have either l1b_file or waveforms, not both as input to function"
-        )
+        raise ValueError("Must have either l1b_file or waveforms, not both as input to function")
 
     # -------------------------
     # Find if input file is LRM or SIN. Only SIN allowed
@@ -209,9 +207,7 @@ def retrack_cs2_sin_max_coherence(
     # Define system parameters
     # -------------------------
 
-    speed_of_light = (
-        299792458  # speed of light (m/s) from CS2 Baseline-D User Manual, p36.
-    )
+    speed_of_light = 299792458  # speed of light (m/s) from CS2 Baseline-D User Manual, p36.
     bandwidth = 320000000  # chirp bandwidth used (Hz) from from CS2 Baseline-D User Manual, p36.
 
     # compute size of range bin
@@ -270,9 +266,7 @@ def retrack_cs2_sin_max_coherence(
         # skip waveform if include_measurements_array[i] is set to False
         if include_measurements_array is not None:
             if not include_measurements_array[i]:
-                log.debug(
-                    "skip waveform as include_measurements_array[i] is set to False"
-                )
+                log.debug("skip waveform as include_measurements_array[i] is set to False")
                 continue
 
         # ßlog.debug('retracking waveform {} of {}'.format(i ,n_waveforms))
@@ -297,9 +291,7 @@ def retrack_cs2_sin_max_coherence(
         wfnorm_sm = savgol_filter(wfnorm, sm_width, sm_polynomial_order)
 
         # switch end values from 0 to nan
-        wfnorm_sm[
-            wfnorm_sm == 0
-        ] = np.nan  # COMMENT : sets any 0 to Nan, not just end points?
+        wfnorm_sm[wfnorm_sm == 0] = np.nan  # COMMENT : sets any 0 to Nan, not just end points?
 
         # ---------------------
         # compute thermal noise
@@ -325,9 +317,7 @@ def retrack_cs2_sin_max_coherence(
             # set flag
             retrack_flag[i][0] = 1
 
-            log.debug(
-                "quality check 1 FAILED : mean noise above a predefined threshold"
-            )
+            log.debug("quality check 1 FAILED : mean noise above a predefined threshold")
 
             # do not attempt retracking and leave as nan
 
@@ -338,9 +328,7 @@ def retrack_cs2_sin_max_coherence(
             wf_bin_num = np.linspace(0, waveform_size - 1, waveform_size)
 
             # create oversampled waveform bin indices
-            wf_bin_numi = np.linspace(
-                0, waveform_size - 1, waveform_size * wf_oversampling_factor
-            )
+            wf_bin_numi = np.linspace(0, waveform_size - 1, waveform_size * wf_oversampling_factor)
 
             # Oversample normalised waveform
             wfi = np.interp(wf_bin_numi, wf_bin_num, wfnorm)
@@ -377,14 +365,10 @@ def retrack_cs2_sin_max_coherence(
                 #    d_wf_sm > 0
                 #    index > previous_le_ind
 
-                le_index = np.where(
-                    (wfi_sm > (wf_noise_mean + le_id_threshold)) & (d_wf_sm > 0)
-                )[0]
+                le_index = np.where((wfi_sm > (wf_noise_mean + le_id_threshold)) & (d_wf_sm > 0))[0]
 
                 if le_index.size > 0:
-                    le_index = le_index[
-                        le_index > (previous_le_ind + wf_oversampling_factor)
-                    ]
+                    le_index = le_index[le_index > (previous_le_ind + wf_oversampling_factor)]
 
                 # ----------------------------------------------------------------------
                 # quality check 2 - if no samples are sufficiently above the noise floor
@@ -408,9 +392,7 @@ def retrack_cs2_sin_max_coherence(
 
                 # find where the gradient first becomes negative after the power threshold is
                 # exceeded
-                first_peak_ind = np.where(
-                    (d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index])
-                )[0]
+                first_peak_ind = np.where((d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index]))[0]
                 # Select the first one
                 if first_peak_ind.size > 0:
                     first_peak_ind = first_peak_ind[0]
@@ -424,9 +406,7 @@ def retrack_cs2_sin_max_coherence(
                     previous_le_ind = first_peak_ind
 
                     # if reached end of waveform
-                    if previous_le_ind > (
-                        wf_bin_numi.size - wf_oversampling_factor - 1
-                    ):
+                    if previous_le_ind > (wf_bin_numi.size - wf_oversampling_factor - 1):
                         # set flag
                         retrack_flag[i][3] = 1
                         # exit search for leading edge
@@ -455,9 +435,7 @@ def retrack_cs2_sin_max_coherence(
             # only compute retracking points if no flags set
 
             if np.sum(retrack_flag[i]) > 0:
-                log.debug(
-                    "Retracker flags set, so not continuing to find retracking point"
-                )
+                log.debug("Retracker flags set, so not continuing to find retracking point")
             else:
                 # ----------------------------------------------------------------------------
                 # find Max Coherence retracking point for SIN waveforms
@@ -472,9 +450,7 @@ def retrack_cs2_sin_max_coherence(
                 # Find indices of 50% up the leading edge to start search for max coherence
                 #  where WFnorm [ns...ne] > 0.5 * LEamp + LEmin_energy
                 if retrack_smooth_wf:
-                    top_of_le_indices = np.where(
-                        (wfi_sm - wfi_sm[le_index]) > 0.5 * le_dp
-                    )[0]
+                    top_of_le_indices = np.where((wfi_sm - wfi_sm[le_index]) > 0.5 * le_dp)[0]
                 else:
                     top_of_le_indices = np.where((wfi - wfi[le_index]) > 0.5 * le_dp)[0]
                 # Restrict to between le_index and first_peak_ind
@@ -505,14 +481,11 @@ def retrack_cs2_sin_max_coherence(
                             index_of_max_coherence * wf_oversampling_factor
                         ]
                         retrack_point_mc[i][2] = (
-                            wfi_sm[index_of_max_coherence * wf_oversampling_factor]
-                            * wf_max
+                            wfi_sm[index_of_max_coherence * wf_oversampling_factor] * wf_max
                         )
                     else:
                         retrack_point_mc[i][0] = index_of_max_coherence
-                        retrack_point_mc[i][1] = (
-                            waveform[index_of_max_coherence] / wf_max
-                        )
+                        retrack_point_mc[i][1] = waveform[index_of_max_coherence] / wf_max
                         retrack_point_mc[i][2] = waveform[index_of_max_coherence]
 
                     if retrack_point_mc[i][2] == 0:
@@ -546,9 +519,7 @@ def retrack_cs2_sin_max_coherence(
                     ax1.plot(wf_bin_numi, d_wf_sm, color="lightgray", label="gradient")
                     ax1.set_xlabel("Waveform bin number")
                     ax1.set_ylabel("Normalised power")
-                    ax1.set_title(
-                        f"{mode_str} Waveform Retracking for Measurement Number : {i}"
-                    )
+                    ax1.set_title(f"{mode_str} Waveform Retracking for Measurement Number : {i}")
                     ax1.xaxis.grid()
                     ax1.yaxis.grid()
                     ax1.axvline(
@@ -610,12 +581,8 @@ def retrack_cs2_sin_max_coherence(
                         label="LE index",
                     )
 
-                    ax2.axvline(
-                        x=mc_start_index, color="pink", linestyle="-.", label="MC Start"
-                    )
-                    ax2.axvline(
-                        x=mc_end_index, color="pink", linestyle="-.", label="MC End"
-                    )
+                    ax2.axvline(x=mc_start_index, color="pink", linestyle="-.", label="MC Start")
+                    ax2.axvline(x=mc_end_index, color="pink", linestyle="-.", label="MC End")
                     ax2.axvline(
                         x=index_of_max_coherence,
                         color="pink",

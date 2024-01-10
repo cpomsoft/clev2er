@@ -50,9 +50,7 @@ def test_run_chain(mp_enabled):
 
     # Load and parse the algorithm list
     try:
-        yml = EnvYAML(
-            algorithm_list_file
-        )  # read the YML and parse environment variables
+        yml = EnvYAML(algorithm_list_file)  # read the YML and parse environment variables
     except ValueError as exc:
         assert False, f"can not read algorithm list YML file {exc}"
 

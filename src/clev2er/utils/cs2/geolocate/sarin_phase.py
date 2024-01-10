@@ -164,9 +164,7 @@ def extract_phase_window(phase_in, phase_window_start, phase_window_width, unwra
         _type_: _description_
     """
     if unwrap:
-        phase_i = np.copy(
-            phase_in[phase_window_start : phase_window_start + phase_window_width]
-        )
+        phase_i = np.copy(phase_in[phase_window_start : phase_window_start + phase_window_width])
         phase_o = np.unwrap(phase_i)
         while np.median(phase_o) < -np.pi:
             phase_o = phase_o + 2.0 * np.pi
@@ -191,9 +189,7 @@ def phase_fit_lsq(phase, coherence, position, bad_1, bad_2, bad_3, config):
     Returns:
         _type_: _description_
     """
-    window_start = int(
-        np.floor(position) - config["sin_geolocation"]["phase_window_width"] / 2
-    )
+    window_start = int(np.floor(position) - config["sin_geolocation"]["phase_window_width"] / 2)
     if window_start < 0:
         return np.nan, bad_1, bad_2, bad_3
     if window_start + config["sin_geolocation"]["phase_window_width"] >= len(phase):
@@ -209,9 +205,7 @@ def phase_fit_lsq(phase, coherence, position, bad_1, bad_2, bad_3, config):
     ]
     guess = [
         np.mean(
-            np.unwrap(
-                phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)]
-            )
+            np.unwrap(phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)])
         ),
         0.0,
         position,
@@ -241,11 +235,7 @@ def phase_fit_lsq(phase, coherence, position, bad_1, bad_2, bad_3, config):
     if "do_three" in config["sin_geolocation"]:
         guess = [
             np.mean(
-                np.unwrap(
-                    phase_data[
-                        0 : int(config["sin_geolocation"]["phase_window_width"] / 2)
-                    ]
-                )
+                np.unwrap(phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)])
             ),
             0.05,
             position,
@@ -272,11 +262,7 @@ def phase_fit_lsq(phase, coherence, position, bad_1, bad_2, bad_3, config):
         )
         guess = [
             np.mean(
-                np.unwrap(
-                    phase_data[
-                        0 : int(config["sin_geolocation"]["phase_window_width"] / 2)
-                    ]
-                )
+                np.unwrap(phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)])
             ),
             -0.05,
             position,
@@ -327,9 +313,7 @@ def phase_fit_cuf(phase, coherence, position, bad_1, bad_2, bad_3, config):
     Returns:
         _type_: _description_
     """
-    window_start = int(
-        np.floor(position) - config["sin_geolocation"]["phase_window_width"] / 2
-    )
+    window_start = int(np.floor(position) - config["sin_geolocation"]["phase_window_width"] / 2)
 
     if window_start < 0:
         return np.nan, bad_1, bad_2, bad_3
@@ -345,14 +329,10 @@ def phase_fit_cuf(phase, coherence, position, bad_1, bad_2, bad_3, config):
         unwrap=True,
     )
 
-    const_guess = np.mean(
-        phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)]
-    )
+    const_guess = np.mean(phase_data[0 : int(config["sin_geolocation"]["phase_window_width"] / 2)])
     guess = np.asarray([0.0, const_guess, position], dtype=np.float64)
     coh = coherence[
-        int(window_start) : int(
-            window_start + config["sin_geolocation"]["phase_window_width"]
-        )
+        int(window_start) : int(window_start + config["sin_geolocation"]["phase_window_width"])
     ]
     # x vals need to be in a list or it gets spread across the tuple
     ttt = np.asarray(
@@ -376,8 +356,7 @@ def phase_fit_cuf(phase, coherence, position, bad_1, bad_2, bad_3, config):
         fits = res_1[0][1]
         resid_1 = np.sum(
             np.power(
-                phase_func_curve_fit(ttt, res_1[0][0], res_1[0][1], res_1[0][2])
-                - phase_data,
+                phase_func_curve_fit(ttt, res_1[0][0], res_1[0][1], res_1[0][2]) - phase_data,
                 2.0,
             )
         )
@@ -399,8 +378,7 @@ def phase_fit_cuf(phase, coherence, position, bad_1, bad_2, bad_3, config):
             )
             resid_2 = np.sum(
                 np.power(
-                    phase_func_curve_fit(ttt, res_2[0][0], res_2[0][1], res_2[0][2])
-                    - phase_data,
+                    phase_func_curve_fit(ttt, res_2[0][0], res_2[0][1], res_2[0][2]) - phase_data,
                     2.0,
                 )
             )
@@ -420,8 +398,7 @@ def phase_fit_cuf(phase, coherence, position, bad_1, bad_2, bad_3, config):
             )
             resid_3 = np.sum(
                 np.power(
-                    phase_func_curve_fit(ttt, res_3[0][0], res_3[0][1], res_3[0][2])
-                    - phase_data,
+                    phase_func_curve_fit(ttt, res_3[0][0], res_3[0][1], res_3[0][2]) - phase_data,
                     2.0,
                 )
             )
@@ -506,9 +483,7 @@ def phase_fit_sample(phase, coherence, position, bad_1, bad_2, bad_3, config=Non
             ppp = np.nanmean(phase[wstart:wend])
             ccc = np.nanmean(coherence[wstart:wend])
     else:
-        raise ValueError(
-            "Invalid config: window phase extraction requested without a method"
-        )
+        raise ValueError("Invalid config: window phase extraction requested without a method")
 
     if "mask" in config["sin_geolocation"]:
         if config["sin_geolocation"]["mask"]:
@@ -518,9 +493,7 @@ def phase_fit_sample(phase, coherence, position, bad_1, bad_2, bad_3, config=Non
                 ths = 0.8
             if ccc < ths:
                 ppp = np.nan
-                raise SINLocateError(
-                    "Phase retrieval failed due to coherence threshold"
-                )
+                raise SINLocateError("Phase retrieval failed due to coherence threshold")
 
     return ppp, bad_1, bad_2, bad_3
 

@@ -42,9 +42,7 @@ def sarin_waveform_qc_checks(
     """
 
     if not np.any(pwr_waveform_20_ku):
-        log.error(
-            "No pwr_waveform_20_ku waveforms passed to waveform_qc_checks function"
-        )
+        log.error("No pwr_waveform_20_ku waveforms passed to waveform_qc_checks function")
         sys.exit()
 
     n_waveforms, waveform_size = np.shape(pwr_waveform_20_ku)
@@ -142,9 +140,7 @@ def lrm_waveform_qc_checks(
     n_le_failed = 0
 
     if not np.any(pwr_waveform_20_ku):
-        log.error(
-            "No pwr_waveform_20_ku waveforms passed to waveform_qc_checks function"
-        )
+        log.error("No pwr_waveform_20_ku waveforms passed to waveform_qc_checks function")
         sys.exit()
 
     n_waveforms, waveform_size = np.shape(pwr_waveform_20_ku)
@@ -179,9 +175,7 @@ def lrm_waveform_qc_checks(
             #  Check waveform total power > threshold (3e-16 )
             # -----------------------------------------------------------------------------
 
-            total_power = np.sum(
-                pwr_waveform * echo_scale_factor * (2.0**echo_scale_pwr)
-            )
+            total_power = np.sum(pwr_waveform * echo_scale_factor * (2.0**echo_scale_pwr))
             if total_power < total_power_threshold:
                 waveforms_ok[i] = False
                 n_total_power_failed += 1
