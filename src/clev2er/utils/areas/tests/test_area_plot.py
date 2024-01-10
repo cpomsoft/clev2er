@@ -196,3 +196,29 @@ def test_area_plot_good():
         ),
         config=config,
     )
+
+
+def test_area_plot_flags():
+    """pytests for clev2er.utils.areas.area_plot"""
+
+    config = {}
+
+    dataset = {
+        "name": "mydata_1",
+        "units": "m",
+        "lats": np.linspace(-85, -75, 10),
+        "lons": np.linspace(0, 2, 10),
+        "vals": [0, 0, 0, 1, 1, 1, 2, 1, 2, 0],
+        "flag_names": ["lrm", "sin", "sar"],
+        "flag_colors": ["red", "blue", "green"],
+        "flag_values": [0, 1, 2],
+    }
+
+    Polarplot("antarctica_basic").plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            "test_plots/test_flags.png"
+        ),
+        config=config,
+    )

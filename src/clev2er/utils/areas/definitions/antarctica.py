@@ -65,6 +65,21 @@ area_definition = {
     "use_cartopy_coastline": None,  # None, 'low','medium', 'high' resolution
     "show_gridlines": True,  # True|False, display lat/lon grid lines
     # ------------------------------------------------------
+    # Flag plot settings
+    # ------------------------------------------------------
+    "include_flag_legend": False,  # include or not the flag legend
+    "flag_legend_xylocation": [
+        None,
+        None,
+    ],  # x, y of flag legend lower right bbox
+    "flag_legend_location": "upper right",  # position of flag legend bbox
+    "include_flag_percents": True,  # include or not the flag percentage sub-plot
+    "flag_perc_axis": [
+        0.74,
+        0.25,
+        0.10,
+    ],  # [left,bottom, width] of axis. Note height is auto set
+    # ------------------------------------------------------
     # Default colormap for primary dataset (can be overridden in dataset dicts)
     # ------------------------------------------------------
     "cmap_name": "RdYlBu_r",  # colormap name to use for this dataset

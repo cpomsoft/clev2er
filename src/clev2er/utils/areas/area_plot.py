@@ -4,7 +4,7 @@ class to plot areas defined in cleve2er.utils.areas.definitions
 To do reminder:
 
 pre-commit run --all
-plot stats (min,max,stdev, num)
+plot stats (min,max,stdev, num) for other areas (vertical cbars)
 flag support
 grid support
 standard annotation & disable
@@ -12,7 +12,6 @@ greenland area
 vostok area
 arctic area
 """
-
 
 import logging
 import os
@@ -61,21 +60,36 @@ def calculate_mad(values: np.ndarray):
 @dataclass
 class Annotation:
     """
-    Annotation dataclass for polar plots
+    Represents an annotation in a polar plot.
+
+    Attributes:
+        xpos (float): The x-coordinate position of the annotation text in axis coordinates (0-1),
+                      representing the percentage of the axis width.
+        ypos (float): The y-coordinate position of the annotation text in axis coordinates (0-1),
+                      representing the percentage of the axis height.
+        text (str): The content of the annotation text.
+        bbox (dict | None): An optional bounding box around the text. If provided, it should be a
+                            dictionary specifying the style of the box. Default is None, meaning no
+                            box. Example format:
+                                {
+                                    'boxstyle': 'round',  # Style of the box (e.g.,'round','square')
+                                    'facecolor': 'aliceblue',  # Background color of the box
+                                    'alpha': 1.0,  # Transparency of the box (0-1)
+                                    'edgecolor': 'lightgrey',  # Color of the box edge
+                                }
+                            See matplotlib Boxstyle documentation for more styles.
+        fontsize (int): The font size of the text. Default is 12.
+        color (str): The color of the text. Default is "k" (black).
+        fontweight (str): The weight (thickness) of the font. Default is "normal".
     """
 
-    xpos: float  # x position of annotation text in axis coords (0-1)
-    ypos: float  # y position of annotation text in axis coords (0-1)
-    text: str  # text of annotation
+    xpos: float
+    ypos: float
+    text: str
     bbox: dict | None = None
     fontsize: int = 12
     color: str = "k"
     fontweight: str = "normal"
-    #         example : dict(
-    #             boxstyle="round",  # see matplotlib Boxstyle names
-    #             facecolor="aliceblue",
-    #             alpha=1.0,
-    #             edgecolor="lightgrey",)
 
 
 class Polarplot:
@@ -126,8 +140,14 @@ class Polarplot:
                         # --- flagging bad data for this data set, plotted in mini-map
                         "fill_value": 9999, # fill value in vals to be ignored or None
                         "valid_range": [min,max],# [min,max] or None. allowed vals range. flagged as
-                                                 # bad outside. default is actual min,max of vals
-                        "minimap_val_scalefactor": 1.,# (float) scale the default plot marker
+                                                 # bad outside this range.
+                                                 # default is actual min,max of vals
+                        "minimap_val_scalefactor": 1.,# (float) scale the default
+                                                      # plot marker for bad data
+                        # -- flag type data settings --------------------------------
+                        "flag_values": [], # list of flag values. If used vals treated as flag data
+                        "flag_names": [], # list of flag names
+                        "flag_colors": [] # list of flag colors
                         # --- color map, color bar
                         "cmap_name": "RdYlBu_r", # colormap name to use for this dataset
                         "cmap_over_color": "#A85754" or None
@@ -364,7 +384,9 @@ class Polarplot:
                 # convert to ndarray if a list
                 if not isinstance(lats, np.ndarray):
                     lats = np.asarray(lats)
+                if not isinstance(lons, np.ndarray):
                     lons = np.asarray(lons)
+                if not isinstance(vals, np.ndarray):
                     vals = np.asarray(vals)
 
                 # ------------------------------------------------------------------------------
@@ -524,6 +546,8 @@ class Polarplot:
                 # Plot data
                 # ------------------------------------------------------------------------------
 
+                is_flag_data = len(data_set.get("flag_values", [])) > 0
+
                 if valid_indices.size > 0:
                     # Get colormap info for this dataset
                     cmap_info = {
@@ -539,20 +563,32 @@ class Polarplot:
                         "max_plot_range": data_set.get("max_plot_range", np.nanmax(vals)),
                     }
 
-                    scatter, cmap = self.plot_data(
-                        ax,
-                        lats,
-                        lons,
-                        vals,
-                        cmap_info,
-                        data_set.get("plot_size_scale_factor", 1.0),
-                        data_set.get("plot_alpha", 1.0),
-                    )
+                    if is_flag_data:
+                        # Plot flag values
+                        self.plot_flag_data(
+                            fig,
+                            ax,
+                            lats,
+                            lons,
+                            vals,
+                            data_set,
+                        )
+                    else:
+                        # Plot normal values
+                        scatter, cmap = self.plot_data(
+                            ax,
+                            lats,
+                            lons,
+                            vals,
+                            cmap_info,
+                            data_set.get("plot_size_scale_factor", 1.0),
+                            data_set.get("plot_alpha", 1.0),
+                        )
 
                 # Only draw colorbar and histograms of 1st data set
                 if ds_num == 0:
                     ds_name_0 = data_set.get("name", "unnamed")
-                    if valid_indices.size > 0:
+                    if valid_indices.size > 0 and not is_flag_data:
                         draw_colorbar = bool(
                             plot_params.get("draw_colorbar", self.thisarea.draw_colorbar)
                         )
@@ -1081,6 +1117,177 @@ class Polarplot:
 
         return cbar
 
+    def plot_flag_data(
+        self,
+        fig,
+        ax,
+        lats,
+        lons,
+        vals,
+        data_set,
+    ):
+        """plot flag data
+
+        Args:
+            fig (Figure) : the plot figure
+            ax (GeoAxesSubplot): the main plot axis
+            lats (np.ndarray): latitude values
+            lons (np.ndarray): longitude values
+            vals (np.ndarray): data containing flag values to plot
+            data_set (dict): the current data set
+        """
+        varname = data_set.get("name", "unnamed")
+        flag_names = data_set.get("flag_names", [])
+        flag_values = data_set.get("flag_values", [])
+        flag_colors = data_set.get("flag_colors", [])
+        plot_size_scale_factor = data_set.get("plot_size_scale_factor", 1.0)
+
+        if len(flag_names) < 1:
+            log.error("zero length flag_names found")
+            return
+        if len(flag_names) != len(flag_values):
+            log.error(
+                "flag_names[%d] and flag_values[%d] have different lengths",
+                len(flag_names),
+                len(flag_values),
+            )
+            return
+        if len(flag_names) != len(flag_colors):
+            log.error(
+                "flag_names[%d] and flag_colors[%d] have different lengths!",
+                len(flag_names),
+                len(flag_colors),
+            )
+            return
+
+        # Default size is 36. Scale up or down
+        scale_factor = 36 * plot_size_scale_factor
+
+        number_of_each_flag = []
+        percent_of_each_flag = []
+        total = vals.size
+
+        for flag_index in range(len(flag_names)):
+            flagindices = np.flatnonzero(vals == flag_values[flag_index])
+            if flagindices.size > 0:
+                ax.scatter(
+                    lons[flagindices],
+                    lats[flagindices],
+                    marker=".",
+                    c=flag_colors[flag_index],
+                    s=scale_factor,
+                    transform=ccrs.PlateCarree(),
+                    zorder=20,
+                )
+
+            number_of_each_flag.append(flagindices.size)
+            if total > 0:
+                percent_of_each_flag.append(100.0 * flagindices.size / total)
+            else:
+                percent_of_each_flag.append(0.0)
+        number_of_flags = flag_index
+
+        if self.thisarea.include_flag_legend:
+            # Add a legend. Firstly create new handles to display legend as wider bar
+            handles = []
+            for flag_index, flagname in enumerate(flag_names):
+                if flag_colors is None:
+                    h = mpatches.Patch(label=flagname)
+                else:
+                    h = mpatches.Patch(color=flag_colors[flag_index], label=flagname)
+                handles.append(h)
+
+            if self.thisarea.flag_legend_xylocation[0] is not None:
+                plt.legend(
+                    handles=handles,
+                    loc="lower right",
+                    bbox_to_anchor=(
+                        self.thisarea.flag_legend_xylocation[0],
+                        self.thisarea.flag_legend_xylocation[1],
+                    ),
+                )
+            else:
+                plt.legend(handles=handles, loc=self.thisarea.flag_legend_location)
+
+        if self.thisarea.include_flag_percents:
+            # Flag bar plot is composed of 2 main sections
+            #   1) a colour square per flag, (similar to a legend, so you can see flag colours
+            #    that have low percentages)
+            #   2) a percent bar indicator
+            #   3) percent number labels
+
+            # Setup colour square y-axis
+            # [left,bottom, width, height] of axis.
+            axis_flag_color_square = fig.add_axes(
+                [
+                    self.thisarea.flag_perc_axis[0],
+                    self.thisarea.flag_perc_axis[1],
+                    0.02,
+                    0.04 * number_of_flags,
+                ],  # left, bottom, width, height (fractions of axes)
+            )
+            axis_flag_color_square.spines["top"].set_visible(False)
+            axis_flag_color_square.spines["right"].set_visible(False)
+            axis_flag_color_square.spines["bottom"].set_visible(False)
+            axis_flag_color_square.spines["left"].set_visible(False)
+            axis_flag_color_square.get_xaxis().set_ticks([])
+            axis_flag_color_square.get_yaxis().set_ticks([])
+
+            # Plot bar plot of number of each flag
+            bar_width = 0.8
+            for flag_index, flagname in enumerate(flag_names):
+                axis_flag_color_square.barh(
+                    flag_index,
+                    10,
+                    bar_width,
+                    color=None if flag_colors is None else flag_colors[flag_index],
+                )
+            plt.xlabel("")  # bottom label
+            plt.yticks(np.arange(len(flag_names)), flag_names)  # left hand axis labels
+
+            # ----------------------------------------------------------------------------------
+            # scale bar plot depending upon number of flags
+            flag_bar_ax = fig.add_axes(
+                [
+                    self.thisarea.flag_perc_axis[0],
+                    self.thisarea.flag_perc_axis[1],
+                    self.thisarea.flag_perc_axis[2],
+                    0.04 * number_of_flags,
+                ]
+            )  # left, bottom, width, height (fractions of axes)
+
+            # Plot bar plot of number of each flag
+
+            for flag_index, flagname in enumerate(flag_names):
+                flag_bar_ax.barh(
+                    flag_index,
+                    percent_of_each_flag[flag_index],
+                    bar_width,
+                    color=None if flag_colors is None else flag_colors[flag_index],
+                )
+
+            plt.yticks(np.arange(len(flag_names)), flag_names)  # left hand axis labels
+            plt.xlabel("% " + varname)  # bottom label
+            plt.xlim(left=-30, right=100)  # x-axis range limits
+            flag_bar_ax.patch.set_alpha(0.01)
+
+            # Setup second y-axis on right with % of flag numbers as tick marks
+            flag_bar_ax2 = flag_bar_ax.twinx()
+            sperc = []
+            for flag_index, flagname in enumerate(flag_names):
+                flag_bar_ax2.barh(
+                    flag_index,
+                    percent_of_each_flag[flag_index],
+                    bar_width,
+                    color=None if flag_colors is None else flag_colors[flag_index],
+                )
+                sperc.append(f"{percent_of_each_flag[flag_index]:.2f}%")
+
+            plt.yticks(np.arange(len(flag_names)), sperc)
+
+            # plot a dividing line between colour squares and colour bars
+            plt.axvline(x=0, color="lightgray", linestyle="-", lw="2")
+
     def plot_data(
         self,
         ax: GeoAxesSubplot,
@@ -1094,7 +1301,7 @@ class Polarplot:
         """plot lat,lon,vals, data on map
 
         Args:
-            ax (GeoAxesSubplot): _description_
+            ax (GeoAxesSubplot): the main plot axis
             lats (np.ndarray): latitude values
             lons (np.ndarray): longitude values
             vals (np.ndarray): values to plot

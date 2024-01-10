@@ -123,6 +123,19 @@ class Area:
         )
         self.use_cartopy_coastline = area_definition.get("use_cartopy_coastline", None)
         self.show_gridlines: bool = area_definition.get("show_gridlines", True)
+        # Flag Settings
+        self.include_flag_legend = area_definition.get("include_flag_legend", False)
+        self.flag_legend_xylocation = area_definition.get("flag_legend_xylocation", [None, None])
+        self.flag_legend_location = area_definition.get("flag_legend_location", "upper right")
+        self.include_flag_percents = area_definition.get("include_flag_percents", True)
+        self.flag_perc_axis = area_definition.get(
+            "flag_perc_axis",
+            [
+                0.84,
+                0.25,
+                0.09,
+            ],
+        )
         # Colormap
         self.cmap_name = area_definition.get("cmap_name", "RdYlBu_r")
         self.cmap_over_color = area_definition.get("cmap_over_color", "#A85754")
