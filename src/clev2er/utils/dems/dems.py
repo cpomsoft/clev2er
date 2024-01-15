@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 #   - add to this list if you add a new DEM in the Dem class
 dem_list = [
     "awi_ant_1km",  # AWI (2014) DEM of Antarctica from CS2. Helm et al.
+    "awi_grn_1km",  # AWI (2014) DEM of Greenland from CS2. Helm et al.
     "awi_ant_1km_grounded",  # awi_ant_1km but masked for grounded ice only, from Bedmachine v2 mask
     "awi_ant_1km_floating",  # awi_ant_1km but masked for floating ice only from Bedmachine v2 mask
     "rema_ant_1km",  # Antarctic REMA v1.1 at 1km
@@ -337,6 +338,21 @@ class Dem:
             self.dtype = np.float32
             self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
             self.npz_type = True
+        # --------------------------------------------------------------------------------
+        elif self.name == "awi_grn_1km":
+            filename = "DEM_GRE_CS_20130826.tif"
+            filled_filename = "DEM_GRE_CS_20130826.tif"
+            default_dir = f'{os.environ["CPDATA_DIR"]}/SATS/RA/DEMS/grn_awi_2013_dem'
+            self.src_url = ""
+            self.src_url_filled = ""
+            self.dem_version = "1.0"
+            self.src_institute = "AWI"
+            self.long_name = "AWI Greenlabd DEM (2013)"
+            self.crs_bng = CRS("epsg:3413")  # Polar Stereo - South -71S
+            self.southern_hemisphere = False
+            self.void_value = -9999
+            self.dtype = np.float32
+            self.reference_year = 0  # YYYY, the year the DEM's elevations are referenced to
 
         # --------------------------------------------------------------------------------
         elif self.name == "arcticdem_1km":

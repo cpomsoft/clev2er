@@ -174,7 +174,7 @@ class Background:
         print("-------------------------------------------------------------")
         print(f"Background: {self.name}")
 
-        print("resolution=", resolution)
+        log.info("resolution=%s", resolution)
         print("alpha=", alpha)
 
         # Most background files are stored here (unless they are too big)
@@ -690,6 +690,7 @@ class Background:
                 y_grid = data["Y"]
             except IOError:
                 log.error("Could not read %s", bgfile)
+                sys.exit(f"Could not read {bgfile}")
 
             thiscmap = plt.cm.get_cmap("Blues_r", 8)
 
@@ -711,7 +712,7 @@ class Background:
 
             bgfile = (
                 f'{os.environ["CPDATA_DIR"]}/RESOURCES/backgrounds/'
-                "IBCAO_v4.2_bathymetry_{resolution}.npz"
+                f"IBCAO_v4.2_bathymetry_{resolution}.npz"
             )
 
             try:
@@ -1015,8 +1016,8 @@ class Background:
             thiscmap = plt.cm.get_cmap("Greys", 64)
             thiscmap.set_bad(color="aliceblue")
             max_elevation = self.thisarea.max_elevation
-            if self.thisarea.max_elevation_dem:
-                max_elevation = self.thisarea.max_elevation_dem
+            if self.thisarea.max_elevation:
+                max_elevation = self.thisarea.max_elevation
             ax.pcolormesh(
                 x_grid,
                 y_grid,

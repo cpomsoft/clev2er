@@ -178,7 +178,14 @@ def test_area_plot_annotation():
 def test_area_plot_good():
     """pytests for clev2er.utils.areas.area_plot"""
 
-    config = {}
+    config = {
+        "background_image": [
+            "ibcso_bathymetry",
+            "hillshade",
+        ],
+        "background_image_alpha": [0.4, 0.1],
+        "background_color": "white",
+    }
 
     dataset = {
         "name": "mydata_1",
@@ -206,9 +213,9 @@ def test_area_plot_flags():
     dataset = {
         "name": "mydata_1",
         "units": "m",
-        "lats": np.linspace(-85, -75, 10),
-        "lons": np.linspace(0, 2, 10),
-        "vals": [0, 0, 0, 1, 1, 1, 2, 1, 2, 0],
+        "lats": np.linspace(-85, -75, 13),
+        "lons": np.linspace(0, 2, 13),
+        "vals": [0, 0, 0, 1, 1, 1, 2, 1, 2, 0, 4, 4, 4],
         "flag_names": ["lrm", "sin", "sar"],
         "flag_colors": ["red", "blue", "green"],
         "flag_values": [0, 1, 2],
@@ -219,6 +226,39 @@ def test_area_plot_flags():
         output_file=(
             f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
             "test_plots/test_flags.png"
+        ),
+        config=config,
+    )
+
+
+def test_area_plot_grn():
+    """pytest to test plotting over the 'greenland' area"""
+    config = {
+        "background_image": [
+            "ibcao_bathymetry",
+            "hillshade",
+        ],
+        "background_image_alpha": [0.4, 0.1],
+        "background_color": "white",
+    }
+
+    dataset = {
+        "name": "mydata_1",
+        "units": "m",
+        "lats": np.linspace(60, 85, 100),
+        "lons": np.linspace(-42, -40, 100),
+        "vals": np.linspace(10000, 20000, 100),
+        "fill_value": 99999,
+    }
+
+    dataset["vals"][0:50] = np.nan
+    dataset["vals"][51:70] = 99999
+
+    Polarplot("greenland").plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            "test_plots/test_greenland.png"
         ),
         config=config,
     )

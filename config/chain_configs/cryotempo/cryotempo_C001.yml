@@ -1,7 +1,10 @@
 # Cryo-TEMPO Baseline settings
 # Change Log from previous baseline:
-#   - tcog_retracker: retrack_threshold_lrm: 0.1 
-#   - lrm_lepta_geolocation settings added 
+#   - tcog_retracker: 
+#      retrack_threshold_lrm: 0.1
+#      le_dp_threshold: 0.4
+#   - lrm_roemer_geolocation use for LRM geolocation
+#      arcticdem_100m_greenland_v4.1
 
 project: cryotempo
 theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
@@ -68,7 +71,7 @@ tcog_retracker:
   wf_oversampling_factor: 100
   noise_threshold: 0.3
   le_id_threshold: 0.05
-  le_dp_threshold: 0.2
+  le_dp_threshold: 0.4
   show_plots: false
 
 # Maximum Coherence Retracker
@@ -115,23 +118,57 @@ sin_geolocation:
   unwrap_trigger_m: 0
 
 lrm_lepta_geolocation:
-  # for LEPTA searches, gradually expand range window from leading edge
-  antarctic_dem: rema_ant_200m
-  greenland_dem: arcticdem_100m_greenland
-  filter_on_leading_edge: True
-  use_mean_location_in_window: False
-  range_increment: 5
-  num_range_increments: 10
-  median_filter: False
-  filter_on_tracker_range_window: False
-  use_bottom_half_of_leading_edge: False
-  include_slope_doppler_correction: True
-  include_dhdt_correction: True
+  # Configuration for the LRM LEPTA slope correction method (based on Li et al, 2022)
+  #
+  # DEM selection
+  antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
+  greenland_dem: arcticdem_100m_greenland # Dem class name to use for the slope correction over GIS
+  median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
+  include_dhdt_correction: False
   dhdt_grn_name: grn_is2_is1_smith
+  dhdt_ant_name: ais_is2_is1_smith
+  # Range Search Window
+  use_full_leading_edge: True
+  use_window_around_retracking_point: False
+  delta_range_offset: 1.25  # m as per Li et al
+  # POCA x,y calculation method
+  use_mean_xy_in_window: False
+  use_xy_at_min_dem_to_sat_distance: True
+  # POCA z calculation method  
+  use_z_at_min_dem_to_sat_distance: False
+  use_mean_z_in_window: False
+  use_median_z_in_window: False
+  use_median_height_around_point: True
+  # Additional height corrections
+  include_slope_doppler_correction: True
+
+
+lrm_roemer_geolocation:
+  # Configuration for the LRM Roemer correction method (based on Roemer al, 2007)
+  #
+  # DEM selection
+  antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
+  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for the slope correction over GIS
+  median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
+  include_dhdt_correction: False
+  dhdt_grn_name: grn_is2_is1_smith
+  dhdt_ant_name: ais_is2_is1_smith
+
+  # Method to use
+  dual_search: True # find approx POCA in BLF closest to satellite, then use finer grid
+  use_sliding_window: False # searches for approx POCA using sliding PLF (slower) 
+
+  # Tuning
+  fine_grid_resolution: 10  # meters. Set to 0 to turn off secondary searching for POCA at finer grid
+  max_poca_reloc_distance: 6600 # reject points relocated further than this distance (m) from nadir
+
+  # Additional height corrections
+  include_slope_doppler_correction: True
 
 height_filters:
   # maximum difference to the reference dem elevation in m
-  max_diff_to_ref_dem: 50
+  max_diff_to_ref_dem_sin: 50
+  max_diff_to_ref_dem_lrm: 30
   max_elevation_antarctica: 4900
   min_elevation_antarctica: -500
   max_elevation_greenland: 3900

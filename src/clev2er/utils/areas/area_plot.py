@@ -112,7 +112,8 @@ class Polarplot:
         self,
         *data_sets,
         config: dict | None = None,
-        annotation_list: list | None = None,
+        use_default_annotation: bool = True,
+        annotation_list: list[Annotation] | None = None,
         logo_image=None,
         logo_position: tuple[float, float, float, float] | None = None,
         output_dir: str = "",
@@ -182,7 +183,8 @@ class Polarplot:
                     "draw_colorbar": True,  # (bool): whether to draw the plot colorbar
                     "mapscale_color": str,  # (str) color of the map scale bar (in Km)
                     }
-            annotation_list (list | None, optional): list of Annotation objects.
+            use_default_annotation (bool): if True display default dataset annotation else do not
+            annotation_list (list[Annotation]|None, optional): list of Annotation objects to display
             logo_image (,optional): logo image to insert in plot as returned by
                                     plt.imread('someimagefile.png')
             logo_position (list,optional) : logo position as an axis rect list:
@@ -229,6 +231,9 @@ class Polarplot:
 
         # ------------------------------------------------------------------------------------------
         # Load annotations
+        #    - 2 types of annotation
+        #        - default annotation  (can be disabled)
+        #        - custom annotation
         # ------------------------------------------------------------------------------------------
 
         annot_ax = fig.add_axes(
@@ -240,8 +245,44 @@ class Polarplot:
 
         # Draw all the annotations
 
-        if annotation_list is not None:
-            for annot in annotation_list:
+        final_annotation_list = []
+        if annotation_list is not None and len(annotation_list) > 0:
+            final_annotation_list.extend(annotation_list)
+        if use_default_annotation:
+            if len(data_sets) > 0:
+                final_annotation_list.append(
+                    Annotation(
+                        0.04,
+                        0.9,
+                        data_sets[0].get("name", "unnamed"),
+                        {
+                            "boxstyle": "round",  # Style of the box (e.g.,'round','square')
+                            "facecolor": "aliceblue",  # Background color of the box
+                            "alpha": 1.0,  # Transparency of the box (0-1)
+                            "edgecolor": "lightgrey",  # Color of the box edge
+                        },
+                        18,
+                    )
+                )
+                final_annotation_list.append(
+                    Annotation(
+                        0.04,
+                        0.933,
+                        "Variable plotted:",
+                        fontsize=9,
+                    )
+                )
+                final_annotation_list.append(
+                    Annotation(
+                        0.31,
+                        0.865,
+                        self.thisarea.long_name,
+                        fontsize=12,
+                    )
+                )
+
+        if final_annotation_list is not None:
+            for annot in final_annotation_list:
                 annot_ax.text(
                     annot.xpos,
                     annot.ypos,
@@ -356,6 +397,9 @@ class Polarplot:
         polygon_mask_color = plot_params.get("polygon_mask_color", self.thisarea.polygon_mask_color)
         self.draw_area_polygon_mask(ax, show_polygon_mask, polygon_mask_color, dataprj)
 
+        #  draw mini-map of bad values
+        self.draw_minimap()
+
         # ------------------------------------------------------------------------------------------
         # Load data sets
         # ------------------------------------------------------------------------------------------
@@ -366,6 +410,9 @@ class Polarplot:
 
             for ds_num, data_set in enumerate(data_sets):
                 print(f"loading data set {ds_num}: {data_set.get('name','unnamed')}")
+
+                is_flag_data = len(data_set.get("flag_values", [])) > 0
+
                 lats = data_set.get("lats", np.array([]))
                 lons = data_set.get("lons", np.array([]))
                 vals = data_set.get("vals", np.array([]))
@@ -483,22 +530,29 @@ class Polarplot:
                 log.info("percent Nan %.2f", percent_nan)
 
                 # find out of range values in data -------------------------------------------------
-                if (
-                    data_set.get("valid_range") is not None
-                    and len(data_set.get("valid_range")) != 2
-                ):
-                    log.error("valid_range plot parameter must be of type [min,max]")
-                if (
-                    data_set.get("valid_range") is not None
-                    and len(data_set.get("valid_range")) == 2
-                ):
-                    outside_vals_bool = (vals < data_set.get("valid_range")[0]) | (
-                        vals > data_set.get("valid_range")[1]
+
+                if is_flag_data:
+                    outside_vals_bool = (vals < np.min(data_set.get("flag_values"))) | (
+                        vals > np.max(data_set.get("flag_values"))
                     )
                     percent_outside = np.mean(outside_vals_bool) * 100.0
                 else:
-                    percent_outside = 0.0
-                    outside_vals_bool = np.full_like(vals, False, bool)
+                    if (
+                        data_set.get("valid_range") is not None
+                        and len(data_set.get("valid_range")) != 2
+                    ):
+                        log.error("valid_range plot parameter must be of type [min,max]")
+                    if (
+                        data_set.get("valid_range") is not None
+                        and len(data_set.get("valid_range")) == 2
+                    ):
+                        outside_vals_bool = (vals < data_set.get("valid_range")[0]) | (
+                            vals > data_set.get("valid_range")[1]
+                        )
+                        percent_outside = np.mean(outside_vals_bool) * 100.0
+                    else:
+                        percent_outside = 0.0
+                        outside_vals_bool = np.full_like(vals, False, bool)
 
                 outside_indices = np.where(outside_vals_bool)[0]
                 if outside_indices.size > 0:
@@ -546,8 +600,6 @@ class Polarplot:
                 # Plot data
                 # ------------------------------------------------------------------------------
 
-                is_flag_data = len(data_set.get("flag_values", [])) > 0
-
                 if valid_indices.size > 0:
                     # Get colormap info for this dataset
                     cmap_info = {
@@ -587,6 +639,21 @@ class Polarplot:
 
                 # Only draw colorbar and histograms of 1st data set
                 if ds_num == 0:
+                    #  draw mini-map of bad values
+                    self.draw_minimap_bad(
+                        percent_valid,
+                        nan_lats,
+                        nan_lons,
+                        percent_nan,
+                        fv_lats,
+                        fv_lons,
+                        percent_fv,
+                        outside_lats,
+                        outside_lons,
+                        percent_outside,
+                        data_set,
+                    )
+
                     ds_name_0 = data_set.get("name", "unnamed")
                     if valid_indices.size > 0 and not is_flag_data:
                         draw_colorbar = bool(
@@ -619,20 +686,6 @@ class Polarplot:
                             data_set.get("name", "unnamed"),
                             data_set.get("units", "no units"),
                         )
-
-                    self.draw_minimap(
-                        percent_valid,
-                        nan_lats,
-                        nan_lons,
-                        percent_nan,
-                        fv_lats,
-                        fv_lons,
-                        percent_fv,
-                        outside_lats,
-                        outside_lons,
-                        percent_outside,
-                        data_set,
-                    )
 
         # ----------------------------------------------------------------------------------------
         # Optionally overlay a hillshade layer
@@ -721,58 +774,115 @@ class Polarplot:
         # Step 1: Get the colorbar's bounding box in figure coordinates
         bbox = cbar.ax.get_window_extent().transformed(plt.gcf().transFigure.inverted())
 
-        # Step 2: Calculate positions for the text
-        # Adjust these values as needed for your specific figure layout
-        offset_x = 0.005  # Horizontal offset from the colorbar ends
-        text_left_x = bbox.x0 - offset_x
-        text_right_x = bbox.x1 + offset_x
-        text_y = bbox.y0 + (bbox.height / 2)  # Vertically centered
+        if self.thisarea.colorbar_orientation == "vertical":
+            # Step 2: Calculate positions for the text for a vertical colorbar
+            # Adjust these values as needed for your specific figure layout
+            offset_y = 0.005  # Vertical offset from the colorbar ends
+            text_bottom_y = bbox.y0 - offset_y
+            text_top_y = bbox.y1 + offset_y
+            text_x = bbox.x0 + (bbox.width / 2)  # Horizontally centered
 
-        # Step 3: Add text to the left and right of the colorbar
-        min_str = f"min:{np.min(vals):.2f}"
-        if len(min_str) > 11:
-            min_str = f"{np.min(vals):.2f}"
-        max_str = f"min:{np.max(vals):.2f}"
-        if len(max_str) > 11:
-            max_str = f"{np.max(vals):.2f}"
-        plt.gcf().text(text_left_x, text_y, min_str, ha="right", va="center")
-        plt.gcf().text(text_right_x, text_y, max_str, ha="left", va="center")
-        text_y += 0.04
-        text_left_x -= 0.04
+            # Step 3: Add text to the top and bottom of the colorbar
+            min_str = r"$\bf{min} $" + f"={np.min(vals):.2f}"
+            max_str = r"$\bf{max} $" + f"={np.max(vals):.2f}"
+            mean_str = r"$\bf{mean} $" + f"={np.mean(vals):.2f}"
+            median_str = r"$\bf{median} $" + f"={np.median(vals):.2f}"
+            std_str = r"$\bf{stdev} $" + f"={np.std(vals):.2f}"
+            mad_str = r"$\bf{MAD} $" + f"={calculate_mad(vals):.2f}"
+            nvals_str = r"$\bf{nvals} $" + f"={len(vals)}"
 
-        plt.gcf().text(
-            text_left_x,
-            text_y,
-            r"$\bf{MAD}: $" + f"{calculate_mad(vals):.2f}",
-            ha="left",
-            va="center",
-        )
-        text_y += 0.02
-        plt.gcf().text(
-            text_left_x, text_y, r"$\bf{mean}: $" + f"{np.mean(vals):.2f}", ha="left", va="center"
-        )
-        text_y += 0.02
-        plt.gcf().text(
-            text_left_x,
-            text_y,
-            r"$\bf{median}: $" + f"{np.median(vals):.2f}",
-            ha="left",
-            va="center",
-        )
-        text_y += 0.02
-        plt.gcf().text(
-            text_left_x,
-            text_y,
-            r"$\bf{std}: $" + f"{np.std(vals):.2f}",
-            ha="left",
-            va="center",
-        )
-        text_y += 0.02
-        plt.gcf().text(
-            text_left_x, text_y, r"$\bf{nvals}: $" + f"{len(vals)}", ha="left", va="center"
-        )
+            plt.gcf().text(text_x, text_bottom_y, min_str, ha="center", va="top")
+            plt.gcf().text(text_x, text_top_y, max_str, ha="center", va="bottom")
+            text_x -= 0.05
+            yoffset = 0.025
+            text_top_y += 0.04
+            plt.gcf().text(text_x, text_top_y, mean_str, ha="left", va="bottom")
+            text_top_y += yoffset
+            plt.gcf().text(text_x, text_top_y, median_str, ha="left", va="bottom")
+            text_top_y += yoffset
+            plt.gcf().text(text_x, text_top_y, std_str, ha="left", va="bottom")
+            text_top_y += yoffset
+            plt.gcf().text(text_x, text_top_y, mad_str, ha="left", va="bottom")
+            text_top_y += yoffset
+            plt.gcf().text(text_x, text_top_y, nvals_str, ha="left", va="bottom")
 
-    def draw_minimap(
+            # # Position additional stats along the side of the colorbar
+            # text_x_offset = bbox.x1 + 0.02  # Offset for additional stats text
+            # text_y = text_bottom_y + offset_y  # Start from bottom
+
+            # y_offset = 0.04
+            # plt.gcf().text(
+            #     text_x,
+            #     text_top_y + y_offset,
+            #     r"$\bf{MAD}: $" + f"{calculate_mad(vals):.2f}",
+            #     ha="left",
+            #     va="bottom",
+            # )
+            # text_y += 0.04
+            # plt.gcf().text(
+            #     text_x_offset,
+            #     text_y,
+            #     r"$\bf{mean}: $" + f"{np.mean(vals):.2f}",
+            #     ha="left",
+            #     va="bottom",
+            # )
+        else:  # horizontal colorbar
+            # Step 2: Calculate positions for the text
+            # Adjust these values as needed for your specific figure layout
+            offset_x = 0.005  # Horizontal offset from the colorbar ends
+            text_left_x = bbox.x0 - offset_x
+            text_right_x = bbox.x1 + offset_x
+            text_y = bbox.y0 + (bbox.height / 2)  # Vertically centered
+
+            # Step 3: Add text to the left and right of the colorbar
+            min_str = f"min:{np.min(vals):.2f}"
+            if len(min_str) > 11:
+                min_str = f"{np.min(vals):.2f}"
+            max_str = f"min:{np.max(vals):.2f}"
+            if len(max_str) > 11:
+                max_str = f"{np.max(vals):.2f}"
+            plt.gcf().text(text_left_x, text_y, min_str, ha="right", va="center")
+            plt.gcf().text(text_right_x, text_y, max_str, ha="left", va="center")
+            text_y += 0.04
+            text_left_x -= 0.04
+
+            plt.gcf().text(
+                text_left_x,
+                text_y,
+                r"$\bf{MAD}: $" + f"{calculate_mad(vals):.2f}",
+                ha="left",
+                va="center",
+            )
+            text_y += 0.02
+            plt.gcf().text(
+                text_left_x,
+                text_y,
+                r"$\bf{mean}: $" + f"{np.mean(vals):.2f}",
+                ha="left",
+                va="center",
+            )
+            text_y += 0.02
+            plt.gcf().text(
+                text_left_x,
+                text_y,
+                r"$\bf{median}: $" + f"{np.median(vals):.2f}",
+                ha="left",
+                va="center",
+            )
+            text_y += 0.02
+            plt.gcf().text(
+                text_left_x,
+                text_y,
+                r"$\bf{std}: $" + f"{np.std(vals):.2f}",
+                ha="left",
+                va="center",
+            )
+            text_y += 0.02
+            plt.gcf().text(
+                text_left_x, text_y, r"$\bf{nvals}: $" + f"{len(vals)}", ha="left", va="center"
+            )
+
+    def draw_minimap_bad(
         self,
         percent_valid: float,
         nan_lats: np.ndarray,
@@ -800,6 +910,112 @@ class Polarplot:
             outside_lons (np.ndarray): longitude locations corresponding to out of range data
             percent_outside (float): percent of out of range values in area
             dataset_params (dict): data set parameters
+        """
+        if not self.thisarea.show_bad_data_map:
+            log.info("drawing show_bad_data_map disabled")
+            return
+        log.info("drawing show_bad_data_map")
+        (
+            ax_minimap,
+            dataprj_minimap,
+            circle_minimap,
+        ) = self.setup_projection_and_extent(self.thisarea.bad_data_minimap_axes, global_view=False)
+        Background("basic_land", self.thisarea).load(
+            ax_minimap, dataprj_minimap, include_features=False, resolution="low"
+        )
+
+        self.draw_coastlines(
+            ax_minimap,
+            dataprj_minimap,
+            "grey",
+            draw_coastlines=True,
+            use_cartopy_coastline=self.thisarea.bad_data_minimap_coastline_resolution,
+            use_antarctica_medium_coastline=False,
+        )
+
+        if self.thisarea.bad_data_minimap_draw_gridlines:
+            self.draw_gridlines(
+                ax_minimap,
+                True,
+                self.thisarea.bad_data_minimap_gridlines_color,
+                circle_minimap,
+                draw_gridlabels=False,
+                latitude_lines=self.thisarea.bad_data_latitude_lines,
+                longitude_lines=self.thisarea.bad_data_longitude_lines,
+                zorder=0,
+                for_minimap=True,
+            )
+
+        # plot Nan values
+        if nan_lons.size > 0:
+            ax_minimap.scatter(
+                nan_lons,
+                nan_lats,
+                marker=".",
+                c="r",
+                s=36
+                * dataset_params.get(
+                    "bad_data_minimap_val_scalefactor",
+                    self.thisarea.bad_data_minimap_val_scalefactor,
+                ),
+                transform=ccrs.PlateCarree(),
+                label=f"Nan {percent_nan:.2f}%",
+            )
+
+        # plot FV values
+        if fv_lons.size > 0:
+            ax_minimap.scatter(
+                fv_lons,
+                fv_lats,
+                marker=".",
+                c="orange",
+                s=36
+                * dataset_params.get(
+                    "bad_data_minimap_val_scalefactor",
+                    self.thisarea.bad_data_minimap_val_scalefactor,
+                ),
+                transform=ccrs.PlateCarree(),
+                label=f"FV {percent_fv:.2f}%",
+            )
+
+        # plot outside range values
+        if outside_lons.size > 0:
+            ax_minimap.scatter(
+                outside_lons,
+                outside_lats,
+                marker=".",
+                c="pink",
+                s=36
+                * dataset_params.get(
+                    "bad_data_minimap_val_scalefactor",
+                    self.thisarea.bad_data_minimap_val_scalefactor,
+                ),
+                transform=ccrs.PlateCarree(),
+                label=f"<|> {percent_outside:.2f}%",
+            )
+        if (nan_lons.size == 0) and (outside_lons.size == 0) and (fv_lons.size == 0):
+            ax_minimap.scatter([], [], marker=".", s=1, label="Bad Data")
+        ax_minimap.legend(
+            loc="upper right", bbox_to_anchor=self.thisarea.bad_data_minimap_legend_pos
+        )
+
+        ax_minimap.text(
+            0.44,
+            1.05,
+            f"Valid in area: {percent_valid:.2f}% ",
+            fontsize=9,
+            transform=ax_minimap.transAxes,
+            horizontalalignment="center",
+            verticalalignment="center",
+        )
+
+    def draw_minimap(
+        self,
+    ):
+        """draw a minimap to show Nan, FV and out of range values
+
+        Args:
+
         """
         if not self.thisarea.show_minimap:
             log.info("drawing mini-map disabled")
@@ -865,61 +1081,6 @@ class Polarplot:
                     zorder=30,
                 )
             )
-        # plot Nan values
-        if nan_lons.size > 0:
-            ax_minimap.scatter(
-                nan_lons,
-                nan_lats,
-                marker=".",
-                c="r",
-                s=36
-                * dataset_params.get(
-                    "minimap_val_scalefactor", self.thisarea.minimap_val_scalefactor
-                ),
-                transform=ccrs.PlateCarree(),
-                label=f"Nan {percent_nan:.2f}%",
-            )
-
-        # plot FV values
-        if fv_lons.size > 0:
-            ax_minimap.scatter(
-                fv_lons,
-                fv_lats,
-                marker=".",
-                c="orange",
-                s=36
-                * dataset_params.get(
-                    "minimap_val_scalefactor", self.thisarea.minimap_val_scalefactor
-                ),
-                transform=ccrs.PlateCarree(),
-                label=f"FV {percent_fv:.2f}%",
-            )
-
-        # plot outside range values
-        if outside_lons.size > 0:
-            ax_minimap.scatter(
-                outside_lons,
-                outside_lats,
-                marker=".",
-                c="pink",
-                s=36
-                * dataset_params.get(
-                    "minimap_val_scalefactor", self.thisarea.minimap_val_scalefactor
-                ),
-                transform=ccrs.PlateCarree(),
-                label=f"Rng {percent_outside:.2f}%",
-            )
-        ax_minimap.legend(loc="upper right", bbox_to_anchor=self.thisarea.minimap_legend_pos)
-
-        ax_minimap.text(
-            0.44,
-            1.05,
-            f"Valid in area: {percent_valid:.2f}% ",
-            fontsize=9,
-            transform=ax_minimap.transAxes,
-            horizontalalignment="center",
-            verticalalignment="center",
-        )
 
     def draw_latitude_vs_vals_plot(
         self, fig: Figure, vals: np.ndarray, lats: np.ndarray, varname: str, units: str
@@ -1422,22 +1583,10 @@ class Polarplot:
         gl.n_steps = 90
         # [left,right,top,bottom]
         if draw_gridlabels and not self.thisarea.round:
-            gl.left_labels = (
-                self.thisarea.latline_label_axis_positions[0]
-                or self.thisarea.lonline_label_axis_positions[0]
-            )
-            gl.right_labels = (
-                self.thisarea.latline_label_axis_positions[1]
-                or self.thisarea.lonline_label_axis_positions[1]
-            )
-            gl.top_labels = (
-                self.thisarea.latline_label_axis_positions[2]
-                or self.thisarea.lonline_label_axis_positions[2]
-            )
-            gl.bottom_labels = (
-                self.thisarea.latline_label_axis_positions[3]
-                or self.thisarea.lonline_label_axis_positions[3]
-            )
+            gl.left_labels = self.thisarea.labels_at_left
+            gl.right_labels = self.thisarea.labels_at_right
+            gl.top_labels = self.thisarea.labels_at_top
+            gl.bottom_labels = self.thisarea.labels_at_bottom
             gl.x_inline = gl.y_inline = False
             gl.draw_labels = True
 
@@ -2002,6 +2151,7 @@ class Polarplot:
                 cx, cy = self.thisarea.latlon_to_xy(
                     self.thisarea.centre_lat, self.thisarea.centre_lon
                 )
+
                 llx = cx - (self.thisarea.width_km * 1000) / 2.0
                 lly = cy - (self.thisarea.height_km * 1000) / 2.0
 

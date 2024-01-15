@@ -104,7 +104,9 @@ class Area:
         self.background_color = area_definition.get("background_color", None)
         self.background_image = area_definition.get("background_image", None)
         self.background_image_alpha = area_definition.get("background_image_alpha", 1.0)
-        self.background_image_resolution = area_definition.get("background_image_alpha", "medium")
+        self.background_image_resolution = area_definition.get(
+            "background_image_resolution", "medium"
+        )
         self.hillshade_params = area_definition.get("hillshade_params", None)
         self.draw_axis_frame = area_definition.get("draw_axis_frame")
         self.add_lakes_feature = area_definition.get("add_lakes_feature", None)
@@ -176,8 +178,10 @@ class Area:
         self.inner_gridlabel_color = area_definition.get("inner_gridlabel_color", "k")
         self.inner_gridlabel_size = area_definition.get("inner_gridlabel_size", 9)
         self.latitude_of_radial_labels = area_definition.get("latitude_of_radial_labels", None)
-        self.latline_label_axis_positions = area_definition.get("latline_label_axis_positions")
-        self.lonline_label_axis_positions = area_definition.get("lonline_label_axis_positions")
+        self.labels_at_top = area_definition.get("labels_at_top", False)
+        self.labels_at_bottom = area_definition.get("labels_at_bottom", True)
+        self.labels_at_left = area_definition.get("labels_at_left", True)
+        self.labels_at_right = area_definition.get("labels_at_right", True)
 
         # Mini-map
         self.show_minimap = area_definition.get("show_minimap")
@@ -187,6 +191,29 @@ class Area:
         self.minimap_draw_gridlines = area_definition.get("minimap_draw_gridlines", True)
         self.minimap_val_scalefactor = area_definition.get("minimap_val_scalefactor", 1.0)
         self.minimap_legend_pos = area_definition.get("minimap_legend_pos", (1.0, 1.0))
+
+        # Bad data mini-map
+        self.show_bad_data_map = area_definition.get("show_bad_data_map", True)
+        self.bad_data_minimap_axes = area_definition.get("bad_data_minimap_axes")
+        self.bad_data_minimap_draw_gridlines = area_definition.get(
+            "bad_data_minimap_draw_gridlines", True
+        )
+        self.bad_data_minimap_gridlines_color = area_definition.get(
+            "bad_data_minimap_gridlines_color", "grey"
+        )
+        self.bad_data_latitude_lines = area_definition.get("bad_data_latitude_lines", [])
+        self.bad_data_longitude_lines = area_definition.get("bad_data_longitude_lines", [])
+
+        self.bad_data_minimap_val_scalefactor = area_definition.get(
+            "bad_data_minimap_val_scalefactor", 1.0
+        )
+        self.bad_data_minimap_legend_pos = area_definition.get(
+            "bad_data_minimap_legend_pos", (1.0, 1.0)
+        )
+        self.bad_data_minimap_coastline_resolution = area_definition.get(
+            "bad_data_minimap_coastline_resolution", "low"
+        )
+
         # Scale bar
         self.show_scalebar = area_definition.get("show_scalebar")
         self.mapscale = area_definition.get("mapscale")

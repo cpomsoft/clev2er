@@ -5,27 +5,33 @@ area_definition = {
     # --------------------------------------------
     # Area definition
     # --------------------------------------------
-    "hemisphere": "south",  # area is in  'south' or 'north'
+    "hemisphere": "south",  # area is in  'south' or 'north' or 'both'
+    "epsg_number": 3031,  # EPSG number for area's projection
+    #   --------
+    "round": True,  # False=rectangular, True = round map area
     "specify_by_bounding_lat": True,  # for round hemisphere views
-    "bounding_lat": -63.0,  # limiting latitude for round areas or None
+    "bounding_lat": -63.15,  # limiting latitude for round areas or None
+    #   --------
     "specify_by_centre": False,  # specify plot area by centre lat/lon, width, height (km)
     "centre_lon": 0.0,  # degrees E
     "centre_lat": -90.0,  # degrees N
+    #   --------
     "specify_plot_area_by_lowerleft_corner": False,  # specify by lower left corner, w,h
     "llcorner_lat": None,  # lower left corner latitude
     "llcorner_lon": None,  # lower left corner longitude
+    #   --------
     "lon_0": None,  # None or projection y-axis longitude (used for mercator)
+    #   --------
     "width_km": 6600,  # width in km of plot area (x direction)
     "height_km": 6100,  # height in km of plot area (y direction)
-    "epsg_number": 3031,  # EPSG number for area's projection
-    "round": True,  # False=rectangular, True = round map area
+    # --------------------------------------------
+    # Area characteristics
+    # --------------------------------------------
     "min_elevation": -50,  # minimum expected elevation in area (m)
     "max_elevation": 4200,  # maximum expected elevation in area (m)
-    "max_elevation_dem": 4200,  # maximum expected elevation in area (m) used for DEM backgrounds
     # --------------------------------------------
-    # Data filtering
+    # Data filtering using lat/lon extent (used as a quick data pre-filter before masking)
     # --------------------------------------------
-    "apply_area_mask_to_data": True,  # filter data using areas mask
     #   Area min/max lat/lon for initial data filtering
     "minlon": 0.0,  # minimum longitude to initially filter records for area (0..360E)
     "maxlon": 360.0,  # maximum longitude to initially filter records for area (0..360E)
@@ -34,6 +40,7 @@ area_definition = {
     # --------------------------------------------
     #    mask from clev2er.utils.masks.Mask
     # --------------------------------------------
+    "apply_area_mask_to_data": True,  # filter data using areas clev2er.utils.masks.Mask
     "maskname": "antarctica_bedmachine_v2_grid_mask",  # from  clev2er.utils.masks.Mask
     # antarctic_icesheet_2km_grid_mask
     "masktype": "grid",  # mask is a polar stereo grid of Nkm resolution
@@ -54,7 +61,7 @@ area_definition = {
     "background_color": None,  # background color of map
     "background_image": "natural_earth_cbh",  # background image. see clev2er.utils.backgrounds
     "background_image_alpha": 1.0,  # 0..1.0, default is 1.0, image transparency
-    "background_image_resolution": None,  # None, 'low','medium', 'high'
+    "background_image_resolution": "low",  # None, 'low','medium', 'high'
     "hillshade_params": None,  # hill shade parameter dict or None
     "show_polygon_overlay_in_main_map": True,  # Overlay the area polygon outline in the main map
     "grid_polygon_overlay_mask": None,
@@ -115,35 +122,10 @@ area_definition = {
     "inner_gridlabel_color": "white",  # color of grid labels
     "inner_gridlabel_size": 8,  # size of grid labels
     "latitude_of_radial_labels": -58.3,  # latitude for radial grid line labels for circular plots
-    "latline_label_axis_positions": [
-        True,
-        False,
-        True,
-        False,
-    ],  # [left,right,top,bot] for rect plots
-    "lonline_label_axis_positions": [
-        False,
-        True,
-        False,
-        True,
-    ],  # [left,right,top,bot] for rect plots
-    # ------------------------------------------------------
-    #       Optional Mini-map (with box showing actual area)
-    # ------------------------------------------------------
-    "show_minimap": True,  # show the overview minmap
-    "minimap_axes": [  # define minimap axis position
-        0.64,  # left
-        0.67,  # bottom
-        0.29,  # width (axes fraction)
-        0.29,  # height (axes fraction)
-    ],
-    "minimap_bounding_lat": None,  # None or bounding latitude if used for mini-map
-    # uses 40N for northern hemisphere or 50N for southern.
-    # Override with this parameter
-    "minimap_circle": None,  # None or [lat,lon,circle_radius_m,color_str]
-    "minimap_draw_gridlines": False,
-    "minimap_val_scalefactor": 1.0,  # scale factor for plotting bad values on minimap
-    "minimap_legend_pos": (1.38, 1.1),  # position of minimap legend (upper right) in minimap axis
+    "labels_at_top": False,  # allow lat or lon labels at top of plot
+    "labels_at_bottom": False,  # allow lat or lon labels at bottom of plot
+    "labels_at_left": False,  # allow lat or lon labels at left of plot
+    "labels_at_right": False,  # allow lat or lon labels at right of plot
     # ------------------------------------------------------
     #       Show a scale bar in km
     # ------------------------------------------------------
@@ -181,4 +163,52 @@ area_definition = {
         0.17,  # width (axes fraction)
         0.2,  # height (axes fraction)
     ],  # axis location of latitude vs values scatter plot
+    # --------------------------------------------------------
+    # Bad Data Mini-map plot - to show locations of data flagged as bad
+    # due to Nan,None, FV, Out or Range data
+    # --------------------------------------------------------
+    "show_bad_data_map": True,
+    "bad_data_minimap_axes": [  # define minimap axis position
+        0.64,  # left
+        0.67,  # bottom
+        0.29,  # width (axes fraction)
+        0.29,  # height (axes fraction)
+    ],
+    "bad_data_minimap_bounding_lat": None,  # None or bounding latitude if used for mini-map
+    # uses 40N for northern hemisphere or 50N for southern.
+    # Override with this parameter
+    "bad_data_minimap_circle": None,  # None or [lat,lon,circle_radius_m,color_str]
+    "bad_data_minimap_draw_gridlines": True,
+    "bad_data_minimap_gridlines_color": "lightgrey",  # color of gridlines drawn in bad data minimap
+    "bad_data_latitude_lines": [-50, -70],  # latitude lines to draw in bad data minimap
+    "bad_data_longitude_lines": [
+        0,
+        60,
+        120,
+        180,
+        -120,
+        -60,
+    ],  # longitude lines to draw in bad data minimap
+    "bad_data_minimap_val_scalefactor": 1.0,  # scale factor for plotting bad values on minimap
+    "bad_data_minimap_legend_pos": (1.38, 1.1),  # position of minimap legend (upper right)
+    # relative to bad_data_minimap axis
+    "bad_data_minimap_coastline_resolution": "medium",  # low, medium, high resolution coastline
+    # ------------------------------------------------------------------
+    # Mini-map (with box showing actual area) - purpose to show where a
+    # smaller area is on a larger map.
+    # -------------------------------------------------------------------
+    "show_minimap": False,  # show the overview minmap
+    "minimap_axes": [  # define minimap axis position
+        0.64,  # left
+        0.67,  # bottom
+        0.29,  # width (axes fraction)
+        0.29,  # height (axes fraction)
+    ],
+    "minimap_bounding_lat": None,  # None or bounding latitude if used for mini-map
+    # uses 40N for northern hemisphere or 50N for southern.
+    # Override with this parameter
+    "minimap_circle": None,  # None or [lat,lon,circle_radius_m,color_str]
+    "minimap_draw_gridlines": False,
+    "minimap_val_scalefactor": 1.0,  # scale factor for plotting bad values on minimap
+    "minimap_legend_pos": (1.38, 1.1),  # position of minimap legend (upper right) in minimap axis
 }
