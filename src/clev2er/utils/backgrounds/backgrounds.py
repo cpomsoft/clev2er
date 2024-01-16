@@ -732,7 +732,7 @@ class Background:
                 zdem,
                 cmap=thiscmap,
                 shading="auto",
-                alpha=0.45,
+                alpha=alpha,
                 vmin=np.nanmin(zdem),
                 vmax=np.nanmax(zdem),
                 transform=dataprj,

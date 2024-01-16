@@ -43,6 +43,30 @@ from clev2er.utils.backgrounds.backgrounds import (  # background images functio
 log = logging.getLogger(__name__)
 
 
+def get_unique_colors(n: int, cmap_name_override: str | None = None):
+    """get a list of n unique colors for plotting flag data (when no colors are
+       provided, as sampled from the tab20 or tab10 colormap
+
+    Args:
+        n (int): number of colors required (<= 20 will provide unique colors
+        otherwise some repetition)
+        cmap_name_override (str): override colormap name to use, Typical alternatives are
+                         "tab10", "tab20b", "tab20c", and "Set1", "Set2","Set3"
+
+    Returns:
+        List[Tuple[float,float,float,float]]: list of color RGBA
+    """
+    if n <= 10:
+        cmap_name = "tab10"
+    else:
+        cmap_name = "tab20"
+    if cmap_name_override is not None:
+        cmap_name = cmap_name_override
+    cmap = plt.cm.get_cmap(cmap_name, n)  # Replace 'tab20' with any suitable colormap
+    colors = [cmap(i) for i in range(cmap.N)]
+    return colors
+
+
 def calculate_mad(values: np.ndarray):
     """Calculate the MAD (Mean Absolute Deviation) of values
     Args:
@@ -60,7 +84,7 @@ def calculate_mad(values: np.ndarray):
 @dataclass
 class Annotation:
     """
-    Represents an annotation in a polar plot.
+    Data class for a single annotation in a polar plot.
 
     Attributes:
         xpos (float): The x-coordinate position of the annotation text in axis coordinates (0-1),
@@ -95,15 +119,16 @@ class Annotation:
 class Polarplot:
     """class to create map plots of polar areas"""
 
-    def __init__(self, area):
+    def __init__(self, area: str, area_overrides: dict | None = None):
         """class inititialization
 
         Args:
             area (str): area name as per clev2er.utils.areas.definitions
+            area_overrides (dict|None): dictionary to override area dict definitions
         """
         self.area = area
 
-        self.thisarea = Area(area)
+        self.thisarea = Area(area, area_overrides)
 
         if self.thisarea.mask:
             self.thismask = self.thisarea.mask
@@ -111,7 +136,6 @@ class Polarplot:
     def plot_points(
         self,
         *data_sets,
-        config: dict | None = None,
         use_default_annotation: bool = True,
         annotation_list: list[Annotation] | None = None,
         logo_image=None,
@@ -121,7 +145,8 @@ class Polarplot:
         dpi: int = 85,
         transparent_background: bool = False,
     ):
-        """function to plot one or more (lat,lon,val) data sets on polar maps
+        """function to plot one or more (lat,lon,val) datasets on polar maps
+
 
         Args:
             *data_sets (dict, optional) : data set dictionaries (you can have more than
@@ -137,7 +162,11 @@ class Polarplot:
                         #-----------------------------------------------
                         # Optional, otherwise default values are used.
                         #-----------------------------------------------
-                        "name": "data set name", # str used to label plot
+                        "units": '', # units of vals
+                        "name": "unnamed", # str name of vals. Used to label plot.
+                                                 # 'unnamed' is used if not provided.
+                        "apply_area_mask_to_data": True, # bool, whether to apply the default area's
+                                                        # data Mask to this data set
                         # --- flagging bad data for this data set, plotted in mini-map
                         "fill_value": 9999, # fill value in vals to be ignored or None
                         "valid_range": [min,max],# [min,max] or None. allowed vals range. flagged as
@@ -148,40 +177,18 @@ class Polarplot:
                         # -- flag type data settings --------------------------------
                         "flag_values": [], # list of flag values. If used vals treated as flag data
                         "flag_names": [], # list of flag names
-                        "flag_colors": [] # list of flag colors
+                        "flag_colors": [] # list of flag colors or colormap name to sample
                         # --- color map, color bar
                         "cmap_name": "RdYlBu_r", # colormap name to use for this dataset
                         "cmap_over_color": "#A85754" or None
                         "cmap_under_color": "#3E4371"  or None
                         "cmap_extend": "both" # 'neither','min', 'max','both'
-                        "min_range": None, # set the minimum range for the colorbar.
+                        "min_plot_range": None, # set the minimum range for the colorbar.
                                            # if not set min(vals) will be used
-                        "max_range": None, # set the maximum range for the colorbar
+                        "max_plot_range": None, # set the maximum range for the colorbar
                         # --- point size, alpha
                         "plot_size_scale_factor": 1., # (float) scale the default plot marker
                         "plot_alpha": 1.0, # transparency of this dataset plot (0..1)
-                    }
-            config (dict | None, optional):plot config dictionary to modify plot defaults.
-                                        see plot_params below.
-                    {
-                    "background_color": str,  # override area's background color
-                    "background_image": str|List[str],  # override area's background image(s)
-                    "background_image_alpha": float|List[float],  # set background alphas(s)
-                    "background_image_resolution": str,  # 'low', 'medium', 'high'
-                    "hillshade_params": None,  # (dict|None): hill shade parameters to use with
-                                               #  backgrounds
-                    "show_polygon_mask": False,  # (bool): display area's mask polygon border.
-                    "polygon_mask_color": 'red',  # (str): color to display mask polygon.
-                    "apply_hillshade_to_vals": False,  # (bool),apply a hillshade layer to plot vals
-                    "draw_coastlines": True,  # (bool): whether to draw the coast lines
-                    "coastline_color": str,  # (str): color to use to draw coastlines.
-                    "use_antarctica_medium_coastline": True,  # (bool)
-                    "use_cartopy_coastline": 'no',  # (str): 'no','low','medium','high'
-                    "show_gridlines": True,  # (bool) whether to display lat/lon grid lines
-                    "gridline_color": 'grey',  # (str): color of lat/lon grid lines
-                    "apply_area_mask_to_data": True,  # (bool): apply area's data mask to input data
-                    "draw_colorbar": True,  # (bool): whether to draw the plot colorbar
-                    "mapscale_color": str,  # (str) color of the map scale bar (in Km)
                     }
             use_default_annotation (bool): if True display default dataset annotation else do not
             annotation_list (list[Annotation]|None, optional): list of Annotation objects to display
@@ -218,10 +225,6 @@ class Polarplot:
             #   1, or list of floats for multiple backgrounds.
         }
 
-        # Update it with config arg
-        if config is not None:
-            plot_params.update(config)
-
         # ------------------------------------------------------------------------------------------
         # Setup plot page
         # ------------------------------------------------------------------------------------------
@@ -252,8 +255,8 @@ class Polarplot:
             if len(data_sets) > 0:
                 final_annotation_list.append(
                     Annotation(
-                        0.04,
-                        0.9,
+                        self.thisarea.varname_annotation_position_xy[0],
+                        self.thisarea.varname_annotation_position_xy[1],
                         data_sets[0].get("name", "unnamed"),
                         {
                             "boxstyle": "round",  # Style of the box (e.g.,'round','square')
@@ -266,20 +269,42 @@ class Polarplot:
                 )
                 final_annotation_list.append(
                     Annotation(
-                        0.04,
-                        0.933,
+                        self.thisarea.varname_annotation_position_xy[0] - 0.01,
+                        self.thisarea.varname_annotation_position_xy[1] + 0.04,
                         "Variable plotted:",
                         fontsize=9,
                     )
                 )
-                final_annotation_list.append(
-                    Annotation(
-                        0.31,
-                        0.865,
-                        self.thisarea.long_name,
-                        fontsize=12,
+                if self.thisarea.area_long_name_position is not None:
+                    final_annotation_list.append(
+                        Annotation(
+                            self.thisarea.area_long_name_position[0],
+                            self.thisarea.area_long_name_position[1],
+                            self.thisarea.long_name,
+                            fontsize=self.thisarea.area_long_name_fontsize,
+                        )
                     )
-                )
+
+                if self.thisarea.mask_long_name_position is not None:
+                    if self.thisarea.maskname is not None:
+                        if bool(data_sets[0].get("apply_area_mask_to_data", False)):
+                            final_annotation_list.append(
+                                Annotation(
+                                    self.thisarea.mask_long_name_position[0],
+                                    self.thisarea.mask_long_name_position[1],
+                                    f"Data mask: {self.thisarea.maskname}",
+                                    fontsize=self.thisarea.mask_long_name_fontsize,
+                                )
+                            )
+                        else:
+                            final_annotation_list.append(
+                                Annotation(
+                                    self.thisarea.mask_long_name_position[0],
+                                    self.thisarea.mask_long_name_position[1],
+                                    "Data mask applied: None",
+                                    fontsize=self.thisarea.mask_long_name_fontsize,
+                                )
+                            )
 
         if final_annotation_list is not None:
             for annot in final_annotation_list:
@@ -321,7 +346,7 @@ class Polarplot:
         # Set map backgrounds
         # ------------------------------------------------------------------------------------------
 
-        ax.set_facecolor(plot_params.get("background_color", self.thisarea.background_color))
+        ax.set_facecolor(self.thisarea.background_color)
 
         # ------------------------------------------------------------------------------------------
         # Add a Background image
@@ -337,7 +362,7 @@ class Polarplot:
 
         # use default background if no background provided
 
-        background = plot_params.get("background_image", self.thisarea.background_image)
+        background = self.thisarea.background_image
 
         # form a list of backgrounds (even if single background)
         if isinstance(background, list):
@@ -346,9 +371,7 @@ class Polarplot:
             backgrounds = [background]
 
         # form a list of background_alpha names to apply
-        background_alpha = plot_params.get(
-            "background_image_alpha", self.thisarea.background_image_alpha
-        )
+        background_alpha = self.thisarea.background_image_alpha
 
         if isinstance(background_alpha, list):
             background_alphas = np.array(background_alpha)
@@ -356,9 +379,7 @@ class Polarplot:
             background_alphas = np.array([background_alpha])
 
         # form a list of background_resolution names to apply
-        background_resolution = plot_params.get(
-            "background_image_resolution", self.thisarea.background_image_resolution
-        )
+        background_resolution = self.thisarea.background_image_resolution
 
         if isinstance(background_resolution, list):
             background_resolutions = background_resolution
@@ -374,7 +395,7 @@ class Polarplot:
             background_resolutions = background_resolutions * len(backgrounds)
 
         # display each background in turn
-        hillshade_params = plot_params.get("hillshade_params", self.thisarea.hillshade_params)
+        hillshade_params = self.thisarea.hillshade_params
         for i, thisbackground in enumerate(backgrounds):
             if isinstance(hillshade_params, dict):
                 bg_hillshade_params = hillshade_params.copy()
@@ -393,9 +414,9 @@ class Polarplot:
         #   Overlay mask polygon
         # ------------------------------------------------------------------------------------------
 
-        show_polygon_mask = plot_params.get("show_polygon_mask", self.thisarea.show_polygon_mask)
-        polygon_mask_color = plot_params.get("polygon_mask_color", self.thisarea.polygon_mask_color)
-        self.draw_area_polygon_mask(ax, show_polygon_mask, polygon_mask_color, dataprj)
+        self.draw_area_polygon_mask(
+            ax, self.thisarea.show_polygon_mask, self.thisarea.polygon_mask_color, dataprj
+        )
 
         #  draw mini-map of bad values
         self.draw_minimap()
@@ -435,6 +456,14 @@ class Polarplot:
                     lons = np.asarray(lons)
                 if not isinstance(vals, np.ndarray):
                     vals = np.asarray(vals)
+
+                # Check if data is not 1-d. If n-d > 1, flatten to 1-d
+                if len(np.shape(lats)) > 1:
+                    lats = lats.flatten()
+                if len(np.shape(lons)) > 1:
+                    lons = lons.flatten()
+                if len(np.shape(vals)) > 1:
+                    vals = vals.flatten()
 
                 # ------------------------------------------------------------------------------
                 # check lats,lons for valid values before plotting
@@ -488,7 +517,7 @@ class Polarplot:
                 # Area Mask data sets
                 # ------------------------------------------------------------------------------
 
-                apply_area_mask = plot_params.get(
+                apply_area_mask = data_set.get(
                     "apply_area_mask_to_data", self.thisarea.apply_area_mask_to_data
                 )
 
@@ -566,6 +595,7 @@ class Polarplot:
 
                 # find fill values -------------------------------------------------------------
                 if data_set.get("fill_value") is not None:
+                    log.info("finding fill_value %s", str(data_set.get("fill_value")))
                     fv_vals_bool = vals == data_set["fill_value"]
                     percent_fv = np.mean(fv_vals_bool) * 100.0
                 else:
@@ -656,10 +686,7 @@ class Polarplot:
 
                     ds_name_0 = data_set.get("name", "unnamed")
                     if valid_indices.size > 0 and not is_flag_data:
-                        draw_colorbar = bool(
-                            plot_params.get("draw_colorbar", self.thisarea.draw_colorbar)
-                        )
-                        if draw_colorbar:
+                        if self.thisarea.draw_colorbar:
                             cbar = self.draw_colorbar(
                                 data_set,
                                 fig,
@@ -691,18 +718,13 @@ class Polarplot:
         # Optionally overlay a hillshade layer
         # ----------------------------------------------------------------------------------------
 
-        _hillshade = plot_params.get(
-            "apply_hillshade_to_vals", self.thisarea.apply_hillshade_to_vals
-        )
-
-        if _hillshade:
+        if self.thisarea.apply_hillshade_to_vals:
             log.info("Applying hillshade effect to plotted parameter...")
-            hillshade_params = plot_params.get("hillshade_params", self.thisarea.hillshade_params)
 
             Background("hillshade", self.thisarea).load(
                 ax,
                 dataprj,
-                hillshade_params=hillshade_params,
+                hillshade_params=self.thisarea.hillshade_params,
                 zorder=21,
             )
 
@@ -710,38 +732,36 @@ class Polarplot:
         # Overlay coastlines
         # ----------------------------------------------------------------------------------------
         print("drawing coastline for main map..")
-        draw_coastlines = bool(plot_params.get("draw_coastlines", self.thisarea.draw_coastlines))
-        coastline_color = str(plot_params.get("coastline_color", self.thisarea.coastline_color))
-        use_antarctica_medium_coastline = bool(
-            plot_params.get(
-                "use_antarctica_medium_coastline", self.thisarea.use_antarctica_medium_coastline
-            )
-        )
-        use_cartopy_coastline = str(
-            plot_params.get("use_cartopy_coastline", self.thisarea.use_cartopy_coastline)
-        )
+
+        use_cartopy_coastline = self.thisarea.use_cartopy_coastline
         self.draw_coastlines(
             ax,
             dataprj,
-            coastline_color,
-            draw_coastlines,
-            use_antarctica_medium_coastline=use_antarctica_medium_coastline,
+            self.thisarea.coastline_color,
+            self.thisarea.draw_coastlines,
+            use_antarctica_medium_coastline=self.thisarea.use_antarctica_medium_coastline,
             use_cartopy_coastline=use_cartopy_coastline,
         )
 
         # ----------------------------------------------------------------------------------------
         # Overlay latitude, longitude grid lines as per area specification
         # ----------------------------------------------------------------------------------------
-        show_gridlines = bool(plot_params.get("show_gridlines", self.thisarea.show_gridlines))
-        gridline_color = str(plot_params.get("gridline_color", self.thisarea.gridline_color))
 
-        self.draw_gridlines(ax, show_gridlines, gridline_color, circle)
+        self.draw_gridlines(
+            ax,
+            self.thisarea.show_gridlines,
+            self.thisarea.gridline_color,
+            circle,
+            draw_gridlabels=self.thisarea.draw_gridlabels,
+            gridlabel_color=self.thisarea.gridlabel_color,
+            inner_gridlabel_color=self.thisarea.inner_gridlabel_color,
+        )
 
         # ----------------------------------------------------------------------------------------
         #   Draw map scale bar
         # ----------------------------------------------------------------------------------------
 
-        self.draw_mapscale_bar(ax, plot_params.get("mapscale_color", None), dataprj)
+        self.draw_mapscale_bar(ax, dataprj)
 
         # -----------------------------------------------------------------------------------------
         # Show page
@@ -806,26 +826,6 @@ class Polarplot:
             text_top_y += yoffset
             plt.gcf().text(text_x, text_top_y, nvals_str, ha="left", va="bottom")
 
-            # # Position additional stats along the side of the colorbar
-            # text_x_offset = bbox.x1 + 0.02  # Offset for additional stats text
-            # text_y = text_bottom_y + offset_y  # Start from bottom
-
-            # y_offset = 0.04
-            # plt.gcf().text(
-            #     text_x,
-            #     text_top_y + y_offset,
-            #     r"$\bf{MAD}: $" + f"{calculate_mad(vals):.2f}",
-            #     ha="left",
-            #     va="bottom",
-            # )
-            # text_y += 0.04
-            # plt.gcf().text(
-            #     text_x_offset,
-            #     text_y,
-            #     r"$\bf{mean}: $" + f"{np.mean(vals):.2f}",
-            #     ha="left",
-            #     va="bottom",
-            # )
         else:  # horizontal colorbar
             # Step 2: Calculate positions for the text
             # Adjust these values as needed for your specific figure layout
@@ -940,6 +940,8 @@ class Polarplot:
                 self.thisarea.bad_data_minimap_gridlines_color,
                 circle_minimap,
                 draw_gridlabels=False,
+                gridlabel_color=self.thisarea.gridlabel_color,
+                inner_gridlabel_color=self.thisarea.inner_gridlabel_color,
                 latitude_lines=self.thisarea.bad_data_latitude_lines,
                 longitude_lines=self.thisarea.bad_data_longitude_lines,
                 zorder=0,
@@ -1047,6 +1049,8 @@ class Polarplot:
                     "black",
                     circle_minimap,
                     draw_gridlabels=False,
+                    gridlabel_color=self.thisarea.gridlabel_color,
+                    inner_gridlabel_color=self.thisarea.inner_gridlabel_color,
                     latitude_lines=[50, 70],
                     longitude_lines=[0, 60, 120, 180, -120, -60],
                     zorder=0,
@@ -1059,6 +1063,8 @@ class Polarplot:
                     "black",
                     circle_minimap,
                     draw_gridlabels=False,
+                    gridlabel_color=self.thisarea.gridlabel_color,
+                    inner_gridlabel_color=self.thisarea.inner_gridlabel_color,
                     latitude_lines=[-50, -70],
                     longitude_lines=[0, 60, 120, 180, -120, -60],
                     zorder=0,
@@ -1178,42 +1184,37 @@ class Polarplot:
         hist_axes.text(0.05, -0.05, "Full Range", fontsize=10, transform=hist_axes.transAxes)
         hist_axes.set_ylabel(f"({varunits})")
 
-    def draw_mapscale_bar(self, ax, override_mapscale_color, dataprj):
-        """
+    def draw_mapscale_bar(self, ax, dataprj):
+        """draw the map scale bar in km
 
-        :param ax: cartopy axis
-        :param override_mapscale_color : color to use to override default color used to draw
-          the scale bar. Default is None (ie use default colors)
-        :param dataprj: crs returned by self.setup_projection_and_extent()
-        :return:
+        Args:
+            ax (GeoAxis): the main map plot axis
+            dataprj (): the data projection
         """
 
         print("Adding map scale bar")
 
+        mapscale = self.thisarea.mapscale
+
         # Centre point of scale bar in data coordinates (m)
-        cx, cy = self.thisarea.latlon_to_xy(self.thisarea.mapscale[1], self.thisarea.mapscale[0])
+        cx, cy = self.thisarea.latlon_to_xy(mapscale[1], mapscale[0])
 
         print(
             "Scalebar location latlon == x,y",
-            self.thisarea.mapscale[0],
-            self.thisarea.mapscale[1],
+            mapscale[0],
+            mapscale[1],
             cx,
             cy,
         )
 
-        print("Scalebar width", self.thisarea.mapscale[4])
-        cx0 = cx - (self.thisarea.mapscale[4] * 1e3) / 2.0
-        cx1 = cx + (self.thisarea.mapscale[4] * 1e3) / 2.0
-
-        mapscale_color = self.thisarea.mapscale[5]
-
-        if override_mapscale_color is not None:
-            mapscale_color = override_mapscale_color
+        print("Scalebar width", mapscale[4])
+        cx0 = cx - (mapscale[4] * 1e3) / 2.0
+        cx1 = cx + (mapscale[4] * 1e3) / 2.0
 
         ax.plot(
             [cx0, cx1],
             [cy, cy],
-            color=mapscale_color,
+            color=mapscale[5],
             linewidth=2,
             marker="|",
             markersize=9,
@@ -1223,20 +1224,20 @@ class Polarplot:
 
         ax.text(
             cx0 + (cx1 - cx0) / 3,
-            cy + self.thisarea.mapscale[6] * 1e3,
+            cy + mapscale[6] * 1e3,
             "km",
             transform=dataprj,
-            color=mapscale_color,
+            color=mapscale[5],
             fontsize=9,
             zorder=30,
         )
 
         ax.text(
             cx0 + (cx1 - cx0) / 3,
-            cy - 2 * self.thisarea.mapscale[6] * 1e3,
-            f"{self.thisarea.mapscale[4]}",
+            cy - 2 * mapscale[6] * 1e3,
+            f"{mapscale[4]}",
             transform=dataprj,
-            color=mapscale_color,
+            color=mapscale[5],
             fontsize=9,
             zorder=30,
         )
@@ -1300,12 +1301,21 @@ class Polarplot:
         varname = data_set.get("name", "unnamed")
         flag_names = data_set.get("flag_names", [])
         flag_values = data_set.get("flag_values", [])
-        flag_colors = data_set.get("flag_colors", [])
+        flag_colors = data_set.get("flag_colors", get_unique_colors(len(flag_names)))
+        if len(flag_colors) != len(flag_names):
+            log.info("Generating unique flag colors")
+            flag_colors = get_unique_colors(len(flag_names))
+
         plot_size_scale_factor = data_set.get("plot_size_scale_factor", 1.0)
+
+        log.info("plotting flag data")
+        log.info("flag_names: %s", flag_names)
+        log.info("flag_values: %s", str(flag_values))
+        log.info("flag_colors: %s", str(flag_colors))
 
         if len(flag_names) < 1:
             log.error("zero length flag_names found")
-            return
+            raise ValueError("zero length flag_names found")
         if len(flag_names) != len(flag_values):
             log.error(
                 "flag_names[%d] and flag_values[%d] have different lengths",
@@ -1530,10 +1540,12 @@ class Polarplot:
         show_gridlines: bool,
         gridline_color: str,
         circle,
-        draw_gridlabels=True,
+        draw_gridlabels: bool,
+        gridlabel_color: str,
+        inner_gridlabel_color: str,
         longitude_lines=None,
         latitude_lines=None,
-        zorder=10,
+        zorder=30,
         for_minimap=False,
     ):
         """draw latitude and longitude grid lines on maps
@@ -1544,6 +1556,8 @@ class Polarplot:
             gridline_color (str): color of gridlines
             circle (_type_): _description_
             draw_gridlabels (bool, optional): _description_. Defaults to True.
+            gridlabel_color (str) : color of grid labels
+            inner_gridlabel_color (str) : color of inner grid labels
             longitude_lines (List[float]|None, optional): longitude positions for grid lines.
             latitude_lines (List[float]|None, optional): latitude positions for grid lines.
             zorder (int, optional): vertical order. Defaults to 10.
@@ -1573,11 +1587,11 @@ class Polarplot:
             zorder=zorder,
         )
         gl.xlabel_style = {
-            "color": self.thisarea.gridlabel_color,
+            "color": gridlabel_color,
             "size": self.thisarea.gridlabel_size,
         }
         gl.ylabel_style = {
-            "color": self.thisarea.gridlabel_color,
+            "color": gridlabel_color,
             "size": self.thisarea.gridlabel_size,
         }
         gl.n_steps = 90
@@ -1603,7 +1617,7 @@ class Polarplot:
                             lon,
                             latitude_position + latitude_adjust[i],
                             str(lon) + "E",
-                            color=self.thisarea.gridlabel_color,
+                            color=gridlabel_color,
                             size=self.thisarea.gridlabel_size,
                             transform=ccrs.PlateCarree(),
                         )
@@ -1613,7 +1627,7 @@ class Polarplot:
                             lon,
                             latitude_position + latitude_adjust[i],
                             str(-1 * lon) + "W",
-                            color=self.thisarea.gridlabel_color,
+                            color=gridlabel_color,
                             size=self.thisarea.gridlabel_size,
                             transform=ccrs.PlateCarree(),
                         )
@@ -1621,7 +1635,7 @@ class Polarplot:
                         -162,
                         -66,
                         "-66",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size,
                         transform=ccrs.PlateCarree(),
                     )
@@ -1629,7 +1643,7 @@ class Polarplot:
                         -162,
                         -70,
                         "-70",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size,
                         transform=ccrs.PlateCarree(),
                     )
@@ -1637,7 +1651,7 @@ class Polarplot:
                         -162,
                         -74,
                         "-74",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size,
                         transform=ccrs.PlateCarree(),
                     )
@@ -1646,19 +1660,10 @@ class Polarplot:
                         -162,
                         -88,
                         "-88",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size,
                         transform=ccrs.PlateCarree(),
                     )
-
-                # gl2 = ax.gridlines(
-                #     color=gridline_color,
-                #     linestyle=(0, (1, 1)),
-                #     xlocs=longitude_lines,
-                #     ylocs=[-88],
-                # )
-                # gl2.xlines = False
-                # gl2.n_steps = 90
 
             else:  # Northern hemisphere round plots
                 if draw_gridlabels:
@@ -1690,7 +1695,7 @@ class Polarplot:
                             lon,
                             latitude_position + latitude_adjust[i],
                             str(lon) + "E",
-                            color=self.thisarea.gridlabel_color,
+                            color=gridlabel_color,
                             size=self.thisarea.gridlabel_size,
                             transform=ccrs.PlateCarree(),
                         )
@@ -1705,7 +1710,7 @@ class Polarplot:
                             lon,
                             latitude_position + latitude_adjust[i],
                             str(-1 * lon) + "W",
-                            color=self.thisarea.gridlabel_color,
+                            color=gridlabel_color,
                             size=self.thisarea.gridlabel_size,
                             transform=ccrs.PlateCarree(),
                         )
@@ -1714,7 +1719,7 @@ class Polarplot:
                         0,
                         69,
                         "70N",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size - 1,
                         transform=ccrs.PlateCarree(),
                     )
@@ -1722,7 +1727,7 @@ class Polarplot:
                         0,
                         79,
                         "80N",
-                        color=self.thisarea.inner_gridlabel_color,
+                        color=inner_gridlabel_color,
                         size=self.thisarea.inner_gridlabel_size - 1,
                         transform=ccrs.PlateCarree(),
                     )
@@ -1734,7 +1739,7 @@ class Polarplot:
                 edgecolor="lightgrey",
                 lw=4,
                 transform=ax.transAxes,
-                zorder=10,
+                zorder=zorder,
             )
 
             ax.add_patch(patch)
@@ -1750,7 +1755,7 @@ class Polarplot:
                     edgecolor="slategrey",
                     lw=1,
                     transform=ax.transAxes,
-                    zorder=10,
+                    zorder=zorder,
                 )
                 ax.add_patch(patch)
 

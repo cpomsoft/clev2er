@@ -69,8 +69,19 @@ area_definition = {
     "draw_coastlines": True,  # Draw coastlines
     "coastline_color": "grey",  # Colour to draw coastlines
     "use_antarctica_medium_coastline": True,  # True,False: Antarctic coastline including iceshelves
-    "use_cartopy_coastline": None,  # None, 'low','medium', 'high' resolution
+    "use_cartopy_coastline": "no",  # 'no', 'low','medium', 'high' resolution
     "show_gridlines": True,  # True|False, display lat/lon grid lines
+    "area_long_name_position": (0.31, 0.88),  # for default annotation position of area long name
+    "area_long_name_fontsize": 16,  # font size of area.long_name
+    "mask_long_name_position": (0.26, 0.86),  # for default annotation position of area long name
+    "mask_long_name_fontsize": 9,  # font size of area.long_name
+    # ------------------------------------------------------
+    # Default Annotation
+    # ------------------------------------------------------
+    "varname_annotation_position_xy": (
+        0.04,
+        0.9,
+    ),  # normalized position of default varname annotation in plot
     # ------------------------------------------------------
     # Flag plot settings
     # ------------------------------------------------------
@@ -119,6 +130,7 @@ area_definition = {
     "gridline_color": "lightgrey",  # color to use for lat/lon grid lines
     "gridlabel_color": "darkgrey",  # color of grid labels
     "gridlabel_size": 8,  # size of grid labels
+    "draw_gridlabels": True,  # whether to draw the grid labels
     "inner_gridlabel_color": "white",  # color of grid labels
     "inner_gridlabel_size": 8,  # size of grid labels
     "latitude_of_radial_labels": -58.3,  # latitude for radial grid line labels for circular plots

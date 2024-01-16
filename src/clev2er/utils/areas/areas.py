@@ -19,17 +19,18 @@ log = logging.getLogger(__name__)
 class Area:
     """class to define polar areas for plotting etc"""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, overrides: dict | None = None):
         """class initialization
 
         Args:
             name (str): area name. Must be in all_areas
+            overrides (dict|None): dictionary to override any parameters in area definition dicts
         """
 
         self.name = name
 
         try:
-            self.load_area()
+            self.load_area(overrides)
         except ImportError as exc:
             raise ImportError(f"{name} not in supported area list") from exc
 
@@ -40,7 +41,7 @@ class Area:
                 else:
                     self.mask = Mask(self.maskname, self.basin_numbers)
 
-    def load_area(self):
+    def load_area(self, overrides: dict | None = None):
         """Load area settings for current area name"""
 
         try:
@@ -62,6 +63,9 @@ class Area:
             area_definition2 = module2.area_definition
             area_definition2.update(area_definition)
             area_definition = area_definition2
+
+        if overrides is not None and isinstance(overrides, dict):
+            area_definition.update(overrides)
 
         # store parameters from the area definition dict in class variables
         self.long_name = area_definition["long_name"]
@@ -125,6 +129,10 @@ class Area:
         )
         self.use_cartopy_coastline = area_definition.get("use_cartopy_coastline", None)
         self.show_gridlines: bool = area_definition.get("show_gridlines", True)
+        # Annotation
+        self.varname_annotation_position_xy = area_definition.get(
+            "varname_annotation_position_xy", (0.1, 0.95)
+        )
         # Flag Settings
         self.include_flag_legend = area_definition.get("include_flag_legend", False)
         self.flag_legend_xylocation = area_definition.get("flag_legend_xylocation", [None, None])
@@ -138,6 +146,10 @@ class Area:
                 0.09,
             ],
         )
+        self.area_long_name_position = area_definition.get("area_long_name_position", None)
+        self.area_long_name_fontsize = area_definition.get("area_long_name_fontsize", 12)
+        self.mask_long_name_position = area_definition.get("mask_long_name_position", None)
+        self.mask_long_name_fontsize = area_definition.get("mask_long_name_fontsize", 9)
         # Colormap
         self.cmap_name = area_definition.get("cmap_name", "RdYlBu_r")
         self.cmap_over_color = area_definition.get("cmap_over_color", "#A85754")
@@ -175,6 +187,8 @@ class Area:
         self.gridline_color: str = area_definition.get("gridline_color", "lightgrey")
         self.gridlabel_color = area_definition.get("gridlabel_color", "darkgrey")
         self.gridlabel_size = area_definition.get("gridlabel_size", 9)
+        self.draw_gridlabels = area_definition.get("draw_gridlabels", True)
+
         self.inner_gridlabel_color = area_definition.get("inner_gridlabel_color", "k")
         self.inner_gridlabel_size = area_definition.get("inner_gridlabel_size", 9)
         self.latitude_of_radial_labels = area_definition.get("latitude_of_radial_labels", None)

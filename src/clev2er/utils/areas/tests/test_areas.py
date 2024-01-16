@@ -7,7 +7,7 @@ from clev2er.utils.areas.areas import Area
 
 def test_bad_area_name():
     """pytest to check for handling of invalid area names"""
-    with pytest.raises(ValueError):
+    with pytest.raises(ImportError):
         Area("badname")
 
 
