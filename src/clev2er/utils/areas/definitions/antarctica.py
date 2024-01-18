@@ -57,6 +57,12 @@ area_definition = {
         0.74,  # width (axes fraction)
         0.74,  # height (axes fraction)
     ],
+    "simple_axes": [  # define plot axis position in the map_only plot
+        0.081,  # left
+        0.1,  # bottom
+        0.83,  # width (axes fraction)
+        0.83,  # height (axes fraction)
+    ],
     "draw_axis_frame": True,
     "background_color": None,  # background color of map
     "background_image": "natural_earth_cbh",  # background image. see clev2er.utils.backgrounds
@@ -73,7 +79,15 @@ area_definition = {
     "show_gridlines": True,  # True|False, display lat/lon grid lines
     "area_long_name_position": (0.31, 0.88),  # for default annotation position of area long name
     "area_long_name_fontsize": 16,  # font size of area.long_name
+    "area_long_name_position_simple": (
+        0.43,
+        0.97,
+    ),  # for default annot. pos of area name (map_only)
     "mask_long_name_position": (0.26, 0.86),  # for default annotation position of area long name
+    "mask_long_name_position_simple": (
+        0.36,
+        0.95,
+    ),  # for default annotation position of area long name
     "mask_long_name_fontsize": 9,  # font size of area.long_name
     # ------------------------------------------------------
     # Default Annotation
@@ -82,6 +96,14 @@ area_definition = {
         0.04,
         0.9,
     ),  # normalized position of default varname annotation in plot
+    "varname_annotation_position_xy_simple": (
+        0.04,
+        0.9,
+    ),  # normalized position of default varname annotation in map_only plot
+    "stats_position_x_offset": 0,  # x offset to stats position
+    "stats_position_y_offset": 0,  # y offset to stats position
+    "stats_position_x_offset_simple": -0.13,  # x offset to stats when plotting map_only
+    "stats_position_y_offset_simple": 0,  # y offset to stats when plotting map_only
     # ------------------------------------------------------
     # Flag plot settings
     # ------------------------------------------------------
@@ -115,8 +137,20 @@ area_definition = {
         0.02,
         0.55,
     ],  # [ left, bottom, width, height (fractions of axes)]
+    "vertical_colorbar_axes_simple": [
+        0.04,
+        0.05,
+        0.02,
+        0.55,
+    ],  # [ left, bottom, width, height (fractions of axes)]
     "horizontal_colorbar_axes": [
         0.08,
+        0.05,
+        0.55,
+        0.02,
+    ],  # [ left, bottom, width, height (fractions of axes)]
+    "horizontal_colorbar_axes_simple": [
+        0.22,
         0.05,
         0.55,
         0.02,
@@ -143,17 +177,18 @@ area_definition = {
     # ------------------------------------------------------
     "show_scalebar": True,
     "mapscale": [
-        -178.0,  # longitude to position scale bar
+        -179.9,  # longitude to position scale bar
         -65.0,  # latitide to position scale bar
         0.0,  # longitude of true scale (ie centre of area)
         -90.0,  # latitude of true scale (ie centre of area)
         1000,  # width of scale bar (km)
-        "white",  # color of scale bar
+        "black",  # color of scale bar
         70,  # size of scale bar
     ],
     # --------------------------------------------------------
     # Histograms
     # --------------------------------------------------------
+    "show_histograms": True,  # Whether to show the histogram plots
     "histogram_plotrange_axes": [
         0.735,  # left
         0.3,  # bottom
@@ -169,6 +204,7 @@ area_definition = {
     # --------------------------------------------------------
     # Latitude vs Values plot
     # --------------------------------------------------------
+    "show_latitude_scatter": True,  # Whether to show the latitude scatter plot
     "latvals_axes": [
         0.77,  # left
         0.05,  # bottom

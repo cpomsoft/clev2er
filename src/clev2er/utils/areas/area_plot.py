@@ -1,14 +1,11 @@
-"""cleve2er.utils.areas.area_plot.py
-class to plot areas defined in cleve2er.utils.areas.definitions
+"""clev2er.utils.areas.area_plot.py
+class to plot areas defined in clev2er.utils.areas.definitions
 
 To do reminder:
 
-pre-commit run --all
-plot stats (min,max,stdev, num) for other areas (vertical cbars)
-flag support
+simple square plots
+doc in __init__.py
 grid support
-standard annotation & disable
-greenland area
 vostok area
 arctic area
 """
@@ -144,6 +141,7 @@ class Polarplot:
         output_file: str = "",
         dpi: int = 85,
         transparent_background: bool = False,
+        map_only: bool = False,
     ):
         """function to plot one or more (lat,lon,val) datasets on polar maps
 
@@ -206,6 +204,7 @@ class Polarplot:
             dpi (int,optional): dpi to save image, default=85
             transparent_background (bool, optional): set to have transparent background when saved
                                  as png
+            map_only (bool): plot just the map plot (+ colorbar). No histograms or other elements.
 
         Raises:
             ValueError: if data_set parameters (lat,lon,vals) do not have equal length
@@ -224,7 +223,24 @@ class Polarplot:
             #  alpha value transparency (alpha value) of background. Float between 0 and
             #   1, or list of floats for multiple backgrounds.
         }
-
+        if map_only:
+            plot_params["fig_width"] = 10
+            self.thisarea.include_flag_legend = False
+            self.thisarea.include_flag_percents = False
+            self.thisarea.show_bad_data_map = False
+            self.thisarea.show_minimap = False
+            self.thisarea.show_histograms = False
+            self.thisarea.show_latitude_scatter = False
+            self.thisarea.axes = self.thisarea.simple_axes
+            self.thisarea.area_long_name_position = self.thisarea.area_long_name_position_simple
+            self.thisarea.mask_long_name_position = self.thisarea.mask_long_name_position_simple
+            self.thisarea.horizontal_colorbar_axes = self.thisarea.horizontal_colorbar_axes_simple
+            self.thisarea.vertical_colorbar_axes = self.thisarea.vertical_colorbar_axes_simple
+            self.thisarea.stats_position_y_offset = self.thisarea.stats_position_y_offset_simple
+            self.thisarea.stats_position_x_offset = self.thisarea.stats_position_x_offset_simple
+            self.thisarea.varname_annotation_position_xy = (
+                self.thisarea.varname_annotation_position_xy_simple
+            )
         # ------------------------------------------------------------------------------------------
         # Setup plot page
         # ------------------------------------------------------------------------------------------
@@ -697,22 +713,24 @@ class Polarplot:
 
                             self.draw_stats(cbar, vals)
 
-                        self.draw_histograms(
-                            fig,
-                            vals,
-                            data_set.get("min_plot_range", np.nanmin(vals)),
-                            data_set.get("max_plot_range", np.nanmax(vals)),
-                            data_set.get("units", "no units"),
-                            cmap,
-                        )
+                        if self.thisarea.show_histograms:
+                            self.draw_histograms(
+                                fig,
+                                vals,
+                                data_set.get("min_plot_range", np.nanmin(vals)),
+                                data_set.get("max_plot_range", np.nanmax(vals)),
+                                data_set.get("units", "no units"),
+                                cmap,
+                            )
 
-                        self.draw_latitude_vs_vals_plot(
-                            fig,
-                            vals,
-                            lats,
-                            data_set.get("name", "unnamed"),
-                            data_set.get("units", "no units"),
-                        )
+                        if self.thisarea.show_latitude_scatter:
+                            self.draw_latitude_vs_vals_plot(
+                                fig,
+                                vals,
+                                lats,
+                                data_set.get("name", "unnamed"),
+                                data_set.get("units", "no units"),
+                            )
 
         # ----------------------------------------------------------------------------------------
         # Optionally overlay a hillshade layer
@@ -816,15 +834,45 @@ class Polarplot:
             text_x -= 0.05
             yoffset = 0.025
             text_top_y += 0.04
-            plt.gcf().text(text_x, text_top_y, mean_str, ha="left", va="bottom")
+            plt.gcf().text(
+                text_x + self.thisarea.stats_position_x_offset,
+                text_top_y + self.thisarea.stats_position_y_offset,
+                mean_str,
+                ha="left",
+                va="bottom",
+            )
             text_top_y += yoffset
-            plt.gcf().text(text_x, text_top_y, median_str, ha="left", va="bottom")
+            plt.gcf().text(
+                text_x + self.thisarea.stats_position_x_offset,
+                text_top_y + self.thisarea.stats_position_y_offset,
+                median_str,
+                ha="left",
+                va="bottom",
+            )
             text_top_y += yoffset
-            plt.gcf().text(text_x, text_top_y, std_str, ha="left", va="bottom")
+            plt.gcf().text(
+                text_x + self.thisarea.stats_position_x_offset,
+                text_top_y + self.thisarea.stats_position_y_offset,
+                std_str,
+                ha="left",
+                va="bottom",
+            )
             text_top_y += yoffset
-            plt.gcf().text(text_x, text_top_y, mad_str, ha="left", va="bottom")
+            plt.gcf().text(
+                text_x + self.thisarea.stats_position_x_offset,
+                text_top_y + self.thisarea.stats_position_y_offset,
+                mad_str,
+                ha="left",
+                va="bottom",
+            )
             text_top_y += yoffset
-            plt.gcf().text(text_x, text_top_y, nvals_str, ha="left", va="bottom")
+            plt.gcf().text(
+                text_x + self.thisarea.stats_position_x_offset,
+                text_top_y + self.thisarea.stats_position_y_offset,
+                nvals_str,
+                ha="left",
+                va="bottom",
+            )
 
         else:  # horizontal colorbar
             # Step 2: Calculate positions for the text
@@ -847,39 +895,43 @@ class Polarplot:
             text_left_x -= 0.04
 
             plt.gcf().text(
-                text_left_x,
-                text_y,
+                text_left_x + self.thisarea.stats_position_x_offset,
+                text_y + self.thisarea.stats_position_y_offset,
                 r"$\bf{MAD}: $" + f"{calculate_mad(vals):.2f}",
                 ha="left",
                 va="center",
             )
             text_y += 0.02
             plt.gcf().text(
-                text_left_x,
-                text_y,
+                text_left_x + self.thisarea.stats_position_x_offset,
+                text_y + self.thisarea.stats_position_y_offset,
                 r"$\bf{mean}: $" + f"{np.mean(vals):.2f}",
                 ha="left",
                 va="center",
             )
             text_y += 0.02
             plt.gcf().text(
-                text_left_x,
-                text_y,
+                text_left_x + self.thisarea.stats_position_x_offset,
+                text_y + self.thisarea.stats_position_y_offset,
                 r"$\bf{median}: $" + f"{np.median(vals):.2f}",
                 ha="left",
                 va="center",
             )
             text_y += 0.02
             plt.gcf().text(
-                text_left_x,
-                text_y,
+                text_left_x + self.thisarea.stats_position_x_offset,
+                text_y + self.thisarea.stats_position_y_offset,
                 r"$\bf{std}: $" + f"{np.std(vals):.2f}",
                 ha="left",
                 va="center",
             )
             text_y += 0.02
             plt.gcf().text(
-                text_left_x, text_y, r"$\bf{nvals}: $" + f"{len(vals)}", ha="left", va="center"
+                text_left_x + self.thisarea.stats_position_x_offset,
+                text_y + self.thisarea.stats_position_y_offset,
+                r"$\bf{nvals}: $" + f"{len(vals)}",
+                ha="left",
+                va="center",
             )
 
     def draw_minimap_bad(

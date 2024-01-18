@@ -13,6 +13,7 @@ import cartopy.io.img_tiles as cimgt
 import matplotlib.pyplot as plt  # plotting functions
 import numpy as np
 import pyproj
+from matplotlib import colormaps
 from matplotlib.colors import LinearSegmentedColormap
 from netCDF4 import Dataset  # pylint: disable=E0611
 from PIL import Image
@@ -571,7 +572,7 @@ class Background:
 
             x_grid, y_grid = np.meshgrid(xdem, ydem)
 
-            thiscmap = plt.cm.get_cmap("Greys")
+            thiscmap = colormaps["Greys"]
             if cmap:
                 thiscmap = cmap
             # thiscmap.set_bad(color="aliceblue")
@@ -724,7 +725,9 @@ class Background:
             except IOError:
                 log.error("Could not read %s", bgfile)
 
-            thiscmap = plt.cm.get_cmap("Blues_r", 8)
+            base_cmap = colormaps["Blues"].reversed()
+            new_colors = base_cmap(np.linspace(0, 1, 8))
+            thiscmap = LinearSegmentedColormap.from_list("custom_blues", new_colors)
 
             ax.pcolormesh(
                 x_grid,

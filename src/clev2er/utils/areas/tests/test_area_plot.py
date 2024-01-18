@@ -295,3 +295,72 @@ def test_area_plot_ais():
             "test_plots/test_antarctica.png"
         ),
     )
+
+
+def test_map_only_ais():
+    """pytest to test plotting over the 'antarctica' area"""
+    config = {
+        "background_image": [
+            "basic_land",
+        ],
+    }
+
+    dataset = {
+        "name": "mydata_1",
+        "units": "m",
+        "lats": np.linspace(-85, -75, 100),
+        "lons": np.linspace(0, 2, 100),
+        "vals": np.linspace(10000, 20000, 100),
+        "fill_value": 99999,
+    }
+
+    dataset["vals"][0:50] = np.nan
+    dataset["vals"][51:70] = 99999
+
+    Polarplot("antarctica", config).plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            "test_plots/test_map_only_ais.png"
+        ),
+        map_only=True,
+    )
+
+
+def test_map_only_gis():
+    """pytest to test plotting over the 'greenland' area"""
+    config = {
+        "background_image": [
+            "basic_land",
+        ],
+    }
+    config = {
+        "background_image": [
+            "ibcao_bathymetry",
+            "hillshade",
+        ],
+        "background_image_alpha": [0.14, 0.18],
+        "background_color": "white",
+        "use_cartopy_coastline": "medium",
+    }
+
+    dataset = {
+        "name": "mydata_1",
+        "units": "m",
+        "lats": np.linspace(60, 82, 100),
+        "lons": np.linspace(320, 325, 100),
+        "vals": np.linspace(10000, 20000, 100),
+        "fill_value": 99999,
+    }
+
+    dataset["vals"][0:50] = np.nan
+    dataset["vals"][51:70] = 99999
+
+    Polarplot("greenland", config).plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            "test_plots/test_map_only_gis.png"
+        ),
+        map_only=False,
+    )

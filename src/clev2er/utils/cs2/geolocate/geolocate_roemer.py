@@ -16,7 +16,7 @@ import pyproj
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pyproj import Transformer
 from scipy.interpolate import interpn
-from scipy.ndimage import median_filter
+from scipy.ndimage import generic_filter, median_filter
 
 from clev2er.utils.cs2.geolocate.lrm_slope import slope_doppler
 from clev2er.utils.dems.dems import Dem
@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 EARTH_RADIUS = 6378137.0
 
 
-def calculate_distances(
+def calculate_distances3d(
     x1_coord: float,
     y1_coord: float,
     z1_coord: float,
@@ -67,10 +67,64 @@ def calculate_distances(
     return distances  # Convert back to a regular Python list
 
 
+def calculate_distances2d(
+    x1_coord: float,
+    y1_coord: float,
+    x2_array: np.ndarray[float],
+    y2_array: np.ndarray[float],
+    squared_only=False,
+) -> list[float]:
+    """calculates the distances between a  refernce cartesian point (x1,y1) in 2d space
+    and a list of other points : x2[],y2[]
+
+    Args:
+        x1_coord (float): x coordinate of ref point
+        y1_coord (float): y coordinate of ref point
+        x2_array (list[float]): list of x coordinates
+        y2_array (list[float]): list of y coordinates
+        squared_only (bool) : if True, only calculate the squares of diffs and not sqrt
+                              this will be faster, but doesn't give actual distances
+
+    Returns:
+        list[float]: list of distances between points x1,y1,z1 and x2[],y2[]
+    """
+
+    x2_array = np.array(x2_array)
+    y2_array = np.array(y2_array)
+
+    distances = (x2_array - x1_coord) ** 2 + (y2_array - y1_coord) ** 2
+
+    if squared_only:
+        distances = (x2_array - x1_coord) ** 2 + (y2_array - y1_coord) ** 2
+    else:
+        distances = np.sqrt((x2_array - x1_coord) ** 2 + (y2_array - y1_coord) ** 2)
+
+    return distances
+
+
+def replace_nan_with_median(arr: np.ndarray) -> np.ndarray:
+    """
+    Replaces nan values in an array with the median of their non-nan neighbors.
+
+    Parameters:
+    arr (np.ndarray): The input 2D array with potential nan values.
+
+    Returns:
+    np.ndarray: Array with nan values replaced by the median of their neighbors.
+    """
+
+    # Function to calculate median of non-nan neighbors
+    def nan_median(window: np.ndarray) -> float:
+        return np.nanmedian(window)
+
+    # Using generic_filter to apply the function to each neighborhood
+    return generic_filter(arr, nan_median, size=3)
+
+
 def find_poca(
-    dem_interp_f: np.ndarray,
-    gridx_f: np.ndarray,
-    gridy_f: np.ndarray,
+    zdem: np.ndarray,
+    xdem: np.ndarray,
+    ydem: np.ndarray,
     nadir_x: float,
     nadir_y: float,
     alt_pt: float,
@@ -81,9 +135,9 @@ def find_poca(
        Adapted from original : CLS (python) of McMillan (Matlab) code
 
     Args:
-        dem_interp_f (np.ndarray): DEM
-        gridx_f (np.ndarray): _description_
-        gridy_f (np.ndarray): _description_
+        zdem (np.ndarray): DEM height values
+        xdem (np.ndarray): x locations of DEM in polar stereo coordinates (m)
+        ydem (np.ndarray): y locations of DEM in polar stereo coordinates (m)
         nadir_x (float): x location of nadir in polar stereo coordinates (m)
         nadir_y (float): y location of nadir in polar stereo coordinates (m)
         alt_pt (float): altitude at nadir (m)
@@ -99,34 +153,32 @@ def find_poca(
 
     # compute x and y distance of all points in beam footprint from nadir coordinate of
     # current record
-    dem_dx_vec = gridx_f - nadir_x
-    dem_dy_vec = gridy_f - nadir_y
+    dem_dx_vec = xdem - nadir_x
+    dem_dy_vec = ydem - nadir_y
 
-    # compute magnitude of distance from nadir
-    dem_dmag_vec = np.sqrt(dem_dx_vec**2 + dem_dy_vec**2)
+    # Compute the squared magnitude of distance from nadir
+    dem_dmag_squared = dem_dx_vec**2 + dem_dy_vec**2
 
-    # account for earth curvature
+    # Account for earth curvature using the squared distance
+    dem_dz_vec = zdem - alt_pt - dem_dmag_squared / (2.0 * EARTH_RADIUS)
 
-    dem_dmag_vec_ec = dem_dmag_vec / EARTH_RADIUS
-
-    dem_dz_vec = dem_interp_f - alt_pt - EARTH_RADIUS * dem_dmag_vec_ec**2 / 2.0
-    dem_range_vec = np.sqrt((dem_dx_vec) ** 2 + (dem_dy_vec) ** 2 + (dem_dz_vec) ** 2)
+    dem_range_vec = np.sqrt(dem_dmag_squared + (dem_dz_vec) ** 2)
 
     # find range to, and indices of, closest dem pixel
     [dem_rpoca, dempoca_ind] = np.nanmin(dem_range_vec), np.nanargmin(dem_range_vec)
 
-    if np.isnan(dem_interp_f[dempoca_ind]) | (dem_interp_f[dempoca_ind] == -9999):
+    if np.isnan(zdem[dempoca_ind]) | (zdem[dempoca_ind] == -9999):
         return -999, -999, -999, -999, 0
 
     # compute relocation correction to apply to assumed nadir altimeter elevation to move to poca
-    slope_correction_to_height = dem_rpoca + dem_interp_f[dempoca_ind] - alt_pt
+    slope_correction_to_height = dem_rpoca + zdem[dempoca_ind] - alt_pt
 
     flg_success = 1
 
     return (
-        gridx_f[dempoca_ind],
-        gridy_f[dempoca_ind],
-        dem_interp_f[dempoca_ind],
+        xdem[dempoca_ind],
+        ydem[dempoca_ind],
+        zdem[dempoca_ind],
         slope_correction_to_height,
         flg_success,
     )
@@ -185,6 +237,7 @@ def geolocate_roemer(
     # num_bins = config["instrument"]["num_range_bins_lrm"]
     across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
     pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
+    median_filter_width = int(pulse_limited_footprint_size_lrm / thisdem.binsize)
 
     # Additional options
     include_dhdt_correction = config["lrm_roemer_geolocation"]["include_dhdt_correction"]
@@ -204,9 +257,6 @@ def geolocate_roemer(
     nadir_x, nadir_y = thisdem.lonlat_to_xy_transformer.transform(
         lon_20_ku, lat_20_ku
     )  # pylint: disable=unpacking-non-sequence
-
-    # Interpolate DEM heights at nadir locations
-    heights_at_nadir = thisdem.interp_dem(nadir_x, nadir_y)
 
     # Create working parameter arrays
     poca_x = np.full_like(nadir_x, dtype=float, fill_value=np.nan)
@@ -263,7 +313,7 @@ def geolocate_roemer(
             continue
 
         if config["lrm_roemer_geolocation"]["median_filter"]:
-            smoothed_zdem = median_filter(zdem, size=3)
+            smoothed_zdem = median_filter(replace_nan_with_median(zdem), size=median_filter_width)
             zdem = smoothed_zdem
 
         if config["lrm_roemer_geolocation"]["dual_search"]:
@@ -273,10 +323,8 @@ def geolocate_roemer(
             ydem = ydem.flatten()
             zdem = zdem.flatten()
 
-            # Compute distance between each dem location and nadir in (x,y,z)
-            dem_to_nadir_dists = calculate_distances(
-                nadir_x[i], nadir_y[i], heights_at_nadir[i], xdem, ydem, zdem
-            )
+            # Compute 2d distance between each dem location and nadir in (x,y)
+            dem_to_nadir_dists = calculate_distances2d(nadir_x[i], nadir_y[i], xdem, ydem)
 
             # find where dem_to_nadir_dists is within beam. ie extract circular area
             include_dem_indices = np.where(
@@ -326,6 +374,7 @@ def geolocate_roemer(
                 slope_correction_to_height,
                 flg_success,
             ) = find_poca(zdem, xdem, ydem, nadir_x[i], nadir_y[i], altitudes[i])
+
             if not flg_success:
                 slope_ok[i] = False
                 continue
@@ -359,7 +408,7 @@ def geolocate_roemer(
                     slope_ok[i] = False
                     continue
 
-                # Define new grid for 20m resolution
+                # Define new grid for finer resolution
                 grid_x, grid_y = np.mgrid[
                     x_min:x_max:fine_grid_resolution, y_min:y_max:fine_grid_resolution
                 ]
@@ -379,9 +428,7 @@ def geolocate_roemer(
                 # point corresponding to a radius of half the beam width
 
                 # Compute distance between each dem location and nadir in (x,y,z)
-                dem_to_poca_dists = calculate_distances(
-                    poca_x[i], poca_y[i], poca_z[i], grid_x, grid_y, new_z
-                )
+                dem_to_poca_dists = calculate_distances2d(poca_x[i], poca_y[i], grid_x, grid_y)
 
                 # find where dem_to_nadir_dists is within beam. ie extract circular area
                 include_dem_indices = np.where(
@@ -447,7 +494,7 @@ def geolocate_roemer(
 
         if config["lrm_roemer_geolocation"]["use_sliding_window"]:
             # Step 1: Calculate all distances once
-            all_distances_flat = calculate_distances(
+            all_distances_flat = calculate_distances3d(
                 x1_coord=nadir_x[i],
                 y1_coord=nadir_y[i],
                 z1_coord=altitudes[i],
@@ -497,7 +544,7 @@ def geolocate_roemer(
             #  Calculate Slope Correction
             # --------------------------------------------------------------------------------------
 
-            dem_to_sat_dists = calculate_distances(
+            dem_to_sat_dists = calculate_distances3d(
                 nadir_x[i],
                 nadir_y[i],
                 altitudes[i],

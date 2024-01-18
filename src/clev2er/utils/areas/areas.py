@@ -105,6 +105,7 @@ class Area:
 
         # Plot parameters
         self.axes = area_definition.get("axes")
+        self.simple_axes = area_definition.get("simple_axes")
         self.background_color = area_definition.get("background_color", None)
         self.background_image = area_definition.get("background_image", None)
         self.background_image_alpha = area_definition.get("background_image_alpha", 1.0)
@@ -133,6 +134,18 @@ class Area:
         self.varname_annotation_position_xy = area_definition.get(
             "varname_annotation_position_xy", (0.1, 0.95)
         )
+        self.varname_annotation_position_xy_simple = area_definition.get(
+            "varname_annotation_position_xy_simple", (0.1, 0.95)
+        )
+        self.stats_position_x_offset = area_definition.get("stats_position_x_offset", 0)
+        self.stats_position_y_offset = area_definition.get("stats_position_y_offset", 0)
+        self.stats_position_x_offset_simple = area_definition.get(
+            "stats_position_x_offset_simple", 0
+        )
+        self.stats_position_y_offset_simple = area_definition.get(
+            "stats_position_y_offset_simple", 0
+        )
+
         # Flag Settings
         self.include_flag_legend = area_definition.get("include_flag_legend", False)
         self.flag_legend_xylocation = area_definition.get("flag_legend_xylocation", [None, None])
@@ -147,8 +160,14 @@ class Area:
             ],
         )
         self.area_long_name_position = area_definition.get("area_long_name_position", None)
+        self.area_long_name_position_simple = area_definition.get(
+            "area_long_name_position_simple", None
+        )
         self.area_long_name_fontsize = area_definition.get("area_long_name_fontsize", 12)
         self.mask_long_name_position = area_definition.get("mask_long_name_position", None)
+        self.mask_long_name_position_simple = area_definition.get(
+            "mask_long_name_position_simple", None
+        )
         self.mask_long_name_fontsize = area_definition.get("mask_long_name_fontsize", 9)
         # Colormap
         self.cmap_name = area_definition.get("cmap_name", "RdYlBu_r")
@@ -167,8 +186,26 @@ class Area:
                 0.55,
             ],
         )
+        self.vertical_colorbar_axes_simple = area_definition.get(
+            "vertical_colorbar_axes_simple",
+            [
+                0.04,
+                0.05,
+                0.02,
+                0.55,
+            ],
+        )
         self.horizontal_colorbar_axes = area_definition.get(
             "horizontal_colorbar_axes",
+            [
+                0.08,
+                0.05,
+                0.55,
+                0.02,
+            ],
+        )
+        self.horizontal_colorbar_axes_simple = area_definition.get(
+            "horizontal_colorbar_axes_simple",
             [
                 0.08,
                 0.05,
@@ -235,6 +272,7 @@ class Area:
         self.crs_wgs = CRS("epsg:4326")  # assuming you're using WGS84 geographic
         self.crs_bng = CRS(f"epsg:{self.epsg_number}")
         # Histograms
+        self.show_histograms = area_definition.get("show_histograms", True)
         self.histogram_plotrange_axes = area_definition.get(
             "histogram_plotrange_axes",
             [
@@ -253,6 +291,9 @@ class Area:
                 0.35,  # height (axes fraction)
             ],
         )
+
+        self.show_latitude_scatter = area_definition.get("show_latitude_scatter", True)
+
         self.latvals_axes = area_definition.get(
             "latvals_axes",
             [
