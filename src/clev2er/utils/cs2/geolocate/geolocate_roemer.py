@@ -384,8 +384,6 @@ def geolocate_roemer(
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
 
-            # print(f"first poca: {this_poca_x} {this_poca_y} {this_poca_z}")
-
             if fine_grid_resolution > 0:
                 # Create finer grid resolution around poca
                 # -------------------------------------
@@ -426,13 +424,10 @@ def geolocate_roemer(
                     fill_value=np.nan,
                 )
 
-                # Step 1: find the DEM points within a circular area centred on the nadir
-                # point corresponding to a radius of half the beam width
-
-                # Compute distance between each dem location and nadir in (x,y,z)
+                # Compute distance between dem points and the approximate POCA in (x,y,z)
                 dem_to_poca_dists = calculate_distances2d(poca_x[i], poca_y[i], grid_x, grid_y)
 
-                # find where dem_to_nadir_dists is within beam. ie extract circular area
+                # find where dem_to_poca_dists is within PLF. ie extract circular area
                 include_dem_indices = np.where(
                     np.array(dem_to_poca_dists) < (pulse_limited_footprint_size_lrm / 2.0)
                 )[0]
