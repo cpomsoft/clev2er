@@ -237,7 +237,8 @@ def geolocate_roemer(
     # num_bins = config["instrument"]["num_range_bins_lrm"]
     across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
     pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
-    median_filter_width = int(pulse_limited_footprint_size_lrm / thisdem.binsize)
+    # median_filter_width = int(pulse_limited_footprint_size_lrm / thisdem.binsize)
+    median_filter_width = 7
 
     # Additional options
     include_dhdt_correction = config["lrm_roemer_geolocation"]["include_dhdt_correction"]
@@ -313,7 +314,8 @@ def geolocate_roemer(
             continue
 
         if config["lrm_roemer_geolocation"]["median_filter"]:
-            smoothed_zdem = median_filter(replace_nan_with_median(zdem), size=median_filter_width)
+            # smoothed_zdem = median_filter(replace_nan_with_median(zdem), size=median_filter_width)
+            smoothed_zdem = median_filter(zdem, size=median_filter_width)
             zdem = smoothed_zdem
 
         if config["lrm_roemer_geolocation"]["dual_search"]:
