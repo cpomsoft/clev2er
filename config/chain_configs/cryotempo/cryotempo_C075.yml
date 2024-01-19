@@ -1,16 +1,10 @@
 # Cryo-TEMPO Baseline settings
-# Change Log from previous baseline:
-#   - tcog_retracker: 
-#      retrack_threshold_lrm: 0.1
-#      le_dp_threshold: 0.4
-#   - lrm_roemer_geolocation use for LRM geolocation
-#      arcticdem_100m_greenland_v4.1
-#   with corrected beam width area (uses distance in xy, not xyz)
+# with 2 DEM resolutions for Roemer
 
 project: cryotempo
 theme: landice  # CryoTEMPO theme: landice, seaice, polaroceans, coastaloceans,inlandwaters
 baseline: C  # CryoTEMPO product baseline to produce: A..Z
-version: 74   # CryoTEMPO product version to produce: 1..100
+version: 75   # CryoTEMPO product version to produce: 1..100
 l1b_base_dir: ${CPDATA_DIR}/SATS/RA/CRY/L1B # should contain LRM,SIN/<YYYY>/<MM>/
 l1b_baselines: E   # ESA L1b baseline to select when finding L1b files
 # CryoTEMPO product base dir which will contain 
@@ -148,9 +142,11 @@ lrm_roemer_geolocation:
   # Configuration for the LRM Roemer correction method (based on Roemer al, 2007)
   #
   # DEM selection
+  antarctic_dem_approx_poca: rema_ant_1km_v2   # Dem class to use for finding approx POCA over AIS
+  greenland_dem_approx_poca: arcticdem_1km_greenland_v4.1 # Dem class to use for finding approx POCA over GIS
   antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
-  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for the slope correction over GIS
-  median_filter: True # Apply median filter to extracted DEM segments for BLF of width PLF_width/dem_posting
+  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for the slope corr over GIS
+  median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
   include_dhdt_correction: False
   dhdt_grn_name: grn_is2_is1_smith
   dhdt_ant_name: ais_is2_is1_smith

@@ -79,8 +79,11 @@ class Algorithm(BaseAlgorithm):
         init_shared_mem = "_init_shared_mem" in self.config
 
         # Load DEMs required by this algorithm
+
+        # Load Antarctic DEMs (unless grn_only is set in config)
         if "grn_only" in self.config and self.config["grn_only"]:
             self.dem_ant = None
+            self.dem_ant_approx_poca = None
         else:
             self.dem_ant = Dem(
                 self.config["lrm_roemer_geolocation"]["antarctic_dem"],
@@ -88,13 +91,40 @@ class Algorithm(BaseAlgorithm):
                 store_in_shared_memory=init_shared_mem,
                 thislog=self.log,
             )
+            if "antarctic_dem_approx_poca" in self.config["lrm_roemer_geolocation"]:
+                self.log.info("Loading antarctic DEM for approx poca search...")
+                self.dem_ant_approx_poca = Dem(
+                    self.config["lrm_roemer_geolocation"]["antarctic_dem_approx_poca"],
+                    config=self.config,
+                    store_in_shared_memory=init_shared_mem,
+                    thislog=self.log,
+                )
+            else:
+                self.dem_ant_approx_poca = None
 
-        self.dem_grn = Dem(
-            self.config["lrm_roemer_geolocation"]["greenland_dem"],
-            config=self.config,
-            store_in_shared_memory=init_shared_mem,
-            thislog=self.log,
-        )
+        # Load Greenland DEMs (unless ais_only is set in config)
+        if "ais_only" in self.config and self.config["ais_only"]:
+            self.dem_grn = None
+            self.dem_grn_approx_poca = None
+        else:
+            self.dem_grn = Dem(
+                self.config["lrm_roemer_geolocation"]["greenland_dem"],
+                config=self.config,
+                store_in_shared_memory=init_shared_mem,
+                thislog=self.log,
+            )
+
+            if "greenland_dem_approx_poca" in self.config["lrm_roemer_geolocation"]:
+                self.log.info("Loading Greenland DEM for approx poca search...")
+
+                self.dem_grn_approx_poca = Dem(
+                    self.config["lrm_roemer_geolocation"]["greenland_dem_approx_poca"],
+                    config=self.config,
+                    store_in_shared_memory=init_shared_mem,
+                    thislog=self.log,
+                )
+            else:
+                self.dem_grn_approx_poca = None
 
         if self.config["lrm_roemer_geolocation"]["include_dhdt_correction"]:
             self.log.info("Roemer dhdt correction enabled")
@@ -143,10 +173,21 @@ class Algorithm(BaseAlgorithm):
         # -------------------------------------------------------------------
 
         if shared_dict["hemisphere"] == "south":
-            thisdem = self.dem_ant
+            if self.dem_ant_approx_poca is None:
+                thisdem = self.dem_ant
+                thisdem_fine = self.dem_ant
+            else:
+                thisdem = self.dem_ant_approx_poca
+                thisdem_fine = self.dem_ant
             thisdhdt = self.dhdt_ant
         else:
-            thisdem = self.dem_grn
+            if self.dem_grn_approx_poca is None:
+                thisdem = self.dem_grn
+                thisdem_fine = self.dem_grn
+            else:
+                thisdem = self.dem_grn_approx_poca
+                thisdem_fine = self.dem_grn
+
             thisdhdt = self.dhdt_grn
 
         # Run the slope correction to calculate POCA lat,lon and height
@@ -154,6 +195,7 @@ class Algorithm(BaseAlgorithm):
         height_20_ku, lat_poca_20_ku, lon_poca_20_ku, slope_ok = geolocate_roemer(
             l1b,
             thisdem,
+            thisdem_fine,
             thisdhdt,
             self.config,
             shared_dict["cryotempo_surface_type"],
@@ -199,5 +241,9 @@ class Algorithm(BaseAlgorithm):
             self.dem_ant.clean_up()
         if self.dem_grn is not None:
             self.dem_grn.clean_up()
+        if self.dem_grn_approx_poca is not None:
+            self.dem_grn_approx_poca.clean_up()
+        if self.dem_ant_approx_poca is not None:
+            self.dem_ant_approx_poca.clean_up()
 
         # --------------------------------------------------------

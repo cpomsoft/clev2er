@@ -14,7 +14,19 @@ log = logging.getLogger(__name__)
     "dem_name,lats,lons,elevs",
     [
         (
+            "awi_grn_1km",
+            [79.3280254299693],
+            [-34.42389],
+            [1985],
+        ),  # GIS location, elevations from CS2 CryoTEMPO Baseline-B
+        (
             "arcticdem_1km",
+            [79.3280254299693],
+            [-34.42389],
+            [1983.98],
+        ),  # GIS location, elevations from CS2 CryoTEMPO Baseline-B
+        (
+            "arcticdem_1km_v4.1",
             [79.3280254299693],
             [-34.42389],
             [1983.98],
@@ -25,9 +37,24 @@ log = logging.getLogger(__name__)
             [-34.42389],
             [1983.98],
         ),  # GIS location, elevations from CS2 CryoTEMPO Baseline-B
+        (
+            "arcticdem_100m_greenland_v4.1",
+            [79.3280254299693],
+            [-34.42389],
+            [1983.98],
+        ),  # GIS location, elevations from CS2 CryoTEMPO Baseline-B
+        (
+            "arcticdem_1km_greenland_v4.1",
+            [79.3280254299693],
+            [-34.42389],
+            [1983.98],
+        ),  # GIS location, elevations from CS2 CryoTEMPO Baseline-B
         ("rema_ant_1km", [-77], [106], [3516]),  # Vostok
         ("rema_ant_1km_v2", [-77], [106], [3516]),  # Vostok
         ("rema_ant_200m", [-77], [106], [3516]),  # Vostok
+        ("awi_ant_1km_floating", [-80], [182], [0]),  # Ross Ice Shelf
+        ("awi_ant_1km_grounded", [-77], [106], [3516]),  # Vostok
+        ("awi_ant_1km", [-77], [106], [3516]),  # Vostok),# Vostok
     ],
 )
 def test_dems(dem_name, lats, lons, elevs):

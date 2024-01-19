@@ -203,6 +203,7 @@ def datetime2year(date_dt):
 def geolocate_roemer(
     l1b: Dataset,
     thisdem: Dem | None,
+    thisdem_fine: Dem | None,
     thisdhdt: Dhdt | None,
     config: dict,
     surface_type_20_ku: np.ndarray,
@@ -214,8 +215,8 @@ def geolocate_roemer(
 
     Args:
         l1b (Dataset): NetCDF Dataset of L1b file
-        thisdem (Dem): Dem object used for Roemer/LEPTA correction
-        config (dict): config dictionary containing ["lrm_lepta_geolocation"][params]
+        thisdem (Dem): Dem object used for Roemer correction
+        config (dict): config dictionary containing ["lrm_roemer_geolocation"][params]
         surface_type_20_ku (np.ndarray): surface type for track, where 1 == grounded_ice
         geo_corrected_tracker_range (np.ndarray) : geo-corrected tracker range (NOT retracked)
         retracker_correction (np.ndarray) : retracker correction to range (m)
@@ -227,17 +228,15 @@ def geolocate_roemer(
 
     if thisdem is None:
         raise ValueError("thisdem None value passed")
+    if thisdem_fine is None:
+        raise ValueError("thisdem_fine None value passed")
 
     # ------------------------------------------------------------------------------------
     # Get configuration parameters
     # ------------------------------------------------------------------------------------
 
-    # reference_bin_index = config["instrument"]["ref_bin_index_lrm"]
-    # range_bin_size = config["instrument"]["range_bin_size_lrm"]  # meters
-    # num_bins = config["instrument"]["num_range_bins_lrm"]
     across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
     pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
-    # median_filter_width = int(pulse_limited_footprint_size_lrm / thisdem.binsize)
     median_filter_width = 7
 
     # Additional options
@@ -245,7 +244,7 @@ def geolocate_roemer(
 
     max_poca_reloc_distance = config["lrm_roemer_geolocation"]["max_poca_reloc_distance"]
 
-    fine_grid_resolution = config["lrm_roemer_geolocation"]["fine_grid_resolution"]
+    fine_grid_sampling = config["lrm_roemer_geolocation"]["fine_grid_sampling"]
 
     # ------------------------------------------------------------------------------------
 
@@ -384,7 +383,7 @@ def geolocate_roemer(
             poca_y[i] = this_poca_y
             poca_z[i] = this_poca_z
 
-            if fine_grid_resolution > 0:
+            if fine_grid_sampling > 0:
                 # Create finer grid resolution around poca
                 # -------------------------------------
 
@@ -400,7 +399,9 @@ def geolocate_roemer(
 
                 # Extract the rectangular segment from the DEM
                 try:
-                    xdem, ydem, zdem = thisdem.get_segment(segment, grid_xy=False, flatten=False)
+                    xdem, ydem, zdem = thisdem_fine.get_segment(
+                        segment, grid_xy=False, flatten=False
+                    )
                 except (IndexError, ValueError, TypeError, AttributeError, MemoryError):
                     slope_ok[i] = False
                     continue
@@ -410,7 +411,7 @@ def geolocate_roemer(
 
                 # Define new grid for finer resolution
                 grid_x, grid_y = np.mgrid[
-                    x_min:x_max:fine_grid_resolution, y_min:y_max:fine_grid_resolution
+                    x_min:x_max:fine_grid_sampling, y_min:y_max:fine_grid_sampling
                 ]
                 grid_x = grid_x.flatten()
                 grid_y = grid_y.flatten()
@@ -586,7 +587,7 @@ def geolocate_roemer(
     # Doppler Slope Correction
     # ----------------------------------------------------------------
 
-    if config["lrm_lepta_geolocation"]["include_slope_doppler_correction"]:
+    if config["lrm_roemer_geolocation"]["include_slope_doppler_correction"]:
         idx = np.where(np.isfinite(height_20_ku))[0]
         if len(idx) > 0:
             ecef = pyproj.Proj(proj="geocent", ellps="WGS84", datum="WGS84")

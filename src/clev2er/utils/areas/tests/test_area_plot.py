@@ -6,6 +6,8 @@ import numpy as np
 
 from clev2er.utils.areas.area_plot import Annotation, Polarplot
 
+# pylint: disable=R0801
+
 
 def test_area_plot_bad_latlon_data():
     """test of clev2er.utils.areas.area_plot with bad lat/lon data
