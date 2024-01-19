@@ -159,7 +159,7 @@ lrm_roemer_geolocation:
   use_sliding_window: False # searches for approx POCA using sliding PLF (slower) 
 
   # Tuning
-  fine_grid_resolution: 10  # meters. Set to 0 to turn off secondary searching for POCA at finer grid
+  fine_grid_sampling: 10  # sampling rate, when doing fine re-sampling of DEM for PLF
   max_poca_reloc_distance: 6600 # reject points relocated further than this distance (m) from nadir
 
   # Additional height corrections
