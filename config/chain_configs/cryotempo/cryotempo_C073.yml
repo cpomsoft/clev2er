@@ -143,20 +143,24 @@ lrm_lepta_geolocation:
 lrm_roemer_geolocation:
   # Configuration for the LRM Roemer correction method (based on Roemer al, 2007)
   #
-  # DEM selection
-  antarctic_dem: rema_ant_200m   # Dem class name to use for the slope correction over AIS
-  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for the slope correction over GIS
-  median_filter: False # Apply 3x3 median filter to DEM segments extracted around each nadir point
-  include_dhdt_correction: False
-  dhdt_grn_name: grn_is2_is1_smith
-  dhdt_ant_name: ais_is2_is1_smith
-
   # Method to use
   dual_search: True # find approx POCA in BLF closest to satellite, then use finer grid
   use_sliding_window: False # searches for approx POCA using sliding PLF (slower) 
+  #
+  # DEM selection
+  antarctic_dem: rema_ant_200m   # Dem class name to use for finding approx POCA over AIS
+  antarctic_dem_fine: rema_ant_200m   # Dem class for final POCA. Can be the same as antarctic_dem
+  greenland_dem: arcticdem_100m_greenland_v4.1 # Dem class name to use for finding approx POCA over GIS
+  greenland_dem_fine: arcticdem_100m_greenland_v4.1 # Dem class for final POCA. Can be the same as greenland_dem
+  fine_grid_sampling: 10  # sampling rate, when doing re-sampling of _fine DEM for PLF
+  median_filter: False # Apply 3x3 median filter to BLF DEM segments extracted around each nadir point
+  
+  # dh/dt correction
+  include_dhdt_correction: False
+  dhdt_grn_name: grn_is2_is1_smith # if include_dhdt_correction, dh/dt dataset name for GIS
+  dhdt_ant_name: ais_is2_is1_smith # if include_dhdt_correction, dh/dt dataset name for AIS
 
   # Tuning
-  fine_grid_sampling: 10  # sampling rate, when doing fine re-sampling of DEM for PLF
   max_poca_reloc_distance: 6600 # reject points relocated further than this distance (m) from nadir
 
   # Additional height corrections

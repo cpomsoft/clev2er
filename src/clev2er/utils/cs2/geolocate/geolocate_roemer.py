@@ -216,6 +216,7 @@ def geolocate_roemer(
     Args:
         l1b (Dataset): NetCDF Dataset of L1b file
         thisdem (Dem): Dem object used for Roemer correction
+        thisdem_fine (Dem): Dem object used for fine Roemer correction (maybe same obj as thisdem)
         config (dict): config dictionary containing ["lrm_roemer_geolocation"][params]
         surface_type_20_ku (np.ndarray): surface type for track, where 1 == grounded_ice
         geo_corrected_tracker_range (np.ndarray) : geo-corrected tracker range (NOT retracked)
