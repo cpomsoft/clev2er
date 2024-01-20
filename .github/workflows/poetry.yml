@@ -52,4 +52,5 @@ jobs:
       - name: Run tests
         run: |
           poetry run pylint src/clev2er
+          poetry run ruff src/clev2er
           
