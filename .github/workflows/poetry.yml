@@ -1,4 +1,4 @@
-y rname: poetry_test
+name: poetry_test
 
 on: push
 
