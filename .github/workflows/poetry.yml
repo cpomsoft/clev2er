@@ -1,6 +1,8 @@
 name: poetry_test
 
-on: push
+on:
+  push:
+    branches: [ "master" ]
 
 jobs:
   test:
