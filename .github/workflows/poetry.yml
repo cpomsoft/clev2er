@@ -1,4 +1,4 @@
-name: poetry_test
+y rname: poetry_test
 
 on: push
 
@@ -51,5 +51,5 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
-          pylint .
+          poetry run pylint .
           
