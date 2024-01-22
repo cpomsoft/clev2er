@@ -57,5 +57,6 @@ jobs:
           ruff src/clev2er
           pylint --version
           #pylint src/clev2er
+          pylint src/clev2er/algorithms/testchain/alg_template1.py
           mypy --ignore-missing-imports src/clev2er
           
