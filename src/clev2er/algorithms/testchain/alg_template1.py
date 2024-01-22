@@ -31,9 +31,10 @@
 from time import sleep
 from typing import Tuple
 
-from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=no-name-in-module
+
+from clev2er.algorithms.base.base_alg import BaseAlgorithm
 
 # each algorithm shares some common class code, so pylint: disable=duplicate-code
 
