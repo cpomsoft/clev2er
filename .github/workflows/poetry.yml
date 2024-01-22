@@ -54,13 +54,13 @@ jobs:
       - name: Run tests
         run: |
           source $VENV
-          ruff src/clev2er
           # check that all src directories contain a __init__.py
           missing_init=$(find src/clev2er -type d \( -name '.*' -o -name '__*' \) -prune -o -type d ! -exec test -e '{}/__init__.py' \; -print | head -n 1)
           if [ -n "$missing_init" ]; then
             echo "Missing __init__.py in directory : $missing_init"
             exit 1
           fi
+          ruff src/clev2er
           pylint --version
           pylint src/clev2er
           mypy --ignore-missing-imports src/clev2er
