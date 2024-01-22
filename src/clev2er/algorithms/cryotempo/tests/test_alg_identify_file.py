@@ -11,6 +11,8 @@ from netCDF4 import Dataset  # pylint: disable=E0611
 from clev2er.algorithms.cryotempo.alg_identify_file import Algorithm
 from clev2er.utils.config.load_config_settings import load_config_files
 
+# pylint: disable=R0801 # warning for similar lines
+
 log = logging.getLogger(__name__)
 
 

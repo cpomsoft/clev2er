@@ -11,6 +11,7 @@ from clev2er.utils.config.load_config_settings import load_config_files
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
+# pylint: disable=R0801 # warning for similar lines
 
 log = logging.getLogger(__name__)
 
