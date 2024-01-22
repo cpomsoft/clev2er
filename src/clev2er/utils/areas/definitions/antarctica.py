@@ -1,5 +1,7 @@
 """Area definition"""
 
+# pylint: disable=R0801 # warning for similar lines
+
 area_definition = {
     "long_name": "Antarctica",
     # --------------------------------------------
