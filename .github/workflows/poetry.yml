@@ -55,7 +55,6 @@ jobs:
         run: |
           source $VENV
           ruff src/clev2er
-          ls src/
-          #pylint src/clever
+          pylint src/clev2er
           mypy --ignore-missing-imports src/clev2er
           
