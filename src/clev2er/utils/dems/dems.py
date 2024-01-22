@@ -249,8 +249,11 @@ class Dem:
 
                 self.log.info("attached to existing shared memory for %s ", self.name)
 
-            except FileNotFoundError:
+            except FileNotFoundError as exc:
                 zdem = imread(demfile)
+
+                if not isinstance(zdem, np.ndarray):
+                    raise TypeError(f"DEM image type not supported : {type(zdem)}") from exc
 
                 # Create the shared memory with the appropriate size
                 self.shared_mem = SharedMemory(name=self.name, create=True, size=zdem.nbytes)
@@ -263,7 +266,10 @@ class Dem:
 
                 self.log.info("created shared memory for %s", self.name)
         else:
-            self.zdem = imread(demfile)
+            zdem = imread(demfile)
+            if not isinstance(zdem, np.ndarray):
+                raise TypeError(f"DEM image type not supported : {type(zdem)}")
+            self.zdem = zdem
 
         # Set void data to Nan
         if self.void_value:

@@ -91,7 +91,7 @@ class InvalidArraySizeError(Exception):
 
 def retrack_tcog_waveforms_cs2(
     l1b_file: str = "",
-    waveforms: Union[np.ndarray, None] = None,
+    waveforms: np.ndarray | None = None,
     retrack_threshold_lrm: float = 0.2,
     retrack_threshold_sin: float = 0.5,
     retrack_smooth_wf: bool = False,
@@ -110,11 +110,11 @@ def retrack_tcog_waveforms_cs2(
     le_id_threshold: float = 0.05,
     le_dp_threshold: float = 0.20,
 ) -> Tuple[
-    List[float],
-    List[float],
+    np.ndarray,
+    np.ndarray,
     List[List[float]],
     List[List[float]],
-    List[float],
+    np.ndarray,
     int,
     List[List[int]],
 ]:
@@ -217,16 +217,18 @@ def retrack_tcog_waveforms_cs2(
         wfs = nc.variables["pwr_waveform_20_ku"][:].data
         n_waveforms, waveform_size = np.shape(wfs)
 
-    elif np.any(waveforms):
-        n_waveforms, waveform_size = np.shape(waveforms)
-        if waveform_size == 128:
-            lrm_mode = True
-            mode_str = "LRM"
-        elif waveform_size == 1024:
-            lrm_mode = False
-            mode_str = "SIN"
+    elif waveforms is not None:
+        if waveforms.ndim == 2 and waveforms.shape[1] in [128, 1024]:
+            n_waveforms, waveform_size = np.shape(waveforms)
+            if waveform_size == 128:
+                lrm_mode = True
+                mode_str = "LRM"
+            else:
+                lrm_mode = False
+                mode_str = "SIN"
         else:
             raise ValueError("waveforms size must be (,128) for LRM or (,1024) for SIN")
+
         wfs = waveforms
 
     log.debug("retrack_threshold_lrm %f", retrack_threshold_lrm)
@@ -443,10 +445,12 @@ def retrack_tcog_waveforms_cs2(
 
                 # find where the gradient first becomes negative after the power threshold
                 # is exceeded
-                first_peak_ind = np.where((d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index]))[0]
+                first_peak_indices = np.where(
+                    (d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index])
+                )[0]
                 # Select the first one
-                if first_peak_ind.size > 0:
-                    first_peak_ind = first_peak_ind[0]
+                if first_peak_indices.size > 0:
+                    first_peak_ind = int(first_peak_indices[0])
 
                     # calculate the amplitude of the peak above the identified start point
                     # of the leading edge
@@ -587,7 +591,7 @@ def retrack_tcog_waveforms_cs2(
                         label="1st peak index",
                     )
                     ax1.axvline(
-                        x=wf_bin_numi[le_index],
+                        x=float(wf_bin_numi[le_index]),
                         color="grey",
                         linestyle="--",
                         label="LE index",
@@ -612,7 +616,7 @@ def retrack_tcog_waveforms_cs2(
 
                     # Create 2nd subplot,and display waveform around the leading edge
                     # find indices around leading edge
-                    plot_start_index = le_index - int(wf_bin_numi.size / 80)
+                    plot_start_index = int(le_index - int(wf_bin_numi.size / 80))
                     plot_start_index = max(plot_start_index, 0)
 
                     plot_end_index = first_peak_ind + int(wf_bin_numi.size / 80)
@@ -641,7 +645,7 @@ def retrack_tcog_waveforms_cs2(
                         label="1st peak index",
                     )
                     ax2.axvline(
-                        x=wf_bin_numi[le_index],
+                        x=float(wf_bin_numi[le_index]),
                         color="grey",
                         linestyle="--",
                         label="LE index",
@@ -674,10 +678,10 @@ def retrack_tcog_waveforms_cs2(
                 # columns give bin number, normalised amplitude value, original amplitude value
                 leading_edge_start[i][0] = wf_bin_numi[
                     le_index
-                ]  # LRM: array([  0.,..,127.]), size=12800
+                ].item()  # LRM: array([  0.,..,127.]), size=12800
                 leading_edge_start[i][1] = wfi_sm[
                     le_index
-                ]  # Oversampled smoothed normalised waveform
+                ].item()  # Oversampled smoothed normalised waveform
                 leading_edge_stop[i][0] = wf_bin_numi[first_peak_ind]
                 leading_edge_stop[i][1] = wfi_sm[first_peak_ind]
 
@@ -687,12 +691,12 @@ def retrack_tcog_waveforms_cs2(
 
                 if not retrack_flag[i][5]:
                     if retrack_smooth_wf:
-                        retrack_point_tcog[i][0] = wf_bin_numi[retrack_ind_tcog]
-                        retrack_point_tcog[i][1] = wfi_sm[retrack_ind_tcog]
+                        retrack_point_tcog[i][0] = wf_bin_numi[retrack_ind_tcog].item()
+                        retrack_point_tcog[i][1] = wfi_sm[retrack_ind_tcog].item()
                         retrack_point_tcog[i][2] = wfi_sm[retrack_ind_tcog] * wf_max
                     else:
-                        retrack_point_tcog[i][0] = wf_bin_numi[retrack_ind_tcog]
-                        retrack_point_tcog[i][1] = wfi[retrack_ind_tcog]
+                        retrack_point_tcog[i][0] = wf_bin_numi[retrack_ind_tcog].item()
+                        retrack_point_tcog[i][1] = wfi[retrack_ind_tcog].item()
                         retrack_point_tcog[i][2] = wfi[retrack_ind_tcog] * wf_max
 
                     if retrack_point_tcog[i][2] == 0:

@@ -102,11 +102,11 @@ def retrack_cs2_sin_max_coherence(
     le_dp_threshold: float = 0.20,
     coherence_smoothing_width=9,
 ) -> Tuple[
-    List[float],
-    List[float],
+    np.ndarray,
+    np.ndarray,
     List[List[float]],
     List[List[float]],
-    List[float],
+    np.ndarray,
     int,
     List[List[int]],
 ]:
@@ -194,11 +194,9 @@ def retrack_cs2_sin_max_coherence(
             raise ValueError("Must be a file containing SARin waveforms, not LRM")
         else:
             raise ValueError(f"L1b file name {l1b_file} must include SIR_SIN_1B")
-    elif np.any(waveforms):
-        n_waveforms, waveform_size = np.shape(waveforms)
-        if waveform_size == 128:
-            raise ValueError("Wrong waveform size (128). For Sarin must be 1024")
-        if waveform_size == 1024:
+    elif waveforms is not None:
+        if waveforms.ndim == 2 and waveforms.shape[1] == 1024:
+            n_waveforms, waveform_size = np.shape(waveforms)
             mode_str = "SIN"
         else:
             raise ValueError("waveforms size must be (,1024) for SIN")
@@ -392,10 +390,12 @@ def retrack_cs2_sin_max_coherence(
 
                 # find where the gradient first becomes negative after the power threshold is
                 # exceeded
-                first_peak_ind = np.where((d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index]))[0]
+                first_peak_indices = np.where(
+                    (d_wf_sm <= 0) & (wf_bin_numi > wf_bin_numi[le_index])
+                )[0]
                 # Select the first one
-                if first_peak_ind.size > 0:
-                    first_peak_ind = first_peak_ind[0]
+                if first_peak_indices.size > 0:
+                    first_peak_ind = int(first_peak_indices[0])
 
                     # calculate the amplitude of the peak above the identified start point of
                     # the leading edge
@@ -529,7 +529,7 @@ def retrack_cs2_sin_max_coherence(
                         label="1st peak index",
                     )
                     ax1.axvline(
-                        x=wf_bin_numi[le_index],
+                        x=float(wf_bin_numi[le_index]),
                         color="grey",
                         linestyle="--",
                         label="LE index",
@@ -547,7 +547,7 @@ def retrack_cs2_sin_max_coherence(
 
                     # Create 2nd subplot,and display waveform around the leading edge
                     # find indices around leading edge
-                    plot_start_index = le_index - int(wf_bin_numi.size / 80)
+                    plot_start_index = int(le_index - int(wf_bin_numi.size / 80))
                     plot_start_index = max(plot_start_index, 0)
                     plot_end_index = first_peak_ind + int(wf_bin_numi.size / 80)
                     if plot_end_index > (wf_bin_numi.size - 1):
@@ -575,7 +575,7 @@ def retrack_cs2_sin_max_coherence(
                         label="1st peak index",
                     )
                     ax2.axvline(
-                        x=wf_bin_numi[le_index],
+                        x=float(wf_bin_numi[le_index]),
                         color="grey",
                         linestyle="--",
                         label="LE index",
@@ -609,8 +609,8 @@ def retrack_cs2_sin_max_coherence(
                 # ------------------------------
 
                 # columns give bin number, normalised amplitude value, original amplitude value
-                leading_edge_start[i][0] = wf_bin_numi[le_index]
-                leading_edge_start[i][1] = wfi_sm[le_index]
+                leading_edge_start[i][0] = wf_bin_numi[le_index].item()
+                leading_edge_start[i][1] = wfi_sm[le_index].item()
                 leading_edge_stop[i][0] = wf_bin_numi[first_peak_ind]
                 leading_edge_stop[i][1] = wfi_sm[first_peak_ind]
 

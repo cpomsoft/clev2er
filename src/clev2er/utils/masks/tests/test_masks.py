@@ -62,14 +62,16 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
     """
     thismask = Mask(mask_name)
 
-    true_inside, _, _ = thismask.points_inside(lats, lons, basin_numbers=grid_values)
+    true_inside, n_inside = thismask.points_inside(lats, lons, basin_numbers=grid_values)
+
+    assert n_inside == np.count_nonzero(true_inside)
 
     thismask.clean_up()  # free up shared memory
 
     expected_number_inside = len(indices_inside)
 
     # Check number of points inside mask is expected
-    assert np.count_nonzero(true_inside) == expected_number_inside, (
+    assert n_inside == expected_number_inside, (
         f"number of points inside mask should be {expected_number_inside},"
         f"for lats: {lats}, lons: {lons}"
     )

@@ -139,7 +139,10 @@ class Dhdt:
             binsize,
         ) = self.get_geotiff_extent(dhdt_file)
 
-        self.dhdt = imread(dhdt_file)
+        dhdt = imread(dhdt_file)
+        if not isinstance(dhdt, np.ndarray):
+            raise TypeError(f"dhdt data type not supported : {type(dhdt)}")
+        self.dhdt = dhdt
 
         # Set void data to Nan
         if self.void_value:

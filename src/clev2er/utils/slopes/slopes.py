@@ -29,7 +29,8 @@ from tifffile import imread  # required to read 64-bit tif file for slope data
 
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-instance-attributes
-# pylint:disable=unpacking-non-sequence
+# pylint: disable=unpacking-non-sequence
+# pylint: disable=too-many-branches
 
 all_slope_scenarios = [
     "cpom_ant_2018_1km_slopes",
@@ -85,6 +86,11 @@ class Slopes:
 
             image = imread(slope_file, key=0)
 
+            # Ensure that 'image' is an ndarray
+            if not isinstance(image, np.ndarray):
+                log.error("Unexpected image data type: %s", type(image).__name__)
+                raise TypeError("Unexpected image data type")
+
             nrows = image.shape[0]
             ncols = image.shape[1]
 
@@ -117,6 +123,11 @@ class Slopes:
                 )
 
             image = imread(slope_file, key=0)
+
+            # Ensure that 'image' is an ndarray
+            if not isinstance(image, np.ndarray):
+                log.error("Unexpected image data type: %s", type(image).__name__)
+                raise TypeError("Unexpected image data type")
 
             nrows = image.shape[0]
             ncols = image.shape[1]
@@ -177,51 +188,46 @@ class Slopes:
             self.crs_wgs, self.crs_bng, always_xy=True
         )
 
-    def interp_slope(
-        self,
-        x: np.ndarray | float,
-        y: np.ndarray | float,
-        method: str = "linear",
-        xy_is_lonlat: bool = False,
-    ) -> np.ndarray:
-        """Interpolate Slope data
-            input x,y can be arrays or single, units m,
+    # Revised interp_slope method to address the mypy error
+
+    def interp_slope(self, x, y, method="linear", xy_is_lonlat=False):
+        """
+        Interpolate Slope data
+        input x, y can be arrays or single, units m,
 
         Args:
-            x (_type_): _description_
-            y (_type_): _description_
-            method (str, optional): _description_. Defaults to "linear".
-            xy_is_lonlat (bool, optional): _description_. Defaults to False.
+            x (np.ndarray | float): x-coordinates (either in meters or longitude)
+            y (np.ndarray | float): y-coordinates (either in meters or latitude)
+            method (str, optional): interpolation method. Defaults to "linear".
+            xy_is_lonlat (bool, optional): if True, x and y are treated as longitude and latitude.
 
         Returns:
-            np.ndarray: returns the interpolated slope(s) at x,y
+            np.ndarray: returns the interpolated slope(s) at x, y
         """
-        if not isinstance(x, np.ndarray):
-            x = np.array(x)
-        if not isinstance(y, np.ndarray):
-            y = np.array(y)
+        # Ensure x and y are numpy arrays
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
 
-        # Transform to x,y if inputs are lon,lat
+        # Transform to x, y if inputs are lon, lat
         if xy_is_lonlat:
-            x, y = self.lonlat_to_xy_transformer.transform(x, y)  # transform lon,lat -> x,y
+            x, y = self.lonlat_to_xy_transformer.transform(x, y)  # transform lon, lat -> x, y
 
-        badx = np.flatnonzero(np.logical_or(x < self.minx, x > self.maxx))
-        if badx.size > 0:
-            x[badx] = self.minx
-        bady = np.flatnonzero(np.logical_or(y < self.miny, y > self.maxy))
-        if bady.size > 0:
-            y[bady] = self.miny
+        # Identify out-of-bounds values in x and y, replacing them with boundary values
+        x = np.clip(x, self.minx, self.maxx)
+        y = np.clip(y, self.miny, self.maxy)
 
+        # Perform interpolation
         slope_data = interpn((self.y, self.x), self.slopes, (y, x), method=method)
-        if badx.size > 0:
-            slope_data[badx] = np.nan
-        if bady.size > 0:
-            slope_data[bady] = np.nan
+
+        # Replace out-of-bounds values with NaN
+        slope_data[(x == self.minx) | (x == self.maxx)] = np.nan
+        slope_data[(y == self.miny) | (y == self.maxy)] = np.nan
 
         return slope_data
 
     # Interpolate Slope data, input lat, lon can be arrays or single. Converts to x/y in slope map
     # projection and calls interp_slope. Returns the interpolated slope(s) at lat, lon
+
     def interp_slope_from_lat_lon(
         self, lat: np.ndarray | float, lon: np.ndarray | float, method: str = "linear"
     ):

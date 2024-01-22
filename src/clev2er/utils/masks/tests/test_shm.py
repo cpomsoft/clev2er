@@ -21,7 +21,7 @@ def task():
     mask_name = "greenland_iceandland_dilated_10km_grid_mask"
     thismask2 = Mask(mask_name, store_in_shared_memory=True)
 
-    _true_inside, _, _ = thismask2.points_inside(_lats, _lons, basin_numbers=_vals_inside)
+    _true_inside, _ = thismask2.points_inside(_lats, _lons, basin_numbers=_vals_inside)
 
     print("child: true_inside = ", _true_inside)
     print(f"child: {thismask2.mask_name}")
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     lons = [106, 34, 319.39]
     print("In parent")
 
-    true_inside, _, _ = thismask.points_inside(lats, lons, basin_numbers=vals_inside)
+    true_inside, _ = thismask.points_inside(lats, lons, basin_numbers=vals_inside)
     print("parent: true_inside = ", true_inside)
     print(f"parent: {thismask.mask_name}")
 

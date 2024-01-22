@@ -125,6 +125,12 @@ class Algorithm(BaseAlgorithm):
         self.ut_max_slope_ant = ut_ant_data.get("max_slope")
         self.ut_number_of_bins_ant = ut_ant_data.get("number_of_bins")
 
+        # Test the data
+        if not isinstance(self.ut_table_grn, np.ndarray):
+            raise ValueError(f"ut_table_grn is not of type np.ndarray: {type(self.ut_table_grn)}")
+        if not isinstance(self.ut_table_ant, np.ndarray):
+            raise ValueError(f"ut_table_ant is not of type np.ndarray: {type(self.ut_table_ant)}")
+
         self.slope_grn = Slopes("awi_grn_2013_1km_slopes")
         if "grn_only" in self.config and self.config["grn_only"]:
             self.slope_ant = None
@@ -171,9 +177,10 @@ class Algorithm(BaseAlgorithm):
                 slopes = self.slope_ant.interp_slope_from_lat_lon(
                     shared_dict["latitudes"], shared_dict["longitudes"]
                 )
+
                 uncertainty = calc_uncertainty(
                     slopes,
-                    self.ut_table_ant,
+                    self.ut_table_ant,  # type: ignore # already checked type in init
                     self.ut_min_slope_ant,
                     self.ut_max_slope_ant,
                 )
@@ -184,7 +191,10 @@ class Algorithm(BaseAlgorithm):
                 shared_dict["latitudes"], shared_dict["longitudes"]
             )
             uncertainty = calc_uncertainty(
-                slopes, self.ut_table_grn, self.ut_min_slope_grn, self.ut_max_slope_grn
+                slopes,
+                self.ut_table_grn,  # type: ignore # already checked type in init
+                self.ut_min_slope_grn,
+                self.ut_max_slope_grn,
             )
 
         shared_dict["uncertainty"] = uncertainty

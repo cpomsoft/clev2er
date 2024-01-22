@@ -70,6 +70,7 @@ class Mask:
             self.nomask = True
             return
         self.mask_name = mask_name
+        self.mask_grid: np.ndarray = np.array([])
         self.basin_numbers = basin_numbers
         self.store_in_shared_memory = store_in_shared_memory
         self.shared_mem: Any = None
@@ -593,46 +594,14 @@ class Mask:
                 np.load(mask_file, allow_pickle=True).get("mask_grid").astype(self.dtype)
             )
 
-    def clean_up(self):
-        """Free up, close or release any shared memory or other resources associated
-        with DEM
-        """
-        if self.store_in_shared_memory:
-            try:
-                if self.shared_mem is not None:
-                    if self.shared_mem_child:
-                        self.shared_mem.close()
-                        self.log.info(
-                            "closed shared memory for %s in child process",
-                            self.mask_name,
-                        )
-                        self.log.info("closing in child for mask %s", self.mask_name)
-                    else:
-                        self.shared_mem.close()
-                        self.shared_mem.unlink()
-                        self.log.info(
-                            "unlinked shared memory for %s",
-                            self.mask_name,
-                        )
-
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                self.log.error("Shared memory for %s could not be closed %s", self.mask_name, exc)
-                raise IOError(
-                    f'Shared memory for {self.mask_name} could not be closed {exc}"'
-                ) from exc
-
     def points_inside(
         self,
-        lats: np.ndarray,
-        lons: np.ndarray,
+        lats: np.ndarray | list,
+        lons: np.ndarray | list,
         basin_numbers: Optional[list[int]] = None,
         inputs_are_xy: bool = False,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """find points inside mask
-
-        returns array of bool indicating where (lat,lon) or (x,y) points  are inside a mask.
-        It also returns (x,y) of all points to save having to transform
-        them again.
+    ) -> tuple[np.ndarray, int]:
+        """Given a list of lat,lon or x,y points, find the points that are inside the current mask
 
         Args:
             lats (np.ndarray|list[float]): list of latitude points
@@ -642,14 +611,14 @@ class Mask:
                                             Defaults to False.
 
         Returns:
-            inmask(np.ndarray),x(np.ndarray),y(np.ndarray) : true where inside mask,
-                                                             transformed x locations, (all points)
-                                                             transformed y locations (all points)
+            inmask(np.ndarray) : boolean array same size as input list, indicating whether
+            inputs points are inside (True) or outside (False) mask
+            n_inside (int) : number inside mask
         """
 
         if not self.mask_name:
-            inmask = np.zeros(lats.size, np.bool_)
-            return inmask, None, None
+            inmask = np.zeros(len(lats), np.bool_)
+            return inmask, 0
 
         if not isinstance(lats, np.ndarray):
             if isinstance(lats, list):
@@ -678,6 +647,7 @@ class Mask:
 
         inmask = np.zeros(lats.size, np.bool_)
 
+        n_inside = 0
         # ---------------------------------------------------------
         # Find points inside a x,y rectangular limits mask
         # ---------------------------------------------------------
@@ -688,7 +658,8 @@ class Mask:
                     y[i] >= self.ylimits[0] and y[i] <= self.ylimits[1]
                 ):
                     inmask[i] = True
-            return inmask, x, y
+                    n_inside += 1
+            return inmask, n_inside
 
         if self.mask_type == "grid":
             for i in range(x.size):
@@ -706,13 +677,15 @@ class Mask:
                     for basin in basin_numbers:
                         if self.mask_grid[jj, ii] == basin:
                             inmask[i] = True
+                            n_inside += 1
                 else:
                     if self.mask_grid[jj, ii] > 0:
                         inmask[i] = True
+                        n_inside += 1
         else:
-            return inmask, None, None
+            return inmask, 0
 
-        return inmask, x, y
+        return inmask, n_inside
 
     def grid_mask_values(
         self,
@@ -784,3 +757,31 @@ class Mask:
         :return: x,y in polar stereo projection of mask
         """
         return self.lonlat_to_xy_transformer.transform(lons, lats)
+
+    def clean_up(self):
+        """Free up, close or release any shared memory or other resources associated
+        with mask
+        """
+        if self.store_in_shared_memory:
+            try:
+                if self.shared_mem is not None:
+                    if self.shared_mem_child:
+                        self.shared_mem.close()
+                        self.log.info(
+                            "closed shared memory for %s in child process",
+                            self.mask_name,
+                        )
+                        self.log.info("closing in child for mask %s", self.mask_name)
+                    else:
+                        self.shared_mem.close()
+                        self.shared_mem.unlink()
+                        self.log.info(
+                            "unlinked shared memory for %s",
+                            self.mask_name,
+                        )
+
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                self.log.error("Shared memory for %s could not be closed %s", self.mask_name, exc)
+                raise IOError(
+                    f'Shared memory for {self.mask_name} could not be closed {exc}"'
+                ) from exc

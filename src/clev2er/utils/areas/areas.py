@@ -312,19 +312,19 @@ class Area:
             self.crs_wgs, self.crs_bng, always_xy=True
         )
 
-    def latlon_to_xy(self, lats: np.ndarray | float, lons: np.ndarray | float):
+    def latlon_to_xy(self, lats: np.ndarray | float | list, lons: np.ndarray | float | list):
         """convert latitude and longitude to x,y in area's projection
 
         Args:
-            lats (np.ndarray): latitude values
-            lons (np.ndarray): longitude values
+            lats (np.ndarray|float|list): latitude values
+            lons (np.ndarray|float|list): longitude values
 
         Returns:
             (np.ndarray,np.ndarray): x,y
         """
         return self.lonlat_to_xy_transformer.transform(lons, lats)
 
-    def xy_to_latlon(self, x, y):
+    def xy_to_latlon(self, x: np.ndarray | float | list, y: np.ndarray | float | list):
         """convert from x,y to latitide, longitiude in area's projection
 
         Args:
@@ -336,14 +336,18 @@ class Area:
         """
         return self.xy_to_lonlat_transformer.transform(x, y)
 
-    def inside_latlon_bounds(self, lats, lons):
-        """
-        find the locations inside the area's bounding box (note this is not the area mask,
-        but a quick filter to reduce the number of points that require masking (which can be slow))
+    def inside_latlon_bounds(
+        self, lats: np.ndarray, lons: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+        """find if input latitude and longitude locations are inside area's lat/lon extent
+           bounds
 
-        returns: [latitude values in bounding box] [longitude values in bounding box]
-        [indices in box] number_in_box
+        Args:
+            lats (np.ndarray): array of latitude values (degs N)
+            lons (np.ndarray): array of longitude values (degs E)
 
+        Returns:
+            (bounded_lats|None, bounded_lons|None, bounded_indices|None, bounded_indices.size):
         """
 
         in_lat_area = np.logical_and(lats >= self.minlat, lats <= self.maxlat)
@@ -354,23 +358,29 @@ class Area:
             bounded_lons = lons[bounded_indices]
             return bounded_lats, bounded_lons, bounded_indices, bounded_indices.size
 
-        return None, None, None, 0
+        return np.array([]), np.array([]), np.array([]), 0
 
-    def inside_mask(self, lats, lons):
-        """
-        Find indices inside the area's data mask (if there is one). If there is no area data mask
-        return all indices
-        :param lats:
-        :param lons:
-        :return latitudes inside mask, longitudes inside mask,indices in mask, number inside mask
+    def inside_mask(
+        self, lats: np.ndarray, lons: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+        """Find indices inside the area's data mask (if there is one). If there is no area data mask
+            return all indices
+
+        Args:
+            lats (np.ndarray): latitude values (degs N)
+            lons (np.ndarray): longitude values (degs E)
+
+        Returns:
+            lats[indices_in_maskarea],
+            lons[indices_in_maskarea],
+            indices_in_maskarea,
+            indices_in_maskarea.size
         """
 
         # Check the type of lats, lons. they needs to be np.array
 
-        if not isinstance(lats, np.ndarray):
-            lats = np.array(lats)
-        if not isinstance(lons, np.ndarray):
-            lons = np.array(lons)
+        lats = np.atleast_1d(lats)
+        lons = np.atleast_1d(lons)
 
         if self.mask is None:
             # Check if there is no mask specified for this area
@@ -382,16 +392,16 @@ class Area:
             self.mask = Mask(self.maskname, self.basin_numbers)
 
         if self.mask.nomask:
-            return lats, lons, list(range(lats.size)), lats.size
+            return lats, lons, np.arange(lats.size), lats.size
 
         # Mask the lat,lon locations
-        inmask, _, _ = self.mask.points_inside(
+        inmask, _ = self.mask.points_inside(
             lats, lons, self.basin_numbers
         )  # returns (1s for inside, 0s outside), x,y locations of all lat/lon points
         indices_in_maskarea = np.flatnonzero(inmask)
 
         if indices_in_maskarea.size == 0:
-            return None, None, None, 0
+            return np.array([]), np.array([]), np.array([]), 0
 
         return (
             lats[indices_in_maskarea],
@@ -404,7 +414,8 @@ class Area:
         self, lats: np.ndarray, lons: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
         """Find indices of lat, lon values inside area's mask
-           This function combines self.inside_latlon_bounds() and self.inside_mask
+
+           This function combines self.inside_latlon_bounds() and self.inside_mask()
            The purpose of self.inside_latlon_bounds() is to do a quick rectangular area clip
            to make the slower inside_mask() run faster
 
@@ -430,6 +441,6 @@ class Area:
             if num_masked > 0:
                 indices = bounded_indices[masked_indices]
         if len(indices) > 0:
-            return (lats[indices], lons[indices], indices, len(indices))
+            return (lats[indices], lons[indices], np.array(indices), len(indices))
 
         return (np.array([]), np.array([]), np.array([]), 0)

@@ -478,8 +478,8 @@ def run_chain(
         )
 
         num_chunks = ceil(n_files / config["chain"]["max_processes_for_multiprocessing"])
-        file_indices = list(range(n_files))
-        file_indices_chunks = np.array_split(file_indices, num_chunks)
+
+        file_indices_chunks = np.array_split(list(range(n_files)), num_chunks)
 
         for chunk_num, file_indices in enumerate(file_indices_chunks):
             chunked_l1b_file_list = np.array(l1b_file_list)[file_indices]

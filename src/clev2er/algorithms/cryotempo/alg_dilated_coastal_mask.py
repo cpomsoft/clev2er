@@ -3,7 +3,6 @@
 # These imports required by Algorithm template
 from typing import Tuple
 
-import numpy as np
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -153,18 +152,17 @@ class Algorithm(BaseAlgorithm):
         # Select the appropriate mask, depending on hemisphere
         if shared_dict["hemisphere"] == "south":
             if self.antarctic_dilated_mask is not None:
-                required_surface_mask, _, _ = self.antarctic_dilated_mask.points_inside(
+                required_surface_mask, n_inside = self.antarctic_dilated_mask.points_inside(
                     shared_dict["lats_nadir"], shared_dict["lons_nadir"]
                 )
             else:
                 required_surface_mask = None
         else:
-            required_surface_mask, _, _ = self.greenland_dilated_mask.points_inside(
+            required_surface_mask, n_inside = self.greenland_dilated_mask.points_inside(
                 shared_dict["lats_nadir"], shared_dict["lons_nadir"]
             )
 
-        n_in_dilated_surface_mask = np.count_nonzero(required_surface_mask)
-        if n_in_dilated_surface_mask == 0:
+        if n_inside == 0:
             self.log.info(
                 "skipping as no locations inside dilated mask",
             )
@@ -172,7 +170,7 @@ class Algorithm(BaseAlgorithm):
 
         num_records = shared_dict["num_20hz_records"]
 
-        percent_inside = n_in_dilated_surface_mask * 100.0 / num_records
+        percent_inside = n_inside * 100.0 / num_records
 
         self.log.info(
             "%% inside dilated mask  = %.2f%%",

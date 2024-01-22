@@ -33,9 +33,9 @@ def calculate_distances3d(
     x1_coord: float,
     y1_coord: float,
     z1_coord: float,
-    x2_array: np.ndarray[float],
-    y2_array: np.ndarray[float],
-    z2_array: np.ndarray[float],
+    x2_array: np.ndarray | list,
+    y2_array: np.ndarray | list,
+    z2_array: np.ndarray | list,
     squared_only=False,
 ) -> list[float]:
     """calculates the distances between a  refernce cartesian point (x1,y1,z1) in 3d space
@@ -45,9 +45,9 @@ def calculate_distances3d(
         x1_coord (float): x coordinate of ref point
         y1_coord (float): y coordinate of ref point
         z1_coord (float): z coordinate of ref point
-        x2_array (list[float]): list of x coordinates
-        y2_array (list[float]): list of y coordinates
-        z2_array (list[float]): list of z coordinates
+        x2_array (np.ndarray): list of x coordinates
+        y2_array (np.ndarray): list of y coordinates
+        z2_array (np.ndarray): list of z coordinates
         squared_only (bool) : if True, only calculate the squares of diffs and not sqrt
                               this will be faster, but doesn't give actual distances
 
@@ -70,23 +70,23 @@ def calculate_distances3d(
 def calculate_distances2d(
     x1_coord: float,
     y1_coord: float,
-    x2_array: np.ndarray[float],
-    y2_array: np.ndarray[float],
+    x2_array: np.ndarray,
+    y2_array: np.ndarray,
     squared_only=False,
-) -> list[float]:
+) -> np.ndarray:
     """calculates the distances between a  refernce cartesian point (x1,y1) in 2d space
     and a list of other points : x2[],y2[]
 
     Args:
         x1_coord (float): x coordinate of ref point
         y1_coord (float): y coordinate of ref point
-        x2_array (list[float]): list of x coordinates
-        y2_array (list[float]): list of y coordinates
+        x2_array (np.ndarray): list of x coordinates
+        y2_array (np.ndarray): list of y coordinates
         squared_only (bool) : if True, only calculate the squares of diffs and not sqrt
                               this will be faster, but doesn't give actual distances
 
     Returns:
-        list[float]: list of distances between points x1,y1,z1 and x2[],y2[]
+        np.ndarray: list of distances between points x1,y1,z1 and x2[],y2[]
     """
 
     x2_array = np.array(x2_array)

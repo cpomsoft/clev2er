@@ -1,7 +1,6 @@
 """ clev2er.algorithms.cryotempo.alg_skip_on_area_bounds """
 from typing import Tuple
 
-import numpy as np
 from codetiming import Timer
 from netCDF4 import Dataset  # pylint:disable=E0611
 
@@ -190,8 +189,8 @@ class Algorithm(BaseAlgorithm):
         # --------------------------------------------------------------------------------------
 
         if northern_hemisphere:
-            inmask, _, _ = self.greenland_mask.points_inside(lat_20_ku, lon_20_ku)
-            if not np.any(inmask):
+            _, n_inside = self.greenland_mask.points_inside(lat_20_ku, lon_20_ku)
+            if n_inside == 0:
                 self.log.info(
                     "No locations within Greenland rectangular mask",
                 )
