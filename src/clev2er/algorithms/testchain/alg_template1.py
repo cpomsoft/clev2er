@@ -31,10 +31,9 @@
 from time import sleep
 from typing import Tuple
 
+from clev2er.algorithms.base.base_alg import BaseAlgorithm
 from codetiming import Timer  # used to time the Algorithm.process() function
 from netCDF4 import Dataset  # pylint:disable=no-name-in-module
-
-from clev2er.algorithms.base.base_alg import BaseAlgorithm
 
 # each algorithm shares some common class code, so pylint: disable=duplicate-code
 
@@ -128,6 +127,9 @@ class Algorithm(BaseAlgorithm):
         # -------------------------------------------------------------------
         # Returns (True,'') if success
         return (success, error_str)
+
+    def dummy_func(var):
+        print(var)
 
     def finalize(self, stage: int = 0) -> None:
         """Algorithm finalization function - called after all processing completed
