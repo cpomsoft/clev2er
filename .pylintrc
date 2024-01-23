@@ -4,4 +4,4 @@
 good-names=nc,i,j,x,y,z,xs,ys,m,n,p,q,ii,jj
 
 [MESSAGES CONTROL] 
-disable=trailing-whitespace
+disable=trailing-whitespace, duplicate-code
