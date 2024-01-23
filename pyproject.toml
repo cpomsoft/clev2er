@@ -70,9 +70,5 @@ target-version = "py310"
 line-length = 100
 target-version = ['py310']
 
-[tool.pylint.messages_control]
-disable = [
-  "R0801",
-  # any other codes you want to disable
-]
+# Note pylint settings in .pylintrc
 
