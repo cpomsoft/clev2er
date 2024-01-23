@@ -1,9 +1,13 @@
 """pytest tests of clev2er.utils.breakpoints
 """
 
+import logging
+
 import numpy as np
 
 from clev2er.utils.breakpoints.breakpoint_files import write_breakpoint_file
+
+log = logging.getLogger(__name__)
 
 
 def test_breakpoint_files():
@@ -37,4 +41,4 @@ def test_breakpoint_files():
         },
     }
 
-    write_breakpoint_file(config, shared_dict)
+    write_breakpoint_file(config, shared_dict, log, "test")

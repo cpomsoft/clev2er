@@ -67,7 +67,7 @@ def test_run_chain(mp_enabled):
         "testdata/cs2/l1bfiles/CS_OFFL_SIR_SIN_1B_20190511T005631_20190511T005758_D001.nc",
     ]
 
-    success, num_errors, num_files_processed, num_skipped = run_chain(
+    success, num_errors, num_files_processed, num_skipped, _ = run_chain(
         l1b_file_list=l1b_file_list,
         config=config,
         algorithm_list=algorithm_list,

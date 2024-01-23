@@ -3,6 +3,7 @@
 Functions to support writing of breakpoint files
 """
 
+import logging
 import os
 
 import numpy as np
@@ -173,13 +174,19 @@ def create_netcdf_file(file_path, data_dict):
         create_variables(ncfile, "", data_dict, dim_sizes, dim_names, dims)
 
 
-def write_breakpoint_file(config: dict, shared_dict: dict):
+def write_breakpoint_file(
+    config: dict, shared_dict: dict, log: logging.Logger, breakpoint_alg_name: str
+) -> str:
     """write a netcdf breakpoint file containing contents of
        shared dictionary
 
     Args:
         config (dict): chain config file
         shared_dict (dict): shared working dictionary
+        log (logging.Logger): current logger instance to use
+        breakpoint_alg_name (str): name of the algorithm after which the bp is set
+    Returns:
+        (str) : path of breakpoint file
     """
 
     # form breakpoint dir path
@@ -192,8 +199,9 @@ def write_breakpoint_file(config: dict, shared_dict: dict):
 
     if "l1b_file_name" in shared_dict:
         filename = os.path.splitext(os.path.basename(shared_dict["l1b_file_name"]))[0]
-        filename = f"{breakpoint_dir}/{filename}_bkp.nc"
+        filename = f"{breakpoint_dir}/{filename}_bkp_{breakpoint_alg_name}.nc"
     else:
-        filename = f"{breakpoint_dir}/breakpoint.nc"
-
+        filename = f"{breakpoint_dir}/breakpoint_{breakpoint_alg_name}.nc"
+    log.info("breakpoint file: %s", filename)
     create_netcdf_file(filename, shared_dict)
+    return filename

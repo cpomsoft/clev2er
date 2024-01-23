@@ -186,7 +186,7 @@ def run_chain_on_single_file(
     rval_queue: Optional[Queue],
     filenum: int,
     breakpoint_alg_name: str = "",
-) -> tuple[bool, str]:
+) -> tuple[bool, str, str]:
     """Runs the algorithm chain on a single L1b file.
 
        This function is run in a separate process if multi-processing is enabled.
@@ -201,9 +201,14 @@ def run_chain_on_single_file(
         breakpoint_alg_name (str) : if not '', name of algorithm to break after.
 
     Returns:
-        Tuple(bool,str): algorithms success (True) or Failure (False), '' or error string
+        Tuple(bool,str,str):
+        : algorithms success (True) or Failure (False),
+        : '' or error string
+        : path of breakpoint file or ''
         for multi-processing return values are instead queued -> rval_queue for this process
     """
+
+    bp_filename = ""  # break point file path
 
     # Setup logging either for multi-processing or standard (single process)
     if config["chain"]["use_multi_processing"]:
@@ -267,11 +272,13 @@ def run_chain_on_single_file(
                         for alg_obj in alg_object_list:
                             if alg_obj.initialized:
                                 alg_obj.finalize(stage=5)
-                    return (False, error_str)
+                    return (False, error_str, bp_filename)
 
                 if alg_obj.alg_name.rsplit(".", maxsplit=1)[-1] == breakpoint_alg_name:
                     thislog.debug("breakpoint reached at algorithm %s", alg_obj.alg_name)
-                    write_breakpoint_file(config, shared_dict)
+                    bp_filename = write_breakpoint_file(
+                        config, shared_dict, thislog, breakpoint_alg_name
+                    )
                     break
 
             if config["chain"]["use_multi_processing"]:
@@ -289,12 +296,12 @@ def run_chain_on_single_file(
                 rval_queue.put((False, error_str, Timer.timers))  # pass the function return values
                 # back to the parent process
                 # via a queue
-        return (False, error_str)
+        return (False, error_str, bp_filename)
 
     if config["chain"]["use_multi_processing"]:
         if rval_queue is not None:
             rval_queue.put((True, "", Timer.timers))
-    return (True, "")
+    return (True, "", bp_filename)
 
 
 def mp_logger_process(queue, config) -> None:
@@ -350,7 +357,7 @@ def run_chain(
     algorithm_list: list[str],
     log: logging.Logger,
     breakpoint_alg_name: str = "",
-) -> tuple[bool, int, int, int]:
+) -> tuple[bool, int, int, int, str]:
     """Run the algorithm chain in algorithm_list on each L1b file in l1b_file_list
        using the configuration settings in config
 
@@ -364,12 +371,13 @@ def run_chain(
                                    Default='' (no breakpoint set here)
 
     Returns:
-        tuple(bool,int,int, int) : (chain success or failure, number_of_errors,
+        tuple(bool,int,int, int,str) : (chain success or failure, number_of_errors,
                                   number of files processed, number of files skipped
-                                  (for valid reasons))
+                                  (for valid reasons), breakpoint filename)
     """
 
     n_files = len(l1b_file_list)
+    breakpoint_filename = ""
 
     # -------------------------------------------------------------------------------------------
     # Load the dynamic algorithm modules from clev2er/algorithms/<algorithm_name>.py
@@ -392,7 +400,7 @@ def run_chain(
             )
         except ImportError as exc:
             log.error("Could not import algorithm %s, %s", alg, exc)
-            return (False, 1, 0, 0)
+            return (False, 1, 0, 0, breakpoint_filename)
 
         # --------------------------------------------------------------------
         # Create an instance of each Algorithm,
@@ -404,7 +412,7 @@ def run_chain(
             alg_obj = module.Algorithm(config, log)
         except (FileNotFoundError, IOError, KeyError, ValueError):
             log.error("Could not initialize algorithm %s, %s", alg, traceback.format_exc())
-            return (False, 1, 0, 0)
+            return (False, 1, 0, 0, breakpoint_filename)
 
         alg_object_list.append(alg_obj)
 
@@ -432,7 +440,7 @@ def run_chain(
                     if alg_obj_shm.initialized:
                         alg_obj_shm.finalize(stage=4)
 
-                return (False, 1, 0, 0)
+                return (False, 1, 0, 0, breakpoint_filename)
 
             shared_mem_alg_object_list.append(alg_obj_shm)
 
@@ -549,7 +557,7 @@ def run_chain(
         try:
             for fnum, l1b_file in enumerate(l1b_file_list):
                 log.info("\n%sProcessing file %d of %d%s", "-" * 20, fnum, n_files, "-" * 20)
-                success, error_str = run_chain_on_single_file(
+                success, error_str, breakpoint_filename = run_chain_on_single_file(
                     l1b_file,
                     alg_object_list,
                     config,
@@ -609,10 +617,10 @@ def run_chain(
         log.info("%s %.3f s", algname, cumulative_time)
 
     if num_errors > 0:
-        return (False, num_errors, num_files_processed, num_skipped)
+        return (False, num_errors, num_files_processed, num_skipped, breakpoint_filename)
 
     # Completed successfully, so return True with no error msg
-    return (True, num_errors, num_files_processed, num_skipped)
+    return (True, num_errors, num_files_processed, num_skipped, breakpoint_filename)
 
 
 def main() -> None:
@@ -1197,8 +1205,16 @@ def main() -> None:
 
     start_time = time.time()
 
-    _, number_errors, num_files_processed, num_skipped = run_chain(
-        l1b_file_list, config, algorithm_list, log, breakpoint_alg_name
+    if args.breakpoint_after:
+        if args.breakpoint_after not in algorithm_list:
+            log.error(
+                "breakpoint algorithm %s not in algorithm list (check the name is correct)",
+                args.breakpoint_after,
+            )
+            sys.exit(1)
+
+    _, number_errors, num_files_processed, num_skipped, breakpoint_filename = run_chain(
+        l1b_file_list, config, algorithm_list, log, args.breakpoint_after
     )
 
     elapsed_time = time.time() - start_time
@@ -1285,6 +1301,8 @@ def main() -> None:
     if len(modified_args) > 0:
         for mod_args in modified_args:
             log.info("cmdline overide: %s", mod_args)
+    if len(breakpoint_filename) > 0:
+        log.info("breakpoint file name: %s", breakpoint_filename)
 
 
 if __name__ == "__main__":
