@@ -129,9 +129,6 @@ class Algorithm(BaseAlgorithm):
         # Returns (True,'') if success
         return (success, error_str)
 
-    def dummy_func(var):
-        print(var)
-
     def finalize(self, stage: int = 0) -> None:
         """Algorithm finalization function - called after all processing completed
 
