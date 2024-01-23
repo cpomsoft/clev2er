@@ -1,4 +1,4 @@
-name: poetry_test
+name: code_check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  code_check:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
