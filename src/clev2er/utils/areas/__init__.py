@@ -23,14 +23,14 @@ The area naming convention used is as follows:
 | Area Name| Background | Data Mask |
 |--|--|--|
 | antarctica |  basic land	| None |
-| antarctica_is | basic land | grounded ice sheet |
-| antarctica_fi | basic land | floating ice only |
-| antarctica_hs_is | hill shade | grounded ice sheet |
-| antarctica_hs_fi | hill shade | floating ice only |
+| antarctica_is | basic land | grounded ice sheet : bedmachine mask|
+| antarctica_fi | basic land | floating ice only : bedmachine mask|
+| antarctica_hs_is | hill shade | grounded ice sheet : bedmachine mask|
+| antarctica_hs_fi | hill shade | floating ice only : bedmachine mask|
 | greenland |  basic land	| None |
-| greenland_is | basic land | grounded ice sheet |
-| greenland_fi | basic land | floating ice only |
-| greenland_hs_is | hill shade | grounded ice sheet |
-| greenland_hs_fi | hill shade | floating ice only |
+| greenland_is | basic land | grounded ice sheet : bedmachine mask|
+| greenland_fi | basic land | floating ice only : bedmachine mask|
+| greenland_hs_is | hill shade | grounded ice sheet : bedmachine mask|
+| greenland_hs_fi | hill shade | floating ice only : bedmachine mask|
 
 """
