@@ -3,6 +3,7 @@
 
 import importlib
 import logging
+from typing import Optional
 
 import numpy as np
 from pyproj import CRS  # Transformer transforms between projections
@@ -12,6 +13,7 @@ from clev2er.utils.masks.masks import Mask
 
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-locals
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +30,7 @@ class Area:
         """
 
         self.name = name
+        self.mask: Optional[Mask] = None
 
         try:
             self.load_area(overrides)
@@ -35,24 +38,24 @@ class Area:
             raise ImportError(f"{name} not in supported area list") from exc
 
         if self.apply_area_mask_to_data:
-            if self.masktype is not None:
-                if self.masktype == "grid" and self.grid_polygon_overlay_mask:
-                    self.mask = Mask(self.grid_polygon_overlay_mask, self.basin_numbers)
-                else:
-                    self.mask = Mask(self.maskname, self.basin_numbers)
+            self.mask = Mask(self.maskname, self.basin_numbers)
 
     def load_area(self, overrides: dict | None = None):
         """Load area settings for current area name"""
+
+        log.info("loading area %s", self.name)
 
         try:
             module = importlib.import_module(f"clev2er.utils.areas.definitions.{self.name}")
         except ImportError as exc:
             raise ImportError(f"Could not load area definition: {self.name}") from exc
 
-        area_definition = module.area_definition
+        area_definition = module.area_definition.copy()
 
         secondary_area_name = area_definition.get("use_definitions_from", None)
-        if secondary_area_name is not None:
+        while secondary_area_name is not None:
+            if "use_definitions_from" in area_definition:
+                del area_definition["use_definitions_from"]
             log.info("loading secondary area %s", secondary_area_name)
             try:
                 module2 = importlib.import_module(
@@ -60,13 +63,19 @@ class Area:
                 )
             except ImportError as exc:
                 raise ImportError(f"Could not load area definition: {secondary_area_name}") from exc
-            area_definition2 = module2.area_definition
+            area_definition2 = module2.area_definition.copy()
+            secondary_area_name = area_definition2.get("use_definitions_from", None)
+            if "use_definitions_from" in area_definition2:
+                del area_definition2["use_definitions_from"]
+            # log.info(f"1- {area_definition2}")
             area_definition2.update(area_definition)
+            # log.info(f"2- {area_definition2}")
             area_definition = area_definition2
 
         if overrides is not None and isinstance(overrides, dict):
             area_definition.update(overrides)
 
+        # log.info(f"{area_definition}")
         # store parameters from the area definition dict in class variables
         self.long_name = area_definition["long_name"]
         # Area spec.
@@ -336,6 +345,86 @@ class Area:
         """
         return self.xy_to_lonlat_transformer.transform(x, y)
 
+    def inside_xy_extent(
+        self,
+        lats: np.ndarray,
+        lons: np.ndarray,
+        inputs_are_xy=False,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
+        """filter points based on x,y extent of area
+
+        Args:
+            lats (np.ndarray): latitude values (degs N)
+            lons (np.ndarray): longitude values (deg E)
+            inputs_are_xy (bool): if True treat inputs as cartesian: x=lats, y=lons
+
+        Returns:
+            (lats_inside, lons_inside, x_inside, y_inside, indices_inside, n_inside):
+            lats_inside (np.ndarray): lat values inside area
+            lons_inside (np.ndarray): lon values inside area
+            x_inside (np.ndarray): projected x coords inside area
+            y_inside (np.ndarray): projected y coords inside area
+            indices_inside (np.ndarray): indices of original lats,lons that are inside
+            n_inside (int): number of original lats, lons that were inside
+        """
+
+        # Check the type of lats, lons. they needs to be np.array
+
+        lats = np.atleast_1d(lats)
+        lons = np.atleast_1d(lons)
+
+        if inputs_are_xy:
+            x, y = lats, lons
+        else:
+            x, y = self.latlon_to_xy(lats, lons)  # pylint: disable=E0633
+
+        # Fine areas extent
+        if self.specify_by_centre:
+            centre_x, centre_y = self.latlon_to_xy(  # pylint: disable=E0633
+                self.centre_lat, self.centre_lon
+            )
+            xmin = centre_x - self.width_km * 1000 / 2
+            xmax = centre_x + self.width_km * 1000 / 2
+            ymin = centre_y - self.height_km * 1000 / 2
+            ymax = centre_y + self.height_km * 1000 / 2
+        elif self.specify_plot_area_by_lowerleft_corner:
+            ll_x, ll_y = self.latlon_to_xy(  # pylint: disable=E0633
+                self.llcorner_lat, self.llcorner_lon
+            )
+            xmin = ll_x
+            xmax = ll_x + self.width_km * 1000
+            ymin = ll_y
+            ymax = ll_y + self.height_km * 1000
+        elif self.specify_by_bounding_lat:
+            # no x,y extent filtering in this case
+            return lats, lons, x, y, np.arange(lats.size), lats.size
+        else:
+            assert False, "area must specify by centre,lower left, or bounding lat"
+
+        # Filter points within the specified extent
+        inside_area = (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)
+
+        # Get lats,lons,x,y inside the area using numpy's boolean indexing
+        lats_inside = lats[inside_area]  # will be empty np.array([]) if no points
+        lons_inside = lons[inside_area]
+        x_inside = x[inside_area]
+        y_inside = y[inside_area]
+
+        # Find indices of points inside the area
+        indices_inside = np.where(inside_area)[0]  # will be empty np.array([]) if no points
+
+        # Count the number of points inside
+        n_inside = len(indices_inside)
+
+        return (
+            lats_inside,
+            lons_inside,
+            x_inside,
+            y_inside,
+            indices_inside,
+            n_inside,
+        )
+
     def inside_latlon_bounds(
         self, lats: np.ndarray, lons: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
@@ -360,87 +449,42 @@ class Area:
 
         return np.array([]), np.array([]), np.array([]), 0
 
-    def inside_mask(
-        self, lats: np.ndarray, lons: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
-        """Find indices inside the area's data mask (if there is one). If there is no area data mask
-            return all indices
+    def inside_mask(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, int]:
+        """Find indices of x,y coords inside the area's data mask (if there is one).
 
         Args:
-            lats (np.ndarray): latitude values (degs N)
-            lons (np.ndarray): longitude values (degs E)
+            x (np.ndarray): x coordinates in areas's projection
+            y (np.ndarray): y coordinates in areas's projection
 
         Returns:
-            lats[indices_in_maskarea],
-            lons[indices_in_maskarea],
-            indices_in_maskarea,
-            indices_in_maskarea.size
+            indices_in_maskarea (np.ndarray) : indices inside mask or empty np.ndarray
+            n_inside (int) : number of points inside mask
         """
 
         # Check the type of lats, lons. they needs to be np.array
 
-        lats = np.atleast_1d(lats)
-        lons = np.atleast_1d(lons)
+        x = np.atleast_1d(x)
+        y = np.atleast_1d(y)
 
         if self.mask is None:
             # Check if there is no mask specified for this area
             # if so, return all the locations
             if self.masktype is None:
                 # No mask so return all locations
-                return lats, lons, list(range(lats.size)), lats.size
+                return np.arange(x.size), x.size
             # No mask class is currently loaded so we need to load it now
             self.mask = Mask(self.maskname, self.basin_numbers)
 
         if self.mask.nomask:
-            return lats, lons, np.arange(lats.size), lats.size
+            return np.arange(x.size), x.size
 
         # Mask the lat,lon locations
         inmask, _ = self.mask.points_inside(
-            lats, lons, self.basin_numbers
+            x, y, self.basin_numbers, inputs_are_xy=True
         )  # returns (1s for inside, 0s outside), x,y locations of all lat/lon points
         indices_in_maskarea = np.flatnonzero(inmask)
 
-        if indices_in_maskarea.size == 0:
-            return np.array([]), np.array([]), np.array([]), 0
-
         return (
-            lats[indices_in_maskarea],
-            lons[indices_in_maskarea],
             indices_in_maskarea,
             indices_in_maskarea.size,
         )
-
-    def inside_area(
-        self, lats: np.ndarray, lons: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
-        """Find indices of lat, lon values inside area's mask
-
-           This function combines self.inside_latlon_bounds() and self.inside_mask()
-           The purpose of self.inside_latlon_bounds() is to do a quick rectangular area clip
-           to make the slower inside_mask() run faster
-
-        Args:
-            lats (np.ndarray): _description_
-            lons (np.ndarray): _description_
-
-        Returns:
-            Tuple[np.ndarray, np.ndarray,np.ndarray,int]: (array of latitude values inside area,
-                                                           array of longitude values inside area,
-                                                           array of indices of orginal arrays
-                                                           inside area,
-                                                           number of values inside area)
-            or if no values inside area
-            (np.array([]),np.array([]),np.array([]),0)
-        """
-        indices = []
-        _, _, bounded_indices, num_bounded = self.inside_latlon_bounds(lats, lons)
-        if num_bounded > 0:
-            _, _, masked_indices, num_masked = self.inside_mask(
-                lats[bounded_indices], lons[bounded_indices]
-            )
-            if num_masked > 0:
-                indices = bounded_indices[masked_indices]
-        if len(indices) > 0:
-            return (lats[indices], lons[indices], np.array(indices), len(indices))
-
-        return (np.array([]), np.array([]), np.array([]), 0)

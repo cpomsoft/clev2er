@@ -3,11 +3,10 @@ class to plot areas defined in clev2er.utils.areas.definitions
 
 To do reminder:
 
-simple square plots
-doc in __init__.py
-grid support
-vostok area
-arctic area
+TODO: doc in __init__.py
+TODO: grid support
+TODO: vostok area
+TODO: arctic area
 """
 
 import logging
@@ -223,6 +222,8 @@ class Polarplot:
             #  alpha value transparency (alpha value) of background. Float between 0 and
             #   1, or list of floats for multiple backgrounds.
         }
+
+        # If using the simple map (no additional histograms, etc) use these settings
         if map_only:
             plot_params["fig_width"] = 10
             self.thisarea.include_flag_legend = False
@@ -302,25 +303,28 @@ class Polarplot:
                     )
 
                 if self.thisarea.mask_long_name_position is not None:
-                    if self.thisarea.maskname is not None:
-                        if bool(data_sets[0].get("apply_area_mask_to_data", False)):
-                            final_annotation_list.append(
-                                Annotation(
-                                    self.thisarea.mask_long_name_position[0],
-                                    self.thisarea.mask_long_name_position[1],
-                                    f"Data mask: {self.thisarea.maskname}",
-                                    fontsize=self.thisarea.mask_long_name_fontsize,
-                                )
+                    if bool(
+                        data_sets[0].get(
+                            "apply_area_mask_to_data", self.thisarea.apply_area_mask_to_data
+                        )
+                    ):
+                        final_annotation_list.append(
+                            Annotation(
+                                self.thisarea.mask_long_name_position[0],
+                                self.thisarea.mask_long_name_position[1],
+                                f"Data mask: {self.thisarea.maskname}",
+                                fontsize=self.thisarea.mask_long_name_fontsize,
                             )
-                        else:
-                            final_annotation_list.append(
-                                Annotation(
-                                    self.thisarea.mask_long_name_position[0],
-                                    self.thisarea.mask_long_name_position[1],
-                                    "Data mask applied: None",
-                                    fontsize=self.thisarea.mask_long_name_fontsize,
-                                )
+                        )
+                    else:
+                        final_annotation_list.append(
+                            Annotation(
+                                self.thisarea.mask_long_name_position[0],
+                                self.thisarea.mask_long_name_position[1],
+                                "Data mask applied: None",
+                                fontsize=self.thisarea.mask_long_name_fontsize,
                             )
+                        )
 
         if final_annotation_list is not None:
             for annot in final_annotation_list:
@@ -533,22 +537,60 @@ class Polarplot:
                 # Area Mask data sets
                 # ------------------------------------------------------------------------------
 
+                # ------------------------------------------------------------------------------
+                # All areas are filtered for the area's lat/lon bounds
+                # ------------------------------------------------------------------------------
+
+                # Lat/Lon bounds filter
+                lats, lons, inside_area, n_inside = self.thisarea.inside_latlon_bounds(lats, lons)
+                if n_inside > 0:
+                    vals = vals[inside_area]
+                else:
+                    log.error("No data inside lat/lon bounds for data set %d", ds_num)
+                    continue
+
+                log.info("Number of values inside lat/lon bounds %d of %d", n_inside, n_vals)
+
+                # ------------------------------------------------------------------------------
+                # All areas are filtered for the area's extent bounds
+                #  (automatically ignored by circular areas)
+                # ------------------------------------------------------------------------------
+
+                (
+                    lats,
+                    lons,
+                    x_inside,
+                    y_inside,
+                    inside_area,
+                    n_inside,
+                ) = self.thisarea.inside_xy_extent(lats, lons)
+                if n_inside > 0:
+                    vals = vals[inside_area]
+                else:
+                    log.error("No data inside extent bounds for data set %d", ds_num)
+                    continue
+                log.info("Number of values inside extent bounds %d of %d", n_inside, n_vals)
+
+                # ------------------------------------------------------------------------------
+                # Optional Mask filtering : grid masks, polygon masks, etc
+                # ------------------------------------------------------------------------------
+
                 apply_area_mask = data_set.get(
                     "apply_area_mask_to_data", self.thisarea.apply_area_mask_to_data
                 )
 
                 if apply_area_mask:
-                    log.info("Masking data with area's data mask..")
+                    log.info("Masking xy data with area's data mask..")
 
-                    lats, lons, inside_area, n_inside = self.thisarea.inside_area(lats, lons)
+                    inside_area, n_inside = self.thisarea.inside_mask(x_inside, y_inside)
                     if n_inside > 0:
                         vals = vals[inside_area]
+                        lats = lats[inside_area]
+                        lons = lons[inside_area]
                     else:
                         log.error("No data inside mask for data set %d", ds_num)
                         continue
                     log.info("Number of values inside mask %d of %d", n_inside, n_vals)
-                else:
-                    log.info("No data mask applied")
 
                 # ------------------------------------------------------------------------------
                 # Check vals for Nan and FillValue before plotting
@@ -1408,7 +1450,7 @@ class Polarplot:
                 percent_of_each_flag.append(100.0 * flagindices.size / total)
             else:
                 percent_of_each_flag.append(0.0)
-        number_of_flags = flag_index
+        number_of_flags = len(flag_values)
 
         if self.thisarea.include_flag_legend:
             # Add a legend. Firstly create new handles to display legend as wider bar
@@ -1508,7 +1550,7 @@ class Polarplot:
 
             plt.yticks(np.arange(len(flag_names)), sperc)
 
-            # plot a dividing line between colour squares and colour bars
+            # adding a vertical line
             plt.axvline(x=0, color="lightgray", linestyle="-", lw="2")
 
     def plot_data(
@@ -1720,9 +1762,8 @@ class Polarplot:
             else:  # Northern hemisphere round plots
                 if draw_gridlabels:
                     # Set the latitude position of the labels for round plots
-                    latitude_position = 58  # for Area.area == 'arctic'
-                    if "_wide" in self.thisarea.name:
-                        latitude_position = 42
+                    latitude_position = self.thisarea.latitude_of_radial_labels
+
                     latitude_adjust = [
                         0.8,
                         0.9,
@@ -1752,7 +1793,7 @@ class Polarplot:
                             transform=ccrs.PlateCarree(),
                         )
 
-                    latitude_adjust = [0.4, -0.6, -2.0, -1.4]
+                    latitude_adjust = [0.4, -0.6, -1.3, -1.2]
                     lon_enum = [-40, -80, -120, -160]
                     if self.thisarea.lon_0 is not None and self.thisarea.lon_0 == 0.0:
                         latitude_adjust = [-1, -1.5, -1.5, -0.4]
@@ -1931,7 +1972,12 @@ class Polarplot:
 
         # form a polygon from xy limits mask. Only show xy limits polygon for global map where
         # fill is specified
-        if self.thisarea.masktype == "xylimits" and display_polygon_mask and fill:
+        if (
+            self.thisarea.mask is not None
+            and self.thisarea.masktype == "xylimits"
+            and display_polygon_mask
+            and fill
+        ):
             x = [
                 self.thisarea.mask.xlimits[0],
                 self.thisarea.mask.xlimits[1],
@@ -1965,7 +2011,11 @@ class Polarplot:
 
             ax.add_patch(poly)
 
-        elif self.thisarea.masktype == "xylimits" and display_polygon_mask:
+        elif (
+            self.thisarea.mask is not None
+            and self.thisarea.masktype == "xylimits"
+            and display_polygon_mask
+        ):
             print("drawing xylimits mask...")
             x = [
                 self.thisarea.mask.xlimits[0],
@@ -1999,7 +2049,11 @@ class Polarplot:
 
             ax.add_patch(poly)
 
-        elif self.thisarea.masktype == "polygon" and display_polygon_mask:
+        elif (
+            self.thisarea.mask is not None
+            and self.thisarea.masktype == "polygon"
+            and display_polygon_mask
+        ):
             print("draw mask polygon..")
 
             if self.thismask:
@@ -2056,7 +2110,8 @@ class Polarplot:
                         ax.add_patch(poly)
 
         elif (
-            self.thisarea.masktype == "grid"
+            self.thisarea.mask is not None
+            and self.thisarea.masktype == "grid"
             and display_polygon_mask
             and self.thisarea.grid_polygon_overlay_mask
         ):

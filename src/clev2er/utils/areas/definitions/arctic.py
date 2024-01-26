@@ -3,29 +3,29 @@
 # pylint: disable=R0801 # warning for similar lines
 
 area_definition = {
-    "long_name": "Antarctica",
+    "long_name": "Arctic",
     # --------------------------------------------
     # Area definition
     # --------------------------------------------
-    "hemisphere": "south",  # area is in  'south' or 'north' or 'both'
-    "epsg_number": 3031,  # EPSG number for area's projection
+    "hemisphere": "north",  # area is in  'south' or 'north' or 'both'
+    "epsg_number": 3413,  # EPSG number for area's projection
     #   --------
     "round": True,  # False=rectangular, True = round map area
     "specify_by_bounding_lat": True,  # for round hemisphere views
-    "bounding_lat": -63.15,  # limiting latitude for round areas or None
+    "bounding_lat": 59.0,  # limiting latitude for round areas or None
     #   --------
     "specify_by_centre": False,  # specify plot area by centre lat/lon, width, height (km)
-    "centre_lon": 0.0,  # degrees E
-    "centre_lat": -90.0,  # degrees N
+    "centre_lon": -45.0,  # degrees E
+    "centre_lat": 90.0,  # degrees N
     #   --------
     "specify_plot_area_by_lowerleft_corner": False,  # specify by lower left corner, w,h
     "llcorner_lat": None,  # lower left corner latitude
     "llcorner_lon": None,  # lower left corner longitude
     #   --------
-    "lon_0": None,  # None or projection y-axis longitude (used for mercator)
+    "lon_0": -45.0,  # None or projection y-axis longitude (used for mercator)
     #   --------
-    "width_km": 6600,  # width in km of plot area (x direction)
-    "height_km": 6100,  # height in km of plot area (y direction)
+    "width_km": 6200,  # width in km of plot area (x direction)
+    "height_km": 6200,  # height in km of plot area (y direction)
     # --------------------------------------------
     # Area characteristics
     # --------------------------------------------
@@ -37,25 +37,25 @@ area_definition = {
     #   Area min/max lat/lon for initial data filtering
     "minlon": 0.0,  # minimum longitude to initially filter records for area (0..360E)
     "maxlon": 360.0,  # maximum longitude to initially filter records for area (0..360E)
-    "minlat": -90.0,  # minimum latitude to initially filter records for area
-    "maxlat": -62.0,  # maximum latitude to initially filter records for area
+    "minlat": 59.0,  # minimum latitude to initially filter records for area
+    "maxlat": 90.0,  # maximum latitude to initially filter records for area
     # --------------------------------------------
     #    mask from clev2er.utils.masks.Mask
     # --------------------------------------------
     "apply_area_mask_to_data": False,  # filter data using areas clev2er.utils.masks.Mask
-    "maskname": "",  # from  clev2er.utils.masks.Mask
-    "basin_numbers": [],  # [n1,n2,..] if mask allows basin numbers
-    # for bedmachine v2, 2=grounded ice, 3=floating, 4=vostok
+    "maskname": None,  # from  clev2er.utils.masks.Mask
+    "masktype": None,  # "grid",mask is a polar stereo grid of Nkm resolution
+    "basin_numbers": None,  # [n1,n2,..] if mask allows basin numbers
     "show_polygon_mask": False,  # show mask polygon
     "polygon_mask_color": "red",  # color to draw mask polygon
     # --------------------------------------------
     # Plot parameters for this area
     # --------------------------------------------
     "axes": [  # define plot axis position
-        -0.02,  # left
-        0.1,  # bottom
-        0.74,  # width (axes fraction)
-        0.74,  # height (axes fraction)
+        -0.03,  # left
+        0.11,  # bottom
+        0.76,  # width (axes fraction)
+        0.76,  # height (axes fraction)
     ],
     "simple_axes": [  # define plot axis position in the map_only plot
         0.081,  # left
@@ -67,26 +67,26 @@ area_definition = {
     "background_color": None,  # background color of map
     "background_image": "basic_land",  # background image. see clev2er.utils.backgrounds
     "background_image_alpha": 1.0,  # 0..1.0, default is 1.0, image transparency
-    "background_image_resolution": "low",  # None, 'low','medium', 'high'
+    "background_image_resolution": "medium",  # None, 'low','medium', 'high'
     "hillshade_params": None,  # hill shade parameter dict or None
     "show_polygon_overlay_in_main_map": True,  # Overlay the area polygon outline in the main map
     "grid_polygon_overlay_mask": None,
     "apply_hillshade_to_vals": False,  # Apply a hillshade to plotted vals (True or False)
     "draw_coastlines": True,  # Draw coastlines
     "coastline_color": "grey",  # Colour to draw coastlines
-    "use_antarctica_medium_coastline": True,  # True,False: Antarctic coastline including iceshelves
-    "use_cartopy_coastline": "no",  # 'no', 'low','medium', 'high' resolution
+    "use_antarctica_medium_coastline": False,  #  Antarctic coastline including iceshelves
+    "use_cartopy_coastline": "medium",  # 'no', 'low','medium', 'high' resolution
     "show_gridlines": True,  # True|False, display lat/lon grid lines
-    "area_long_name_position": (0.31, 0.88),  # for default annotation position of area long name
+    "area_long_name_position": (0.33, 0.91),  # for default annotation position of area long name
     "area_long_name_fontsize": 16,  # font size of area.long_name
     "area_long_name_position_simple": (
-        0.43,
-        0.97,
+        0.47,
+        0.965,
     ),  # for default annot. pos of area name (map_only)
-    "mask_long_name_position": (0.26, 0.86),  # for default annotation position of area long name
+    "mask_long_name_position": (0.28, 0.89),  # for default annotation position of area long name
     "mask_long_name_position_simple": (
-        0.36,
-        0.95,
+        0.40,
+        0.945,
     ),  # for default annotation position of area long name
     "mask_long_name_fontsize": 9,  # font size of area.long_name
     # ------------------------------------------------------
@@ -160,14 +160,14 @@ area_definition = {
     #           - use empty lists to not include
     # ------------------------------------------------------
     "longitude_gridlines": range(0, 360 + 20, 20),  # deg E
-    "latitude_gridlines": list(range(-82, -66 + 4, 4)) + [-88],  # deg N
+    "latitude_gridlines": list(range(60, 80 + 10, 10)),  # deg N
     "gridline_color": "lightgrey",  # color to use for lat/lon grid lines
     "gridlabel_color": "darkgrey",  # color of grid labels
     "gridlabel_size": 8,  # size of grid labels
     "draw_gridlabels": True,  # whether to draw the grid labels
     "inner_gridlabel_color": "white",  # color of grid labels
     "inner_gridlabel_size": 8,  # size of grid labels
-    "latitude_of_radial_labels": -58.3,  # latitude for radial grid line labels for circular plots
+    "latitude_of_radial_labels": 57.5,  # latitude for radial grid line labels for circular plots
     "labels_at_top": False,  # allow lat or lon labels at top of plot
     "labels_at_bottom": False,  # allow lat or lon labels at bottom of plot
     "labels_at_left": False,  # allow lat or lon labels at left of plot

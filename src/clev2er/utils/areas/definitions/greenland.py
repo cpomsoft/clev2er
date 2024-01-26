@@ -37,15 +37,15 @@ area_definition = {
     #   Area min/max lat/lon for initial data filtering
     "minlon": 285.0,  # minimum longitude to initially filter records for area (0..360E)
     "maxlon": 350.0,  # maximum longitude to initially filter records for area (0..360E)
-    "minlat": 60.0,  # minimum latitude to initially filter records for area
-    "maxlat": 83.0,  # maximum latitude to initially filter records for area
+    "minlat": 59.0,  # minimum latitude to initially filter records for area
+    "maxlat": 85.0,  # maximum latitude to initially filter records for area
     # --------------------------------------------
     #    mask from clev2er.utils.masks.Mask
     # --------------------------------------------
-    "apply_area_mask_to_data": True,  # filter data using areas mask
-    "maskname": "greenland_bedmachine_v3_grid_mask",  # from  clev2er.utils.masks.Mask
-    "masktype": "grid",  # mask is a polar stereo grid of Nkm resolution
-    "basin_numbers": [2, 4],  # [n1,n2,..] if mask allows basin numbers
+    "apply_area_mask_to_data": False,  # filter data using areas mask
+    "maskname": None,  # from  clev2er.utils.masks.Mask
+    "masktype": None,  # mask is a polar stereo grid of Nkm resolution
+    "basin_numbers": None,  # [n1,n2,..] if mask allows basin numbers
     # for bedmachine v3, 2=grounded ice, 3=floating
     "show_polygon_mask": False,  # show mask polygon
     "polygon_mask_color": "red",  # color to draw mask polygon

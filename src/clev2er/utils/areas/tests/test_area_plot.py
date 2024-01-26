@@ -3,10 +3,100 @@
 import os
 
 import numpy as np
+import pytest
 
 from clev2er.utils.areas.area_plot import Annotation, Polarplot
+from clev2er.utils.areas.areas import Area
 
 # pylint: disable=R0801
+
+
+@pytest.mark.parametrize(
+    "area",
+    [
+        # ("antarctica"),
+        # ("antarctica_is"),
+        # ("antarctica_fi"),
+        # ("antarctica_hs"),
+        # ("antarctica_hs_is"),
+        # ("antarctica_hs_fi"),
+        # ("greenland"),
+        # ("greenland_hs"),
+        # ("greenland_hs_fi"),
+        # ("greenland_hs_is"),
+        # ("greenland_is"),
+        ("greenland_fi"),
+        # ("arctic"),
+        # ("arctic_cpy"),  # cartopy background
+        # arctic ocean?
+    ],
+)
+def test_area_plot_by_name(area):
+    """_summary_
+
+    Args:
+        area (str): area name
+        southern_hemisphere (bool): True is area is in southern hemisphere
+    """
+
+    thisarea = Area(area)
+
+    if thisarea.hemisphere == "south":
+        # Latitude range from -90 to -60 and longitude range from -180 to 180
+        latitudes = np.linspace(-90, -60, 30)  # 100 points from -90 to -60
+        longitudes = np.linspace(0, 360, 30)  # 100 points from -180 to 180
+
+        # Create a grid of latitude and longitude values
+        lats, lons = np.meshgrid(latitudes, longitudes)
+
+        # Create a grid of values for these coordinates
+        # For simplicity, let's just use a function of latitudes and longitudes
+        vals = np.full_like(lats, 1)
+        vals = lats * lons
+    else:
+        # Latitude range from -90 to -60 and longitude range from -180 to 180
+        latitudes = np.linspace(40, 90, 100)  # 100 points from -90 to -60
+        longitudes = np.linspace(0, 360, 100)  # 100 points from -180 to 180
+
+        # Create a grid of latitude and longitude values
+        lats, lons = np.meshgrid(latitudes, longitudes)
+
+        # Create a grid of values for these coordinates
+        # For simplicity, let's just use a function of latitudes and longitudes
+        vals = np.full_like(lats, 1)
+        vals = lats * lons
+
+    # Creating the dataset
+    dataset = {
+        "name": "mydata_grid",
+        "units": "m",
+        "lats": lats,
+        "lons": lons,
+        "vals": vals,
+        # "flag_colors": ["b"],
+        # "flag_names": [
+        #     "1",
+        # ],
+        # "flag_values": [
+        #     1,
+        # ],
+    }
+
+    Polarplot(area).plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            f"test_plots/test_{area}.png"
+        ),
+    )
+    Polarplot(area).plot_points(
+        dataset,
+        output_file=(
+            f"{os.environ['CLEV2ER_BASE_DIR']}/src/clev2er/utils/areas/tests/"
+            f"test_plots/test_{area}_simple.png"
+        ),
+        map_only=True,
+    )
 
 
 def test_area_plot_bad_latlon_data():
