@@ -16,7 +16,7 @@ from clev2er.utils.areas.areas import Area
     [
         # ("antarctica"),
         # ("antarctica_is"),
-        # ("antarctica_fi"),
+        ("antarctica_fi"),
         # ("antarctica_hs"),
         # ("antarctica_hs_is"),
         # ("antarctica_hs_fi"),
@@ -25,7 +25,7 @@ from clev2er.utils.areas.areas import Area
         # ("greenland_hs_fi"),
         # ("greenland_hs_is"),
         # ("greenland_is"),
-        ("greenland_fi"),
+        # ("greenland_fi"),
         # ("arctic"),
         # ("arctic_cpy"),  # cartopy background
         # arctic ocean?

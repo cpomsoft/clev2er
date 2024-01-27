@@ -308,14 +308,15 @@ class Polarplot:
                             "apply_area_mask_to_data", self.thisarea.apply_area_mask_to_data
                         )
                     ):
-                        final_annotation_list.append(
-                            Annotation(
-                                self.thisarea.mask_long_name_position[0],
-                                self.thisarea.mask_long_name_position[1],
-                                f"Data mask: {self.thisarea.maskname}",
-                                fontsize=self.thisarea.mask_long_name_fontsize,
+                        if self.thisarea.mask is not None:
+                            final_annotation_list.append(
+                                Annotation(
+                                    self.thisarea.mask_long_name_position[0],
+                                    self.thisarea.mask_long_name_position[1],
+                                    f"Data mask: {self.thisarea.mask.mask_long_name}",
+                                    fontsize=self.thisarea.mask_long_name_fontsize,
+                                )
                             )
-                        )
                     else:
                         final_annotation_list.append(
                             Annotation(
