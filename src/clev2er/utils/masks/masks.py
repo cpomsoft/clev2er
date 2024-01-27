@@ -70,6 +70,7 @@ class Mask:
             self.nomask = True
             return
         self.mask_name = mask_name
+        self.mask_long_name = ""
         self.mask_grid: np.ndarray = np.array([])
         self.basin_numbers = basin_numbers
         self.store_in_shared_memory = store_in_shared_memory
@@ -160,6 +161,19 @@ class Mask:
             ]
             self.grid_colors = ["blue", "brown", "grey", "green", "red"]
 
+            if basin_numbers is not None:
+                if 0 in basin_numbers:
+                    self.mask_long_name += "Ocean"
+                if 1 in basin_numbers:
+                    self.mask_long_name += " Ice-free land"
+                if 2 in basin_numbers:
+                    self.mask_long_name += " Grounded ice"
+                if 3 in basin_numbers:
+                    self.mask_long_name += " Floating ice"
+                if 4 in basin_numbers and 2 not in basin_numbers:
+                    self.mask_long_name += " Lake Vostok"
+                self.mask_long_name += " (bedmachine v2)"
+
         # -----------------------------------------------------------------------------
 
         elif mask_name == "greenland_bedmachine_v3_grid_mask":
@@ -205,6 +219,19 @@ class Mask:
             ]
             self.grid_colors = ["blue", "brown", "grey", "green", "white"]
 
+            if basin_numbers is not None:
+                if 0 in basin_numbers:
+                    self.mask_long_name += "Ocean"
+                if 1 in basin_numbers:
+                    self.mask_long_name += " Ice-free land"
+                if 2 in basin_numbers:
+                    self.mask_long_name += " Grounded ice"
+                if 3 in basin_numbers:
+                    self.mask_long_name += " Floating ice"
+                if 4 in basin_numbers:
+                    self.mask_long_name += "Non-Greenland land"
+                self.mask_long_name += " (bedmachine v3)"
+
         # -----------------------------------------------------------------------------
 
         # Antarctica surface type grid mask derived from BedMachine v2, 500m resolution
@@ -236,6 +263,8 @@ class Mask:
             self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
             self.grid_value_names = ["outside", "inside Antarctic dilated mask"]
             self.grid_colors = ["blue", "darkgrey"]
+
+            self.mask_long_name = "Dilated by 10km in to  Ocean"
         # -----------------------------------------------------------------------------
 
         # Greenland surface type grid mask derived from BedMachine v3, 150m resolution
@@ -267,6 +296,8 @@ class Mask:
             self.mask_grid_possible_values = [0, 1]  # values in the mask_grid
             self.grid_value_names = ["outside", "inside Greenland dilated mask"]
             self.grid_colors = ["blue", "darkgrey"]
+            self.mask_long_name = "Dilated by 10km in to  Ocean"
+
         # -----------------------------------------------------------------------------
 
         elif mask_name == "antarctic_grounded_and_floating_2km_grid_mask":
@@ -305,6 +336,7 @@ class Mask:
             self.grid_value_names[0] = "Unknown"
 
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.mask_long_name = "Zwally grounded and floating ice 2km grid"
 
         elif mask_name == "greenland_icesheet_2km_grid_mask":
             self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
@@ -378,6 +410,7 @@ class Mask:
                 "lightyellow",
                 "sienna",
             ]
+            self.mask_long_name = "Zwally grounded and floating ice 2km grid"
 
         elif mask_name == "antarctic_icesheet_2km_grid_mask_rignot2016":
             # basin mask values are : 0..18, or 999 (unknown)
@@ -433,6 +466,7 @@ class Mask:
             ]
 
             self.crs_bng = CRS("epsg:3031")  # Polar Stereo - South -71S
+            self.mask_long_name = "Rignot (2016) 2km grid"
 
         elif mask_name == "greenland_icesheet_2km_grid_mask_rignot2016":
             self.mask_type = "grid"  # 'xylimits', 'polygon', 'grid','latlimits'
@@ -473,6 +507,7 @@ class Mask:
             self.grid_value_names[56] = "NO"
 
             self.crs_bng = CRS("epsg:3413")  # Polar Stereo - North -latitude of origin 70N, 45
+            self.mask_long_name = "Rignot (2016) 2km grid"
 
         else:
             raise ValueError(f"mask name: {mask_name} not supported")
