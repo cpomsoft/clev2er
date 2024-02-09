@@ -60,8 +60,10 @@ def test_mask_points_inside(  # too-many-arguments, pylint: disable=R0913
         lons (_type_): _description_
         grid_values (_type_): _description_
     """
+    # Load mask
     thismask = Mask(mask_name)
 
+    # find indices of points inside mask
     true_inside, n_inside = thismask.points_inside(lats, lons, basin_numbers=grid_values)
 
     assert n_inside == np.count_nonzero(true_inside)
@@ -112,8 +114,6 @@ def test_mask_grid_mask_values(mask_name, lats, lons, expected_surface_type) -> 
     mask_values = thismask.grid_mask_values(lats, lons, unknown_value=99)
 
     thismask.clean_up()  # free up shared memory
-
-    print(mask_values)
 
     assert len(mask_values) == len(
         lats

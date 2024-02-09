@@ -233,12 +233,12 @@ def geolocate_roemer(
         raise ValueError("thisdem_fine None value passed")
 
     # ------------------------------------------------------------------------------------
-    # Get configuration parameters
+    # Retrieve configuration parameters (to avoid repeatedly getting from config dict
+    # during loops further down the function)
     # ------------------------------------------------------------------------------------
 
     across_track_beam_width = config["instrument"]["across_track_beam_width_lrm"]  # meters
     pulse_limited_footprint_size_lrm = config["instrument"]["pulse_limited_footprint_size_lrm"]  # m
-    median_filter_width = 7
 
     # Additional options
     include_dhdt_correction = config["lrm_roemer_geolocation"]["include_dhdt_correction"]
@@ -246,6 +246,11 @@ def geolocate_roemer(
     max_poca_reloc_distance = config["lrm_roemer_geolocation"]["max_poca_reloc_distance"]
 
     fine_grid_sampling = config["lrm_roemer_geolocation"]["fine_grid_sampling"]
+
+    dual_search_method = config["lrm_roemer_geolocation"]["dual_search"]
+
+    median_filter_dem_segment = config["lrm_roemer_geolocation"]["median_filter"]
+    median_filter_width = 7  # Adjusted to be close to CS2 PLF width of 1600m. TODO : add to config
 
     # ------------------------------------------------------------------------------------
 
@@ -313,12 +318,12 @@ def geolocate_roemer(
             slope_ok[i] = False
             continue
 
-        if config["lrm_roemer_geolocation"]["median_filter"]:
+        if median_filter_dem_segment:
             # smoothed_zdem = median_filter(replace_nan_with_median(zdem), size=median_filter_width)
             smoothed_zdem = median_filter(zdem, size=median_filter_width)
             zdem = smoothed_zdem
 
-        if config["lrm_roemer_geolocation"]["dual_search"]:
+        if dual_search_method:
             # Step 1: find the DEM points within a circular area centred on the nadir
             # point corresponding to a radius of half the beam width
             xdem = xdem.flatten()

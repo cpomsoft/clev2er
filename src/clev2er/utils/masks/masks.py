@@ -740,7 +740,7 @@ class Mask:
                                  substituted)
         Returns:
             mask_values (np.ndarray): grid mask value at each input lats, lons interpolated
-                                 grid location or np.NaN is outside area
+                                 grid location or np.NaN if outside area
 
         """
 
