@@ -207,7 +207,7 @@ dem_dirs:
   arcticdem_1km: ${CPDATA_DIR}/SATS/RA/DEMS/arctic_dem_1km
 
 uncertainty_tables:
-  # Set to dir containing /data/uncertainty_tables/<antarctica,greenland>_uncertainty_from_is2.npz
+  # Set to dir containing <antarctica,greenland>_uncertainty_from_is2.npz
   base_dir: ${CS2_UNCERTAINTY_BASE_DIR}/data/uncertainty_tables/C001
 
 slope_data:
