@@ -1109,7 +1109,7 @@ class Polarplot:
     def draw_minimap(
         self,
     ):
-        """draw a minimap to show Nan, FV and out of range values
+        """draw a minimap to the extent of the area on a larger map
 
         Args:
 
@@ -1178,6 +1178,27 @@ class Polarplot:
                     radius=self.thisarea.minimap_circle[2],
                     color=circle_color,
                     alpha=0.3,
+                    transform=dataprj_minimap,
+                    zorder=30,
+                )
+            )
+        if self.thisarea.specify_by_centre:
+            cx, cy = self.thisarea.latlon_to_xy(
+                self.thisarea.centre_lat, self.thisarea.centre_lon
+            )  # Convert center lat, lon to projection x, y
+            llx = cx - (self.thisarea.width_km * 1000) / 2.0
+            lly = cy - (self.thisarea.height_km * 1000) / 2.0
+            width = self.thisarea.width_km * 1000
+            height = self.thisarea.height_km * 1000
+
+            # Add rectangle patch
+            ax_minimap.add_patch(
+                mpatches.Rectangle(
+                    (llx, lly),
+                    width,
+                    height,
+                    edgecolor="red",
+                    facecolor="none",
                     transform=dataprj_minimap,
                     zorder=30,
                 )
@@ -1397,6 +1418,8 @@ class Polarplot:
         flag_names = data_set.get("flag_names", [])
         flag_values = data_set.get("flag_values", [])
         flag_colors = data_set.get("flag_colors", get_unique_colors(len(flag_names)))
+        flag_alpha = data_set.get("alpha", 1.0)
+
         if len(flag_colors) != len(flag_names):
             log.info("Generating unique flag colors")
             flag_colors = get_unique_colors(len(flag_names))
@@ -1444,6 +1467,7 @@ class Polarplot:
                     s=scale_factor,
                     transform=ccrs.PlateCarree(),
                     zorder=20,
+                    alpha=flag_alpha,
                 )
 
             number_of_each_flag.append(flagindices.size)

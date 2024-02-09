@@ -208,7 +208,7 @@ dem_dirs:
 
 uncertainty_tables:
   # Set to dir containing /data/uncertainty_tables/<antarctica,greenland>_uncertainty_from_is2.npz
-  base_dir: ${CS2_UNCERTAINTY_BASE_DIR}/data/uncertainty_tables
+  base_dir: ${CS2_UNCERTAINTY_BASE_DIR}/data/uncertainty_tables/C001
 
 slope_data:
   cpom_ant_2018_1km_slopes: ${CPDATA_DIR}/SATS/RA/DEMS/ant_cpom_cs2_1km/Antarctica_Cryosat2_1km_DEMv1.0_slope.unpacked.tif

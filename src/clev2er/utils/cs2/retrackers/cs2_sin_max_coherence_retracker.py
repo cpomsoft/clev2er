@@ -211,7 +211,7 @@ def retrack_cs2_sin_max_coherence(
     # compute size of range bin
     rbin_size_sin = speed_of_light / (
         4 * bandwidth
-    )  # meters; from CS2 Baseline-D User Manual, p37.
+    )  # meters; from CS2 Baseline-D User Manual, p37. (0.2342m for CS2)
 
     #   define Savitsky-Golay smoothing parameters
     sm_width = savitsky_golay_width
@@ -267,7 +267,7 @@ def retrack_cs2_sin_max_coherence(
                 log.debug("skip waveform as include_measurements_array[i] is set to False")
                 continue
 
-        # ßlog.debug('retracking waveform {} of {}'.format(i ,n_waveforms))
+        log.debug("retracking waveform %d of %d", i, n_waveforms)
 
         # compute max amplitude
         wf_max = np.max(waveform)
@@ -628,6 +628,7 @@ def retrack_cs2_sin_max_coherence(
     # --------------------------------------------
 
     # compute range offsets from reference to retracked bins
+    # tip: for CS2 SIN, ref_bin_ind_sin=512
     dr_bin_mc = np.array(retrack_point_mc)[:, 0] - ref_bin_ind_sin
 
     # convert offsets to meters
